@@ -1,0 +1,66 @@
+# Changelog
+
+## 2026-07-04
+
+- Added `ProductAsset` model for storing external visual assets (logos, product images) separately from `ProductModel`, with Commons metadata, licensing, match scoring, and admin registration.
+- Added `market.services.commons` module for Wikimedia Commons MediaWiki API integration: file search, imageinfo metadata, file download, candidate scoring, query generation, and series fallback logic.
+- Added `sync_commons_assets` management command to automatically search Commons for model/series logos, rank candidates, download files, and produce a sync report. Supports `--dry-run`, `--min-score`, `--save-weak`, `--force`, `--brand`, `--model-id`, `--limit`, and `--verbose`.
+- Created `docs/ASSETS.md` documenting asset fallback strategy, sync command usage, manual review workflow, and legal notes.
+- Updated AGENTS.md with notes on ProductAsset storage, Commons API usage, and missing-logo handling.
+- Added generic electronics market models, admin registration, parsers, collectors, OCR queue processing, supplier import, opportunity analysis, and minimal inspection pages.
+- Added setup docs, pipeline docs, data model docs, environment example, and parser tests.
+- Added Netscape-format Instagram cookie file support for Instaloader collection via `INSTAGRAM_COOKIE_FILE`.
+- Reworked `scripts/imageye_download_images.py` into a CDP-based Instagram profile image downloader limited by `--limit`.
+- Added `harvest_instagram_profile_page` to save visible Instagram profile-page reel/post URLs into `InstagramPost` records.
+- Added an optional Tesseract OCR backend for processing saved Instagram thumbnails without PaddleOCR/EasyOCR.
+- Improved OCR parsing for Instagram price boxes, phone-number avoidance, RAM/storage pairs, and reviewable non-device thumbnails.
+- Added `--offset` support for CDP Instagram profile harvesting so later visible listings can be collected in batches.
+- Added an optional EasyOCR backend path with Tesseract fallback when EasyOCR/PyTorch dependencies are unavailable.
+- Added optional OCR.space backend using `OCR_SPACE_API_KEY`, `OCR_SPACE_LANGUAGE`, and `OCR_SPACE_ENGINE`.
+- Added `harvest_and_process_instagram_profile` to collect offset batches via CDP and OCR only newly queued posts.
+- Improved CDP profile harvesting with deeper scroll support for larger offset batches.
+- Implemented Sahibinden CDP table import from a user-opened Chrome tab into Türkiye `MarketListing` rows.
+- Added Ouedkniss source and 6 Algeria listings (S26 Ultra x2, S24 Ultra, Honor Magic 7 Pro, Google Pixel 7 Pro, Oneplus 15) with new brands Honor, Google, OnePlus.
+- Downloaded missing-price Instagram reels with `yt-dlp`, extracted review frames, and filled 7 Algeria listing prices from OCR.space frame OCR.
+- Improved OCR price parsing to prefer explicit `da/dzd` prices over barcode-like numbers such as `1000000`.
+- Fixed Sahibinden TRY parsing for Turkish thousands/decimal formats, repaired 6 inflated prices, improved storage and condition parsing, marked suspicious Sahibinden rows for review, and backfilled raw listing titles.
+- Added CDP detail-page enrichment for Sahibinden listings and used it to fill `Depolama Kapasitesi 256 GB` on listing 1325663091.
+- Corrected opportunity analysis direction to buy from Algeria and sell in Türkiye using Sahibinden average EUR minus Algeria minimum EUR, then generated fresh snapshots.
+- Added Ouedkniss as a separate source type with a Chrome CDP card importer, imported 12 visible Algeria Samsung listings, and documented that Algeria comparisons can include Instagram, Ouedkniss, or both.
+- Imported 9 KABA STORE Ouedkniss mobile listings and improved Ouedkniss model cleanup for RAM/storage patterns like `12/256G`.
+- Fixed Ouedkniss CDP collection to accumulate virtualized cards across scroll positions; KABA STORE now has 21 imported mobile listings.
+- Imported 24 Moutcha Phone Ouedkniss listings and fixed Ouedkniss price fallback for rows where storage and price appear adjacent.
+- Imported Moutcha Phone page 2 and Abdou Cabba Store Ouedkniss listings; improved Ouedkniss cleanup for reversed capacity pairs and inline RAM/storage tokens.
+- Added a default 30-day freshness cutoff to Ouedkniss CDP imports, made duplicate Ouedkniss tab selection prefer the tab with the most visible cards, and imported 24 current Abdou Cabba listings.
+- Imported Abdou Cabba Store Ouedkniss page 2 with the 30-day freshness cutoff, bringing Abdou Cabba to 48 stored listings.
+- Imported Abdou Cabba Store Ouedkniss page 3 with the 30-day freshness cutoff, bringing Abdou Cabba to 72 stored listings.
+- Replaced ad hoc brand guessing with an explicit electronics brand/alias list, backfilled existing product models, and cleaned Algeria brand grouping for Ouedkniss data.
+- Imported 50 Xiaomi/Redmi/Poco Sahibinden Türkiye listings from the user-opened CDP tab.
+- Imported/updated 100 more Xiaomi/Redmi/Poco Sahibinden Türkiye rows across 2 result pages.
+- Reran opportunity analysis after the expanded Xiaomi Sahibinden import; latest batch produced 271 snapshots with 14 exact Algeria-to-Türkiye margin comparisons.
+- Added explicit storage choices for variants and included 1024GB alongside 64GB, 128GB, 256GB, and 512GB.
+- Normalized Samsung model names to remove Samsung/Samasung prefixes and compare opportunities by product model plus storage bucket instead of exact RAM/SIM variant.
+- Updated the Ouedkniss CDP importer to print created, updated, and unchanged rows, including old/new field values for material updates.
+- Reworked Ouedkniss search extraction to read all `v-col-sm-6 v-col-md-4 v-col-lg-3 v-col-12` containers, save only rows with DZD prices, and print dropped no-price rows.
+- Cleaned Ouedkniss data by deleting no-price and blank-title listings, tightened Samsung canonical model cleanup, and reran opportunity analysis on the cleaned data.
+- Improved Ouedkniss CDP import so `--target-url` can open missing pages, waits longer for hydration, retries empty extraction, suppresses CDP websocket origin issues, and uses the broader `v-col` card selector.
+- Fixed Ouedkniss target matching to prefer exact URLs over broad substrings, then imported Abdou Cabba Store pages 1 and 2 with the improved extractor.
+- Imported additional Ouedkniss stores: Moutcha Phone, KABA Store mobiles, FreeMobile, and Apple Store Mobile; logged dropped no-price rows and confirmed no Ouedkniss no-price rows remain.
+- Tested raw `requests` against Ouedkniss and confirmed listings are not server-rendered; improved CDP extraction with adaptive scrolling and higher default scroll budget for lazy-loaded store pages.
+- Installed BeautifulSoup, lxml, Playwright, Selenium, and Scrapy into the project environment for deeper Ouedkniss extraction experiments.
+- Tested Playwright over the existing Chrome CDP session plus BeautifulSoup parsing of rendered Ouedkniss DOM; confirmed browser-rendered extraction sees priced rows while raw `requests` does not.
+- Verified Abdou Cabba page 1 against a rendered clipping and imported the missing SOLANA Phone SAGA listing.
+- Added normalized `DeviceVariant` identity keys, deduplicated equivalent variant rows while preserving listing/price/snapshot references, and enforced per-model variant uniqueness.
+- Fixed `run_opportunity_analysis` so supplier rows and confidence scoring work when rebuilding Algeria-to-Türkiye opportunity snapshots.
+- Changed opportunity analysis to atomically replace old snapshots so the database keeps only the newest comparison batch.
+- Imported the 2026-07-04 Türkiye USD supplier list, improved supplier parsing for dotted USD thousands and `/1` SIM-like capacity suffixes, and made supplier imports idempotent.
+- Ported the Web-Prototype dashboard shell into Django templates with live opportunities, listings review, data quality, and sources screens.
+- Aggregated opportunity dashboard coverage badges by source with counts instead of rendering one badge per underlying listing.
+- Repaired three stale Instagram OCR listings where bare `1000000` barcode artifacts were treated as DZD prices, moved them to review, and rebuilt opportunity snapshots.
+- Added clickable opportunity rows that open a model/storage detail page with Algeria and Turkiye listings displayed side by side.
+- Normalized `1sim` variants into empty/default SIM variants, merged duplicate variant rows, and rebuilt opportunity snapshots.
+- Tightened Ouedkniss storage/SIM parsing with explicit approved storage buckets, `1000GB`/`1TB` normalization to `1024GB`, and direct parser coverage for `2SIM`, `duos`, and unsupported capacity typos.
+- Re-imported KABA STORE mobiles from Ouedkniss with the tightened parser: 21 priced rows saved, including 13 new rows and 8 image URL updates, with storage/SIM columns verified.
+- Tightened the Ouedkniss CDP command so it defaults to user-opened tabs, reports CDP failures as command errors, and normalizes Obsidian-extracted relative listing URLs before saving.
+- Updated Obsidian Ouedkniss parsing to accept current search-result listing URLs ending in `-d...`, not only legacy `/annonce/` links.
+- Made Obsidian Ouedkniss extraction fall back from clipped `content` to `fullHtml` when Web Clipper omits rendered listing cards from the cleaned content payload.

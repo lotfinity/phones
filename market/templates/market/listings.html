@@ -1,0 +1,82 @@
+{% extends "market/base.html" %}
+{% block title %}PriceBridge - Listings{% endblock %}
+{% block crumb %}Listings Review{% endblock %}
+{% block header_actions %}
+  <a class="btn btn-secondary btn-sm" href="/admin/market/marketlisting/">Open admin</a>
+{% endblock %}
+{% block content %}
+  <h1 class="page-title">Listings Review</h1>
+  <p class="page-desc">Review imported listings before they enter opportunity matching. Approve verified rows in Django admin when needed.</p>
+
+  <form class="filters" method="get">
+    <input class="f-input" type="search" name="q" value="{{ filters.q }}" placeholder="Search product, variant, listing text..." style="flex:1;min-width:220px;">
+    <select class="f-select" name="source_type">
+      <option value="">All sources</option>
+      {% for value, label in source_types %}
+        <option value="{{ value }}" {% if filters.source_type == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select class="f-select" name="country">
+      <option value="">All countries</option>
+      {% for value, label in countries %}
+        <option value="{{ value }}" {% if filters.country == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <select class="f-select" name="review_status">
+      <option value="">All review statuses</option>
+      {% for value, label in review_statuses %}
+        <option value="{{ value }}" {% if filters.review_status == value %}selected{% endif %}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button class="btn btn-primary" type="submit">Apply</button>
+    <a class="btn btn-secondary" href="{% url 'listings' %}">Reset</a>
+  </form>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Source</th>
+            <th>Country</th>
+            <th>Product</th>
+            <th>Variant</th>
+            <th class="num-r">Price original</th>
+            <th class="num-r">EUR</th>
+            <th>Condition</th>
+            <th>Review</th>
+            <th>Observed</th>
+            <th>Link</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in listing_rows %}
+            <tr>
+              <td>
+                <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
+                <div style="font-size:11px;color:var(--muted);">{{ row.item.source.name }}</div>
+              </td>
+              <td>{{ row.item.get_country_display }}</td>
+              <td>{{ row.item.product_model|default:"-" }}</td>
+              <td>{{ row.item.variant|default:"-" }}</td>
+              <td class="num num-r">{{ row.price|default:"-" }}</td>
+              <td class="num num-r">{{ row.eur|default:"-" }}</td>
+              <td>{{ row.item.get_condition_display }}</td>
+              <td><span class="badge {{ row.review_class }}">{{ row.item.get_review_status_display }}</span></td>
+              <td class="num">{{ row.item.observed_at|date:"M d H:i" }}</td>
+              <td>
+                {% if row.item.listing_url %}
+                  <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">Open</a>
+                {% else %}
+                  <span style="color:var(--muted);">-</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="10">No listings match the current filters.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

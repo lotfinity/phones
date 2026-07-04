@@ -1,0 +1,35 @@
+{% extends "market/base.html" %}
+{% block title %}PriceBridge - Sources{% endblock %}
+{% block crumb %}Sources{% endblock %}
+{% block header_actions %}
+  <a class="btn btn-secondary btn-sm" href="/admin/market/source/">Manage sources</a>
+{% endblock %}
+{% block content %}
+  <h1 class="page-title">Sources</h1>
+  <p class="page-desc">Upstream data providers for PriceBridge. Monitor coverage and ingestion health.</p>
+
+  <section class="grid-2">
+    {% for row in source_rows %}
+      <div class="card">
+        <div class="source-row">
+          <div class="source-icon">{{ row.code }}</div>
+          <div class="source-body">
+            <div class="source-name">{{ row.source.name }}</div>
+            <div class="source-meta">{{ row.source.get_country_display }} - {{ row.source.get_source_type_display }}{% if row.source.username %} - {{ row.source.username }}{% endif %}</div>
+          </div>
+          <div class="source-stats">
+            <div class="source-stat"><div class="k">Rows</div><div class="v">{{ row.total }}</div></div>
+            <div class="source-stat"><div class="k">Usable</div><div class="v" style="color:var(--success);">{{ row.usable }}</div></div>
+            <div class="source-stat"><div class="k">Review</div><div class="v" style="color:var(--warn-dark);">{{ row.review }}</div></div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;">
+          <span style="font-size:11px;color:var(--muted);">Last seen: {% if row.last_seen %}{{ row.last_seen|date:"M d H:i" }}{% else %}never{% endif %}</span>
+          <a class="btn btn-ghost btn-sm" href="/admin/market/source/{{ row.source.id }}/change/">Manage</a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="card">No sources configured yet.</div>
+    {% endfor %}
+  </section>
+{% endblock %}

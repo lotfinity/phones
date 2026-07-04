@@ -1,0 +1,22 @@
+{% extends "market/base.html" %}
+{% block content %}
+<h1>Opportunities</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Product</th><th>Variant</th><th>Algeria avg EUR</th><th>Supplier EUR</th>
+      <th>Margin %</th><th>Confidence</th><th>Recommendation</th><th>Created</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for item in opportunities %}
+    <tr>
+      <td>{{ item.product_model }}</td><td>{{ item.variant|default:"" }}</td>
+      <td>{{ item.algeria_avg_eur|default:"" }}</td><td>{{ item.supplier_eur|default:"" }}</td>
+      <td>{{ item.margin_percent|default:"" }}</td><td>{{ item.confidence_score }}</td>
+      <td>{{ item.recommendation }}</td><td>{{ item.created_at }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

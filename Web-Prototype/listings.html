@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PriceBridge · Listings Review</title>
+<style>
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --fg: #111111;
+  --muted: #6b6b6b;
+  --border: #e5e5e5;
+  --accent: #2f6feb;
+  --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --fg-soft: color-mix(in oklab, var(--fg) 6%, transparent);
+  --success: #17a34a;
+  --warn: #eab308;
+  --danger: #dc2626;
+  --font-display: "Inter", -apple-system, system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --radius: 8px;
+  --radius-md: 12px;
+  --container-max: 1320px;
+  --container-gutter: 24px;
+  --sidebar-w: 200px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+.layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding-block: 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 8px var(--container-gutter) 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.sidebar-brand .logo { font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: -0.02em; }
+.sidebar-brand .logo-dot { color: var(--accent); }
+.sidebar-brand .tagline { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
+.nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; font-size: 14px;
+  border-radius: var(--radius); color: var(--muted);
+}
+.nav a:hover { background: var(--fg-soft); color: var(--fg); }
+.nav a.active { background: color-mix(in oklab, var(--accent) 10%, var(--surface)); color: var(--accent); font-weight: 500; }
+.nav a .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
+.nav-section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 16px 12px 6px; font-family: var(--font-mono); }
+
+.header {
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 15;
+}
+.header-inner {
+  max-width: 100%; padding: 10px var(--container-gutter);
+  display: flex; align-items: center; gap: 16px;
+}
+.bread { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+.bread strong { color: var(--fg); font-weight: 600; }
+
+.main { padding: 20px var(--container-gutter) 60px; max-width: 100%; }
+.page-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl); font-weight: 600;
+  line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 4px;
+}
+.page-desc { margin: 0 0 20px; color: var(--muted); font-size: var(--text-sm); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius);
+  border: 1px solid transparent; font: inherit; font-size: 13px; font-weight: 500;
+  background: transparent; color: var(--fg); cursor: pointer;
+  transition: transform 50ms ease, background 150ms ease, border-color 150ms ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+.btn-primary:hover { background: color-mix(in oklab, var(--accent) 88%, black); }
+.btn-secondary { background: transparent; color: var(--fg); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--fg); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-ghost { background: transparent; padding-inline: 8px; border-color: transparent; }
+.btn-ghost:hover { color: var(--accent); }
+
+.filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.f-input {
+  padding: 7px 11px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--surface);
+  font: inherit; font-size: 13px; color: var(--fg);
+}
+.f-input:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+.f-select {
+  padding: 7px 28px 7px 11px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--surface);
+  font: inherit; font-size: 13px; color: var(--fg);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  cursor: pointer;
+}
+
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  padding: 10px 14px; text-align: left;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border); background: color-mix(in oklab, var(--surface) 96%, var(--fg));
+}
+tbody td { padding: 8px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:hover { background: var(--fg-soft); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.num-r { text-align: right; }
+
+.badge-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.badge {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 2px 6px; border-radius: 4px;
+  border: 1px solid var(--border); color: var(--muted); background: var(--surface);
+}
+.badge.verified { color: var(--success); border-color: color-mix(in oklab, var(--success) 40%, transparent); background: color-mix(in oklab, var(--success) 8%, var(--surface)); }
+.badge.review { color: var(--warn); border-color: color-mix(in oklab, var(--warn) 40%, transparent); background: color-mix(in oklab, var(--warn) 8%, var(--surface)); }
+.badge.excluded { color: var(--muted); }
+
+.bulk-bar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+.bulk-bar .count { font-family: var(--font-mono); font-weight: 600; color: var(--accent); }
+
+@media (max-width: 720px) {
+  .filters { flex-direction: column; align-items: stretch; }
+  .f-input, .f-select { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="layout" data-od-id="layout">
+  <aside class="sidebar" data-od-id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">PriceBridge<span class="logo-dot">·</span></div>
+      <div class="tagline">Alg ↔ TR · v0.1</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Workspace</div>
+      <a href="index.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>Screens</a>
+      <a href="dashboard.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 4-9"/></svg></span>Opportunities</a>
+      <div class="nav-section">Review</div>
+      <a href="#" class="nav-link active"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></span>Listings</a>
+      <a href="data-quality.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg></span>Data Quality</a>
+      <div class="nav-section">Config</div>
+      <a href="sources.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>Sources</a>
+    </nav>
+  </aside>
+
+  <div>
+    <header class="header" data-od-id="topbar">
+      <div class="header-inner">
+        <div class="bread">Workspace / <strong>Listings Review</strong></div>
+        <div style="margin-left:auto;display:flex;gap:10px;">
+          <button class="btn btn-ghost btn-sm">Export CSV</button>
+          <button class="btn btn-primary btn-sm">Run import</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main" data-od-id="main">
+      <h1 class="page-title">Listings Review</h1>
+      <p class="page-desc">Review imported listings before they enter opportunity matching. Approve verified listings, flag uncertain ones, reject bad data.</p>
+
+      <div class="filters">
+        <input class="f-input" type="text" placeholder="Search product, variant, listing ID…" style="flex:1;min-width:180px;">
+        <select class="f-select"><option>All sources</option><option>Instagram</option><option>Ouedkniss</option><option>Sahibinden</option></select>
+        <select class="f-select"><option>All countries</option><option>Algeria</option><option>Türkiye</option></select>
+        <select class="f-select"><option>All review statuses</option><option>Verified</option><option>Needs review</option><option>Excluded</option></select>
+        <select class="f-select"><option>All conditions</option><option>New</option><option>Good</option><option>Fair</option><option>Used</option></select>
+        <select class="f-select"><option>Any</option><option>Has variant</option><option>Missing variant</option></select>
+        <select class="f-select"><option>Any</option><option>Has price</option><option>Missing price</option></select>
+        <button class="btn btn-secondary btn-sm">Reset</button>
+      </div>
+
+      <div class="bulk-bar">
+        <span><span class="count">0</span> selected</span>
+        <button class="btn btn-secondary btn-sm">Deselect all</button>
+        <div style="flex:1;"></div>
+        <button class="btn btn-secondary btn-sm" style="border-color:var(--success);color:var(--success);">✓ Bulk approve</button>
+        <button class="btn btn-secondary btn-sm" style="border-color:var(--danger);color:var(--danger);">✕ Bulk reject</button>
+        <button class="btn btn-secondary btn-sm">Mark needs review</button>
+      </div>
+
+      <div class="table-wrap">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:18px;"><input type="checkbox"></th>
+                <th>Source</th>
+                <th>Country</th>
+                <th>Product</th>
+                <th>Variant</th>
+                <th class="num-r">Price (orig)</th>
+                <th class="num-r">EUR</th>
+                <th>Condition</th>
+                <th>Review</th>
+                <th>Observed</th>
+                <th style="width:40px;">Link</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+<script>
+const DATA = [
+  {src:"IG",country:"Algeria",product:"Samsung Galaxy S25 Ultra",variant:"256GB",origPrice:"2,150,000 DZD",origCur:"DZD",price:632.14,condition:"New",status:"verified",date:"04 Jul 06:22"},
+  {src:"OK",country:"Algeria",product:"Samsung Galaxy S25 Ultra",variant:"256GB",origPrice:"1,380,000 DZD",origCur:"DZD",price:650.00,condition:"New",status:"verified",date:"04 Jul 05:48"},
+  {src:"SH",country:"Türkiye",product:"Samsung Galaxy S25 Ultra",variant:"256GB",origPrice:"28,799 TRY",origCur:"TRY",price:836.27,condition:"New",status:"verified",date:"04 Jul 06:15"},
+  {src:"IG",country:"Algeria",product:"iPhone 17 Pro Max",variant:"256GB",origPrice:"2,220,000 DZD",origCur:"DZD",price:1017.86,condition:"Used",status:"needs-review",date:"04 Jul 07:01"},
+  {src:"OK",country:"Algeria",product:"iPhone 17 Pro Max",variant:"256GB",origPrice:"2,500,000 DZD",origCur:"DZD",price:1150.00,condition:"Fair",status:"needs-review",date:"03 Jul 18:33"},
+  {src:"IG",country:"Algeria",product:"iPhone 13",variant:"128GB",origPrice:"860,000 DZD",origCur:"DZD",price:395.00,condition:"Good",status:"verified",date:"04 Jul 06:43"},
+  {src:"OK",country:"Algeria",product:"iPhone 13",variant:"128GB",origPrice:"890,000 DZD",origCur:"DZD",price:410.00,condition:"Good",status:"verified",date:"03 Jul 17:12"},
+  {src:"SH",country:"Türkiye",product:"iPhone 13",variant:"128GB",origPrice:"18,099 TRY",origCur:"TRY",price:525.52,condition:"Good",status:"verified",date:"04 Jul 06:07"},
+  {src:"IG",country:"Algeria",product:"Redmi Note 15 Pro",variant:"256GB",origPrice:"455,000 DZD",origCur:"DZD",price:210.00,condition:"New",status:"verified",date:"04 Jul 05:55"},
+  {src:"OK",country:"Algeria",product:"Redmi Note 15 Pro",variant:"256GB",origPrice:"495,000 DZD",origCur:"DZD",price:228.00,condition:"New",status:"verified",date:"03 Jul 22:14"},
+  {src:"IG",country:"Algeria",product:"MacBook Air M2",variant:"256GB",origPrice:"1,560,000 DZD",origCur:"DZD",price:720.00,condition:"Good",status:"needs-review",date:"04 Jul 06:29"},
+  {src:"SH",country:"Türkiye",product:"MacBook Air M2",variant:"256GB",origPrice:"29,250 TRY",origCur:"TRY",price:850.00,condition:"Good",status:"verified",date:"04 Jul 05:58"},
+  {src:"IG",country:"Algeria",product:"Samsung Galaxy A55",variant:"128GB",origPrice:"620,000 DZD",origCur:"DZD",price:285.00,condition:"New",status:"verified",date:"04 Jul 06:02"},
+  {src:"OK",country:"Türkiye",product:"Samsung Galaxy A55",variant:"128GB",origPrice:"10,500 TRY",origCur:"TRY",price:305.00,condition:"New",status:"verified",date:"03 Jul 21:49"},
+  {src:"SH",country:"Türkiye",product:"Samsung Galaxy A55",variant:"128GB",origPrice:"8,450 TRY",origCur:"TRY",price:183.43,condition:"Used",status:"excluded",date:"02 Jul 11:22"},
+  {src:"IG",country:"Algeria",product:"iPhone 14 Pro",variant:"256GB",origPrice:"1,055,000 DZD",origCur:"DZD",price:485.00,condition:"New",status:"verified",date:"04 Jul 06:05"},
+  {src:"OK",country:"Algeria",product:"iPhone 14 Pro",variant:"256GB",origPrice:"1,110,000 DZD",origCur:"DZD",price:510.00,condition:"New",status:"verified",date:"03 Jul 19:11"},
+  {src:"SH",country:"Türkiye",product:"iPhone 14 Pro",variant:"256GB",origPrice:"23,400 TRY",origCur:"TRY",price:680.00,condition:"New",status:"verified",date:"04 Jul 05:59"},
+  {src:"IG",country:"Algeria",product:"Xiaomi 14 Ultra",variant:"512GB",origPrice:"1,350,000 DZD",origCur:"DZD",price:620.00,condition:"New",status:"needs-review",date:"04 Jul 07:18"},
+  {src:"SH",country:"Türkiye",product:"Xiaomi 14 Ultra",variant:"512GB",origPrice:"26,850 TRY",origCur:"TRY",price:780.00,condition:"New",status:"verified",date:"04 Jul 05:49"},
+  {src:"IG",country:"Algeria",product:"iPhone 15",variant:"128GB",origPrice:"1,175,000 DZD",origCur:"DZD",price:540.00,condition:"New",status:"verified",date:"04 Jul 06:10"},
+  {src:"OK",country:"Algeria",product:"iPhone 15",variant:"128GB",origPrice:"1,207,000 DZD",origCur:"DZD",price:555.00,condition:"New",status:"verified",date:"04 Jul 05:44"},
+  {src:"SH",country:"Türkiye",product:"iPhone 15",variant:"128GB",origPrice:"24,790 TRY",origCur:"TRY",price:720.00,condition:"New",status:"verified",date:"04 Jul 05:45"},
+  {src:"IG",country:"Algeria",product:"Samsung Galaxy S24 FE",variant:"256GB",origPrice:"828,000 DZD",origCur:"DZD",price:380.00,condition:"New",status:"verified",date:"03 Jul 23:17"},
+  {src:"SH",country:"Türkiye",product:"Samsung Galaxy S24 FE",variant:"256GB",origPrice:"16,700 TRY",origCur:"TRY",price:485.00,condition:"New",status:"verified",date:"03 Jul 21:05"}
+];
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function statusClass(s) {
+  if (s === 'verified') return 'badge verified';
+  if (s === 'needs-review') return 'badge review';
+  return 'badge excluded';
+}
+
+const tbody = document.getElementById('tbody');
+tbody.innerHTML = DATA.map((r, i) => `<tr>
+  <td><input type="checkbox"></td>
+  <td><strong>${esc(r.src)}</strong></td>
+  <td style="font-size:12px;color:var(--muted);">${r.country}</td>
+  <td>${esc(r.product)}</td>
+  <td style="color:var(--muted);">${esc(r.variant)}</td>
+  <td class="num-r" style="font-size:11px;color:var(--muted);">${esc(r.origPrice)}</td>
+  <td class="num-r num">${r.price.toFixed(2)}€</td>
+  <td><span class="tag">${r.condition}</span></td>
+  <td><span class="badge ${statusClass(r.status)}">${r.status.replace('needs-review','needs review')}</span></td>
+  <td class="num" style="font-size:12px;color:var(--muted);white-space:nowrap;">${r.date}</td>
+  <td><a href="#" class="btn btn-ghost btn-sm">↗</a></td>
+</tr>`).join('');
+</script>
+</body>
+</html>

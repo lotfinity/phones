@@ -1,0 +1,116 @@
+{% extends "market/base.html" %}
+{% block title %}PriceBridge - {{ opportunity.product_model }}{% endblock %}
+{% block crumb %}Opportunity Detail{% endblock %}
+{% block header_actions %}
+  <a class="btn btn-secondary btn-sm" href="{% url 'dashboard' %}">Back to opportunities</a>
+  <a class="btn btn-primary btn-sm" href="/admin/market/opportunitysnapshot/{{ opportunity.id }}/change/">Admin</a>
+{% endblock %}
+{% block content %}
+  <h1 class="page-title">{{ opportunity.product_model }}</h1>
+  <p class="page-desc">
+    {{ brand }}{% if opportunity.variant %} - {{ opportunity.variant }}{% endif %}
+    {% if storage %} - storage bucket {{ storage }}GB{% endif %}
+  </p>
+
+  <div class="badge-row">
+    <span class="cell-rec {{ recommendation_class }}">{{ opportunity.get_recommendation_display }}</span>
+    {% for item in coverage %}
+      <span class="badge {{ item.class }}">{{ item.code }} {{ item.count }}</span>
+    {% endfor %}
+  </div>
+
+  <section class="summary-strip">
+    <div class="stat-card">
+      <div class="lbl">Algeria min</div>
+      <div class="num">{{ algeria_min|default:"-" }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">Algeria avg</div>
+      <div class="num">{{ algeria_avg|default:"-" }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">Turkiye avg</div>
+      <div class="num">{{ turkiye_avg|default:"-" }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">Gross margin</div>
+      <div class="num">{{ gross_margin|default:"-" }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">Margin %</div>
+      <div class="num">{{ margin_percent|default:"-" }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">Confidence</div>
+      <div class="num">{{ opportunity.confidence_score }}</div>
+    </div>
+  </section>
+
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-h">Calculation</div>
+    <div class="num">
+      {{ turkiye_avg|default:"-" }} - {{ algeria_min|default:"-" }} = {{ gross_margin|default:"-" }}
+    </div>
+    <div style="font-size:12px;color:var(--muted);margin-top:6px;">{{ opportunity.explanation }}</div>
+  </div>
+
+  <section class="detail-grid">
+    <div class="card">
+      <div class="card-h">
+        Algeria listings
+        <span class="badge ok">{{ algeria_rows|length }}</span>
+      </div>
+      {% for row in algeria_rows %}
+        <article class="listing-card">
+          <div>
+            <div class="listing-title">{{ row.item.title_raw|default:row.item.product_model }}</div>
+            <div class="listing-meta">
+              <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
+              <span class="badge {{ row.review_class }}">{{ row.item.get_review_status_display }}</span>
+              {{ row.item.variant|default:"-" }}
+            </div>
+            <div class="listing-meta">{{ row.item.observed_at|date:"M d H:i" }} - {{ row.item.get_condition_display }}</div>
+          </div>
+          <div class="listing-price">
+            <div>{{ row.eur|default:"-" }}</div>
+            <div class="listing-meta">{{ row.price|default:"-" }}</div>
+            {% if row.item.listing_url %}
+              <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">Open</a>
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p class="page-desc">No Algeria listings match this model and storage bucket.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        Turkiye listings
+        <span class="badge sh">{{ turkiye_rows|length }}</span>
+      </div>
+      {% for row in turkiye_rows %}
+        <article class="listing-card">
+          <div>
+            <div class="listing-title">{{ row.item.title_raw|default:row.item.product_model }}</div>
+            <div class="listing-meta">
+              <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
+              <span class="badge {{ row.review_class }}">{{ row.item.get_review_status_display }}</span>
+              {{ row.item.variant|default:"-" }}
+            </div>
+            <div class="listing-meta">{{ row.item.observed_at|date:"M d H:i" }} - {{ row.item.get_condition_display }}</div>
+          </div>
+          <div class="listing-price">
+            <div>{{ row.eur|default:"-" }}</div>
+            <div class="listing-meta">{{ row.price|default:"-" }}</div>
+            {% if row.item.listing_url %}
+              <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">Open</a>
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <p class="page-desc">No Turkiye listings match this model and storage bucket.</p>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "market/base.html" %}
+{% block title %}PriceBridge - Data Quality{% endblock %}
+{% block crumb %}Data Quality{% endblock %}
+{% block header_actions %}
+  <a class="btn btn-secondary btn-sm" href="/admin/market/devicevariant/">Variants</a>
+{% endblock %}
+{% block content %}
+  <h1 class="page-title">Data Quality</h1>
+  <p class="page-desc">Pipeline health, trust signals, and structural issues that affect Algeria-to-Turkiye matching.</p>
+
+  <section class="grid-4">
+    <div class="metric-card">
+      <div class="lbl">Instagram posts</div>
+      <div class="num">{{ metrics.instagram_posts }}</div>
+      <div class="lbl">Collected media rows</div>
+    </div>
+    <div class="metric-card">
+      <div class="lbl">Supplier prices</div>
+      <div class="num">{{ metrics.supplier_prices }}</div>
+      <div class="lbl">Reference rows</div>
+    </div>
+    <div class="metric-card">
+      <div class="lbl">Opportunity rows</div>
+      <div class="num">{{ metrics.snapshots }}</div>
+      <div class="lbl">Latest batch only</div>
+    </div>
+    <div class="metric-card">
+      <div class="lbl">Duplicate variants</div>
+      <div class="num">{{ metrics.duplicate_variant_groups }}</div>
+      <div class="lbl">Identity groups</div>
+    </div>
+  </section>
+
+  <div style="height:16px;"></div>
+
+  <section class="grid-3">
+    <div class="metric-card">
+      <div class="lbl">OCR pending</div>
+      <div class="num">{{ metrics.ocr_pending }}</div>
+      <div class="lbl">Queued OCR rows</div>
+    </div>
+    <div class="metric-card">
+      <div class="lbl">Unmatched listings</div>
+      <div class="num">{{ metrics.unmatched }}</div>
+      <div class="lbl">Missing product model</div>
+    </div>
+    <div class="metric-card">
+      <div class="lbl">Missing variants</div>
+      <div class="num">{{ metrics.missing_variant }}</div>
+      <div class="lbl">Has model, no variant</div>
+    </div>
+  </section>
+
+  <div style="height:16px;"></div>
+
+  <section class="grid-2">
+    <div class="card">
+      <div class="card-h">Structural issues</div>
+      <table>
+        <thead><tr><th>Issue</th><th class="num-r">Count</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>Models without variants</td><td class="num num-r">{{ metrics.models_without_variants }}</td><td><span class="badge badge-warn">review</span></td></tr>
+          <tr><td>Listings missing product model</td><td class="num num-r">{{ metrics.unmatched }}</td><td><span class="badge badge-warn">review</span></td></tr>
+          <tr><td>Listings missing variant</td><td class="num num-r">{{ metrics.missing_variant }}</td><td><span class="badge badge-warn">review</span></td></tr>
+          <tr><td>Duplicate variant groups</td><td class="num num-r">{{ metrics.duplicate_variant_groups }}</td><td><span class="badge badge-ok">clean</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-h">Source quality</div>
+      <table>
+        <thead><tr><th>Source</th><th>Country</th><th class="num-r">Total</th><th class="num-r">Usable</th><th class="num-r">Review</th></tr></thead>
+        <tbody>
+          {% for row in source_quality %}
+            <tr>
+              <td>{{ row.source_type }}</td>
+              <td>{{ row.country }}</td>
+              <td class="num num-r">{{ row.total }}</td>
+              <td class="num num-r">{{ row.usable }}</td>
+              <td class="num num-r">{{ row.review }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="5">No listing sources yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+{% endblock %}

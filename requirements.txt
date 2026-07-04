@@ -1,0 +1,14 @@
+Django>=5.2,<5.3
+instaloader>=4.14
+Pillow>=10.0
+requests>=2.31
+websocket-client>=1.9
+beautifulsoup4>=4.15
+lxml>=6.1
+playwright>=1.61
+selenium>=4.45
+scrapy>=2.16
+
+# Optional local extras:
+# easyocr
+# paddleocr

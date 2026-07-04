@@ -1,0 +1,97 @@
+{% extends "market/base.html" %}
+{% block title %}PriceBridge - Opportunities{% endblock %}
+{% block crumb %}Opportunities{% endblock %}
+{% block header_actions %}
+  <a class="btn btn-secondary btn-sm" href="{% url 'listings' %}">Review listings</a>
+  <a class="btn btn-primary btn-sm" href="/admin/market/opportunitysnapshot/">Admin</a>
+{% endblock %}
+{% block content %}
+  <h1 class="page-title">Opportunities Dashboard</h1>
+  <p class="page-desc">Buy-side Algeria listings compared against Turkiye Sahibinden averages, matched by product model and storage bucket.</p>
+
+  <section class="stat-row">
+    {% for stat in stats %}
+      <div class="stat-card">
+        <div class="lbl">{{ stat.label }}</div>
+        <div class="num">{{ stat.value }}</div>
+        <span class="delta">{{ stat.delta }}</span>
+      </div>
+    {% endfor %}
+  </section>
+
+  <form class="filters" method="get">
+    <input class="f-input" type="search" name="q" placeholder="Search product, variant, brand..." style="flex:1;min-width:220px;">
+    <select class="f-select" name="recommendation">
+      <option>All recommendations</option>
+      <option>Buy</option>
+      <option>Watch</option>
+      <option>Ignore</option>
+    </select>
+    <select class="f-select" name="confidence">
+      <option>Any confidence</option>
+      <option>80+</option>
+      <option>60+</option>
+      <option>40+</option>
+    </select>
+    <button class="btn btn-secondary" type="button">Filters are visual</button>
+  </form>
+
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Recommendation</th>
+            <th>Product</th>
+            <th>Variant</th>
+            <th class="num-r">Algeria min</th>
+            <th class="num-r">Algeria avg</th>
+            <th class="num-r">Turkiye avg</th>
+            <th class="num-r">Supplier</th>
+            <th class="num-r">Gross margin</th>
+            <th class="num-r">Margin %</th>
+            <th>Confidence</th>
+            <th>Coverage</th>
+            <th>Updated</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in opportunity_rows %}
+            <tr class="click-row" onclick="window.location='{% url 'opportunity_detail' row.item.id %}'">
+              <td><span class="cell-rec {{ row.recommendation_class }}">{{ row.item.get_recommendation_display }}</span></td>
+              <td>
+                <a href="{% url 'opportunity_detail' row.item.id %}" style="font-weight:600;">{{ row.item.product_model }}</a>
+                <div style="font-size:11px;color:var(--muted);">{{ row.brand }}</div>
+              </td>
+              <td>{{ row.item.variant|default:"-" }}</td>
+              <td class="num num-r">{{ row.algeria_min|default:"-" }}</td>
+              <td class="num num-r">{{ row.algeria_avg|default:"-" }}</td>
+              <td class="num num-r">{{ row.turkiye_avg|default:"-" }}</td>
+              <td class="num num-r">{{ row.supplier|default:"-" }}</td>
+              <td class="num num-r">{{ row.gross_margin|default:"-" }}</td>
+              <td class="num num-r"><span class="cell-margin {{ row.margin_class }}">{{ row.margin_percent|default:"-" }}</span></td>
+              <td>
+                <div class="conf-bar">
+                  <div class="conf-track"><div class="conf-fill" style="width:{{ row.item.confidence_score }}%;"></div></div>
+                  <span class="conf-num">{{ row.item.confidence_score }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="badge-row">
+                  {% for source in row.sources %}
+                    <span class="badge {{ source.class }}">{{ source.code }} {{ source.count }}</span>
+                  {% empty %}
+                    <span class="badge">none</span>
+                  {% endfor %}
+                </div>
+              </td>
+              <td class="num">{{ row.item.created_at|date:"M d H:i" }}</td>
+            </tr>
+          {% empty %}
+            <tr><td colspan="12">No opportunity snapshots yet. Run opportunity analysis first.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

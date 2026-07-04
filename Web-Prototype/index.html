@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PriceBridge · Market Intelligence</title>
+<style>
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --fg: #111111;
+  --muted: #6b6b6b;
+  --border: #e5e5e5;
+  --accent: #2f6feb;
+  --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --fg-soft: color-mix(in oklab, var(--fg) 6%, transparent);
+  --success: #17a34a;
+  --warn: #eab308;
+  --danger: #dc2626;
+
+  --font-display: "Inter", -apple-system, system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", monospace;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+
+  --radius: 8px;
+  --radius-md: 12px;
+
+  --container-max: 1200px;
+  --container-gutter: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+.topbar {
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+.topbar-inner {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+  padding-block: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+.logo-dot {
+  color: var(--accent);
+}
+
+.hero {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+  padding-block: 96px 64px;
+}
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+.hero .lead {
+  color: var(--muted);
+  font-size: var(--text-lg);
+  max-width: 56ch;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+@media (max-width: 980px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+.screen-card {
+  display: block;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  transition: transform 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+.screen-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in oklab, var(--accent), transparent 50%);
+  box-shadow: 0 4px 16px color-mix(in oklab, var(--fg), transparent 88%);
+}
+.screen-card .label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin: 0 0 8px;
+}
+.screen-card h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+.screen-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+.screen-card .arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 16px;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.main {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+  padding-bottom: 80px;
+}
+
+.foot {
+  border-top: 1px solid var(--border);
+  padding-block: 32px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.foot-inner {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+</style>
+</head>
+<body>
+<header class="topbar" data-od-id="topbar">
+  <div class="topbar-inner">
+    <div class="logo">PriceBridge<span class="logo-dot"> · </span>Alg ↔ TR</div>
+    <nav style="display:flex;gap:20px;align-items:center;">
+      <a href="dashboard.html" class="btn btn-ghost" style="font-size:14px;color:var(--fg);">Open dashboard</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" data-od-id="launcher">
+  <p class="eyebrow" style="color:var(--accent);font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 12px;">Internal tool · Market Intelligence</p>
+  <h1>PriceBridge workspace</h1>
+  <p class="lead">Cross-market smartphone intelligence for Algeria ↔ Türkiye. Select a screen to begin.</p>
+</section>
+
+<main class="main" data-od-id="screens">
+  <div class="grid">
+    <a href="dashboard.html" class="screen-card">
+      <p class="label">Primary</p>
+      <h2>Opportunities Dashboard</h2>
+      <p>Daily command center — best margins, recommendation mix, sortable table, and row inspector.</p>
+      <span class="arrow">Open →</span>
+    </a>
+    <a href="listings.html" class="screen-card">
+      <p class="label">Review</p>
+      <h2>Listings Review</h2>
+      <p>Approve, reject, or flag imported listings from Instagram, Ouedkniss, and Sahibinden.</p>
+      <span class="arrow">Open →</span>
+    </a>
+    <a href="data-quality.html" class="screen-card">
+      <p class="label">Ops</p>
+      <h2>Data Quality</h2>
+      <p>Pipeline health, OCR status, unmatched listings, price outliers, and source coverage.</p>
+      <span class="arrow">Open →</span>
+    </a>
+    <a href="sources.html" class="screen-card">
+      <p class="label">Config</p>
+      <h2>Sources</h2>
+      <p>Import status, listing counts, usable counts, and health for each upstream source.</p>
+      <span class="arrow">Open →</span>
+    </a>
+  </div>
+</main>
+
+<footer class="foot" data-od-id="foot">
+  <div class="foot-inner">
+    <span>© 2026 PriceBridge · Internal</span>
+    <span class="meta" style="font-family:var(--font-mono);font-size:12px;">v0.1 · Build 2026-07-04</span>
+  </div>
+</footer>
+</body>
+</html>
