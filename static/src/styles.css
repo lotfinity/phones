@@ -584,7 +584,276 @@
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   }
 
-  .opp-filter-grid label {
-    @apply flex flex-col gap-1 text-xs uppercase tracking-wide text-slate-500;
+.opp-filter-grid label {
+  @apply flex flex-col gap-1 text-xs uppercase tracking-wide text-slate-500;
+}
+
+.opp-tab {
+  @apply rounded-lg bg-slate-200 px-4 py-2 text-sm font-medium text-slate-700 no-underline transition-colors hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700;
+}
+
+.opp-tab.active {
+  @apply bg-blue-600 text-white dark:bg-blue-600 dark:text-white;
+}
+
+.opp-tab-row {
+  @apply mb-3 flex flex-wrap gap-2;
+}
+
+.cat-tab {
+  @apply inline-flex items-center gap-2;
+}
+
+.cat-icon {
+  @apply inline-flex h-5 w-5 items-center justify-center rounded bg-slate-200 font-mono text-[9px] font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300;
+}
+
+.opp-tab.active .cat-icon {
+  @apply bg-white/20 text-white;
+}
+
+.opp-filters {
+  @apply mb-6;
+}
+
+.opp-filter-row {
+  @apply mb-4;
+}
+
+.opp-filter-grid {
+  @apply grid items-end gap-3 rounded-xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-900;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .opp-filter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+@media (min-width: 1024px) {
+  .opp-filter-grid {
+    grid-template-columns: minmax(220px, 1.5fr) repeat(3, minmax(150px, 1fr)) auto auto;
+  }
+}
+
+.f-group {
+  @apply flex flex-col gap-1;
+}
+
+.f-label {
+  @apply font-mono text-[11px] uppercase tracking-wide text-slate-500;
+}
+
+.f-search {
+  @apply min-w-0 sm:min-w-64;
+}
+
+.f-actions {
+  @apply flex items-end gap-2;
+}
+
+.cat-chip {
+  @apply inline-flex items-center rounded-full border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide;
+}
+
+.cat-phones {
+  @apply border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-300;
+}
+
+.cat-laptops {
+  @apply border-indigo-200 bg-indigo-50 text-indigo-800 dark:border-indigo-900 dark:bg-indigo-950/60 dark:text-indigo-300;
+}
+
+.cat-non-phones {
+  @apply border-slate-200 bg-slate-100 text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300;
+}
+
+.brand-chip {
+  @apply inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-blue-800 dark:border-blue-900 dark:bg-blue-950/60 dark:text-blue-300;
+}
+
+.spec-chip {
+  @apply inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-[10px] font-medium text-slate-600 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300;
+}
+
+.card-meta-row {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.conf-track {
+  @apply flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800;
+}
+
+.conf-fill {
+  @apply h-full rounded-full;
+}
+
+.conf-high {
+  @apply bg-emerald-500;
+}
+
+.conf-med {
+  @apply bg-amber-500;
+}
+
+.conf-low {
+  @apply bg-red-500;
+}
+
+.stat-row-6 {
+  @apply grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6;
+}
+
+.stat-green {
+  @apply border-l-4 border-emerald-500;
+}
+
+.stat-green .num {
+  @apply text-emerald-700 dark:text-emerald-300;
+}
+
+.stat-amber {
+  @apply border-l-4 border-amber-500;
+}
+
+.stat-amber .num {
+  @apply text-amber-700 dark:text-amber-300;
+}
+
+.stat-slate {
+  @apply border-l-4 border-slate-400;
+}
+
+.stat-slate .num {
+  @apply text-slate-600 dark:text-slate-400;
+}
+
+.stat-supplier {
+  @apply border-l-4 border-indigo-500;
+}
+
+.stat-supplier .num {
+  @apply text-indigo-700 dark:text-indigo-300;
+}
+
+.best-deal-banner {
+  @apply mb-5 overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/80 dark:border-emerald-900 dark:bg-emerald-950/40;
+}
+
+.best-deal-label {
+  @apply px-4 pt-3 font-mono text-[11px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300;
+}
+
+.best-deal-content {
+  @apply flex flex-wrap items-center gap-4 p-4;
+}
+
+.best-deal-name {
+  @apply text-base font-semibold text-slate-950 no-underline hover:underline dark:text-white;
+}
+
+.best-deal-meta {
+  @apply mt-0.5 text-xs text-slate-500 dark:text-slate-400;
+}
+
+.best-deal-numbers {
+  @apply ml-auto flex flex-col items-end gap-0.5;
+}
+
+.best-deal-margin {
+  @apply font-mono text-2xl font-bold text-emerald-700 dark:text-emerald-300;
+}
+
+.best-deal-gross {
+  @apply font-mono text-xs text-slate-600 dark:text-slate-300;
+}
+
+.price-calc-row {
+  @apply mt-3;
+}
+
+.price-calc-bar {
+  @apply flex h-3 overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-800;
+}
+
+.price-calc-algeria {
+  @apply bg-emerald-500;
+}
+
+.price-calc-margin {
+  @apply bg-blue-600 dark:bg-blue-400;
+}
+
+.price-calc-segment {
+  @apply h-full first:rounded-l-lg last:rounded-r-lg;
+}
+
+.dark .opp-filter-grid {
+  @apply border-slate-700 bg-slate-900;
+}
+
+.dark .opp-filter-grid label {
+  @apply text-slate-400;
+}
+
+.dark .f-label {
+  @apply text-slate-400;
+}
+
+.dark .conf-high {
+  @apply bg-emerald-500;
+}
+
+.dark .conf-med {
+  @apply bg-amber-500;
+}
+
+.dark .conf-low {
+  @apply bg-red-500;
+}
+
+.dark .best-deal-banner {
+  @apply border-emerald-900 bg-emerald-950/40;
+}
+
+.dark .best-deal-name {
+  @apply text-slate-100;
+}
+
+.dark .best-deal-meta {
+  @apply text-slate-400;
+}
+
+.dark .best-deal-gross {
+  @apply text-slate-300;
+}
+
+.dark .brand-chip {
+  @apply border-blue-900 bg-blue-950/60 text-blue-300;
+}
+
+.dark .cat-phones {
+  @apply border-emerald-900 bg-emerald-950/60 text-emerald-300;
+}
+
+.dark .cat-laptops {
+  @apply border-indigo-900 bg-indigo-950/60 text-indigo-300;
+}
+
+.dark .cat-non-phones {
+  @apply border-slate-700 bg-slate-800 text-slate-300;
+}
+
+.dark .spec-chip {
+  @apply border-slate-700 bg-slate-800 text-slate-300;
+}
+
+.dark .cat-icon {
+  @apply bg-slate-700 text-slate-300;
+}
+
+.dark .opp-tab.active .cat-icon {
+  @apply bg-white/15 text-white;
+}
 }
