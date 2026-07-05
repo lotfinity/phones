@@ -1,115 +1,265 @@
 {% extends "market/base.html" %}
+{% load i18n %}
 {% block title %}PriceBridge - {{ opportunity.product_model }}{% endblock %}
-{% block crumb %}Opportunity Detail{% endblock %}
+{% block crumb %}{% trans "Opportunity Detail" %}{% endblock %}
 {% block header_actions %}
-  <a class="btn btn-secondary btn-sm" href="{% url 'dashboard' %}">Back to opportunities</a>
-  <a class="btn btn-primary btn-sm" href="/admin/market/opportunitysnapshot/{{ opportunity.id }}/change/">Admin</a>
+  <a class="btn btn-secondary btn-sm" href="{% url 'opportunities' %}">{% trans "Back to opportunities" %}</a>
+  <a class="btn btn-primary btn-sm" href="/admin/market/opportunitysnapshot/{{ opportunity.id }}/change/">{% trans "Admin" %}</a>
 {% endblock %}
 {% block content %}
-  <h1 class="page-title">{{ opportunity.product_model }}</h1>
-  <p class="page-desc">
-    {{ brand }}{% if opportunity.variant %} - {{ opportunity.variant }}{% endif %}
-    {% if storage %} - storage bucket {{ storage }}GB{% endif %}
-  </p>
-
-  <div class="badge-row">
-    <span class="cell-rec {{ recommendation_class }}">{{ opportunity.get_recommendation_display }}</span>
-    {% for item in coverage %}
-      <span class="badge {{ item.class }}">{{ item.code }} {{ item.count }}</span>
-    {% endfor %}
-  </div>
+  <section class="detail-hero">
+    <span class="thumb thumb-hero">
+      {% if hero_image_url %}
+        <img src="{{ hero_image_url }}" alt="{{ opportunity.product_model }}">
+      {% endif %}
+    </span>
+    <div class="min-w-0">
+      <div class="badge-row mb-3">
+        <span class="cell-rec {{ recommendation_class }}">{{ opportunity.get_recommendation_display }}</span>
+        {% for item in coverage %}
+          <span class="badge {{ item.class }}">{{ item.code }} {{ item.count }}</span>
+        {% endfor %}
+        {% if category_slug %}
+          <span class="cat-chip cat-{{ category_slug }}">{{ category_name }}</span>
+        {% endif %}
+      </div>
+      <h1 class="page-title">
+        <span
+          data-inline-field="canonical_name"
+          data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+          data-inline-id="{{ opportunity.product_model.id }}"
+        >{{ opportunity.product_model }}</span>
+      </h1>
+      <p class="page-desc">
+        {{ brand }}
+        {% if storage %} / {{ storage }}GB{% endif %}
+        {% if opportunity.sim_config %} / {{ opportunity.sim_config }}{% endif %}
+      </p>
+    </div>
+  </section>
 
   <section class="summary-strip">
     <div class="stat-card">
-      <div class="lbl">Algeria min</div>
+      <div class="lbl">{% trans "Algeria Price" %}</div>
       <div class="num">{{ algeria_min|default:"-" }}</div>
     </div>
     <div class="stat-card">
-      <div class="lbl">Algeria avg</div>
+      <div class="lbl">{% trans "Algeria avg" %}</div>
       <div class="num">{{ algeria_avg|default:"-" }}</div>
     </div>
     <div class="stat-card">
-      <div class="lbl">Turkiye avg</div>
+      <div class="lbl">{% trans "Turkey Avg" %}</div>
       <div class="num">{{ turkiye_avg|default:"-" }}</div>
     </div>
+    {% if supplier %}
+    <div class="stat-card stat-supplier">
+      <div class="lbl">{% trans "Supplier" %}</div>
+      <div class="num">{{ supplier }}</div>
+      {% if supplier_margin %}
+        <span class="delta">{{ supplier_margin }} {% trans "margin" %}</span>
+      {% endif %}
+    </div>
+    {% endif %}
     <div class="stat-card">
-      <div class="lbl">Gross margin</div>
+      <div class="lbl">{% trans "Total Spread" %}</div>
       <div class="num">{{ gross_margin|default:"-" }}</div>
     </div>
     <div class="stat-card">
-      <div class="lbl">Margin %</div>
+      <div class="lbl">{% trans "Margin %" %}</div>
       <div class="num">{{ margin_percent|default:"-" }}</div>
     </div>
     <div class="stat-card">
-      <div class="lbl">Confidence</div>
+      <div class="lbl">{% trans "Confidence" %}</div>
       <div class="num">{{ opportunity.confidence_score }}</div>
     </div>
   </section>
 
-  <div class="card" style="margin-bottom:16px;">
-    <div class="card-h">Calculation</div>
-    <div class="num">
+  {% if is_cross_storage %}
+  <div class="card mb-4 border-amber-200 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/30">
+    <div class="card-h">{% trans "Cross-storage comparison" %}</div>
+    <div class="text-sm text-slate-700 dark:text-slate-300">
+      {% trans "This opportunity matches across different storage sizes." %}
+      {% if all_algeria_storages %}
+        {% trans "Algeria listings:" %} {% for s in all_algeria_storages %}{% if not forloop.first %}, {% endif %}{{ s }}GB{% endfor %}.
+      {% endif %}
+      {% if all_turkiye_storages %}
+        {% trans "Turkiye listings:" %} {% for s in all_turkiye_storages %}{% if not forloop.first %}, {% endif %}{{ s }}GB{% endfor %}.
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="card mb-4 border-blue-200 bg-blue-50/70 dark:border-blue-900 dark:bg-blue-950/30">
+    <div class="card-h">{% trans "Raw Market Spread" %}</div>
+    <div class="price-calc-row">
+      <div class="price-calc-bar">
+        <div class="price-calc-segment price-calc-algeria" style="width: {% if algeria_min %}{{ algeria_min|cut:" "|cut:"EUR" }}{% else %}0{% endif %}px;"></div>
+        <div class="price-calc-segment price-calc-margin" style="width: {% if gross_margin %}{{ gross_margin|cut:" "|cut:"EUR" }}{% else %}0{% endif %}px;"></div>
+      </div>
+    </div>
+    <div class="num text-xl font-semibold text-slate-950 dark:text-white mt-2">
       {{ turkiye_avg|default:"-" }} - {{ algeria_min|default:"-" }} = {{ gross_margin|default:"-" }}
     </div>
-    <div style="font-size:12px;color:var(--muted);margin-top:6px;">{{ opportunity.explanation }}</div>
+    <div class="hint">{{ opportunity.explanation }}</div>
   </div>
+
+  {% if gain_split %}
+  <div class="card mb-4 border-emerald-200 bg-emerald-50/70 dark:border-emerald-900 dark:bg-emerald-950/30">
+    <div class="card-h">
+      {% trans "Suggested Deal Split" %}
+      <span class="badge {{ gain_split.deal_quality }}">{{ gain_split.deal_quality|title }}</span>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3">
+      <div>
+        <div class="lbl">{% trans "My Gain" %}</div>
+        <div class="num text-xl">{{ my_gain }}</div>
+        <div class="delta">{{ my_gain_dzd }} / {{ my_gain_percent_of_gross }} {% trans "of spread" %}</div>
+      </div>
+      <div>
+        <div class="lbl">{% trans "Buyer Price" %}</div>
+        <div class="num text-xl">{{ buyer_price }}</div>
+        <div class="delta">{{ buyer_price_dzd }}</div>
+      </div>
+      <div>
+        <div class="lbl">{% trans "Buyer Gain" %}</div>
+        <div class="num text-xl">{{ buyer_gain }}</div>
+        <div class="delta">{{ buyer_gain_percent }} {% trans "expected gain" %}</div>
+      </div>
+    </div>
+    {% if gain_split.notes %}
+      <div class="hint">{{ gain_split.notes }}</div>
+    {% endif %}
+  </div>
+  {% endif %}
 
   <section class="detail-grid">
     <div class="card">
       <div class="card-h">
-        Algeria listings
+        {% trans "Algeria listings" %}
         <span class="badge ok">{{ algeria_rows|length }}</span>
       </div>
       {% for row in algeria_rows %}
-        <article class="listing-card">
-          <div>
-            <div class="listing-title">{{ row.item.title_raw|default:row.item.product_model }}</div>
+        <article class="listing-card" data-listing-row>
+          <span class="thumb thumb-md">
+            {% if row.image_url %}
+              <img src="{{ row.image_url }}" alt="{{ row.item.title_raw|default:row.item.product_model }}">
+            {% endif %}
+          </span>
+          <div class="min-w-0">
+            <div
+              class="listing-title"
+              data-inline-field="title_raw"
+              data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+              data-inline-id="{{ row.item.id }}"
+            >{{ row.item.title_raw|default:row.item.product_model }}</div>
             <div class="listing-meta">
               <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
               <span class="badge {{ row.review_class }}">{{ row.item.get_review_status_display }}</span>
-              {{ row.item.variant|default:"-" }}
+              <span>{% if row.storage_gb %}{{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}</span>
             </div>
-            <div class="listing-meta">{{ row.item.observed_at|date:"M d H:i" }} - {{ row.item.get_condition_display }}</div>
+            <div class="listing-meta"><span>{{ row.item.observed_at|date:"M d H:i" }}</span><span>{{ row.item.get_condition_display }}</span></div>
           </div>
           <div class="listing-price">
-            <div>{{ row.eur|default:"-" }}</div>
-            <div class="listing-meta">{{ row.price|default:"-" }}</div>
-            {% if row.item.listing_url %}
-              <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">Open</a>
-            {% endif %}
+            <div class="listing-meta sm:justify-end">
+              <span class="font-sans text-slate-500 dark:text-slate-400">{% trans "Original" %}</span>
+              <span
+                data-inline-field="price_original"
+                data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                data-inline-id="{{ row.item.id }}"
+                data-inline-type="decimal"
+              >{{ row.item.price_original|default:"" }}</span>
+              <span>{{ row.item.currency_original }}</span>
+            </div>
+            <div class="mt-2 grid grid-cols-1 gap-y-1 text-xs sm:grid-cols-2 sm:gap-x-3 sm:justify-items-end">
+              {% for price in row.converted_prices %}
+                <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
+              {% empty %}
+                <span class="num">-</span>
+              {% endfor %}
+            </div>
+            <div class="mt-2 flex flex-wrap gap-2 sm:justify-end">
+              {% if row.item.listing_url %}
+                <a class="btn btn-secondary btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
+              {% endif %}
+              {% if request.user.is_authenticated and request.user.is_staff %}
+                <button
+                  class="btn btn-danger btn-sm"
+                  type="button"
+                  data-inline-delete="{% url 'inline_edit_api' 'market-listings' %}"
+                  data-inline-id="{{ row.item.id }}"
+                  data-inline-label="{{ row.item.title_raw|default:'listing'|truncatechars:48 }}"
+                >{% trans "Delete" %}</button>
+              {% endif %}
+            </div>
           </div>
         </article>
       {% empty %}
-        <p class="page-desc">No Algeria listings match this model and storage bucket.</p>
+        <p class="page-desc">{% trans "No Algeria listings match this model, storage, and SIM bucket." %}</p>
       {% endfor %}
     </div>
 
     <div class="card">
       <div class="card-h">
-        Turkiye listings
+        {% trans "Turkiye listings" %}
         <span class="badge sh">{{ turkiye_rows|length }}</span>
       </div>
       {% for row in turkiye_rows %}
-        <article class="listing-card">
-          <div>
-            <div class="listing-title">{{ row.item.title_raw|default:row.item.product_model }}</div>
+        <article class="listing-card" data-listing-row>
+          <span class="thumb thumb-md">
+            {% if row.image_url %}
+              <img src="{{ row.image_url }}" alt="{{ row.item.title_raw|default:row.item.product_model }}">
+            {% endif %}
+          </span>
+          <div class="min-w-0">
+            <div
+              class="listing-title"
+              data-inline-field="title_raw"
+              data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+              data-inline-id="{{ row.item.id }}"
+            >{{ row.item.title_raw|default:row.item.product_model }}</div>
             <div class="listing-meta">
               <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
               <span class="badge {{ row.review_class }}">{{ row.item.get_review_status_display }}</span>
-              {{ row.item.variant|default:"-" }}
+              <span>{% if row.storage_gb %}{{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}</span>
             </div>
-            <div class="listing-meta">{{ row.item.observed_at|date:"M d H:i" }} - {{ row.item.get_condition_display }}</div>
+            <div class="listing-meta"><span>{{ row.item.observed_at|date:"M d H:i" }}</span><span>{{ row.item.get_condition_display }}</span></div>
           </div>
           <div class="listing-price">
-            <div>{{ row.eur|default:"-" }}</div>
-            <div class="listing-meta">{{ row.price|default:"-" }}</div>
-            {% if row.item.listing_url %}
-              <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">Open</a>
-            {% endif %}
+            <div class="listing-meta sm:justify-end">
+              <span class="font-sans text-slate-500 dark:text-slate-400">{% trans "Original" %}</span>
+              <span
+                data-inline-field="price_original"
+                data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                data-inline-id="{{ row.item.id }}"
+                data-inline-type="decimal"
+              >{{ row.item.price_original|default:"" }}</span>
+              <span>{{ row.item.currency_original }}</span>
+            </div>
+            <div class="mt-2 grid grid-cols-1 gap-y-1 text-xs sm:grid-cols-2 sm:gap-x-3 sm:justify-items-end">
+              {% for price in row.converted_prices %}
+                <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
+              {% empty %}
+                <span class="num">-</span>
+              {% endfor %}
+            </div>
+            <div class="mt-2 flex flex-wrap gap-2 sm:justify-end">
+              {% if row.item.listing_url %}
+                <a class="btn btn-secondary btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
+              {% endif %}
+              {% if request.user.is_authenticated and request.user.is_staff %}
+                <button
+                  class="btn btn-danger btn-sm"
+                  type="button"
+                  data-inline-delete="{% url 'inline_edit_api' 'market-listings' %}"
+                  data-inline-id="{{ row.item.id }}"
+                  data-inline-label="{{ row.item.title_raw|default:'listing'|truncatechars:48 }}"
+                >{% trans "Delete" %}</button>
+              {% endif %}
+            </div>
           </div>
         </article>
       {% empty %}
-        <p class="page-desc">No Turkiye listings match this model and storage bucket.</p>
+        <p class="page-desc">{% trans "No Turkiye listings match this model, storage, and SIM bucket." %}</p>
       {% endfor %}
     </div>
   </section>

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from importlib.util import find_spec
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,14 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+ALLOWED_HOSTS = [
+    host.strip()
+    for host in os.environ.get(
+        "DJANGO_ALLOWED_HOSTS",
+        "127.0.0.1,localhost,100.89.48.48",
+    ).split(",")
+    if host.strip()
+]
 
 
 # Application definition
@@ -44,15 +52,26 @@ INSTALLED_APPS = [
     'market',
 ]
 
+DEBUG_TOOLBAR_AVAILABLE = find_spec("debug_toolbar") is not None
+if DEBUG and DEBUG_TOOLBAR_AVAILABLE:
+    INSTALLED_APPS.append("debug_toolbar")
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG and DEBUG_TOOLBAR_AVAILABLE:
+    MIDDLEWARE.insert(
+        MIDDLEWARE.index('django.contrib.auth.middleware.AuthenticationMiddleware') + 1,
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    )
 
 ROOT_URLCONF = 'pricebridge.urls'
 
@@ -66,6 +85,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.i18n',
             ],
         },
     },
@@ -115,13 +135,37 @@ USE_I18N = True
 
 USE_TZ = True
 
+from django.utils.translation import gettext_lazy as _
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('tr', _('Turkish')),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_ROOT = Path(os.environ.get("PRICEBRIDGE_MEDIA_ROOT", BASE_DIR / "media"))
 MEDIA_URL = "media/"
+
+LOGIN_URL = "/admin/login/"
+
+
+def show_debug_toolbar(request):
+    user = getattr(request, "user", None)
+    return bool(DEBUG and user and user.is_authenticated and user.is_superuser)
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": "pricebridge.settings.show_debug_toolbar",
+}
 
 INSTAGRAM_SESSION_PATH = os.environ.get("INSTAGRAM_SESSION_PATH", "")
 INSTAGRAM_COOKIE_FILE = os.environ.get("INSTAGRAM_COOKIE_FILE", "")
@@ -129,6 +173,12 @@ OCR_BACKEND = os.environ.get("OCR_BACKEND", "dummy")
 OCR_SPACE_API_KEY = os.environ.get("OCR_SPACE_API_KEY", "")
 OCR_SPACE_LANGUAGE = os.environ.get("OCR_SPACE_LANGUAGE", "eng")
 OCR_SPACE_ENGINE = os.environ.get("OCR_SPACE_ENGINE", "2")
+NVIDIA_API_KEY = os.environ.get("NVIDIA_API_KEY") or os.environ.get("NVIDIA_NIM_API_KEY", "")
+NVIDIA_VISION_ENDPOINT = os.environ.get(
+    "NVIDIA_VISION_ENDPOINT",
+    "https://integrate.api.nvidia.com/v1/chat/completions",
+)
+NVIDIA_VISION_MODEL = os.environ.get("NVIDIA_VISION_MODEL", "meta/llama-3.2-11b-vision-instruct")
 CHROME_CDP_ENDPOINT = os.environ.get("CHROME_CDP_ENDPOINT", "http://127.0.0.1:9222")
 
 # Editable local defaults. Algeria calculations should primarily use DZD -> EUR

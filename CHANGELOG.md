@@ -1,7 +1,32 @@
 # Changelog
 
+## 2026-07-05
+
+- Added optional Django Debug Toolbar integration, gated to DEBUG and authenticated superusers only.
+- Added optional `OCR_BACKEND=nvidia` support for NVIDIA NIM vision chat completions using `NVIDIA_API_KEY`, `NVIDIA_VISION_ENDPOINT`, and `NVIDIA_VISION_MODEL`.
+- Added `queue_instagram_image_folder` for manually downloaded Instagram image folders and a `process_ocr_queue --source-username` filter so OCR can be run against one Instagram source at a time.
+- Added a computed opportunity gain split that suggests my gain, buyer price, buyer gain, buyer gain percent, DZD display values, and deal quality without adding new database tables or stored fields.
+- Replaced the inline dashboard CSS with a Tailwind build, added responsive light/dark dashboard components, and refactored opportunities, listings, opportunity detail, data quality, sources, and inline edit toolbar templates for mobile-first review workflows.
+- Added EUR, USD, TRY, and DZD converted price displays to listing review cards/tables and opportunity detail listing cards while preserving editable original prices.
+- Included imported supplier text-file prices in the Listings review page as read-only provider rows with supplier filtering support.
+- Normalized unknown-storage iPhone 16 family listing buckets to 128GB variants and rebuilt opportunity snapshots.
+- Added a filtered Data Quality review queue for listings needing cleanup, with inline-edit-ready title, price, condition, status, product, and variant fields.
+- Added normalized storage/SIM fields to listings, supplier prices, and opportunity snapshots; moved opportunity matching to product model plus storage/SIM buckets and stopped importers from creating new product model or variant rows during ingestion.
+- Added collapsible bulk storage tools to the Data Quality review queue, including row selection, quick storage assignment, and bulk delete for staff users.
+- Added a staff-reviewed listing suggestion workflow: `suggest_listing_fixes` proposes existing product models, storage, SIM, and condition fixes from stored listing text or matching user-opened CDP pages, Data Quality shows pending suggestions, and staff can bulk apply or reject them.
+- Added `agent_review_listings`, a separate OpenCode-powered review mode that launches the local OpenCode agent per listing, asks it to inspect the URL or infer from similar priced database rows, validates the returned JSON decision, and directly applies model/storage/SIM/condition/status edits to the database.
+- Cleared the listing review queue: ran the OpenCode bulk review pass, finalized remaining rows with explicit parsing and same-model price-band storage inference, rejected non-phone/no-price rows, and rebuilt opportunity snapshots.
+- Refactored `/opportunities/` from a dashboard alias into a standalone filtered/sortable page with recommendation tab bar, min-confidence/min-margin sliders, and sort-by-gross/margin/confidence/date.
+- Extracted `build_opportunity_rows()` helper shared between dashboard and opportunities views.
+- Added `.opp-tab-row`, `.opp-tab`, `.opp-filter-grid` CSS components and migrated dashboard tab-bar to use the new class-based styling.
+- Added per-source tab bar (All / Instagram / Ouedkniss / Supplier) to the opportunities page with on-the-fly margin recomputation for Algeria source-specific views.
+- Added `_compute_source_rows()` helper that computes opportunity rows directly from MarketListing per Algeria source type, preserving the same row shape as snapshot-based rows.
+- Made `/` the root opportunities page; `/listings/`, `/data-quality/`, `/sources/` now require `@staff_member_required` and redirect anonymous users to `/admin/login/`.
+- Set `LOGIN_URL = /admin/login/` in settings.
+
 ## 2026-07-04
 
+- Added the local Tailscale/LAN host `100.89.48.48` to the default Django `ALLOWED_HOSTS` and normalized comma-separated host configuration.
 - Added `ProductAsset` model for storing external visual assets (logos, product images) separately from `ProductModel`, with Commons metadata, licensing, match scoring, and admin registration.
 - Added `market.services.commons` module for Wikimedia Commons MediaWiki API integration: file search, imageinfo metadata, file download, candidate scoring, query generation, and series fallback logic.
 - Added `sync_commons_assets` management command to automatically search Commons for model/series logos, rank candidates, download files, and produce a sync report. Supports `--dry-run`, `--min-score`, `--save-weak`, `--force`, `--brand`, `--model-id`, `--limit`, and `--verbose`.

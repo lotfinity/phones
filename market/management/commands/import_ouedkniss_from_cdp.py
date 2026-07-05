@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from market.collectors.ouedkniss_cdp import import_from_cdp
+from market.models import Category
 
 
 class Command(BaseCommand):
@@ -43,8 +44,22 @@ class Command(BaseCommand):
             default=30,
             help="Skip Ouedkniss cards with visible relative dates older than this many days.",
         )
+        parser.add_argument(
+            "--pc",
+            dest="pc_mode",
+            action="store_true",
+            default=False,
+            help="Laptop/PC mode: parse laptop specs (CPU, GPU, RAM, screen) and save to Laptops category.",
+        )
 
     def handle(self, *args, **options):
+        category = None
+        if options["pc_mode"]:
+            category, _ = Category.objects.get_or_create(
+                slug="laptops", defaults={"name": "Laptops"}
+            )
+            self.stdout.write(self.style.WARNING(f"PC mode: saving to Laptops category (id={category.id})"))
+
         try:
             result = import_from_cdp(
                 options["cdp"],
@@ -56,6 +71,7 @@ class Command(BaseCommand):
                 open_if_missing=options["open_if_missing"],
                 load_timeout=options["load_timeout"],
                 extractor=options["extractor"],
+                category=category,
             )
         except (RuntimeError, SystemExit) as exc:
             raise CommandError(str(exc)) from exc

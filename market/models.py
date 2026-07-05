@@ -1,4 +1,5 @@
 import re
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -108,6 +109,7 @@ class DeviceVariant(models.Model):
         GB_256 = 256, "256 GB"
         GB_512 = 512, "512 GB"
         GB_1024 = 1024, "1024 GB"
+        GB_2048 = 2048, "2048 GB"
 
     product_model = models.ForeignKey(ProductModel, on_delete=models.CASCADE)
     storage_gb = models.PositiveSmallIntegerField(choices=Storage.choices, null=True, blank=True)
@@ -222,6 +224,8 @@ class SupplierPrice(models.Model):
     source = models.ForeignKey(Source, on_delete=models.CASCADE)
     product_model = models.ForeignKey(ProductModel, null=True, blank=True, on_delete=models.SET_NULL)
     variant = models.ForeignKey(DeviceVariant, null=True, blank=True, on_delete=models.SET_NULL)
+    storage_gb = models.PositiveSmallIntegerField(choices=DeviceVariant.Storage.choices, null=True, blank=True)
+    sim_config = models.CharField(max_length=80, blank=True)
     supplier_price_usd = models.DecimalField(max_digits=12, decimal_places=2)
     supplier_price_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     condition = models.CharField(max_length=20, choices=SupplierCondition.choices, default=SupplierCondition.UNKNOWN)
@@ -234,6 +238,10 @@ class SupplierPrice(models.Model):
 
     def __str__(self):
         return f"{self.raw_text[:60]} ({self.supplier_price_usd} USD)"
+
+    def save(self, *args, **kwargs):
+        self.sim_config = normalize_sim_config(self.sim_config)
+        super().save(*args, **kwargs)
 
 
 class MarketListing(models.Model):
@@ -254,6 +262,7 @@ class MarketListing(models.Model):
     country = models.CharField(max_length=20, choices=Country.choices)
     product_model = models.ForeignKey(ProductModel, null=True, blank=True, on_delete=models.SET_NULL)
     variant = models.ForeignKey(DeviceVariant, null=True, blank=True, on_delete=models.SET_NULL)
+    storage_gb = models.PositiveSmallIntegerField(choices=DeviceVariant.Storage.choices, null=True, blank=True)
     title_raw = models.CharField(max_length=300, blank=True)
     description_raw = models.TextField(blank=True)
     price_original = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
@@ -282,6 +291,54 @@ class MarketListing(models.Model):
     def __str__(self):
         return self.title_raw or self.listing_url or f"Listing {self.pk}"
 
+    def save(self, *args, **kwargs):
+        self.sim_config = normalize_sim_config(self.sim_config)
+        super().save(*args, **kwargs)
+
+
+class MarketListingReviewQueue(MarketListing):
+    class Meta:
+        proxy = True
+        verbose_name = "listing needing review"
+        verbose_name_plural = "listings needing review"
+
+
+class MarketListingSuggestion(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        APPLIED = "applied", "Applied"
+        REJECTED = "rejected", "Rejected"
+
+    listing = models.ForeignKey(MarketListing, related_name="suggestions", on_delete=models.CASCADE)
+    suggested_product_model = models.ForeignKey(ProductModel, null=True, blank=True, on_delete=models.SET_NULL)
+    suggested_storage_gb = models.PositiveSmallIntegerField(
+        choices=DeviceVariant.Storage.choices,
+        null=True,
+        blank=True,
+    )
+    suggested_sim_config = models.CharField(max_length=80, blank=True)
+    suggested_condition = models.CharField(max_length=20, choices=Condition.choices, blank=True)
+    confidence = models.FloatField(default=0)
+    reason = models.TextField(blank=True)
+    raw_evidence = models.JSONField(default=dict, blank=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["status", "-created_at"]),
+            models.Index(fields=["listing", "status"]),
+        ]
+
+    def __str__(self):
+        return f"Suggestion for listing {self.listing_id} ({self.status})"
+
+    def save(self, *args, **kwargs):
+        self.suggested_sim_config = normalize_sim_config(self.suggested_sim_config)
+        super().save(*args, **kwargs)
+
 
 class CurrencyRate(models.Model):
     base_currency = models.CharField(max_length=3)
@@ -307,12 +364,15 @@ class OpportunitySnapshot(models.Model):
 
     product_model = models.ForeignKey(ProductModel, on_delete=models.CASCADE)
     variant = models.ForeignKey(DeviceVariant, null=True, blank=True, on_delete=models.SET_NULL)
+    storage_gb = models.PositiveSmallIntegerField(choices=DeviceVariant.Storage.choices, null=True, blank=True)
+    sim_config = models.CharField(max_length=80, blank=True)
     algeria_min_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     algeria_avg_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     supplier_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     sahibinden_avg_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     gross_margin_vs_supplier_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     gross_margin_vs_sahibinden_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    supplier_margin_percent = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     margin_percent = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
     confidence_score = models.PositiveSmallIntegerField(
         default=0,
@@ -331,6 +391,113 @@ class OpportunitySnapshot(models.Model):
 
     def __str__(self):
         return f"{self.product_model} {self.variant or ''} {self.recommendation}".strip()
+
+    def save(self, *args, **kwargs):
+        self.sim_config = normalize_sim_config(self.sim_config)
+        super().save(*args, **kwargs)
+
+    # ---- Gain-split tiers (edit these to adjust commission behaviour) ----
+    # Each tuple: (upper_margin_threshold, my_gain_percent, buyer_min_gain_eur)
+    # Tiers are evaluated top-to-bottom; first match wins.
+    GAIN_SPLIT_TIERS = [
+        (Decimal("50"), Decimal("0"), Decimal("0")),
+        (Decimal("100"), Decimal("0.20"), Decimal("35")),
+        (Decimal("250"), Decimal("0.25"), Decimal("60")),
+        (Decimal("500"), Decimal("0.35"), Decimal("100")),
+        (None, Decimal("0.50"), Decimal("150")),
+    ]
+
+    def gain_split(self):
+        from decimal import Decimal as D
+        from market.services.currency import eur_to_dzd, money
+
+        gross = self.gross_margin_vs_sahibinden_eur
+        algeria_min = self.algeria_min_eur
+        sahibinden_avg = self.sahibinden_avg_eur
+
+        if gross is None or algeria_min is None or sahibinden_avg is None:
+            return None
+
+        gross = D(str(gross))
+
+        algeria_min = D(str(algeria_min))
+
+        if gross <= 0:
+            return {
+                "gross_margin_eur": money(gross),
+                "my_gain_eur": money(D("0")),
+                "buyer_gain_eur": money(gross),
+                "offer_price_to_buyer_eur": money(algeria_min),
+                "buyer_gain_percent": D("0.00"),
+                "my_gain_percent_of_gross": D("0.00"),
+                "my_gain_dzd": money(D("0")),
+                "offer_price_to_buyer_dzd": money(eur_to_dzd(algeria_min)),
+                "deal_quality": "ignore",
+                "notes": "No spread available to split.",
+            }
+
+        # Find the right tier
+        my_gain_pct = D("0")
+        buyer_min = D("0")
+        for threshold, gain_pct, min_gain in self.GAIN_SPLIT_TIERS:
+            if threshold is None or gross < threshold:
+                my_gain_pct = gain_pct
+                buyer_min = min_gain
+                break
+
+        my_gain = gross * my_gain_pct
+
+        # Cap: buyer must keep at least buyer_min.
+        capped = False
+        max_my_gain = gross - buyer_min
+        if my_gain > max_my_gain:
+            my_gain = max(D("0"), max_my_gain)
+            capped = True
+
+        buyer_gain = gross - my_gain
+        offer_price = algeria_min + my_gain
+
+        # Percentages
+        my_gain_pct_of_gross = (my_gain / gross * D("100")) if gross else D("0")
+        buyer_gain_pct = (buyer_gain / offer_price * D("100")) if offer_price else D("0")
+
+        # Deal quality
+        if gross < D("50"):
+            deal_quality = "weak"
+        elif buyer_gain_pct >= 30:
+            deal_quality = "strong"
+        elif buyer_gain_pct >= 15:
+            deal_quality = "medium"
+        elif buyer_gain_pct > 0:
+            deal_quality = "weak"
+        else:
+            deal_quality = "ignore"
+
+        # Notes
+        notes_parts = []
+        if my_gain_pct > 0:
+            notes_parts.append(f"My cut: {my_gain_pct * 100:.0f}% of spread")
+        if capped and buyer_gain >= buyer_min and buyer_min > 0:
+            notes_parts.append(f"Capped to leave buyer at least EUR {buyer_min:.0f}")
+        elif buyer_gain < buyer_min and buyer_min > 0:
+            notes_parts.append(f"Buyer minimum target EUR {buyer_min:.0f} is not met")
+        if deal_quality == "weak":
+            notes_parts.append("Thin margin for buyer; may not close")
+        if deal_quality == "strong":
+            notes_parts.append("Healthy buyer profit; attractive deal")
+
+        return {
+            "gross_margin_eur": money(gross),
+            "my_gain_eur": money(my_gain),
+            "buyer_gain_eur": money(buyer_gain),
+            "offer_price_to_buyer_eur": money(offer_price),
+            "buyer_gain_percent": buyer_gain_pct.quantize(D("0.01"), rounding=ROUND_HALF_UP),
+            "my_gain_percent_of_gross": my_gain_pct_of_gross.quantize(D("0.01"), rounding=ROUND_HALF_UP),
+            "my_gain_dzd": money(eur_to_dzd(my_gain)),
+            "offer_price_to_buyer_dzd": money(eur_to_dzd(offer_price)),
+            "deal_quality": deal_quality,
+            "notes": "; ".join(notes_parts),
+        }
 
 
 class ProductAsset(models.Model):

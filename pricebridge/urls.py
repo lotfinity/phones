@@ -17,15 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import include, path
 from market import views
 
 urlpatterns = [
-    path('', views.dashboard, name='dashboard'),
-    path('opportunities/', views.opportunities, name='opportunities'),
+    path('', views.opportunities, name='opportunities'),
     path('opportunities/<int:pk>/', views.opportunity_detail, name='opportunity_detail'),
     path('listings/', views.listings, name='listings'),
     path('data-quality/', views.data_quality, name='data_quality'),
     path('sources/', views.sources, name='sources'),
+    path('api/inline-edit/<slug:model_key>/', views.inline_edit_api, name='inline_edit_api'),
+    path('api/listing-bulk/', views.listing_bulk_api, name='listing_bulk_api'),
+    path('i18n/set-language/', views.set_language, name='set_language'),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG and getattr(settings, "DEBUG_TOOLBAR_AVAILABLE", False):
+    urlpatterns.append(path("__debug__/", include("debug_toolbar.urls")))

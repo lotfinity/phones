@@ -1,0 +1,1030 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PriceBridge · Opportunities Dashboard</title>
+<style>
+  :root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --fg: #111111;
+  --muted: #6b6b6b;
+  --border: #e5e5e5;
+  --accent: #2f6feb;
+  --sh: #7c3aed;
+  --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --fg-soft: color-mix(in oklab, var(--fg) 6%, transparent);
+  --success: #17a34a;
+  --warn: #eab308;
+  --danger: #dc2626;
+  --warn-dark: color-mix(in oklab, var(--warn), black 44%);
+
+  --font-display: "Inter", -apple-system, system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", monospace;
+
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+
+  --radius: 8px;
+  --radius-md: 12px;
+
+  --container-max: 1320px;
+  --container-gutter: 24px;
+
+  --sidebar-w: 200px;
+  --drawer-w: 440px;
+
+  --elev-raised: 0 2px 8px color-mix(in oklab, var(--fg), transparent 92%);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+/* ─── Layout shell ─── */
+.layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+/* ─── Sidebar ─── */
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding-block: 16px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 8px var(--container-gutter) 20px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+.sidebar-brand .logo {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.02em;
+}
+.sidebar-brand .logo-dot { color: var(--accent); }
+.sidebar-brand .tagline {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 8px;
+}
+.nav a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: var(--radius);
+  color: var(--muted);
+}
+.nav a:hover { background: var(--fg-soft); color: var(--fg); }
+.nav a.active {
+  background: color-mix(in oklab, var(--accent) 10%, var(--surface));
+  color: var(--accent);
+  font-weight: 500;
+}
+.nav a .icon {
+  width: 18px; height: 18px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.nav-section {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 16px 12px 6px;
+  font-family: var(--font-mono);
+}
+
+/* ─── Header bar ─── */
+.header {
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+.header-inner {
+  max-width: 100%;
+  padding: 10px var(--container-gutter);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.bread {
+  font-size: 13px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+.bread strong { color: var(--fg); font-weight: 600; }
+
+/* ─── Main ─── */
+.main {
+  padding: 20px var(--container-gutter) 60px;
+  max-width: 100%;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+}
+.page-desc {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+
+/* ─── Stats row ─── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 1200px) { .stat-row { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 640px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.stat-card .num {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.stat-card .lbl {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+}
+.stat-card .delta {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+.delta.up { background: color-mix(in oklab, var(--success) 12%, transparent); color: var(--success); }
+.delta.down { background: color-mix(in oklab, var(--danger) 12%, transparent); color: var(--danger); }
+
+/* ─── Cards ─── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+.card + .card { margin-top: 16px; }
+.card-h {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-grid {
+  display: grid;
+  gap: 12px;
+}
+.card-grid-4 { grid-template-columns: repeat(4, 1fr); }
+.card-grid-2 { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 960px) { .card-grid-4, .card-grid-2 { grid-template-columns: 1fr; } }
+
+.cat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  cursor: pointer;
+  transition: border-color 150ms ease;
+}
+.cat-card:hover { border-color: var(--accent); }
+.cat-card .name {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  font-family: var(--font-display);
+}
+.cat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  padding: 3px 0;
+  border-top: 1px solid var(--border);
+}
+.cat-row .k { color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; font-size: 10px; letter-spacing: 0.06em; }
+.cat-row .v { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ─── Filters ─── */
+.filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.f-input {
+  padding: 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+  color: var(--fg);
+  min-width: 160px;
+}
+.f-input:focus {
+  outline: 2px solid var(--accent-soft);
+  border-color: var(--accent);
+}
+.f-select {
+  padding: 7px 28px 7px 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  font: inherit;
+  font-size: 13px;
+  color: var(--fg);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  cursor: pointer;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  transition: transform 50ms ease, background 150ms ease, border-color 150ms ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-on);
+  border-color: var(--accent);
+}
+.btn-primary:hover { background: color-mix(in oklab, var(--accent) 88%, black); }
+.btn-secondary {
+  background: transparent;
+  color: var(--fg);
+  border-color: var(--border);
+}
+.btn-secondary:hover { border-color: var(--fg); }
+.btn-ghost {
+  background: transparent;
+  padding-inline: 8px;
+  border-color: transparent;
+}
+.btn-ghost:hover { color: var(--accent); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* ─── Table ─── */
+.table-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.table-scroll {
+  overflow-x: auto;
+  max-height: 520px;
+  overflow-y: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  white-space: nowrap;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background: color-mix(in oklab, var(--surface) 96%, var(--fg));
+  padding: 10px 14px;
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+}
+thead th:hover { color: var(--fg); }
+thead th .sort { font-size: 10px; opacity: 0.6; margin-left: 4px; }
+thead th .sort.on { opacity: 1; color: var(--accent); }
+tbody td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+tbody tr:hover { background: var(--fg-soft); }
+tbody tr.selected { background: color-mix(in oklab, var(--accent) 8%, var(--surface)); }
+tbody tr.selected:hover { background: color-mix(in oklab, var(--accent) 12%, var(--surface)); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.num-r { text-align: right; }
+
+.cell-rec {
+  display: inline-flex;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rec-buy { background: color-mix(in oklab, var(--success) 14%, transparent); color: var(--success); }
+.rec-watch { background: color-mix(in oklab, var(--warn) 14%, transparent); color: #5c4200; }
+.rec-ignore { background: var(--fg-soft); color: var(--muted); }
+.rec-insufficient { background: var(--fg-soft); color: var(--muted); }
+
+.cell-margin { font-weight: 500; }
+.cell-margin.good { color: var(--success); }
+.cell-margin.warn { color: #5c4200; }
+
+.badge-row { display: flex; gap: 4px; }
+.badge {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: var(--surface);
+}
+.badge.ig { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
+.badge.ok { color: var(--success); border-color: color-mix(in oklab, var(--success) 40%, transparent); }
+.badge.sh { color: var(--sh); border-color: color-mix(in oklab, var(--sh) 50%, transparent); }
+
+.conf-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.conf-track {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.conf-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+.conf-num { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+
+/* ─── Drawer ─── */
+.drawer {
+  position: fixed;
+  inset: 0;
+  display: none;
+  z-index: 50;
+}
+.drawer.open { display: block; }
+.drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--fg), transparent 60%);
+}
+.drawer-panel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: min(var(--drawer-w), 100vw);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 20px color-mix(in oklab, var(--fg), transparent 80%);
+  overflow-y: auto;
+  animation: slideIn 180ms ease;
+}
+@keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+.drawer-head {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 5;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+.drawer-close {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  width: 32px; height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 16px;
+}
+.drawer-close:hover { border-color: var(--fg); color: var(--fg); }
+.drawer-body { padding: 20px; }
+.drawer-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: 0 0 4px;
+}
+.drawer-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+.mc-block {
+  background: color-mix(in oklab, var(--bg) 50%, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+.mc-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  margin-bottom: 8px;
+}
+.mc-equation {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.mc-highlight {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--success);
+}
+
+.bar-compare {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 80px;
+  gap: 10px;
+  align-items: center;
+  font-size: 12px;
+}
+.bar-row .k { color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.bar-row .v { font-family: var(--font-mono); text-align: right; }
+.bar-track {
+  height: 8px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+}
+.bar-fill.g { background: var(--success); }
+.bar-fill.w { background: var(--warn); }
+
+.warn-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+.warn-item {
+  font-size: 12px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--warn);
+  background: color-mix(in oklab, var(--warn) 8%, var(--surface));
+  color: var(--fg);
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.warn-item.danger { border-left-color: var(--danger); background: color-mix(in oklab, var(--danger) 8%, var(--surface)); }
+
+.listing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.listing-row .source-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.src-ig { background: color-mix(in oklab, var(--accent) 12%, transparent); color: var(--accent); }
+.src-ok { background: color-mix(in oklab, var(--success) 12%, transparent); color: var(--success); }
+.src-sh { background: color-mix(in oklab, var(--sh) 12%, transparent); color: var(--sh); }
+
+.overlay-hint {
+  background: var(--fg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .filters { flex-direction: column; align-items: stretch; }
+  .f-input, .f-select { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="layout" data-od-id="layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" data-od-id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">PriceBridge<span class="logo-dot">·</span></div>
+      <div class="tagline">Alg ↔ TR · v0.1</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Workspace</div>
+      <a href="index.html" class="nav-link">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        </span>
+        Screens
+      </a>
+      <a href="#" class="nav-link active">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 4-9"/></svg>
+        </span>
+        Opportunities
+      </a>
+      <div class="nav-section">Review</div>
+      <a href="listings.html" class="nav-link">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+        </span>
+        Listings
+      </a>
+      <a href="data-quality.html" class="nav-link">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg>
+        </span>
+        Data Quality
+      </a>
+      <div class="nav-section">Config</div>
+      <a href="sources.html" class="nav-link">
+        <span class="icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </span>
+        Sources
+      </a>
+    </nav>
+  </aside>
+
+  <div>
+    <header class="header" data-od-id="topbar">
+      <div class="header-inner">
+        <div>
+          <div class="bread">Workspace / <strong>Opportunities</strong></div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:10px;align-items:center;">
+          <span class="meta" style="font-family:var(--font-mono);font-size:12px;" id="clock"></span>
+          <button class="btn btn-ghost btn-sm">Refresh</button>
+          <button class="btn btn-primary btn-sm">New import</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="main" data-od-id="main">
+      <h1 class="page-title">Opportunities</h1>
+      <p class="page-desc">Cross-market smartphone intelligence · Algeria (DZD) ↔ Türkiye (TRY/EUR) · Last import 14 min ago</p>
+
+      <!-- Summary metrics -->
+      <div class="stat-row" data-od-id="metrics">
+        <div class="stat-card">
+          <div class="num">248</div>
+          <div class="lbl">Opportunities</div>
+          <span class="delta up">▲ 12 vs yesterday</span>
+        </div>
+        <div class="stat-card">
+          <div class="num" style="color:var(--success);">67</div>
+          <div class="lbl">Buy</div>
+          <span class="delta up">▲ 4</span>
+        </div>
+        <div class="stat-card">
+          <div class="num" style="color:var(--warn-dark);">113</div>
+          <div class="lbl">Watch</div>
+          <span class="delta down">▼ 6</span>
+        </div>
+        <div class="stat-card">
+          <div class="num">18.4%</div>
+          <div class="lbl">Avg margin %</div>
+          <span class="delta up">▲ 2.1pp</span>
+        </div>
+        <div class="stat-card">
+          <div class="num">543.91€</div>
+          <div class="lbl">Highest margin</div>
+          <span class="delta up">▲ 32€</span>
+        </div>
+        <div class="stat-card">
+          <div class="num">891</div>
+          <div class="lbl">Alg listings</div>
+          <span class="delta up">▲ 24</span>
+        </div>
+        <div class="stat-card">
+          <div class="num">412</div>
+          <div class="lbl">TR listings</div>
+          <span class="delta up">▲ 11</span>
+        </div>
+        <div class="stat-card">
+          <div class="num" style="color:var(--warn);">34</div>
+          <div class="lbl">Needs review</div>
+          <span class="delta down">▼ 8</span>
+        </div>
+      </div>
+
+      <!-- Category cards -->
+      <div class="card-grid-4 card-grid" data-od-id="categories">
+        <div class="cat-card">
+          <div class="name">Samsung S Series</div>
+          <div class="cat-row"><span class="k">Opps</span><span class="v">84</span></div>
+          <div class="cat-row"><span class="k">Best margin</span><span class="v" style="color:var(--success);">543.91€</span></div>
+          <div class="cat-row"><span class="k">Avg margin</span><span class="v">22.4%</span></div>
+          <div class="cat-row"><span class="k">Avg conf</span><span class="v">78%</span></div>
+          <div class="cat-row"><span class="k">Mix</span><span class="v"><span style="color:var(--success);">34</span> / <span style="color:var(--warn-dark);">40</span> / <span style="color:var(--muted);">10</span></span></div>
+          <div class="cat-row"><span class="k">Top pick</span><span class="v">Galaxy Z Fold 7 · 256GB</span></div>
+        </div>
+        <div class="cat-card">
+          <div class="name">iPhones</div>
+          <div class="cat-row"><span class="k">Opps</span><span class="v">96</span></div>
+          <div class="cat-row"><span class="k">Best margin</span><span class="v" style="color:var(--success);">204.13€</span></div>
+          <div class="cat-row"><span class="k">Avg margin</span><span class="v">15.2%</span></div>
+          <div class="cat-row"><span class="k">Avg conf</span><span class="v">81%</span></div>
+          <div class="cat-row"><span class="k">Mix</span><span class="v"><span style="color:var(--success);">22</span> / <span style="color:var(--warn-dark);">58</span> / <span style="color:var(--muted);">16</span></span></div>
+          <div class="cat-row"><span class="k">Top pick</span><span class="v">iPhone 13 · 128GB</span></div>
+        </div>
+        <div class="cat-card">
+          <div class="name">Xiaomi / Redmi / Poco</div>
+          <div class="cat-row"><span class="k">Opps</span><span class="v">42</span></div>
+          <div class="cat-row"><span class="k">Best margin</span><span class="v" style="color:var(--success);">78.00€</span></div>
+          <div class="cat-row"><span class="k">Avg margin</span><span class="v">11.8%</span></div>
+          <div class="cat-row"><span class="k">Avg conf</span><span class="v">69%</span></div>
+          <div class="cat-row"><span class="k">Mix</span><span class="v"><span style="color:var(--success);">8</span> / <span style="color:var(--warn-dark);">28</span> / <span style="color:var(--muted);">6</span></span></div>
+          <div class="cat-row"><span class="k">Top pick</span><span class="v">Redmi Note 15 Pro · 256GB</span></div>
+        </div>
+        <div class="cat-card">
+          <div class="name">MacBooks / Laptops</div>
+          <div class="cat-row"><span class="k">Opps</span><span class="v">26</span></div>
+          <div class="cat-row"><span class="k">Best margin</span><span class="v" style="color:var(--success);">130.00€</span></div>
+          <div class="cat-row"><span class="k">Avg margin</span><span class="v">9.4%</span></div>
+          <div class="cat-row"><span class="k">Avg conf</span><span class="v">52%</span></div>
+          <div class="cat-row"><span class="k">Mix</span><span class="v"><span style="color:var(--success);">3</span> / <span style="color:var(--warn-dark);">11</span> / <span style="color:var(--muted);">12</span></span></div>
+          <div class="cat-row"><span class="k">Top pick</span><span class="v">MacBook Air M2 · 256GB</span></div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters" data-od-id="filters">
+        <input class="f-input" type="text" placeholder="Search model or variant…" style="flex:1;min-width:180px;">
+        <select class="f-select"><option>All brands</option><option>Samsung</option><option>Apple</option><option>Xiaomi</option><option>Apple · MacBook</option></select>
+        <select class="f-select"><option>All recommendations</option><option>Buy</option><option>Watch</option><option>Ignore</option><option>Insufficient data</option></select>
+        <select class="f-select"><option>Any storage</option><option>128GB</option><option>256GB</option><option>512GB</option></select>
+        <select class="f-select"><option>Min confidence: Any</option><option>≥ 60%</option><option>≥ 70%</option><option>≥ 80%</option><option>≥ 90%</option></select>
+        <select class="f-select"><option>Sources: Any</option><option>Instagram</option><option>Ouedkniss</option><option>Sahibinden</option></select>
+        <select class="f-select"><option>Review: Any</option><option>Verified</option><option>Needs review</option><option>Excluded</option></select>
+        <button class="btn btn-secondary btn-sm">Reset</button>
+        <button class="btn btn-ghost btn-sm" style="color:var(--accent);">Save view ▾</button>
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap" data-od-id="table">
+        <div class="table-scroll" id="tableScroll">
+          <table id="oppsTable">
+            <thead>
+              <tr>
+                <th style="width:18px;"></th>
+                <th data-col="recommendation">Rec <span class="sort">↕</span></th>
+                <th data-col="product">Product <span class="sort">↕</span></th>
+                <th data-col="variant">Variant</th>
+                <th data-col="algeria_min" class="num-r">Alg min <span class="sort">↕</span></th>
+                <th data-col="algeria_avg" class="num-r">Alg avg <span class="sort">↕</span></th>
+                <th data-col="turkey_avg" class="num-r">TR avg <span class="sort">↕</span></th>
+                <th data-col="margin_eur" class="num-r">Gross margin€ <span class="sort on">↓</span></th>
+                <th data-col="margin_pct" class="num-r">Margin% <span class="sort">↕</span></th>
+                <th data-col="confidence">Conf <span class="sort">↕</span></th>
+                <th>Sources</th>
+                <th data-col="updated" class="num-r">Updated <span class="sort">↕</span></th>
+              </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Detail drawer -->
+  <aside class="drawer" id="drawer" data-od-id="drawer">
+    <div class="drawer-backdrop" onclick="closeDrawer()"></div>
+    <div class="drawer-panel" id="drawerPanel">
+      <div class="drawer-head">
+        <div>
+          <div class="drawer-title" id="dTitle">—</div>
+          <div class="drawer-sub" id="dSub">—</div>
+        </div>
+        <button class="drawer-close" onclick="closeDrawer()">✕</button>
+      </div>
+      <div class="drawer-body" id="drawerBody">
+        <div class="overlay-hint">Select a row to inspect.</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<script>
+// ─── Sample data ───
+const OPPORTUNITIES = [
+  { rec:"buy", product:"Samsung Galaxy Z Fold 7", variant:"256GB", algMin:980.00, algAvg:1015.00, trAvg:1523.91, margin:543.91, marginPct:55.49, conf:76, sources:["ig","sh"], updated:"2h ago",
+    warnings:["Wide Algeria spread (alg min vs avg: 35€)"],
+    alg: [{src:"ig",price:980.00,orig:"2,150,000 DZD",cond:"New",date:"04 Jul",status:"verified"},{src:"ig",price:1020.00,orig:"2,240,000 DZD",cond:"New",date:"03 Jul",status:"verified"}],
+    tr: [{src:"sh",price:1523.91,orig:"52,499 TRY",cond:"New",date:"04 Jul",status:"verified"},{src:"sh",price:1545.00,orig:"53,200 TRY",cond:"New",date:"03 Jul",status:"verified"}]
+  },
+  { rec:"buy", product:"Samsung Galaxy S25 Ultra", variant:"256GB", algMin:632.14, algAvg:681.40, trAvg:836.27, margin:204.13, marginPct:32.29, conf:88, sources:["ig","ok","sh"], updated:"3h ago", warnings:[],
+    alg: [{src:"ig",price:632.14,orig:"1,380,000 DZD",cond:"New",date:"04 Jul",status:"verified"},{src:"ok",price:688.00,orig:"1,500,000 DZD",cond:"New",date:"03 Jul",status:"verified"}],
+    tr: [{src:"sh",price:836.27,orig:"28,799 TRY",cond:"New",date:"04 Jul",status:"verified"},{src:"sh",price:842.50,orig:"29,000 TRY",cond:"New",date:"03 Jul",status:"verified"}]
+  },
+  { rec:"watch", product:"iPhone 13", variant:"128GB", algMin:390.00, algAvg:425.00, trAvg:525.52, margin:135.52, marginPct:34.75, conf:88, sources:["ig","ok","sh"], updated:"5h ago", warnings:[],
+    alg: [{src:"ig",price:395.00,orig:"860,000 DZD",cond:"Good",date:"04 Jul",status:"verified"},{src:"ok",price:410.00,orig:"890,000 DZD",cond:"Good",date:"03 Jul",status:"verified"}],
+    tr: [{src:"sh",price:525.52,orig:"18,099 TRY",cond:"Good",date:"04 Jul",status:"verified"}]
+  },
+  { rec:"watch", product:"iPhone 17 Pro Max", variant:"256GB", algMin:1017.86, algAvg:1210.71, trAvg:1266.00, margin:248.14, marginPct:24.38, conf:61, sources:["ig","ok","sh"], updated:"1h ago",
+    warnings:["Large Algeria spread (min vs avg: 192.85€) — price range is wide","Low confidence due to mixed condition listings","Sparse Türkiye data (1 listing)"],
+    alg: [{src:"ig",price:1017.86,orig:"2,220,000 DZD",cond:"Used",date:"04 Jul",status:"needs-review"},{src:"ok",price:1150.00,orig:"2,500,000 DZD",cond:"Fair",date:"03 Jul",status:"needs-review"}],
+    tr: [{src:"sh",price:1266.00,orig:"43,600 TRY",cond:"Good",date:"04 Jul",status:"verified"}]
+  },
+  { rec:"watch", product:"Redmi Note 15 Pro", variant:"256GB", algMin:210.00, algAvg:230.00, trAvg:255.00, margin:45.00, marginPct:21.43, conf:70, sources:["ig","ok"], updated:"6h ago", warnings:["Missing Sahibinden source"],
+    alg: [{src:"ig",price:210.00,orig:"455,000 DZD",cond:"New",date:"04 Jul",status:"verified"},{src:"ok",price:228.00,orig:"495,000 DZD",cond:"New",date:"03 Jul",status:"verified"}],
+    tr: []
+  },
+  { rec:"insufficient_data", product:"MacBook Air M2", variant:"256GB", algMin:720.00, algAvg:780.00, trAvg:850.00, margin:130.00, marginPct:21.19, conf:54, sources:["ig","ok"], updated:"8h ago",
+    warnings:["Sparse Türkiye data","Insufficient source coverage","Low OCR confidence on listings"],
+    alg: [{src:"ig",price:720.00,orig:"1,560,000 DZD",cond:"Good",date:"04 Jul",status:"needs-review"}],
+    tr: [{src:"sh",price:850.00,orig:"29,250 TRY",cond:"Good",date:"04 Jul",status:"verified"}]
+  },
+  { rec:"buy", product:"iPhone 14 Pro", variant:"256GB", algMin:485.00, algAvg:510.00, trAvg:680.00, margin:195.00, marginPct:40.21, conf:82, sources:["ig","ok","sh"], updated:"4h ago", warnings:[],
+    alg: [{src:"ig",price:485.00,orig:"1,055,000 DZD",cond:"New",date:"04 Jul",status:"verified"},{src:"ok",price:510.00,orig:"1,110,000 DZD",cond:"New",date:"04 Jul",status:"verified"}],
+    tr: [{src:"sh",price:680.00,orig:"23,400 TRY",cond:"New",date:"04 Jul",status:"verified"}]
+  },
+  { rec:"ignore", product:"Samsung Galaxy A55", variant:"128GB", algMin:285.00, algAvg:300.00, trAvg:305.00, margin:20.00, marginPct:7.02, conf:72, sources:["ig","ok"], updated:"7h ago", warnings:["Low margin — not worth the friction"],
+    alg: [{src:"ig",price:285.00,orig:"620,000 DZD",cond:"New",date:"04 Jul",status:"verified"}],
+    tr: [{src:"ok",price:305.00,orig:"10,500 TRY",cond:"New",date:"04 Jul",status:"verified"}]
+  },
+  { rec:"watch", product:"Xiaomi 14 Ultra", variant:"512GB", algMin:620.00, algAvg:665.00, trAvg:780.00, margin:160.00, marginPct:25.81, conf:67, sources:["ig"], updated:"9h ago", warnings:["Single Algeria source","Missing Ouedkniss"],
+    alg: [{src:"ig",price:620.00,orig:"1,350,000 DZD",cond:"New",date:"04 Jul",status:"verified"}],
+    tr: [{src:"sh",price:780.00,orig:"26,850 TRY",cond:"New",date:"04 Jul",status:"verified"}]
+  },
+  { rec:"buy", product:"iPhone 15", variant:"128GB", algMin:540.00, algAvg:575.00, trAvg:720.00, margin:180.00, marginPct:33.33, conf:85, sources:["ig","ok","sh"], updated:"2h ago", warnings:[],
+    alg: [{src:"ig",price:540.00,orig:"1,175,000 DZD",cond:"New",date:"04 Jul",status:"verified"},{src:"ok",price:555.00,orig:"1,207,000 DZD",cond:"New",date:"04 Jul",status:"verified"}],
+    tr: [{src:"sh",price:720.00,orig:"24,790 TRY",cond:"New",date:"04 Jul",status:"verified"}]
+  },
+  { rec:"watch", product:"Samsung Galaxy S24 FE", variant:"256GB", algMin:380.00, algAvg:408.00, trAvg:485.00, margin:105.00, marginPct:27.63, conf:73, sources:["ig","sh"], updated:"10h ago", warnings:["Missing Ouedkniss coverage"],
+    alg: [{src:"ig",price:380.00,orig:"828,000 DZD",cond:"New",date:"04 Jul",status:"verified"}],
+    tr: [{src:"sh",price:485.00,orig:"16,700 TRY",cond:"New",date:"04 Jul",status:"verified"}]
+  }
+];
+
+// ─── Render table ───
+const tbody = document.getElementById('tableBody');
+const sortState = { col: 'margin_eur', dir: 'desc' };
+
+function recBadge(r) {
+  const m = { buy:'rec-buy', watch:'rec-watch', ignore:'rec-ignore', insufficient_data:'rec-insufficient' };
+  const l = { buy:'BUY', watch:'WATCH', ignore:'IGNORE', insufficient_data:'NO DATA' };
+  return `<span class="cell-rec ${m[r]||''}">${l[r]||r.toUpperCase()}</span>`;
+}
+function marginClass(pct) { return pct >= 20 ? 'good' : pct >= 10 ? 'warn' : ''; }
+function sourceBadges(arr) {
+  const m = { ig:'ig', ok:'ok', sh:'sh' };
+  return '<div class="badge-row">' + arr.map(s => `<span class="badge ${m[s]||''}">${s.toUpperCase()}</span>`).join('') + '</div>';
+}
+function confBar(v) {
+  return `<div class="conf-bar"><div class="conf-track"><div class="conf-fill" style="width:${v}%"></div></div><span class="conf-num">${v}</span></div>`;
+}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function render() {
+  let data = [...OPPORTUNITIES];
+  const col = sortState.col, dir = sortState.dir;
+  data.sort((a,b) => {
+    let av = a[col] ?? 0, bv = b[col] ?? 0;
+    if (typeof av === 'string') { av = av.toLowerCase(); bv = String(bv).toLowerCase(); }
+    if (av < bv) return dir === 'asc' ? -1 : 1;
+    if (av > bv) return dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+  tbody.innerHTML = data.map((r, i) => {
+    return `<tr data-idx="${i}" onclick="openDrawer(${i})">
+      <td><input type="radio" name="sel" onclick="event.stopPropagation();openDrawer(${i})"></td>
+      <td>${recBadge(r.rec)}</td>
+      <td><strong>${esc(r.product)}</strong></td>
+      <td style="color:var(--muted);">${esc(r.variant)}</td>
+      <td class="num-r num">${r.algMin.toFixed(2)}</td>
+      <td class="num-r num">${r.algAvg.toFixed(2)}</td>
+      <td class="num-r num">${r.trAvg.toFixed(2)}</td>
+      <td class="num-r num cell-margin ${marginClass(r.marginPct)}">+${r.margin.toFixed(2)}</td>
+      <td class="num-r num">${r.marginPct.toFixed(1)}%</td>
+      <td>${confBar(r.conf)}</td>
+      <td>${sourceBadges(r.sources)}</td>
+      <td class="num-r" style="color:var(--muted);font-size:12px;">${r.updated}</td>
+    </tr>`;
+  }).join('');
+  document.querySelectorAll('thead th').forEach(th => {
+    const c = th.dataset.col;
+    const icon = th.querySelector('.sort');
+    if (!icon) return;
+    icon.textContent = c === sortState.col ? (sortState.dir === 'asc' ? '↑' : '↓') : '↕';
+    icon.classList.toggle('on', c === sortState.col);
+  });
+}
+render();
+
+document.querySelectorAll('thead th').forEach(th => {
+  th.addEventListener('click', () => {
+    const col = th.dataset.col; if (!col) return;
+    if (sortState.col === col) sortState.dir = sortState.dir === 'asc' ? 'desc' : 'asc';
+    else { sortState.col = col; sortState.dir = 'asc'; }
+    // default desc for monetary/value col
+    if (['margin_eur','margin_pct','confidence'].includes(col)) sortState.dir = 'desc';
+    render();
+  });
+});
+
+// ─── Drawer ───
+const drawer = document.getElementById('drawer');
+function openDrawer(idx) {
+  const r = OPPORTUNITIES[idx];
+  document.querySelectorAll('#tableBody tr').forEach(tr => tr.classList.remove('selected'));
+  const row = document.querySelector(`#tableBody tr[data-idx="${idx}"]`);
+  if (row) row.classList.add('selected');
+  document.getElementById('dTitle').textContent = `${r.product} · ${r.variant}`;
+  document.getElementById('dSub').innerHTML = `${recBadge(r.rec)} &nbsp; Confidence ${r.conf}% · Updated ${r.updated}`;
+
+  const mcBlock = `
+    <div class="mc-block">
+      <div class="mc-label">Margin calculation</div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap;">
+        <div><div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);">Türkiye avg</div><div class="num" style="font-size:18px;">${r.trAvg.toFixed(2)}€</div></div>
+        <div style="color:var(--muted);font-size:20px;">−</div>
+        <div><div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);">Algeria min</div><div class="num" style="font-size:18px;">${r.algMin.toFixed(2)}€</div></div>
+        <div style="color:var(--success);font-size:20px;">=</div>
+        <div style="text-align:right;"><div style="font-size:11px;color:var(--muted);font-family:var(--font-mono);">Gross margin</div><div class="mc-highlight">+${r.margin.toFixed(2)}€</div></div>
+      </div>
+      <div class="mc-equation">${r.trAvg.toFixed(2)}€ − ${r.algMin.toFixed(2)}€ = ${r.margin.toFixed(2)}€ (${r.marginPct.toFixed(1)}%)</div>
+    </div>`;
+
+  const maxV = Math.max(r.algMin, r.algAvg, r.trAvg, 1);
+  const compare = `
+    <div class="mc-block">
+      <div class="mc-label">Price comparison</div>
+      <div class="bar-compare">
+        <div class="bar-row"><span class="k">Alg min</span><div class="bar-track"><div class="bar-fill" style="width:${(r.algMin/maxV)*100}%"></div></div><span class="v">${r.algMin.toFixed(2)}€</span></div>
+        <div class="bar-row"><span class="k">Alg avg</span><div class="bar-track"><div class="bar-fill" style="width:${(r.algAvg/maxV)*100}%"></div></div><span class="v">${r.algAvg.toFixed(2)}€</span></div>
+        <div class="bar-row"><span class="k">TR avg</span><div class="bar-track"><div class="bar-fill g" style="width:${(r.trAvg/maxV)*100}%"></div></div><span class="v" style="color:var(--success);">${r.trAvg.toFixed(2)}€</span></div>
+      </div>
+    </div>`;
+
+  const confBlock = `
+    <div class="mc-block">
+      <div class="mc-label">Confidence breakdown · ${r.conf}%</div>
+      <div style="display:grid;gap:6px;font-size:12px;">
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Exact model match</span><span class="num" style="color:var(--success);">✓</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Storage matched</span><span class="num" style="color:var(--success);">✓</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Listing count</span><span class="num">${r.alg.length + r.tr.length}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">OCR quality</span><span class="num" style="color:${r.conf >= 80 ? 'var(--success)' : 'var(--warn)'};">${r.conf >= 80 ? 'High' : r.conf >= 60 ? 'Medium' : 'Low'}</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Source coverage</span><span class="num">${r.sources.length} of 3</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);">Review status</span><span class="num" style="color:var(--warn);">Mixed</span></div>
+      </div>
+    </div>`;
+
+  const algList = r.alg.map(l => `
+    <div class="listing-row">
+      <div><span class="source-tag src-${l.src}">${l.src.toUpperCase()}</span></div>
+      <div class="num">${l.price.toFixed(2)}€</div>
+      <div style="color:var(--muted);font-size:11px;font-family:var(--font-mono);">${l.orig}</div>
+      <div style="font-size:12px;">${l.cond}</div>
+      <div style="font-size:12px;color:var(--muted);">${l.date}</div>
+      <div><span class="badge" style="font-size:10px;">${l.status}</span></div>
+      <div><a href="#" class="btn btn-ghost btn-sm">↗</a></div>
+    </div>`).join('');
+
+  const trList = r.tr.map(l => `
+    <div class="listing-row">
+      <div><span class="source-tag src-sh">SH</span></div>
+      <div class="num">${l.price.toFixed(2)}€</div>
+      <div style="color:var(--muted);font-size:11px;font-family:var(--font-mono);">${l.orig}</div>
+      <div style="font-size:12px;">${l.cond}</div>
+      <div style="font-size:12px;color:var(--muted);">${l.date}</div>
+      <div><span class="badge" style="font-size:10px;">${l.status}</span></div>
+      <div><a href="#" class="btn btn-ghost btn-sm">↗</a></div>
+    </div>`).join('');
+
+  const algBlock = `
+    <div class="mc-block">
+      <div class="mc-label">Algeria listings used (${r.alg.length})</div>
+      ${algList || '<div style="font-size:12px;color:var(--muted);">No Algeria listings.</div>'}
+    </div>`;
+
+  const trBlock = `
+    <div class="mc-block">
+      <div class="mc-label">Türkiye listings used (${r.tr.length})</div>
+      ${trList || '<div style="font-size:12px;color:var(--muted);">No Türkiye listings.</div>'}
+    </div>`;
+
+  const warnBlock = r.warnings.length ? `
+    <div class="mc-block" style="border-color:var(--warn);">
+      <div class="mc-label" style="color:var(--warn);">Warnings (${r.warnings.length})</div>
+      <div class="warn-list">
+        ${r.warnings.map(w => `<div class="warn-item">${esc(w)}</div>`).join('')}
+      </div>
+    </div>` : '';
+
+  document.getElementById('drawerBody').innerHTML = mcBlock + compare + confBlock + algBlock + trBlock + warnBlock;
+  drawer.classList.add('open');
+}
+function closeDrawer() { drawer.classList.remove('open'); }
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+</script>
+</body>
+</html>

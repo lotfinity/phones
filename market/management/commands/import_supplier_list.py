@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand, CommandError
 from market.models import Country, Source, SourceType, SupplierPrice
 from market.parsers.supplier_parser import parse_supplier_line
 from market.services.currency import usd_to_eur
-from market.services.matching import get_or_create_model, get_or_create_variant
+from market.services.matching import find_existing_model, find_existing_variant
 
 
 class Command(BaseCommand):
@@ -44,9 +44,9 @@ class Command(BaseCommand):
             if not parsed.raw_text or not parsed.price_usd:
                 skipped += 1
                 continue
-            product_model = get_or_create_model(parsed.model_text) if parsed.model_text else None
+            product_model = find_existing_model(parsed.model_text) if parsed.model_text else None
             variant = (
-                get_or_create_variant(product_model, parsed.storage_gb)
+                find_existing_variant(product_model, parsed.storage_gb)
                 if product_model and parsed.storage_gb
                 else None
             )
@@ -57,6 +57,8 @@ class Command(BaseCommand):
                 defaults={
                     "product_model": product_model,
                     "variant": variant,
+                    "storage_gb": parsed.storage_gb,
+                    "sim_config": "",
                     "supplier_price_eur": usd_to_eur(parsed.price_usd),
                     "parsed_confidence": parsed.confidence,
                     "active": True,

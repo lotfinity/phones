@@ -5,7 +5,7 @@ from market.models import Country, InstagramPost, MarketListing, OCRResult, Sour
 from market.parsers.ocr_backend import get_ocr_backend
 from market.parsers.ocr_parser import parse_ocr_text
 from market.services.currency import dzd_to_eur
-from market.services.matching import get_or_create_model, get_or_create_variant
+from market.services.matching import find_existing_model, find_existing_variant
 
 
 class Command(BaseCommand):
@@ -13,10 +13,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--limit", type=int, default=100)
+        parser.add_argument("--source-username", default="", help="Only process queued posts for one Instagram source.")
 
     def handle(self, *args, **options):
         backend = get_ocr_backend(settings.OCR_BACKEND)
-        posts = InstagramPost.objects.filter(needs_ocr=True, ocr_processed=False)[: options["limit"]]
+        posts = InstagramPost.objects.filter(needs_ocr=True, ocr_processed=False)
+        source_username = options["source_username"].strip().lstrip("@")
+        if source_username:
+            posts = posts.filter(source__source_type=SourceType.INSTAGRAM, source__username=source_username)
+        posts = posts[: options["limit"]]
         processed = 0
 
         for post in posts:
@@ -38,9 +43,9 @@ class Command(BaseCommand):
                     detected_sim_text=parsed.sim_text,
                     status=status,
                 )
-                product_model = get_or_create_model(parsed.model_text) if parsed.model_text else None
+                product_model = find_existing_model(parsed.model_text) if parsed.model_text else None
                 variant = (
-                    get_or_create_variant(product_model, parsed.storage_gb, sim_config=parsed.sim_text)
+                    find_existing_variant(product_model, parsed.storage_gb, sim_config=parsed.sim_text)
                     if product_model and parsed.storage_gb
                     else None
                 )
@@ -53,6 +58,7 @@ class Command(BaseCommand):
                             "country": post.source.country or Country.ALGERIA,
                             "product_model": product_model,
                             "variant": variant,
+                            "storage_gb": parsed.storage_gb,
                             "title_raw": parsed.model_text[:300],
                             "description_raw": combined_text,
                             "price_original": parsed.price_dzd,

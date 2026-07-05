@@ -5,6 +5,7 @@ KNOWN_BRANDS = [
     ("Apple", ["apple", "iphone", "ipad", "macbook", "appelle"]),
     ("Samsung", ["samsung", "samasung", "galaxy"]),
     ("Xiaomi", ["xiaomi", "redmi", "poco", "mi"]),
+    ("Lenovo", ["lenovo", "legion", "ideapad"]),
     ("Huawei", ["huawei"]),
     ("Honor", ["honor"]),
     ("Vivo", ["vivo"]),
@@ -143,4 +144,9 @@ def canonical_model_name(raw_model):
             tokens.append(replacements.get(part, part.upper() if len(part) <= 2 else part.title()))
     label = " ".join(tokens)
     label = label.replace("Pro Max", "Pro Max").replace("Iphone", "iPhone")
+    # Strip redundant "Xiaomi" prefix for Redmi/Poco sub-brands
+    if label.startswith("Xiaomi Redmi ") or label.startswith("Xiaomi Poco "):
+        label = label[len("Xiaomi "):]
+    # Fix abbreviations: Nfc->NFC, Lte->LTE, Wifi->WIFI
+    label = re.sub(r"\b(Nfc|Lte|Wifi)\b", lambda m: m.group(1).upper(), label)
     return label or raw_model

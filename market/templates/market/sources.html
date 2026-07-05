@@ -1,12 +1,17 @@
 {% extends "market/base.html" %}
-{% block title %}PriceBridge - Sources{% endblock %}
-{% block crumb %}Sources{% endblock %}
+{% load i18n %}
+{% block title %}PriceBridge - {% trans "Sources" %}{% endblock %}
+{% block crumb %}{% trans "Sources" %}{% endblock %}
 {% block header_actions %}
-  <a class="btn btn-secondary btn-sm" href="/admin/market/source/">Manage sources</a>
+  <a class="btn btn-secondary btn-sm" href="/admin/market/source/">{% trans "Manage sources" %}</a>
 {% endblock %}
 {% block content %}
-  <h1 class="page-title">Sources</h1>
-  <p class="page-desc">Upstream data providers for PriceBridge. Monitor coverage and ingestion health.</p>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{% trans "Sources" %}</h1>
+      <p class="page-desc">{% trans "Upstream data providers for PriceBridge. Monitor coverage and ingestion health." %}</p>
+    </div>
+  </div>
 
   <section class="grid-2">
     {% for row in source_rows %}
@@ -15,21 +20,21 @@
           <div class="source-icon">{{ row.code }}</div>
           <div class="source-body">
             <div class="source-name">{{ row.source.name }}</div>
-            <div class="source-meta">{{ row.source.get_country_display }} - {{ row.source.get_source_type_display }}{% if row.source.username %} - {{ row.source.username }}{% endif %}</div>
-          </div>
-          <div class="source-stats">
-            <div class="source-stat"><div class="k">Rows</div><div class="v">{{ row.total }}</div></div>
-            <div class="source-stat"><div class="k">Usable</div><div class="v" style="color:var(--success);">{{ row.usable }}</div></div>
-            <div class="source-stat"><div class="k">Review</div><div class="v" style="color:var(--warn-dark);">{{ row.review }}</div></div>
+            <div class="source-meta">{{ row.source.get_country_display }} / {{ row.source.get_source_type_display }}{% if row.source.username %} / {{ row.source.username }}{% endif %}</div>
           </div>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;">
-          <span style="font-size:11px;color:var(--muted);">Last seen: {% if row.last_seen %}{{ row.last_seen|date:"M d H:i" }}{% else %}never{% endif %}</span>
-          <a class="btn btn-ghost btn-sm" href="/admin/market/source/{{ row.source.id }}/change/">Manage</a>
+        <div class="source-stats">
+          <div class="source-stat"><div class="k">{% trans "Rows" %}</div><div class="v">{{ row.total }}</div></div>
+          <div class="source-stat"><div class="k">{% trans "Usable" %}</div><div class="v text-emerald-700 dark:text-emerald-300">{{ row.usable }}</div></div>
+          <div class="source-stat"><div class="k">{% trans "Review" %}</div><div class="v text-amber-700 dark:text-amber-300">{{ row.review }}</div></div>
+        </div>
+        <div class="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
+          <span class="text-sm text-slate-500 dark:text-slate-400">{% trans "Last seen:" %} {% if row.last_seen %}{{ row.last_seen|date:"M d H:i" }}{% else %}{% trans "never" %}{% endif %}</span>
+          <a class="btn btn-secondary btn-sm" href="/admin/market/source/{{ row.source.id }}/change/">{% trans "Manage" %}</a>
         </div>
       </div>
     {% empty %}
-      <div class="card">No sources configured yet.</div>
+      <div class="card">{% trans "No sources configured yet." %}</div>
     {% endfor %}
   </section>
 {% endblock %}

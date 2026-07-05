@@ -1,254 +1,145 @@
+{% load static %}
+{% load i18n %}
 <!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}PriceBridge{% endblock %}</title>
-  <style>
-    :root {
-      --bg: #fafafa;
-      --surface: #ffffff;
-      --fg: #111111;
-      --muted: #6b6b6b;
-      --border: #e5e5e5;
-      --accent: #2f6feb;
-      --accent-on: #ffffff;
-      --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
-      --fg-soft: color-mix(in oklab, var(--fg) 6%, transparent);
-      --success: #17a34a;
-      --warn: #eab308;
-      --danger: #dc2626;
-      --warn-dark: color-mix(in oklab, var(--warn), black 44%);
-      --sh: #7c3aed;
-      --font-display: "Inter", -apple-system, system-ui, sans-serif;
-      --font-body: "Inter", -apple-system, system-ui, sans-serif;
-      --font-mono: ui-monospace, "JetBrains Mono", monospace;
-      --text-sm: 14px;
-      --text-base: 16px;
-      --text-2xl: 32px;
-      --radius: 8px;
-      --radius-md: 12px;
-      --container-gutter: 24px;
-      --sidebar-w: 200px;
-    }
-    *, *::before, *::after { box-sizing: border-box; }
-    html, body { margin: 0; }
-    body {
-      background: var(--bg);
-      color: var(--fg);
-      font-family: var(--font-body);
-      font-size: var(--text-base);
-      line-height: 1.5;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: inherit; text-decoration: none; }
-    .layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
-    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
-    .sidebar {
-      border-right: 1px solid var(--border);
-      background: var(--surface);
-      padding-block: 16px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow-y: auto;
-    }
-    .sidebar-brand {
-      padding: 8px var(--container-gutter) 20px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 12px;
-    }
-    .logo { font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: 0; }
-    .logo-dot { color: var(--accent); }
-    .tagline { font-size: 11px; color: var(--muted); margin-top: 2px; }
-    .nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
-    .nav a {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 12px; font-size: 14px;
-      border-radius: var(--radius); color: var(--muted);
-    }
-    .nav a:hover { background: var(--fg-soft); color: var(--fg); }
-    .nav a.active { background: color-mix(in oklab, var(--accent) 10%, var(--surface)); color: var(--accent); font-weight: 500; }
-    .icon { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .nav-section {
-      font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em;
-      color: var(--muted); padding: 16px 12px 6px; font-family: var(--font-mono);
-    }
-    .header {
-      border-bottom: 1px solid var(--border);
-      background: color-mix(in oklab, var(--bg) 92%, transparent);
-      backdrop-filter: blur(12px);
-      position: sticky; top: 0; z-index: 15;
-    }
-    .header-inner { padding: 10px var(--container-gutter); display: flex; align-items: center; gap: 16px; }
-    .bread { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
-    .bread strong { color: var(--fg); font-weight: 600; }
-    .main { padding: 20px var(--container-gutter) 60px; max-width: 100%; }
-    .page-title {
-      font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 600;
-      line-height: 1.1; letter-spacing: 0; margin: 0 0 4px;
-    }
-    .page-desc { margin: 0 0 20px; color: var(--muted); font-size: var(--text-sm); }
-    .stat-row { display: grid; grid-template-columns: repeat(8, 1fr); gap: 12px; margin-bottom: 20px; }
-    @media (max-width: 1200px) { .stat-row { grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 640px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
-    .stat-card, .metric-card, .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px;
-    }
-    .card { border-radius: var(--radius-md); padding: 18px; }
-    .card + .card { margin-top: 16px; }
-    .stat-card .num, .metric-card .num {
-      font-family: var(--font-display); font-size: 24px; font-weight: 600;
-      line-height: 1; letter-spacing: 0; margin-bottom: 4px;
-    }
-    .stat-card .lbl, .metric-card .lbl {
-      font-size: 11px; color: var(--muted); text-transform: uppercase;
-      letter-spacing: 0.04em; font-family: var(--font-mono);
-    }
-    .delta {
-      font-size: 11px; font-family: var(--font-mono); margin-top: 6px;
-      display: inline-flex; padding: 2px 6px; border-radius: 999px;
-      background: var(--fg-soft); color: var(--muted);
-    }
-    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
-    .f-input, .f-select {
-      padding: 7px 11px; border: 1px solid var(--border); border-radius: var(--radius);
-      background: var(--surface); font: inherit; font-size: 13px; color: var(--fg);
-    }
-    .f-input:focus, .f-select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
-    .btn {
-      display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
-      border-radius: var(--radius); border: 1px solid transparent; font: inherit;
-      font-size: 13px; font-weight: 500; background: transparent; color: var(--fg);
-      cursor: pointer;
-    }
-    .btn-primary { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
-    .btn-secondary { border-color: var(--border); background: transparent; }
-    .btn-ghost { padding-inline: 8px; }
-    .btn-sm { padding: 5px 10px; font-size: 12px; }
-    .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
-    .table-scroll { overflow-x: auto; max-height: 620px; overflow-y: auto; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; white-space: nowrap; }
-    thead th {
-      position: sticky; top: 0; z-index: 1;
-      padding: 10px 14px; text-align: left; font-family: var(--font-mono);
-      font-size: 11px; font-weight: 500; letter-spacing: 0.06em;
-      text-transform: uppercase; color: var(--muted);
-      border-bottom: 1px solid var(--border);
-      background: color-mix(in oklab, var(--surface) 96%, var(--fg));
-    }
-    tbody td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    tbody tr:hover { background: var(--fg-soft); }
-    tbody tr.click-row { cursor: pointer; }
-    tbody tr.click-row:focus-within { outline: 2px solid var(--accent-soft); outline-offset: -2px; }
-    .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-    .num-r { text-align: right; }
-    .cell-rec, .badge {
-      display: inline-flex; padding: 3px 8px; border-radius: 999px;
-      font-size: 11px; font-weight: 500; font-family: var(--font-mono);
-      text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .badge { border-radius: 4px; border: 1px solid var(--border); color: var(--muted); background: var(--surface); padding: 2px 6px; font-size: 10px; }
-    .rec-buy, .badge.verified, .badge-ok { background: color-mix(in oklab, var(--success) 12%, var(--surface)); color: var(--success); border-color: color-mix(in oklab, var(--success) 40%, transparent); }
-    .rec-watch, .badge.review, .badge-warn { background: color-mix(in oklab, var(--warn) 12%, var(--surface)); color: var(--warn-dark); border-color: color-mix(in oklab, var(--warn) 40%, transparent); }
-    .rec-ignore, .rec-insufficient, .badge.excluded { background: var(--fg-soft); color: var(--muted); }
-    .cell-margin.good { color: var(--success); font-weight: 600; }
-    .cell-margin.warn { color: var(--warn-dark); font-weight: 600; }
-    .badge-row { display: flex; flex-wrap: wrap; gap: 4px; }
-    .badge.ig { color: var(--accent); border-color: color-mix(in oklab, var(--accent) 40%, transparent); }
-    .badge.ok { color: var(--success); border-color: color-mix(in oklab, var(--success) 40%, transparent); }
-    .badge.sh { color: var(--sh); border-color: color-mix(in oklab, var(--sh) 50%, transparent); }
-    .badge.sl { color: var(--warn-dark); border-color: color-mix(in oklab, var(--warn) 40%, transparent); }
-    .conf-bar { display: flex; align-items: center; gap: 8px; min-width: 120px; }
-    .conf-track { flex: 1; height: 4px; background: var(--border); border-radius: 999px; overflow: hidden; }
-    .conf-fill { height: 100%; background: var(--accent); border-radius: 999px; }
-    .conf-num { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
-    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
-    @media (max-width: 980px) { .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
-    .card-h {
-      font-family: var(--font-display); font-size: 13px; font-weight: 600;
-      letter-spacing: 0; margin: 0 0 12px; display: flex; align-items: center; justify-content: space-between;
-    }
-    .detail-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
-    .listing-card {
-      border-top: 1px solid var(--border);
-      padding: 10px 0;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px 12px;
-    }
-    .listing-card:first-child { border-top: 0; padding-top: 0; }
-    .listing-title { font-weight: 600; font-size: 13px; overflow-wrap: anywhere; }
-    .listing-meta { font-size: 12px; color: var(--muted); }
-    .listing-price { text-align: right; font-family: var(--font-mono); font-size: 13px; }
-    .summary-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; margin: 16px 0; }
-    @media (max-width: 1100px) { .summary-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-    .source-row { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-    .source-row:last-child { border-bottom: 0; }
-    .source-icon {
-      width: 36px; height: 36px; border-radius: var(--radius); background: var(--fg-soft);
-      display: inline-flex; align-items: center; justify-content: center;
-      font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--muted); flex-shrink: 0;
-    }
-    .source-body { flex: 1; min-width: 0; }
-    .source-name { font-weight: 600; font-size: 14px; }
-    .source-meta { font-size: 12px; color: var(--muted); overflow-wrap: anywhere; }
-    .source-stats { display: flex; gap: 16px; align-items: center; margin-left: auto; }
-    .source-stat { text-align: right; }
-    .source-stat .k { font-size: 10px; color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; }
-    .source-stat .v { font-family: var(--font-mono); font-size: 13px; }
-    @media (max-width: 720px) {
-      .filters { flex-direction: column; align-items: stretch; }
-      .f-input, .f-select, .btn { width: 100%; justify-content: center; }
-      .source-row { align-items: flex-start; flex-wrap: wrap; }
-      .source-stats { width: 100%; justify-content: space-between; margin-left: 50px; }
-      .detail-grid { grid-template-columns: 1fr; }
-      .summary-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-  </style>
+  <script>
+    (function () {
+      const saved = localStorage.getItem("pricebridge-theme");
+      const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+      if (saved === "dark" || (!saved && prefersDark)) {
+        document.documentElement.classList.add("dark");
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
 </head>
 <body>
   <div class="layout">
     <aside class="sidebar">
       <div class="sidebar-brand">
         <div class="logo">PriceBridge<span class="logo-dot">.</span></div>
-        <div class="tagline">Alg &lt;-&gt; TR - v0.1</div>
+        <div class="tagline">Algeria &lt;-&gt; TR - v0.1</div>
       </div>
-      <nav class="nav">
-        <div class="nav-section">Workspace</div>
-        <a href="{% url 'dashboard' %}" class="{% if active == 'opportunities' %}active{% endif %}">
-          <span class="icon">OP</span>Opportunities
+      <nav class="nav" aria-label="{% trans 'Primary navigation' %}">
+        <div class="nav-section">{% trans "Workspace" %}</div>
+        <a href="{% url 'opportunities' %}" class="{% if active == 'opportunities' %}active{% endif %}">
+          <span class="icon">OP</span><span>{% trans "Opportunities" %}</span>
         </a>
-        <div class="nav-section">Review</div>
+        <div class="nav-section">{% trans "Review" %}</div>
         <a href="{% url 'listings' %}" class="{% if active == 'listings' %}active{% endif %}">
-          <span class="icon">LS</span>Listings
+          <span class="icon">LS</span><span>{% trans "Listings" %}</span>
         </a>
         <a href="{% url 'data_quality' %}" class="{% if active == 'data_quality' %}active{% endif %}">
-          <span class="icon">DQ</span>Data Quality
+          <span class="icon">DQ</span><span>{% trans "Data Quality" %}</span>
         </a>
-        <div class="nav-section">Config</div>
+        <div class="nav-section">{% trans "Config" %}</div>
         <a href="{% url 'sources' %}" class="{% if active == 'sources' %}active{% endif %}">
-          <span class="icon">SC</span>Sources
+          <span class="icon">SC</span><span>{% trans "Sources" %}</span>
         </a>
-        <a href="/admin/"><span class="icon">AD</span>Admin</a>
+        <a href="/admin/"><span class="icon">AD</span><span>{% trans "Admin" %}</span></a>
       </nav>
     </aside>
-    <div>
+
+    <div class="min-w-0">
+      <div class="mobile-topbar">
+        <div class="min-w-0 flex-1">
+          <div class="logo">PriceBridge<span class="logo-dot">.</span></div>
+          <div class="bread">{% trans "Workspace" %} / <strong>{% if active == 'opportunities' %}{% trans "Opportunities" %}{% elif active == 'listings' %}{% trans "Listings" %}{% elif active == 'data_quality' %}{% trans "Data Quality" %}{% elif active == 'sources' %}{% trans "Sources" %}{% endif %}</strong></div>
+        </div>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="{% trans 'Toggle dark mode' %}">
+          <span data-theme-icon>DM</span>
+        </button>
+        <form action="{% url 'set_language' %}" method="post" class="lang-switcher">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ request.path }}">
+          <select name="language" onchange="this.form.submit()" class="f-select f-select-sm" aria-label="{% trans 'Language' %}">
+            {% get_current_language as CURRENT_LANG %}
+            {% get_available_languages as AVAILABLE_LANGUAGES %}
+            {% get_language_info_list for AVAILABLE_LANGUAGES as languages %}
+            {% for lang in languages %}
+              <option value="{{ lang.code }}" {% if lang.code == CURRENT_LANG %}selected{% endif %}>
+                {{ lang.name_local }}
+              </option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+
       <header class="header">
         <div class="header-inner">
-          <div class="bread">Workspace / <strong>{% block crumb %}Dashboard{% endblock %}</strong></div>
-          <div style="margin-left:auto;display:flex;gap:10px;">{% block header_actions %}{% endblock %}</div>
+          <div class="bread">{% trans "Workspace" %} / <strong>{% block crumb %}{% trans "Opportunities" %}{% endblock %}</strong></div>
+          <div class="ml-auto flex items-center gap-2">
+            {% block header_actions %}{% endblock %}
+            <form action="{% url 'set_language' %}" method="post" class="lang-switcher">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.path }}">
+              <select name="language" onchange="this.form.submit()" class="f-select f-select-sm" aria-label="{% trans 'Language' %}">
+                {% get_current_language as CURRENT_LANG %}
+                {% get_available_languages as AVAILABLE_LANGUAGES %}
+                {% get_language_info_list for AVAILABLE_LANGUAGES as languages %}
+                {% for lang in languages %}
+                  <option value="{{ lang.code }}" {% if lang.code == CURRENT_LANG %}selected{% endif %}>
+                    {{ lang.name_local }}
+                  </option>
+                {% endfor %}
+              </select>
+            </form>
+            <button class="theme-toggle" type="button" data-theme-toggle aria-label="{% trans 'Toggle dark mode' %}">
+              <span data-theme-icon>DM</span>
+            </button>
+          </div>
         </div>
       </header>
+
       <main class="main">
         {% block content %}{% endblock %}
       </main>
     </div>
   </div>
+
+  <nav class="mobile-bottom-nav" aria-label="{% trans 'Mobile navigation' %}">
+    <a href="{% url 'opportunities' %}" class="{% if active == 'opportunities' %}active{% endif %}">
+      <span class="font-mono text-xs font-bold">OP</span><span>{% trans "Deals" %}</span>
+    </a>
+    <a href="{% url 'listings' %}" class="{% if active == 'listings' %}active{% endif %}">
+      <span class="font-mono text-xs font-bold">LS</span><span>{% trans "Listings" %}</span>
+    </a>
+    <a href="{% url 'data_quality' %}" class="{% if active == 'data_quality' %}active{% endif %}">
+      <span class="font-mono text-xs font-bold">DQ</span><span>{% trans "Quality" %}</span>
+    </a>
+    <a href="{% url 'sources' %}" class="{% if active == 'sources' %}active{% endif %}">
+      <span class="font-mono text-xs font-bold">SC</span><span>{% trans "Sources" %}</span>
+    </a>
+  </nav>
+
+  {% include "market/inline_edit_toolbar.html" %}
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const buttons = document.querySelectorAll("[data-theme-toggle]");
+      const icons = document.querySelectorAll("[data-theme-icon]");
+
+      function render() {
+        const dark = root.classList.contains("dark");
+        icons.forEach(function (icon) {
+          icon.textContent = dark ? "LT" : "DM";
+        });
+      }
+
+      buttons.forEach(function (button) {
+        button.addEventListener("click", function () {
+          const dark = !root.classList.contains("dark");
+          root.classList.toggle("dark", dark);
+          localStorage.setItem("pricebridge-theme", dark ? "dark" : "light");
+          render();
+        });
+      });
+      render();
+    })();
+  </script>
 </body>
 </html>

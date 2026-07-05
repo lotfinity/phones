@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PriceBridge · Sources</title>
+<style>
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --fg: #111111;
+  --muted: #6b6b6b;
+  --border: #e5e5e5;
+  --accent: #2f6feb;
+  --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --fg-soft: color-mix(in oklab, var(--fg) 6%, transparent);
+  --success: #17a34a;
+  --warn: #eab308;
+  --danger: #dc2626;
+  --warn-dark: color-mix(in oklab, var(--warn), black 44%);
+  --font-display: "Inter", -apple-system, system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --radius: 8px;
+  --radius-md: 12px;
+  --container-max: 1320px;
+  --container-gutter: 24px;
+  --sidebar-w: 200px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+.layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding-block: 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-brand { padding: 8px var(--container-gutter) 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+.sidebar-brand .logo { font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: -0.02em; }
+.sidebar-brand .logo-dot { color: var(--accent); }
+.sidebar-brand .tagline { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
+.nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; font-size: 14px;
+  border-radius: var(--radius); color: var(--muted);
+}
+.nav a:hover { background: var(--fg-soft); color: var(--fg); }
+.nav a.active { background: color-mix(in oklab, var(--accent) 10%, var(--surface)); color: var(--accent); font-weight: 500; }
+.nav a .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
+.nav-section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 16px 12px 6px; font-family: var(--font-mono); }
+
+.header {
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 15;
+}
+.header-inner { max-width: 100%; padding: 10px var(--container-gutter); display: flex; align-items: center; gap: 16px; }
+.bread { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+.bread strong { color: var(--fg); font-weight: 600; }
+
+.main { padding: 20px var(--container-gutter) 60px; max-width: 100%; }
+.page-title {
+  font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 600;
+  line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 4px;
+}
+.page-desc { margin: 0 0 20px; color: var(--muted); font-size: var(--text-sm); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+.card + .card { margin-top: 16px; }
+.card-h {
+  font-family: var(--font-display); font-size: 13px; font-weight: 600;
+  letter-spacing: -0.01em; margin: 0 0 10px;
+}
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 860px) { .grid-2 { grid-template-columns: 1fr; } }
+
+.source-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.source-row:last-child { border-bottom: 0; }
+.source-icon {
+  width: 36px; height: 36px; border-radius: var(--radius);
+  background: var(--fg-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  color: var(--muted); flex-shrink: 0;
+}
+.source-body { flex: 1; }
+.source-name { font-weight: 600; font-size: 14px; }
+.source-meta { font-size: 12px; color: var(--muted); }
+.source-stats { display: flex; gap: 16px; align-items: center; margin-left: auto; }
+.source-stat { text-align: right; }
+.source-stat .k { font-size: 10px; color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; }
+.source-stat .v { font-family: var(--font-mono); font-size: 13px; }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  display: inline-block; margin-right: 4px;
+}
+.dot-ok { background: var(--success); }
+.dot-warn { background: var(--warn); }
+.dot-down { background: var(--danger); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius);
+  border: 1px solid transparent; font: inherit; font-size: 13px; font-weight: 500;
+  background: transparent; color: var(--fg); cursor: pointer;
+}
+.btn-primary { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+.btn-ghost { background: transparent; padding-inline: 8px; border-color: transparent; }
+.btn-ghost:hover { color: var(--accent); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<div class="layout" data-od-id="layout">
+  <aside class="sidebar" data-od-id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">PriceBridge<span class="logo-dot">·</span></div>
+      <div class="tagline">Alg ↔ TR · v0.1</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Workspace</div>
+      <a href="index.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>Screens</a>
+      <a href="dashboard.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 4-9"/></svg></span>Opportunities</a>
+      <div class="nav-section">Review</div>
+      <a href="listings.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></span>Listings</a>
+      <a href="data-quality.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg></span>Data Quality</a>
+      <div class="nav-section">Config</div>
+      <a href="#" class="nav-link active"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>Sources</a>
+    </nav>
+  </aside>
+
+  <div>
+    <header class="header" data-od-id="topbar">
+      <div class="header-inner">
+        <div class="bread">Workspace / <strong>Sources</strong></div>
+        <div style="margin-left:auto;"><button class="btn btn-primary btn-sm">+ Add source</button></div>
+      </div>
+    </header>
+
+    <main class="main" data-od-id="main">
+      <h1 class="page-title" style="font-size:var(--text-2xl);">Sources</h1>
+      <p class="page-desc">Upstream data providers for PriceBridge. Monitor health, ingestion cadence, and listing counts.</p>
+
+      <div class="grid-2" data-od-id="sources">
+        <div class="card">
+          <div class="source-row">
+            <div class="source-icon">IG</div>
+            <div class="source-body">
+              <div class="source-name">Instagram shops</div>
+              <div class="source-meta">Algeria · Scraper · @phone_dz_alg</div>
+            </div>
+            <div class="source-stats">
+              <div class="source-stat"><div class="k">Listings</div><div class="v">412</div></div>
+              <div class="source-stat"><div class="k">Usable</div><div class="v" style="color:var(--success);">354</div></div>
+              <div class="source-stat"><div class="k">Review</div><div class="v" style="color:var(--warn);">58</div></div>
+            </div>
+            <div style="margin-left:8px;"><span class="status-dot dot-ok"></span><span style="font-size:11px;color:var(--success);">Healthy</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid var(--border);margin-top:4px;">
+            <span class="meta" style="font-size:11px;">Last import · 14 min ago</span>
+            <a href="#" class="btn btn-ghost btn-sm">Manage ↗</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="source-row">
+            <div class="source-icon">OK</div>
+            <div class="source-body">
+              <div class="source-name">Ouedkniss</div>
+              <div class="source-meta">Algeria · Scraper · Téléphones category</div>
+            </div>
+            <div class="source-stats">
+              <div class="source-stat"><div class="k">Listings</div><div class="v">244</div></div>
+              <div class="source-stat"><div class="k">Usable</div><div class="v" style="color:var(--success);">218</div></div>
+              <div class="source-stat"><div class="k">Review</div><div class="v" style="color:var(--warn);">26</div></div>
+            </div>
+            <div style="margin-left:8px;"><span class="status-dot dot-ok"></span><span style="font-size:11px;color:var(--success);">Healthy</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid var(--border);margin-top:4px;">
+            <span class="meta" style="font-size:11px;">Last import · 2h ago</span>
+            <a href="#" class="btn btn-ghost btn-sm">Manage ↗</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="source-row">
+            <div class="source-icon">SH</div>
+            <div class="source-body">
+              <div class="source-name">Sahibinden</div>
+              <div class="source-meta">Türkiye · Scraper · Cep Telefonu</div>
+            </div>
+            <div class="source-stats">
+              <div class="source-stat"><div class="k">Listings</div><div class="v">335</div></div>
+              <div class="source-stat"><div class="k">Usable</div><div class="v" style="color:var(--success);">312</div></div>
+              <div class="source-stat"><div class="k">Review</div><div class="v" style="color:var(--warn);">23</div></div>
+            </div>
+            <div style="margin-left:8px;"><span class="status-dot dot-ok"></span><span style="font-size:11px;color:var(--success);">Healthy</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid var(--border);margin-top:4px;">
+            <span class="meta" style="font-size:11px;">Last import · 45 min ago</span>
+            <a href="#" class="btn btn-ghost btn-sm">Manage ↗</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="source-row">
+            <div class="source-icon">SL</div>
+            <div class="source-body">
+              <div class="source-name">Supplier baseline</div>
+              <div class="source-meta">Türkiye · Reference · Wholesale list</div>
+            </div>
+            <div class="source-stats">
+              <div class="source-stat"><div class="k">Listings</div><div class="v">128</div></div>
+              <div class="source-stat"><div class="k">Usable</div><div class="v" style="color:var(--success);">128</div></div>
+              <div class="source-stat"><div class="k">Review</div><div class="v">0</div></div>
+            </div>
+            <div style="margin-left:8px;"><span class="status-dot dot-warn"></span><span style="font-size:11px;color:var(--warn-dark);">Stale</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0 0;border-top:1px solid var(--border);margin-top:4px;">
+            <span class="meta" style="font-size:11px;">Last import · 1d ago</span>
+            <a href="#" class="btn btn-ghost btn-sm">Manage ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+
+      <div class="card" data-od-id="notes">
+        <div class="card-h">Source notes</div>
+        <table>
+          <thead><tr><th>Source</th><th>Identifier / URL</th><th>Update cadence</th><th>Coverage gap</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Instagram shops</strong></td><td>@phone_dz_alg · @mobile_algeria</td><td>Every 30 min</td><td>No variant detail in captions</td></tr>
+            <tr><td><strong>Ouedkniss</strong></td><td>ouedkniss.com · Téléphones</td><td>Every 2h</td><td>Condition field sometimes blank</td></tr>
+            <tr><td><strong>Sahibinden</strong></td><td>sahibinden.com · Cep Telefonu</td><td>Every 45 min</td><td>Regional pricing variance (IST vs TRY)</td></tr>
+            <tr><td><strong>Supplier baseline</strong></td><td>Internal XLS · Trade partner</td><td>Manual weekly</td><td>Only current stock; no history</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

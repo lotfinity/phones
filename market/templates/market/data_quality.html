@@ -1,90 +1,697 @@
 {% extends "market/base.html" %}
-{% block title %}PriceBridge - Data Quality{% endblock %}
-{% block crumb %}Data Quality{% endblock %}
+{% load i18n %}
+{% block title %}PriceBridge - {% trans "Data Quality" %}{% endblock %}
+{% block crumb %}{% trans "Data Quality" %}{% endblock %}
 {% block header_actions %}
-  <a class="btn btn-secondary btn-sm" href="/admin/market/devicevariant/">Variants</a>
+  <a class="btn btn-secondary btn-sm" href="/admin/market/devicevariant/">{% trans "Variants" %}</a>
 {% endblock %}
 {% block content %}
-  <h1 class="page-title">Data Quality</h1>
-  <p class="page-desc">Pipeline health, trust signals, and structural issues that affect Algeria-to-Turkiye matching.</p>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{% trans "Data Quality" %}</h1>
+      <p class="page-desc">{% trans "Pipeline health, trust signals, and structural issues that affect Algeria-to-Turkiye matching." %}</p>
+    </div>
+  </div>
 
   <section class="grid-4">
     <div class="metric-card">
-      <div class="lbl">Instagram posts</div>
+      <div class="lbl">{% trans "Instagram posts" %}</div>
       <div class="num">{{ metrics.instagram_posts }}</div>
-      <div class="lbl">Collected media rows</div>
+      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Collected media rows" %}</div>
     </div>
     <div class="metric-card">
-      <div class="lbl">Supplier prices</div>
+      <div class="lbl">{% trans "Supplier prices" %}</div>
       <div class="num">{{ metrics.supplier_prices }}</div>
-      <div class="lbl">Reference rows</div>
+      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Reference rows" %}</div>
     </div>
     <div class="metric-card">
-      <div class="lbl">Opportunity rows</div>
+      <div class="lbl">{% trans "Opportunity rows" %}</div>
       <div class="num">{{ metrics.snapshots }}</div>
-      <div class="lbl">Latest batch only</div>
+      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Latest batch only" %}</div>
     </div>
     <div class="metric-card">
-      <div class="lbl">Duplicate variants</div>
+      <div class="lbl">{% trans "Duplicate variants" %}</div>
       <div class="num">{{ metrics.duplicate_variant_groups }}</div>
-      <div class="lbl">Identity groups</div>
+      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Identity groups" %}</div>
     </div>
   </section>
 
-  <div style="height:16px;"></div>
-
-  <section class="grid-3">
+  <section class="grid-3 mt-4">
     <div class="metric-card">
-      <div class="lbl">OCR pending</div>
+      <div class="lbl">{% trans "OCR pending" %}</div>
       <div class="num">{{ metrics.ocr_pending }}</div>
-      <div class="lbl">Queued OCR rows</div>
+      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Queued OCR rows" %}</div>
     </div>
     <div class="metric-card">
-      <div class="lbl">Unmatched listings</div>
+      <div class="lbl">{% trans "Unmatched listings" %}</div>
       <div class="num">{{ metrics.unmatched }}</div>
-      <div class="lbl">Missing product model</div>
+      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Missing product model" %}</div>
     </div>
     <div class="metric-card">
-      <div class="lbl">Missing variants</div>
+      <div class="lbl">{% trans "Missing storage" %}</div>
       <div class="num">{{ metrics.missing_variant }}</div>
-      <div class="lbl">Has model, no variant</div>
+      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Has model, no storage bucket" %}</div>
+    </div>
+    <div class="metric-card">
+      <div class="lbl">{% trans "Pending suggestions" %}</div>
+      <div class="num">{{ metrics.pending_suggestions }}</div>
+      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Ready for staff review" %}</div>
     </div>
   </section>
 
-  <div style="height:16px;"></div>
-
-  <section class="grid-2">
+  <section class="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-2">
     <div class="card">
-      <div class="card-h">Structural issues</div>
-      <table>
-        <thead><tr><th>Issue</th><th class="num-r">Count</th><th>Status</th></tr></thead>
-        <tbody>
-          <tr><td>Models without variants</td><td class="num num-r">{{ metrics.models_without_variants }}</td><td><span class="badge badge-warn">review</span></td></tr>
-          <tr><td>Listings missing product model</td><td class="num num-r">{{ metrics.unmatched }}</td><td><span class="badge badge-warn">review</span></td></tr>
-          <tr><td>Listings missing variant</td><td class="num num-r">{{ metrics.missing_variant }}</td><td><span class="badge badge-warn">review</span></td></tr>
-          <tr><td>Duplicate variant groups</td><td class="num num-r">{{ metrics.duplicate_variant_groups }}</td><td><span class="badge badge-ok">clean</span></td></tr>
-        </tbody>
-      </table>
+      <div class="card-h">{% trans "Structural issues" %}</div>
+      <div class="grid gap-3 lg:hidden">
+        <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+          <div class="flex items-center justify-between gap-3"><span>{% trans "Models without variants" %}</span><span class="badge badge-warn">{% trans "review" %}</span></div>
+          <div class="num mt-2 text-xl">{{ metrics.models_without_variants }}</div>
+        </div>
+        <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+          <div class="flex items-center justify-between gap-3"><span>{% trans "Listings missing product model" %}</span><span class="badge badge-warn">{% trans "review" %}</span></div>
+          <div class="num mt-2 text-xl">{{ metrics.unmatched }}</div>
+        </div>
+        <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+          <div class="flex items-center justify-between gap-3"><span>{% trans "Listings missing storage" %}</span><span class="badge badge-warn">{% trans "review" %}</span></div>
+          <div class="num mt-2 text-xl">{{ metrics.missing_variant }}</div>
+        </div>
+        <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+          <div class="flex items-center justify-between gap-3"><span>{% trans "Duplicate variant groups" %}</span><span class="badge badge-ok">{% trans "clean" %}</span></div>
+          <div class="num mt-2 text-xl">{{ metrics.duplicate_variant_groups }}</div>
+        </div>
+      </div>
+      <div class="desktop-table table-wrap shadow-none">
+        <table class="data-table">
+          <thead><tr><th>{% trans "Issue" %}</th><th class="num-r">{% trans "Count" %}</th><th>{% trans "Status" %}</th></tr></thead>
+          <tbody>
+            <tr><td>{% trans "Models without variants" %}</td><td class="num num-r">{{ metrics.models_without_variants }}</td><td><span class="badge badge-warn">{% trans "review" %}</span></td></tr>
+            <tr><td>{% trans "Listings missing product model" %}</td><td class="num num-r">{{ metrics.unmatched }}</td><td><span class="badge badge-warn">{% trans "review" %}</span></td></tr>
+            <tr><td>{% trans "Listings missing storage" %}</td><td class="num num-r">{{ metrics.missing_variant }}</td><td><span class="badge badge-warn">{% trans "review" %}</span></td></tr>
+            <tr><td>{% trans "Duplicate variant groups" %}</td><td class="num num-r">{{ metrics.duplicate_variant_groups }}</td><td><span class="badge badge-ok">{% trans "clean" %}</span></td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="card">
-      <div class="card-h">Source quality</div>
-      <table>
-        <thead><tr><th>Source</th><th>Country</th><th class="num-r">Total</th><th class="num-r">Usable</th><th class="num-r">Review</th></tr></thead>
-        <tbody>
-          {% for row in source_quality %}
+      <div class="card-h">{% trans "Source quality" %}</div>
+      <div class="grid gap-3 lg:hidden">
+        {% for row in source_quality %}
+          <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="font-semibold text-slate-950 dark:text-white">{{ row.source_type }}</div>
+                <div class="text-sm text-slate-500 dark:text-slate-400">{{ row.country }}</div>
+              </div>
+              <span class="badge">{{ row.total }} {% trans "total" %}</span>
+            </div>
+            <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+              <div><div class="font-mono text-xs uppercase text-slate-500">{% trans "Usable" %}</div><div class="num text-emerald-700 dark:text-emerald-300">{{ row.usable }}</div></div>
+              <div><div class="font-mono text-xs uppercase text-slate-500">{% trans "Review" %}</div><div class="num text-amber-700 dark:text-amber-300">{{ row.review }}</div></div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">{% trans "No listing sources yet." %}</div>
+        {% endfor %}
+      </div>
+      <div class="desktop-table table-wrap shadow-none">
+        <table class="data-table">
+          <thead><tr><th>{% trans "Source" %}</th><th>{% trans "Country" %}</th><th class="num-r">{% trans "Total" %}</th><th class="num-r">{% trans "Usable" %}</th><th class="num-r">{% trans "Review" %}</th></tr></thead>
+          <tbody>
+            {% for row in source_quality %}
+              <tr>
+                <td>{{ row.source_type }}</td>
+                <td>{{ row.country }}</td>
+                <td class="num num-r">{{ row.total }}</td>
+                <td class="num num-r text-emerald-700 dark:text-emerald-300">{{ row.usable }}</td>
+                <td class="num num-r text-amber-700 dark:text-amber-300">{{ row.review }}</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5">{% trans "No listing sources yet." %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-4 card">
+    <div class="card-h">
+      <span>{% trans "Review queue" %}</span>
+      <span class="badge badge-warn">{{ review_rows|length }} {% trans "shown" %}</span>
+    </div>
+
+    <form class="mb-4 grid grid-cols-1 gap-3 md:grid-cols-[minmax(220px,1fr)_repeat(4,minmax(130px,170px))_auto_auto]" method="get">
+      <input class="f-input" type="search" name="q" value="{{ review_filters.q }}" placeholder="{% trans 'Search title, product, variant...' %}">
+      <select class="f-select" name="source_type">
+        <option value="">{% trans "All sources" %}</option>
+        {% for value, label in source_types %}
+          <option value="{{ value }}" {% if review_filters.source_type == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select class="f-select" name="country">
+        <option value="">{% trans "All countries" %}</option>
+        {% for value, label in countries %}
+          <option value="{{ value }}" {% if review_filters.country == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select class="f-select" name="review_status">
+        <option value="">{% trans "All statuses" %}</option>
+        {% for value, label in review_statuses %}
+          <option value="{{ value }}" {% if review_filters.review_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select class="f-select" name="issue">
+        {% for value, label in review_issue_choices %}
+          <option value="{{ value }}" {% if review_filters.issue == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button class="btn btn-primary" type="submit">{% trans "Apply" %}</button>
+      <a class="btn btn-secondary" href="{% url 'data_quality' %}">{% trans "Reset" %}</a>
+    </form>
+
+    {% if request.user.is_authenticated and request.user.is_staff %}
+      <details class="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40" open data-bulk-panel>
+        <summary class="cursor-pointer text-sm font-semibold text-slate-950 dark:text-white">{% trans "Bulk storage actions" %}</summary>
+        <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(180px,220px)_1fr_auto_auto] lg:items-end">
+          <div>
+            <label class="font-mono text-xs uppercase text-slate-500" for="bulk-storage">{% trans "Storage bucket" %}</label>
+            <select class="f-select mt-1" id="bulk-storage" data-bulk-storage>
+              <option value="">{% trans "Clear storage" %}</option>
+              {% for value, label in storage_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <div class="font-mono text-xs uppercase text-slate-500">{% trans "Quick pick" %}</div>
+            <div class="mt-1 flex flex-wrap gap-2">
+              {% for value, label in storage_choices %}
+                <button class="btn btn-secondary btn-sm" type="button" data-storage-pick="{{ value }}">{{ label }}</button>
+              {% endfor %}
+            </div>
+          </div>
+          <button class="btn btn-primary" type="button" data-bulk-assign-storage>{% trans "Assign selected" %}</button>
+          <button class="btn btn-danger" type="button" data-bulk-delete>{% trans "Delete selected" %}</button>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <button class="btn btn-primary btn-sm" type="button" data-bulk-apply-suggestions>{% trans "Apply suggestions" %}</button>
+          <button class="btn btn-secondary btn-sm" type="button" data-bulk-reject-suggestions>{% trans "Reject suggestions" %}</button>
+          <button class="btn btn-secondary btn-sm" type="button" data-select-visible>{% trans "Select visible" %}</button>
+          <button class="btn btn-ghost btn-sm" type="button" data-clear-selection>{% trans "Clear" %}</button>
+          <span><span data-selected-count>0</span> {% trans "selected" %}</span>
+          <span class="font-mono text-xs" data-bulk-status aria-live="polite"></span>
+        </div>
+      </details>
+    {% endif %}
+
+    <div class="mobile-card-list">
+      {% for row in review_rows %}
+        <article class="mobile-record-card" data-listing-row>
+          {% if request.user.is_authenticated and request.user.is_staff %}
+            <label class="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
+              <input class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox" value="{{ row.item.id }}" data-review-select>
+              {% trans "Select" %}
+            </label>
+          {% endif %}
+          <div class="flex gap-3">
+            <span class="thumb thumb-md">
+              {% if row.image_url %}
+                <img src="{{ row.image_url }}" alt="{{ row.title }}">
+              {% endif %}
+            </span>
+            <div class="min-w-0 flex-1">
+              <div
+                class="break-words text-base font-semibold leading-5 text-slate-950 dark:text-white"
+                data-inline-field="title_raw"
+                data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                data-inline-id="{{ row.item.id }}"
+              >{{ row.title }}</div>
+              <div class="badge-row mt-2">
+                <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
+                <span class="badge">{{ row.country_label }}</span>
+                {% for issue in row.issues %}
+                  <span class="badge {{ issue.class }}">{{ issue.label }}</span>
+                {% endfor %}
+              </div>
+              {% if row.suggestion %}
+                <div class="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm dark:border-blue-900/70 dark:bg-blue-950/30">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="font-semibold text-blue-950 dark:text-blue-100">{% trans "Suggestion" %}</span>
+                    <span class="badge {{ row.suggestion.confidence_class }}">{{ row.suggestion.confidence_percent }}%</span>
+                  </div>
+                  <div class="mt-2 grid grid-cols-2 gap-2">
+                    <div><span class="font-mono text-xs uppercase text-slate-500">{% trans "Model" %}</span><div class="break-words">{{ row.suggestion.product_label }}</div></div>
+                    <div><span class="font-mono text-xs uppercase text-slate-500">{% trans "Storage" %}</span><div class="num">{{ row.suggestion.storage_label }}</div></div>
+                    <div><span class="font-mono text-xs uppercase text-slate-500">{% trans "SIM" %}</span><div>{{ row.suggestion.sim_label }}</div></div>
+                    <div><span class="font-mono text-xs uppercase text-slate-500">{% trans "Condition" %}</span><div>{{ row.suggestion.condition_label }}</div></div>
+                  </div>
+                  <p class="mt-2 text-slate-600 dark:text-slate-300">{{ row.suggestion.reason }}</p>
+                </div>
+              {% endif %}
+              <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "Product" %}</div>
+                  <div class="break-words">
+                    {% if row.item.product_model %}
+                      <span
+                        data-inline-field="canonical_name"
+                        data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+                        data-inline-id="{{ row.item.product_model.id }}"
+                      >{{ row.item.product_model }}</span>
+                    {% else %}
+                      -
+                    {% endif %}
+                  </div>
+                </div>
+                <div>
+                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "Storage" %}</div>
+                  <div class="num">
+                    <span
+                      data-inline-field="storage_gb"
+                      data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                      data-inline-type="integer"
+                    >{{ row.storage_gb|default:"" }}</span>{% if row.storage_gb %}GB{% else %}-{% endif %}
+                  </div>
+                </div>
+                <div>
+                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "SIM" %}</div>
+                  <div>
+                    <span
+                      data-inline-field="sim_config"
+                      data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                    >{{ row.sim_config|default:"default" }}</span>
+                  </div>
+                </div>
+                <div>
+                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "Legacy variant" %}</div>
+                  <div class="break-words">
+                    {% if row.item.variant %}
+                      <span
+                        data-inline-field="canonical_label"
+                        data-inline-api="{% url 'inline_edit_api' 'device-variants' %}"
+                        data-inline-id="{{ row.item.variant.id }}"
+                      >{{ row.item.variant }}</span>
+                    {% else %}
+                      -
+                    {% endif %}
+                  </div>
+                </div>
+                <div>
+                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "Price" %}</div>
+                  <div class="num">
+                    <span
+                      data-inline-field="price_original"
+                      data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                      data-inline-type="decimal"
+                    >{{ row.original_price|default:"" }}</span>
+                    {{ row.original_currency }}
+                  </div>
+                </div>
+                <div>
+                  <div class="font-mono text-xs uppercase text-slate-500">EUR</div>
+                  <div class="num">{{ row.eur|default:"-" }}</div>
+                </div>
+              </div>
+              {% if request.user.is_authenticated and request.user.is_staff %}
+                <div class="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <select
+                    class="inline-select"
+                    data-inline-field="condition"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    disabled
+                  >
+                    {% for value, label in conditions %}
+                      <option value="{{ value }}" {% if row.item.condition == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                  <select
+                    class="inline-select"
+                    data-inline-field="review_status"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    disabled
+                  >
+                    {% for value, label in review_statuses %}
+                      <option value="{{ value }}" {% if row.item.review_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              {% endif %}
+              <div class="mt-4 flex flex-wrap items-center gap-2">
+                {% if row.item.listing_url %}
+                  <a class="btn btn-secondary btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
+                {% endif %}
+                {% if request.user.is_authenticated and request.user.is_staff %}
+                  <button
+                    class="btn btn-danger btn-sm"
+                    type="button"
+                    data-inline-delete="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    data-inline-label="{{ row.title|default:'listing'|truncatechars:48 }}"
+                  >{% trans "Delete" %}</button>
+                {% endif %}
+                <span class="ml-auto font-mono text-xs text-slate-500">{{ row.observed_at|date:"M d H:i" }}</span>
+              </div>
+            </div>
+          </div>
+        </article>
+      {% empty %}
+        <div class="mobile-record-card">{% trans "No listings match the review queue filters." %}</div>
+      {% endfor %}
+    </div>
+
+    <div class="desktop-table table-wrap shadow-none">
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
             <tr>
-              <td>{{ row.source_type }}</td>
-              <td>{{ row.country }}</td>
-              <td class="num num-r">{{ row.total }}</td>
-              <td class="num num-r">{{ row.usable }}</td>
-              <td class="num num-r">{{ row.review }}</td>
+              {% if request.user.is_authenticated and request.user.is_staff %}
+                <th>{% trans "Select" %}</th>
+              {% endif %}
+              <th>{% trans "Listing" %}</th>
+              <th>{% trans "Issues" %}</th>
+              <th>{% trans "Product" %}</th>
+              <th>{% trans "Storage" %}</th>
+              <th>{% trans "SIM" %}</th>
+              <th>{% trans "Suggestion" %}</th>
+              <th>{% trans "Legacy variant" %}</th>
+              <th class="num-r">{% trans "Price" %}</th>
+              <th>{% trans "Condition" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th>{% trans "Actions" %}</th>
             </tr>
-          {% empty %}
-            <tr><td colspan="5">No listing sources yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {% for row in review_rows %}
+              <tr data-listing-row>
+                {% if request.user.is_authenticated and request.user.is_staff %}
+                  <td>
+                    <input class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox" value="{{ row.item.id }}" data-review-select>
+                  </td>
+                {% endif %}
+                <td class="max-w-sm whitespace-normal">
+                  <div class="flex gap-3">
+                    <span class="thumb thumb-sm">
+                      {% if row.image_url %}
+                        <img src="{{ row.image_url }}" alt="{{ row.title }}">
+                      {% endif %}
+                    </span>
+                    <div class="min-w-0">
+                      <div
+                        class="break-words font-semibold"
+                        data-inline-field="title_raw"
+                        data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                        data-inline-id="{{ row.item.id }}"
+                      >{{ row.title }}</div>
+                      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ row.source_name }} / {{ row.country_label }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="badge-row">
+                    {% for issue in row.issues %}
+                      <span class="badge {{ issue.class }}">{{ issue.label }}</span>
+                    {% endfor %}
+                  </div>
+                </td>
+                <td class="max-w-48 whitespace-normal">
+                  {% if row.item.product_model %}
+                    <span
+                      data-inline-field="canonical_name"
+                      data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+                      data-inline-id="{{ row.item.product_model.id }}"
+                    >{{ row.item.product_model }}</span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="max-w-44 whitespace-normal">
+                  <span
+                    class="num"
+                    data-inline-field="storage_gb"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    data-inline-type="integer"
+                  >{{ row.storage_gb|default:"" }}</span>{% if row.storage_gb %}GB{% else %}-{% endif %}
+                </td>
+                <td class="max-w-32 whitespace-normal">
+                  <span
+                    data-inline-field="sim_config"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                  >{{ row.sim_config|default:"default" }}</span>
+                </td>
+                <td class="max-w-72 whitespace-normal">
+                  {% if row.suggestion %}
+                    <div class="rounded-lg border border-blue-200 bg-blue-50 p-2 text-xs dark:border-blue-900/70 dark:bg-blue-950/30">
+                      <div class="mb-1 flex flex-wrap items-center gap-1">
+                        <span class="font-semibold text-blue-950 dark:text-blue-100">{% trans "Suggested" %}</span>
+                        <span class="badge {{ row.suggestion.confidence_class }}">{{ row.suggestion.confidence_percent }}%</span>
+                      </div>
+                      <div class="space-y-1 text-slate-700 dark:text-slate-200">
+                        <div><span class="text-slate-500">{% trans "Model:" %}</span> {{ row.suggestion.product_label }}</div>
+                        <div><span class="text-slate-500">{% trans "Storage:" %}</span> {{ row.suggestion.storage_label }} / {{ row.suggestion.sim_label }}</div>
+                        <div><span class="text-slate-500">{% trans "Condition:" %}</span> {{ row.suggestion.condition_label }}</div>
+                      </div>
+                      <div class="mt-1 text-slate-500 dark:text-slate-400">{{ row.suggestion.reason|truncatechars:140 }}</div>
+                    </div>
+                  {% else %}
+                    <span class="text-slate-400">-</span>
+                  {% endif %}
+                </td>
+                <td class="max-w-44 whitespace-normal">
+                  {% if row.item.variant %}
+                    <span
+                      data-inline-field="canonical_label"
+                      data-inline-api="{% url 'inline_edit_api' 'device-variants' %}"
+                      data-inline-id="{{ row.item.variant.id }}"
+                    >{{ row.item.variant }}</span>
+                  {% else %}
+                    -
+                  {% endif %}
+                </td>
+                <td class="num num-r">
+                  <span
+                    data-inline-field="price_original"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    data-inline-type="decimal"
+                  >{{ row.original_price|default:"" }}</span>
+                  {{ row.original_currency }}
+                  <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.eur|default:"-" }}</div>
+                </td>
+                <td>
+                  {% if request.user.is_authenticated and request.user.is_staff %}
+                    <select
+                      class="inline-select"
+                      data-inline-field="condition"
+                      data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                      disabled
+                    >
+                      {% for value, label in conditions %}
+                        <option value="{{ value }}" {% if row.item.condition == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  {% else %}
+                    {{ row.condition_label }}
+                  {% endif %}
+                </td>
+                <td>
+                  {% if request.user.is_authenticated and request.user.is_staff %}
+                    <select
+                      class="inline-select"
+                      data-inline-field="review_status"
+                      data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                      disabled
+                    >
+                      {% for value, label in review_statuses %}
+                        <option value="{{ value }}" {% if row.item.review_status == value %}selected{% endif %}>{{ label }}</option>
+                      {% endfor %}
+                    </select>
+                  {% else %}
+                    <span class="badge {{ row.review_class }}">{{ row.review_label }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="flex flex-wrap gap-2">
+                    {% if row.item.listing_url %}
+                      <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
+                    {% endif %}
+                    {% if request.user.is_authenticated and request.user.is_staff %}
+                      <button
+                        class="btn btn-danger btn-sm"
+                        type="button"
+                        data-inline-delete="{% url 'inline_edit_api' 'market-listings' %}"
+                        data-inline-id="{{ row.item.id }}"
+                        data-inline-label="{{ row.title|default:'listing'|truncatechars:48 }}"
+                      >{% trans "Delete" %}</button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="{% if request.user.is_authenticated and request.user.is_staff %}12{% else %}11{% endif %}">{% trans "No listings match the review queue filters." %}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
+  {% if request.user.is_authenticated and request.user.is_staff %}
+    <script>
+      (function () {
+        const panel = document.querySelector("[data-bulk-panel]");
+        if (!panel) return;
+
+        const storageSelect = panel.querySelector("[data-bulk-storage]");
+        const status = panel.querySelector("[data-bulk-status]");
+        const countEl = panel.querySelector("[data-selected-count]");
+
+        function csrfToken() {
+          const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+          return match ? decodeURIComponent(match[1]) : "";
+        }
+
+        function checkboxes() {
+          return Array.from(document.querySelectorAll("[data-review-select]"));
+        }
+
+        function selectedIds() {
+          return Array.from(new Set(checkboxes().filter((box) => box.checked).map((box) => box.value)));
+        }
+
+        function setStatus(message, tone) {
+          status.textContent = message || "";
+          status.classList.toggle("text-emerald-600", tone === "ok");
+          status.classList.toggle("dark:text-emerald-300", tone === "ok");
+          status.classList.toggle("text-red-600", tone === "error");
+          status.classList.toggle("dark:text-red-300", tone === "error");
+        }
+
+        function updateCount() {
+          countEl.textContent = selectedIds().length;
+        }
+
+        async function bulkAction(payload) {
+          const ids = selectedIds();
+          if (!ids.length) {
+            setStatus("Select at least one listing.", "error");
+            return null;
+          }
+          setStatus("Working...", "");
+          const response = await fetch("{% url 'listing_bulk_api' %}", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken(),
+            },
+            body: JSON.stringify({ ids: ids, ...payload }),
+          });
+          const result = await response.json();
+          if (!response.ok || !result.ok) {
+            throw new Error(result.error || "Bulk action failed");
+          }
+          return result;
+        }
+
+        document.addEventListener("change", function (event) {
+          if (event.target.matches("[data-review-select]")) updateCount();
+        });
+
+        panel.addEventListener("click", async function (event) {
+          const storagePick = event.target.closest("[data-storage-pick]");
+          if (storagePick) {
+            storageSelect.value = storagePick.dataset.storagePick;
+            setStatus("Storage selected.", "");
+            return;
+          }
+
+          if (event.target.closest("[data-select-visible]")) {
+            checkboxes().forEach((box) => { box.checked = true; });
+            updateCount();
+            return;
+          }
+
+          if (event.target.closest("[data-clear-selection]")) {
+            checkboxes().forEach((box) => { box.checked = false; });
+            updateCount();
+            setStatus("", "");
+            return;
+          }
+
+          if (event.target.closest("[data-bulk-assign-storage]")) {
+            try {
+              const result = await bulkAction({ action: "assign_storage", storage_gb: storageSelect.value });
+              if (result) {
+                setStatus(`Updated ${result.updated} listing(s).`, "ok");
+                window.setTimeout(() => window.location.reload(), 500);
+              }
+            } catch (error) {
+              setStatus(error.message, "error");
+            }
+            return;
+          }
+
+          if (event.target.closest("[data-bulk-apply-suggestions]")) {
+            try {
+              const result = await bulkAction({ action: "apply_suggestions" });
+              if (result) {
+                setStatus(`Applied ${result.updated} suggestion(s).`, "ok");
+                window.setTimeout(() => window.location.reload(), 500);
+              }
+            } catch (error) {
+              setStatus(error.message, "error");
+            }
+            return;
+          }
+
+          if (event.target.closest("[data-bulk-reject-suggestions]")) {
+            const ids = selectedIds();
+            if (!ids.length) {
+              setStatus("Select at least one listing.", "error");
+              return;
+            }
+            if (!window.confirm(`Reject pending suggestions for ${ids.length} selected listing(s)?`)) return;
+            try {
+              const result = await bulkAction({ action: "reject_suggestions" });
+              if (result) {
+                setStatus(`Rejected ${result.updated} suggestion(s).`, "ok");
+                window.setTimeout(() => window.location.reload(), 500);
+              }
+            } catch (error) {
+              setStatus(error.message, "error");
+            }
+            return;
+          }
+
+          if (event.target.closest("[data-bulk-delete]")) {
+            const ids = selectedIds();
+            if (!ids.length) {
+              setStatus("Select at least one listing.", "error");
+              return;
+            }
+            if (!window.confirm(`Delete ${ids.length} selected listing(s)? This cannot be undone.`)) return;
+            try {
+              const result = await bulkAction({ action: "delete" });
+              if (result) {
+                setStatus(`Deleted ${result.deleted} row(s).`, "ok");
+                window.setTimeout(() => window.location.reload(), 500);
+              }
+            } catch (error) {
+              setStatus(error.message, "error");
+            }
+          }
+        });
+
+        updateCount();
+      })();
+    </script>
+  {% endif %}
 {% endblock %}

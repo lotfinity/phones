@@ -1,79 +1,333 @@
 {% extends "market/base.html" %}
-{% block title %}PriceBridge - Listings{% endblock %}
-{% block crumb %}Listings Review{% endblock %}
+{% load i18n %}
+{% block title %}PriceBridge - {% trans "Listings" %}{% endblock %}
+{% block crumb %}{% trans "Listings Review" %}{% endblock %}
 {% block header_actions %}
-  <a class="btn btn-secondary btn-sm" href="/admin/market/marketlisting/">Open admin</a>
+  <a class="btn btn-secondary btn-sm" href="/admin/market/marketlisting/">{% trans "Open admin" %}</a>
 {% endblock %}
 {% block content %}
-  <h1 class="page-title">Listings Review</h1>
-  <p class="page-desc">Review imported listings before they enter opportunity matching. Approve verified rows in Django admin when needed.</p>
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{% trans "Listings Review" %}</h1>
+      <p class="page-desc">{% trans "Review imported listings before they enter opportunity matching. Approve verified rows in Django admin when needed." %}</p>
+    </div>
+  </div>
 
   <form class="filters" method="get">
-    <input class="f-input" type="search" name="q" value="{{ filters.q }}" placeholder="Search product, variant, listing text..." style="flex:1;min-width:220px;">
+    <input class="f-input" type="search" name="q" value="{{ filters.q }}" placeholder="{% trans 'Search product, storage, listing text...' %}">
     <select class="f-select" name="source_type">
-      <option value="">All sources</option>
+      <option value="">{% trans "All sources" %}</option>
       {% for value, label in source_types %}
         <option value="{{ value }}" {% if filters.source_type == value %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
     <select class="f-select" name="country">
-      <option value="">All countries</option>
+      <option value="">{% trans "All countries" %}</option>
       {% for value, label in countries %}
         <option value="{{ value }}" {% if filters.country == value %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
     <select class="f-select" name="review_status">
-      <option value="">All review statuses</option>
+      <option value="">{% trans "All review statuses" %}</option>
       {% for value, label in review_statuses %}
         <option value="{{ value }}" {% if filters.review_status == value %}selected{% endif %}>{{ label }}</option>
       {% endfor %}
     </select>
-    <button class="btn btn-primary" type="submit">Apply</button>
-    <a class="btn btn-secondary" href="{% url 'listings' %}">Reset</a>
+    <button class="btn btn-primary" type="submit">{% trans "Apply" %}</button>
+    <a class="btn btn-secondary" href="{% url 'listings' %}">{% trans "Reset" %}</a>
   </form>
 
-  <div class="table-wrap">
+  <section class="mobile-card-list">
+    {% for row in listing_rows %}
+      <article class="mobile-record-card" data-listing-row>
+        <div class="flex gap-3">
+          <span class="thumb thumb-md">
+            {% if row.image_url %}
+              <img src="{{ row.image_url }}" alt="{{ row.title }}">
+            {% endif %}
+          </span>
+          <div class="min-w-0 flex-1">
+            {% if row.is_supplier %}
+              <div class="break-words text-base font-semibold leading-5 text-slate-950 dark:text-white">{{ row.title }}</div>
+            {% else %}
+              <div
+                class="break-words text-base font-semibold leading-5 text-slate-950 dark:text-white"
+                data-inline-field="title_raw"
+                data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                data-inline-id="{{ row.item.id }}"
+              >{{ row.title }}</div>
+            {% endif %}
+            <div class="badge-row mt-2">
+              <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
+              <span class="badge">{{ row.country_label }}</span>
+              {% if row.is_supplier %}
+                <span class="badge {{ row.review_class }}">{{ row.review_label }}</span>
+              {% elif request.user.is_authenticated and request.user.is_staff %}
+                <select
+                  class="inline-select max-w-40"
+                  data-inline-field="review_status"
+                  data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                  data-inline-id="{{ row.item.id }}"
+                  disabled
+                >
+                  {% for value, label in review_statuses %}
+                    <option value="{{ value }}" {% if row.item.review_status == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              {% else %}
+                <span class="badge {{ row.review_class }}">{{ row.review_label }}</span>
+              {% endif %}
+            </div>
+            <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <div class="font-mono text-xs uppercase text-slate-500">{% trans "Product" %}</div>
+                <div class="break-words">
+                  {% if row.item.product_model %}
+                    <span
+                      data-inline-field="canonical_name"
+                      data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+                      data-inline-id="{{ row.item.product_model.id }}"
+                    >{{ row.item.product_model }}</span>
+                  {% else %}
+                    {{ row.product_label }}
+                  {% endif %}
+                </div>
+              </div>
+              <div>
+                <div class="font-mono text-xs uppercase text-slate-500">{% trans "Storage / SIM" %}</div>
+                <div class="break-words">
+                  {% if row.is_supplier %}
+                    {% if row.storage_gb %}{{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}
+                  {% else %}
+                    <span
+                      data-inline-field="storage_gb"
+                      data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                      data-inline-type="integer"
+                    >{{ row.storage_gb|default:"" }}</span>{% if row.storage_gb %}GB{% else %}-{% endif %}
+                    /
+                    <span
+                      data-inline-field="sim_config"
+                      data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                    >{{ row.sim_config|default:"default" }}</span>
+                  {% endif %}
+                </div>
+              </div>
+              <div>
+                <div class="font-mono text-xs uppercase text-slate-500">{% trans "Original" %}</div>
+                <div class="num">
+                  {% if row.is_supplier %}
+                    {{ row.original_price|default:"" }} {{ row.original_currency }}
+                  {% else %}
+                    <span
+                      data-inline-field="price_original"
+                      data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                      data-inline-type="decimal"
+                    >{{ row.original_price|default:"" }}</span>
+                    {{ row.original_currency }}
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-span-2">
+                <div class="font-mono text-xs uppercase text-slate-500">{% trans "Converted" %}</div>
+                <div class="mt-1 grid grid-cols-1 gap-y-1 sm:grid-cols-2 sm:gap-x-3">
+                  {% for price in row.converted_prices %}
+                    <div class="num">{{ price.value }}</div>
+                  {% empty %}
+                    <div class="num">-</div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 flex flex-wrap items-center gap-2">
+              {% if row.item.listing_url %}
+                <a class="btn btn-secondary btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
+              {% endif %}
+              {% if request.user.is_authenticated and request.user.is_staff and not row.is_supplier %}
+                <button
+                  class="btn btn-danger btn-sm"
+                  type="button"
+                  data-inline-delete="{% url 'inline_edit_api' 'market-listings' %}"
+                  data-inline-id="{{ row.item.id }}"
+                  data-inline-label="{{ row.item.title_raw|default:'listing'|truncatechars:48 }}"
+                >{% trans "Delete" %}</button>
+              {% endif %}
+              <span class="ml-auto font-mono text-xs text-slate-500">{{ row.observed_at|date:"M d H:i" }}</span>
+            </div>
+          </div>
+        </div>
+      </article>
+    {% empty %}
+      <div class="mobile-record-card">{% trans "No listings match the current filters." %}</div>
+    {% endfor %}
+  </section>
+
+  <div class="desktop-table table-wrap">
     <div class="table-scroll">
-      <table>
+      <table class="data-table">
         <thead>
           <tr>
-            <th>Source</th>
-            <th>Country</th>
-            <th>Product</th>
-            <th>Variant</th>
-            <th class="num-r">Price original</th>
-            <th class="num-r">EUR</th>
-            <th>Condition</th>
-            <th>Review</th>
-            <th>Observed</th>
-            <th>Link</th>
+            <th>{% trans "Image" %}</th>
+            <th>{% trans "Source" %}</th>
+            <th>{% trans "Country" %}</th>
+            <th>{% trans "Title" %}</th>
+            <th>{% trans "Product" %}</th>
+            <th>{% trans "Storage / SIM" %}</th>
+            <th class="num-r">{% trans "Original price" %}</th>
+            <th>{% trans "Converted" %}</th>
+            <th>{% trans "Condition" %}</th>
+            <th>{% trans "Review" %}</th>
+            <th>{% trans "Observed" %}</th>
+            <th>{% trans "Link" %}</th>
+            {% if request.user.is_authenticated and request.user.is_staff %}
+              <th>{% trans "Delete" %}</th>
+            {% endif %}
           </tr>
         </thead>
         <tbody>
           {% for row in listing_rows %}
-            <tr>
+            <tr data-listing-row>
+              <td>
+                <span class="thumb thumb-sm">
+                  {% if row.image_url %}
+                    <img src="{{ row.image_url }}" alt="{{ row.title }}">
+                  {% endif %}
+                </span>
+              </td>
               <td>
                 <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
-                <div style="font-size:11px;color:var(--muted);">{{ row.item.source.name }}</div>
+                <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.source_name }}</div>
               </td>
-              <td>{{ row.item.get_country_display }}</td>
-              <td>{{ row.item.product_model|default:"-" }}</td>
-              <td>{{ row.item.variant|default:"-" }}</td>
-              <td class="num num-r">{{ row.price|default:"-" }}</td>
-              <td class="num num-r">{{ row.eur|default:"-" }}</td>
-              <td>{{ row.item.get_condition_display }}</td>
-              <td><span class="badge {{ row.review_class }}">{{ row.item.get_review_status_display }}</span></td>
-              <td class="num">{{ row.item.observed_at|date:"M d H:i" }}</td>
-              <td>
-                {% if row.item.listing_url %}
-                  <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">Open</a>
+              <td>{{ row.country_label }}</td>
+              <td class="max-w-xs whitespace-normal">
+                {% if row.is_supplier %}
+                  {{ row.title }}
                 {% else %}
-                  <span style="color:var(--muted);">-</span>
+                  <span
+                    data-inline-field="title_raw"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                  >{{ row.title }}</span>
                 {% endif %}
               </td>
+              <td class="max-w-52 whitespace-normal">
+                {% if row.item.product_model %}
+                  <span
+                    data-inline-field="canonical_name"
+                    data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+                    data-inline-id="{{ row.item.product_model.id }}"
+                  >{{ row.item.product_model }}</span>
+                {% else %}
+                  {{ row.product_label }}
+                {% endif %}
+              </td>
+              <td class="max-w-40 whitespace-normal">
+                {% if row.is_supplier %}
+                  {% if row.storage_gb %}{{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}
+                {% else %}
+                  <span
+                    class="num"
+                    data-inline-field="storage_gb"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    data-inline-type="integer"
+                  >{{ row.storage_gb|default:"" }}</span>{% if row.storage_gb %}GB{% else %}-{% endif %}
+                  /
+                  <span
+                    data-inline-field="sim_config"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                  >{{ row.sim_config|default:"default" }}</span>
+                {% endif %}
+              </td>
+              <td class="num num-r">
+                {% if row.is_supplier %}
+                  {{ row.original_price|default:"" }} {{ row.original_currency }}
+                {% else %}
+                  <span
+                    data-inline-field="price_original"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    data-inline-type="decimal"
+                  >{{ row.original_price|default:"" }}</span>
+                  {{ row.original_currency }}
+                {% endif %}
+              </td>
+              <td>
+                <div class="grid min-w-44 grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                  {% for price in row.converted_prices %}
+                    <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
+                  {% empty %}
+                    <span class="num">-</span>
+                  {% endfor %}
+                </div>
+              </td>
+              <td>
+                {% if row.is_supplier %}
+                  {{ row.condition_label }}
+                {% elif request.user.is_authenticated and request.user.is_staff %}
+                  <select
+                    class="inline-select"
+                    data-inline-field="condition"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    disabled
+                  >
+                    {% for value, label in conditions %}
+                      <option value="{{ value }}" {% if row.item.condition == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                {% else %}
+                  {{ row.condition_label }}
+                {% endif %}
+              </td>
+              <td>
+                {% if row.is_supplier %}
+                  <span class="badge {{ row.review_class }}">{{ row.review_label }}</span>
+                {% elif request.user.is_authenticated and request.user.is_staff %}
+                  <select
+                    class="inline-select"
+                    data-inline-field="review_status"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    disabled
+                  >
+                    {% for value, label in review_statuses %}
+                      <option value="{{ value }}" {% if row.item.review_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                  </select>
+                {% else %}
+                  <span class="badge {{ row.review_class }}">{{ row.review_label }}</span>
+                {% endif %}
+              </td>
+              <td class="num">{{ row.observed_at|date:"M d H:i" }}</td>
+              <td>
+                {% if row.item.listing_url %}
+                  <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
+                {% else %}
+                  <span class="text-slate-400">-</span>
+                {% endif %}
+              </td>
+              {% if request.user.is_authenticated and request.user.is_staff %}
+                <td>
+                  {% if row.is_supplier %}
+                    <span class="text-slate-400">-</span>
+                  {% else %}
+                    <button
+                      class="btn btn-danger btn-sm"
+                      type="button"
+                      data-inline-delete="{% url 'inline_edit_api' 'market-listings' %}"
+                      data-inline-id="{{ row.item.id }}"
+                      data-inline-label="{{ row.title|default:'listing'|truncatechars:48 }}"
+                    >{% trans "Delete" %}</button>
+                  {% endif %}
+                </td>
+              {% endif %}
             </tr>
           {% empty %}
-            <tr><td colspan="10">No listings match the current filters.</td></tr>
+            <tr><td colspan="{% if request.user.is_authenticated and request.user.is_staff %}13{% else %}12{% endif %}">{% trans "No listings match the current filters." %}</td></tr>
           {% endfor %}
         </tbody>
       </table>

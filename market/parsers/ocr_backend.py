@@ -1,3 +1,6 @@
+import base64
+import mimetypes
+import re
 import subprocess
 import tempfile
 from pathlib import Path
@@ -180,6 +183,90 @@ class OCRSpaceBackend(OCRBackend):
         return text, 0.7 if text else 0.0
 
 
+class NvidiaVisionBackend(OCRBackend):
+    def __init__(self, api_key=None, endpoint=None, model=None):
+        self.api_key = api_key or settings.NVIDIA_API_KEY
+        self.endpoint = endpoint or settings.NVIDIA_VISION_ENDPOINT
+        self.model = model or settings.NVIDIA_VISION_MODEL
+        if not self.api_key:
+            raise RuntimeError("NVIDIA_API_KEY or NVIDIA_NIM_API_KEY is required for NVIDIA vision OCR.")
+
+    def read_text(self, image_path):
+        image_path = Path(image_path)
+        if not image_path.exists():
+            return "", 0.0
+
+        try:
+            import requests
+
+            mime_type = mimetypes.guess_type(image_path.name)[0] or "image/jpeg"
+            encoded = base64.b64encode(image_path.read_bytes()).decode("ascii")
+            prompt = (
+                "You are an OCR engine. Extract only the literal visible text from this "
+                "phone-store Instagram listing image. Preserve useful line breaks. Do not "
+                "summarize, label fields, add markdown, translate, normalize, infer missing "
+                "words, or infer currencies. Return only text that is visibly present in the image."
+            )
+            response = requests.post(
+                self.endpoint,
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                json={
+                    "model": self.model,
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": [
+                                {"type": "text", "text": prompt},
+                                {
+                                    "type": "image_url",
+                                    "image_url": {"url": f"data:{mime_type};base64,{encoded}"},
+                                },
+                            ],
+                        }
+                    ],
+                    "max_tokens": 1024,
+                    "temperature": 0,
+                    "top_p": 1,
+                    "stream": False,
+                },
+                timeout=90,
+            )
+            response.raise_for_status()
+            payload = response.json()
+        except Exception:
+            return "", 0.0
+
+        try:
+            content = payload["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError):
+            return "", 0.0
+
+        if isinstance(content, list):
+            text = "\n".join(
+                part.get("text", "") for part in content if isinstance(part, dict) and part.get("type") == "text"
+            )
+        else:
+            text = str(content)
+        text = self._clean_text(text)
+        return text, 0.8 if text else 0.0
+
+    def _clean_text(self, text):
+        text = (text or "").strip()
+        text = re.sub(
+            r"(?is)^\s*(?:the\s+)?(?:visible\s+)?text(?:\s+displayed)?(?:\s+on[^:]{0,80})?\s+(?:reads|is)\s*:\s*",
+            "",
+            text,
+        )
+        text = re.sub(r"(?is)^\s*(?:here is|here's)\s+(?:the\s+)?(?:extracted|visible)\s+text\s*:\s*", "", text)
+        text = text.replace("**", "").replace("* ", "")
+        lines = [line.strip(" -\t") for line in text.splitlines()]
+        return "\n".join(line for line in lines if line).strip()
+
+
 def get_ocr_backend(name):
     backend = (name or "").lower()
     if backend in {"ocrspace", "ocr.space", "ocr_space"}:
@@ -187,6 +274,8 @@ def get_ocr_backend(name):
             return OCRSpaceBackend()
         except Exception:
             return TesseractOCRBackend()
+    if backend in {"nvidia", "nvidia_vision", "nvidia-vlm", "nim"}:
+        return NvidiaVisionBackend()
     if backend == "easyocr":
         try:
             return EasyOCRBackend()

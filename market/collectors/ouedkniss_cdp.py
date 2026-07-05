@@ -14,7 +14,13 @@ from django.utils import timezone
 from market.models import Condition, Country, MarketListing, ProductAsset, Source, SourceType
 from market.parsers.supplier_parser import CAPACITY_RE, STORAGE_RE
 from market.services.currency import dzd_to_eur
-from market.services.matching import SUPPORTED_STORAGE_GB, get_or_create_model, get_or_create_variant
+from market.services.listing_parser import (
+    extract_model_text,
+    listing_review_status,
+    parse_sim_config,
+    parse_storage_ram as parse_listing_storage_ram,
+)
+from market.services.matching import SUPPORTED_STORAGE_GB, find_existing_model, find_existing_variant
 
 
 SCRIPTS_DIR = Path(settings.BASE_DIR) / "scripts"
@@ -191,15 +197,6 @@ def parse_storage_ram(value):
             storage_gb = normalize_storage_gb(loose_storage.group("storage"))
 
     return storage_gb, ram_gb
-
-
-def parse_sim_config(value):
-    text = (value or "").lower()
-    if re.search(r"\b2\s*sim\b", text) or re.search(r"\bdual\s*sim\b", text) or re.search(r"\bdualsim\b", text) or re.search(r"\bduos\b", text) or re.search(r"\bdual\b", text):
-        return "2sim"
-    if re.search(r"\b1\s*sim\b", text):
-        return ""
-    return ""
 
 
 def clean_model_text(value):
@@ -519,48 +516,136 @@ def format_value(value):
     return value
 
 
-def save_row(row, source):
+def _extract_laptop_model(title):
+    """Extract a searchable model name from a laptop title."""
+    t = title.upper().replace("İ", "I").replace("ı", "I").strip()
+    t = re.sub(r"\b(RTX|GTX|Radeon|Intel|AMD|NVIDIA|GeForce)\b", "", t)
+    t = re.sub(r"\b\d{2,4}\s*(GB|GO|TB|TO|SSD|HDD|NVMe|PCIe)\b", "", t, flags=re.IGNORECASE)
+    t = re.sub(r"\b(\d{2}(?:\.\d)?)\s*[\"″\'']\b", "", t)
+    t = re.sub(r"\b(QHD|FHD|UHD|WQXGA|WUXGA|2K|4K|OLED|IPS|LED|AMOLED)\b", "", t, flags=re.IGNORECASE)
+    t = re.sub(r"\bI[579]\b", "", t)
+    t = re.sub(r"\bULTRA\s+\d\b", "", t)
+    t = re.sub(r"\b(RYZEN|RYZ)\s+\d\b", "", t)
+    t = re.sub(r"[|/\-–—()]+", " ", t)
+    t = re.sub(r"\s+", " ", t).strip()
+    for pattern in [
+        r"(?:LENOVO\s+)?LEGION\s+(?:PRO\s+)?SLIM\s+\d+",
+        r"(?:LENOVO\s+)?LEGION\s+PRO\s+\d+",
+        r"(?:LENOVO\s+)?LEGION\s+SLIM\s+\d+",
+        r"(?:LENOVO\s+)?LEGION\s+Y\d+\w*",
+        r"(?:LENOVO\s+)?LEGION\s+R\d+\w*",
+        r"(?:LENOVO\s+)?LEGION\s+\d+(?:\s+PRO)?",
+    ]:
+        m = re.search(pattern, t)
+        if m:
+            result = m.group(0).strip()
+            if not result.startswith("LENOVO"):
+                result = f"Lenovo {result}"
+            return result
+    m = re.search(r"(?:LENOVO\s+)?IDEAPAD\s+\S+", t)
+    if m:
+        result = m.group(0).strip()
+        if not result.startswith("LENOVO"):
+            result = f"Lenovo {result}"
+        return result
+    words = [w for w in t.split() if len(w) > 1][:3]
+    result = " ".join(words) if words else title[:40]
+    if not result.startswith("LENOVO"):
+        result = f"Lenovo {result}"
+    return result
+
+
+def save_row(row, source, category=None):
     raw_text = row.get("text", "")
     title = row.get("title", "")
     price_dzd = parse_dzd_price(row.get("priceText")) or parse_dzd_price(raw_text)
-    storage_gb, ram_gb = parse_storage_ram(title)
-    sim_config = parse_sim_config(title)
-    model_text = clean_model_text(title)
-    product_model = get_or_create_model(model_text) if model_text else None
-    variant = (
-        get_or_create_variant(product_model, storage_gb=storage_gb, sim_config=sim_config)
-        if product_model
-        else None
-    )
-    metadata = {
-        "store": row.get("store", ""),
-        "image_url": row.get("image", ""),
-        "source": "ouedkniss_cdp",
-    }
-    review_status = (
-        MarketListing.ReviewStatus.AUTO
-        if price_dzd and product_model
-        else MarketListing.ReviewStatus.NEEDS_REVIEW
-    )
-    url = row.get("href", "")
-    defaults = {
-        "source_type": SourceType.OUEDKNISS,
-        "country": Country.ALGERIA,
-        "product_model": product_model,
-        "variant": variant,
-        "title_raw": title[:300],
-        "description_raw": f"{raw_text}\n{json.dumps(metadata, ensure_ascii=False)}",
-        "price_original": price_dzd,
-        "currency_original": MarketListing.Currency.DZD,
-        "price_eur": dzd_to_eur(price_dzd) if price_dzd else None,
-        "condition": Condition.UNKNOWN,
-        "sim_config": sim_config,
-        "listing_url": url,
-        "image_path": row.get("image", ""),
-        "observed_at": timezone.now(),
-        "parsed_confidence": 0.9 if review_status == MarketListing.ReviewStatus.AUTO else 0.55,
-        "review_status": review_status,
-    }
+
+    # Laptop mode: parse laptop specs instead of phone specs
+    if category and category.slug == "laptops":
+        from market.services.laptop_parser import parse_laptop_title, laptop_review_status
+        specs = parse_laptop_title(title)
+        ram_gb = specs.get("ram_gb")
+        storage_gb = specs.get("storage_gb")
+        sim_config = ""
+
+        # Use laptop model extraction instead of phone parser
+        model_text = _extract_laptop_model(title)
+        product_model = find_existing_model(model_text) if model_text else None
+        variant = (
+            find_existing_variant(product_model, storage_gb=ram_gb, sim_config="")
+            if product_model
+            else None
+        )
+        metadata = {
+            "store": row.get("store", ""),
+            "image_url": row.get("image", ""),
+            "source": "ouedkniss_cdp",
+            "category": "laptops",
+            "cpu": specs.get("cpu", ""),
+            "gpu": specs.get("gpu", ""),
+            "ram_gb": ram_gb,
+            "storage_gb": storage_gb,
+            "screen_size": specs.get("screen_size"),
+            "resolution": specs.get("resolution", ""),
+        }
+        review_status = laptop_review_status(price_dzd, product_model, ram_gb)
+        url = row.get("href", "")
+        defaults = {
+            "source_type": SourceType.OUEDKNISS,
+            "country": Country.ALGERIA,
+            "product_model": product_model,
+            "variant": variant,
+            "storage_gb": ram_gb,
+            "title_raw": title[:300],
+            "description_raw": f"{raw_text}\n{json.dumps(metadata, ensure_ascii=False)}",
+            "price_original": price_dzd,
+            "currency_original": MarketListing.Currency.DZD,
+            "price_eur": dzd_to_eur(price_dzd) if price_dzd else None,
+            "condition": Condition.UNKNOWN,
+            "sim_config": "",
+            "listing_url": url,
+            "image_path": row.get("image", ""),
+            "observed_at": timezone.now(),
+            "parsed_confidence": 0.9 if review_status == MarketListing.ReviewStatus.AUTO else 0.55,
+            "review_status": review_status,
+        }
+    else:
+        # Phone mode (original logic)
+        storage_gb, ram_gb = parse_listing_storage_ram(title)
+        sim_config = parse_sim_config(title)
+        model_text = extract_model_text(title)
+        product_model = find_existing_model(model_text) if model_text else None
+        variant = (
+            find_existing_variant(product_model, storage_gb=storage_gb, sim_config=sim_config)
+            if product_model
+            else None
+        )
+        metadata = {
+            "store": row.get("store", ""),
+            "image_url": row.get("image", ""),
+            "source": "ouedkniss_cdp",
+        }
+        review_status = listing_review_status(price_dzd, product_model, storage_gb)
+        url = row.get("href", "")
+        defaults = {
+            "source_type": SourceType.OUEDKNISS,
+            "country": Country.ALGERIA,
+            "product_model": product_model,
+            "variant": variant,
+            "storage_gb": storage_gb,
+            "title_raw": title[:300],
+            "description_raw": f"{raw_text}\n{json.dumps(metadata, ensure_ascii=False)}",
+            "price_original": price_dzd,
+            "currency_original": MarketListing.Currency.DZD,
+            "price_eur": dzd_to_eur(price_dzd) if price_dzd else None,
+            "condition": Condition.UNKNOWN,
+            "sim_config": sim_config,
+            "listing_url": url,
+            "image_path": row.get("image", ""),
+            "observed_at": timezone.now(),
+            "parsed_confidence": 0.9 if review_status == MarketListing.ReviewStatus.AUTO else 0.55,
+            "review_status": review_status,
+        }
     existing = MarketListing.objects.filter(source=source, listing_url=url).first()
     if not existing:
         listing = MarketListing.objects.create(source=source, **defaults)
@@ -626,6 +711,7 @@ def import_from_cdp(
     open_if_missing=True,
     load_timeout=45.0,
     extractor="obsidian",
+    category=None,
 ):
     host, port = parse_cdp_endpoint(cdp_endpoint)
     cdp = ChromeCdp(host, port)
@@ -695,7 +781,7 @@ def import_from_cdp(
             skipped_old_rows += 1
             continue
         seen_urls.add(url)
-        change = save_row(row, source)
+        change = save_row(row, source, category=category)
         row_changes.append(change)
         if change.action == "created":
             created_rows += 1

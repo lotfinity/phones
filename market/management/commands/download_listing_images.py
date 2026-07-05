@@ -10,6 +10,15 @@ from urllib.parse import urlparse
 import mimetypes
 import hashlib
 
+REQUEST_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+        "(KHTML, like Gecko) Chrome/150 Safari/537.36"
+    ),
+    "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+}
+
+
 class Command(BaseCommand):
     help = 'Download images for MarketListing records where image_path is a URL and store locally'
 
@@ -59,7 +68,7 @@ class Command(BaseCommand):
                 filename = os.path.basename(parsed.path)
                 if not filename or '.' not in filename:
                     # Try to guess extension from content-type
-                    req = urllib.request.Request(url, method='HEAD')
+                    req = urllib.request.Request(url, method='HEAD', headers=REQUEST_HEADERS)
                     try:
                         with urllib.request.urlopen(req, timeout=10) as response:
                             content_type = response.headers.get('Content-Type')
@@ -93,7 +102,10 @@ class Command(BaseCommand):
 
                 # Download the image
                 self.stdout.write(f"  Downloading image for listing {listing.id} from {url}")
-                urllib.request.urlretrieve(url, dest_path)
+                req = urllib.request.Request(url, headers=REQUEST_HEADERS)
+                with urllib.request.urlopen(req, timeout=20) as response:
+                    with open(dest_path, "wb") as output:
+                        output.write(response.read())
                 downloaded += 1
 
                 # Update the model with the local path

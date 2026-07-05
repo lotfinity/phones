@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PriceBridge · Data Quality</title>
+<style>
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --fg: #111111;
+  --muted: #6b6b6b;
+  --border: #e5e5e5;
+  --accent: #2f6feb;
+  --accent-on: #ffffff;
+  --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  --fg-soft: color-mix(in oklab, var(--fg) 6%, transparent);
+  --success: #17a34a;
+  --warn: #eab308;
+  --danger: #dc2626;
+  --warn-dark: color-mix(in oklab, var(--warn), black 44%);
+  --font-display: "Inter", -apple-system, system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, system-ui, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", monospace;
+  --text-xs: 12px;
+  --text-sm: 14px;
+  --text-base: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --radius: 8px;
+  --radius-md: 12px;
+  --container-max: 1320px;
+  --container-gutter: 24px;
+  --sidebar-w: 200px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+
+.layout { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .sidebar { display: none; } }
+
+.sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding-block: 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+}
+.sidebar-brand {
+  padding: 8px var(--container-gutter) 20px;
+  border-bottom: 1px solid var(--border); margin-bottom: 12px;
+}
+.sidebar-brand .logo { font-family: var(--font-display); font-weight: 600; font-size: 15px; letter-spacing: -0.02em; }
+.sidebar-brand .logo-dot { color: var(--accent); }
+.sidebar-brand .tagline { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.nav { display: flex; flex-direction: column; gap: 2px; padding: 0 8px; }
+.nav a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 12px; font-size: 14px;
+  border-radius: var(--radius); color: var(--muted);
+}
+.nav a:hover { background: var(--fg-soft); color: var(--fg); }
+.nav a.active { background: color-mix(in oklab, var(--accent) 10%, var(--surface)); color: var(--accent); font-weight: 500; }
+.nav a .icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center; }
+.nav-section { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 16px 12px 6px; font-family: var(--font-mono); }
+
+.header {
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  position: sticky; top: 0; z-index: 15;
+}
+.header-inner {
+  max-width: 100%; padding: 10px var(--container-gutter);
+  display: flex; align-items: center; gap: 16px;
+}
+.bread { font-size: 13px; color: var(--muted); font-family: var(--font-mono); }
+.bread strong { color: var(--fg); font-weight: 600; }
+
+.main { padding: 20px var(--container-gutter) 60px; max-width: 100%; }
+.page-title {
+  font-family: var(--font-display); font-size: var(--text-2xl); font-weight: 600;
+  line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 4px;
+}
+.page-desc { margin: 0 0 20px; color: var(--muted); font-size: var(--text-sm); }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+.card + .card { margin-top: 16px; }
+.card-h {
+  font-family: var(--font-display); font-size: 13px; font-weight: 600;
+  letter-spacing: -0.01em; margin: 0 0 10px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-sub { font-size: 11px; color: var(--muted); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em; }
+
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 980px) { .grid-4, .grid-2, .grid-3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .grid-4, .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+.metric-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.metric-card.danger { border-left: 3px solid var(--danger); }
+.metric-card.warn { border-left: 3px solid var(--warn); }
+.metric-card.ok { border-left: 3px solid var(--success); }
+.metric-card .num {
+  font-family: var(--font-display); font-size: 22px; font-weight: 600;
+  line-height: 1; letter-spacing: -0.02em; margin-bottom: 4px;
+}
+.metric-card .lbl {
+  font-size: 11px; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+}
+
+.table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; }
+.table-scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  padding: 8px 12px; text-align: left;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 500;
+  letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 96%, var(--fg));
+}
+tbody td { padding: 7px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tbody tr:hover { background: var(--fg-soft); }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.num-r { text-align: right; }
+
+.badge { font-family: var(--font-mono); font-size: 10px; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border); color: var(--muted); background: var(--surface); display: inline-block; }
+.badge-success { color: var(--success); border-color: color-mix(in oklab, var(--success) 40%, transparent); background: color-mix(in oklab, var(--success) 8%, var(--surface)); }
+.badge-warn { color: var(--warn-dark); border-color: color-mix(in oklab, var(--warn) 40%, transparent); background: color-mix(in oklab, var(--warn) 8%, var(--surface)); }
+.badge-danger { color: var(--danger); border-color: color-mix(in oklab, var(--danger) 40%, transparent); background: color-mix(in oklab, var(--danger) 8%, var(--surface)); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius);
+  border: 1px solid transparent; font: inherit; font-size: 13px; font-weight: 500;
+  background: transparent; color: var(--fg); cursor: pointer;
+}
+.btn-primary { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="layout" data-od-id="layout">
+  <aside class="sidebar" data-od-id="sidebar">
+    <div class="sidebar-brand">
+      <div class="logo">PriceBridge<span class="logo-dot">·</span></div>
+      <div class="tagline">Alg ↔ TR · v0.1</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Workspace</div>
+      <a href="index.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>Screens</a>
+      <a href="dashboard.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 5 4-9"/></svg></span>Opportunities</a>
+      <div class="nav-section">Review</div>
+      <a href="#" class="nav-link active"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg></span>Listings</a>
+      <a href="#" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 2"/></svg></span>Data Quality</a>
+      <div class="nav-section">Config</div>
+      <a href="sources.html" class="nav-link"><span class="icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span>Sources</a>
+    </nav>
+  </aside>
+
+  <div>
+    <header class="header" data-od-id="topbar">
+      <div class="header-inner">
+        <div class="bread">Workspace / <strong>Data Quality</strong></div>
+        <div style="margin-left:auto;"><button class="btn btn-primary btn-sm">Run diagnostic</button></div>
+      </div>
+    </header>
+
+    <main class="main" data-od-id="main">
+      <h1 class="page-title">Data Quality</h1>
+      <p class="page-desc">Pipeline health, trust signals, and structural issues. Updated 14 minutes ago.</p>
+
+      <div class="grid-4" data-od-id="source-summary">
+        <div class="metric-card ok">
+          <div class="lbl">Instagram listings</div>
+          <div class="num">412</div>
+          <div class="lbl" style="margin-top:4px;">354 usable · 58 review</div>
+        </div>
+        <div class="metric-card ok">
+          <div class="lbl">Ouedkniss listings</div>
+          <div class="num">244</div>
+          <div class="lbl" style="margin-top:4px;">218 usable · 26 review</div>
+        </div>
+        <div class="metric-card ok">
+          <div class="lbl">Sahibinden listings</div>
+          <div class="num">335</div>
+          <div class="lbl" style="margin-top:4px;">312 usable · 23 review</div>
+        </div>
+        <div class="metric-card">
+          <div class="lbl">Supplier baseline</div>
+          <div class="num">128</div>
+          <div class="lbl" style="margin-top:4px;">Reference prices only</div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+
+      <div class="grid-3" data-od-id="alerts">
+        <div class="metric-card danger">
+          <div class="lbl">OCR pending</div>
+          <div class="num" style="color:var(--danger);">18</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;">Screens queued, not processed</div>
+        </div>
+        <div class="metric-card warn">
+          <div class="lbl">Unmatched listings</div>
+          <div class="num" style="color:var(--warn-dark);">23</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;">Could not match to known model</div>
+        </div>
+        <div class="metric-card warn">
+          <div class="lbl">Suspicious outliers</div>
+          <div class="num" style="color:var(--warn-dark);">7</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:6px;">Price > 3σ from product mean</div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+
+      <div class="grid-2" data-od-id="issues">
+        <div class="card">
+          <div class="card-h">Structural issues <span class="badge badge-warn">12 open</span></div>
+          <table>
+            <thead><tr><th>Issue</th><th class="num-r">Count</th><th class="num-r">Trend</th></tr></thead>
+            <tbody>
+              <tr><td>Models without variants</td><td class="num-r">14</td><td class="num-r" style="color:var(--muted);font-size:12px;">→ stable</td></tr>
+              <tr><td>Listings missing product model</td><td class="num-r">8</td><td class="num-r" style="color:var(--success);font-size:12px;">▼ 3</td></tr>
+              <tr><td>Listings missing variant</td><td class="num-r">11</td><td class="num-r" style="color:var(--danger);font-size:12px;">▲ 4</td></tr>
+              <tr><td>Duplicate variant groups</td><td class="num-r">3</td><td class="num-r" style="color:var(--muted);font-size:12px;">→</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="card">
+          <div class="card-h">Import freshness by source</div>
+          <table>
+            <thead><tr><th>Source</th><th class="num-r">Last import</th><th class="num-r">Listings</th><th class="num-r">Usable</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Instagram</strong></td><td class="num-r" style="font-size:12px;">14 min ago</td><td class="num-r">412</td><td class="num-r">354</td></tr>
+              <tr><td><strong>Ouedkniss</strong></td><td class="num-r" style="font-size:12px;">2h ago</td><td class="num-r">244</td><td class="num-r">218</td></tr>
+              <tr><td><strong>Sahibinden</strong></td><td class="num-r" style="font-size:12px;">45 min ago</td><td class="num-r">335</td><td class="num-r">312</td></tr>
+              <tr><td><strong>Supplier list</strong></td><td class="num-r" style="font-size:12px;">1d ago</td><td class="num-r">128</td><td class="num-r">128</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+
+      <div class="grid-2" data-od-id="ocr">
+        <div class="card">
+          <div class="card-h">OCR pipeline</div>
+          <div style="display:grid;gap:8px;font-size:13px;">
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted);">Processed today</span><span class="num" style="color:var(--success);">286</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted);">Pending queue</span><span class="num" style="color:var(--warn);">18</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);"><span style="color:var(--muted);">Failed / retry</span><span class="num" style="color:var(--danger);">3</span></div>
+            <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:var(--muted);">Avg confidence</span><span class="num">84%</span></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-h">Price outlier scan <span class="badge badge-danger">7 flagged</span></div>
+          <table>
+            <thead><tr><th>Product</th><th class="num-r">Deviation</th><th class="num-r">Action</th></tr></thead>
+            <tbody>
+              <tr><td>iPhone 17 Pro Max 256GB</td><td class="num-r" style="color:var(--danger);">+42%</td><td class="num-r"><a href="#" class="btn btn-ghost btn-sm">Review</a></td></tr>
+              <tr><td>Samsung Galaxy A55 128GB</td><td class="num-r" style="color:var(--warn);">+18%</td><td class="num-r"><a href="#" class="btn btn-ghost btn-sm">Review</a></td></tr>
+              <tr><td>Xiaomi 14 Ultra 512GB</td><td class="num-r" style="color:var(--warn);">+15%</td><td class="num-r"><a href="#" class="btn btn-ghost btn-sm">Review</a></td></tr>
+              <tr><td>…</td><td class="num-r">—</td><td class="num-r"><a href="#" class="btn btn-ghost btn-sm">View all</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

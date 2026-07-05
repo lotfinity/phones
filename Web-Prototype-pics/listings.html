@@ -1,0 +1,509 @@
+<!doctype html>
+<!--
+  Listings Review Page for PriceBridge.
+  Uses Neutral Modern design system.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PriceBridge · Listings Review</title>
+  <style>
+    /* Reuse the same tokens as index.html -- in practice, we would extract to a common CSS file, but for simplicity we repeat. */
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-warm: var(--surface);
+      --fg: #111111;
+      --fg-2: var(--fg);
+      --muted: #6b6b6b;
+      --meta: var(--muted);
+      --border: #e5e5e5;
+      --border-soft: var(--border);
+      --accent: #2f6feb;
+      --accent-on: #ffffff;
+      --accent-hover: color-mix(in oklab, var(--accent), black 8%);
+      --accent-active: color-mix(in oklab, var(--accent), black 14%);
+      --success: #17a34a;
+      --warn: #eab308;
+      --danger: #dc2626;
+      --font-display: "Inter", -apple-system, system-ui, sans-serif;
+      --font-body: "Inter", -apple-system, system-ui, sans-serif;
+      --font-mono: ui-monospace, "JetBrains Mono", monospace;
+      --text-xs: 12px;
+      --text-sm: 14px;
+      --text-base: 16px;
+      --text-lg: 20px;
+      --text-xl: 24px;
+      --text-2xl: 32px;
+      --text-3xl: 48px;
+      --text-4xl: 64px;
+      --leading-body: 1.5;
+      --leading-tight: 1.2;
+      --tracking-display: -0.01em;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-12: 48px;
+      --space-20: 80px;
+      --section-y-desktop: 80px;
+      --section-y-tablet: 48px;
+      --section-y-phone: 32px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-pill: 9999px;
+      --elev-flat: none;
+      --elev-ring: 0 0 0 1px var(--border);
+      --elev-raised: 0 2px 8px color-mix(in oklab, var(--fg), transparent 92%);
+      --focus-ring: 0 0 0 3px color-mix(in oklab, var(--accent), transparent 70%);
+      --motion-fast: 150ms;
+      --motion-base: 200ms;
+      --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+      --container-max: 1200px;
+      --container-gutter-desktop: 24px;
+      --container-gutter-tablet: 16px;
+      --container-gutter-phone: 12px;
+      --source-algeria: #2563eb;
+      --source-sahibinden: #7b2cbfff;
+      --source-supplier: #6b6b6b;
+      --recommendation-buy: var(--success);
+      --recommendation-watch: var(--warn);
+      --recommendation-ignore: var(--muted);
+      --recommendation-insufficient: var(--surface);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--text-base);
+      line-height: 1.55;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; cursor: pointer; }
+    p { text-wrap: pretty; }
+    h1, h2, h3, h4 { text-wrap: balance; }
+    .container {
+      max-width: var(--container-max);
+      margin-inline: auto;
+      padding-inline: 
+        calc((100% - var(--container-max)) / 2 > var(--container-gutter-desktop) ? var(--container-gutter-desktop) : 
+        (100% < 640px) ? var(--container-gutter-phone) : 
+        (100% < 1024px) ? var(--container-gutter-tablet) : var(--container-gutter-desktop));
+    }
+    .section {
+      padding-block: 
+        calc((100% < 640px) ? var(--section-y-phone) : 
+        (100% < 1024px) ? var(--section-y-tablet) : var(--section-y-desktop));
+    }
+    .section + .section { border-top: 1px solid var(--border); }
+    .stack { display: flex; flex-direction: column; }
+    .stack > * + * { margin-top: var(--space-6); }
+    .row { display: flex; align-items: center; gap: var(--space-6); }
+    .row-between { display: flex; align-items: center; justify-content: space-between; gap: var(--space-6); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-8); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-8); }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-6); }
+    .grid-2-1 { display: grid; grid-template-columns: 2fr 1fr; gap: var(--space-8); align-items: start; }
+    .grid-1-2 { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-8); align-items: start; }
+    @media (max-width: 920px) {
+      .grid-2, .grid-3, .grid-4, .grid-2-1, .grid-1-2 { grid-template-columns: 1fr; }
+    }
+    .h1, h1 { font-family: var(--font-display); font-size: clamp(2.5rem, 5vw, 3.5rem); line-height: 1.04; letter-spacing: -0.02em; margin: 0; }
+    .h2, h2 { font-family: var(--font-display); font-size: clamp(1.75rem, 4vw, 2.5rem); line-height: 1.1; letter-spacing: -0.015em; margin: 0; }
+    .h3, h3 { font-size: var(--text-xl); font-weight: 600; line-height: 1.3; letter-spacing: -0.005em; margin: 0; }
+    .lead   { font-size: var(--text-lg); line-height: 1.55; color: var(--muted); max-width: 60ch; margin: 0; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 var(--space-4);
+    }
+    .meta { font-family: var(--font-mono); font-size: var(--text-sm); color: var(--muted); }
+    .num  { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+    .topnav {
+      position: sticky; top: 0; z-index: 10;
+      background: color-mix(in oklch, var(--bg) 92%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .topnav-inner { display: flex; align-items: center; justify-content: space-between; padding-block: 14px; }
+    .topnav .logo { font-family: var(--font-display); font-size: 19px; font-weight: 600; letter-spacing: -0.01em; }
+    .topnav nav { display: flex; gap: var(--space-6); }
+    .topnav nav a { font-size: 14px; color: var(--muted); }
+    .topnav nav a:hover { color: var(--fg); }
+    .pagefoot { padding-block: var(--space-12); color: var(--muted); font-size: 13px; border-top: 1px solid var(--border); }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 11px 20px;
+      border-radius: var(--radius-sm);
+      border: 1px solid transparent;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--accent-on);
+    }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:active { background: var(--accent-active); }
+    .btn-secondary {
+      border: 1px solid var(--border);
+      color: var(--fg);
+    }
+    .btn-secondary:hover { background: var(--bg); }
+    .btn-ghost {
+      border: 1px solid var(--border);
+      color: var(--fg);
+      background: transparent;
+    }
+    .btn-ghost:hover { background: var(--bg); }
+    .btn-arrow::after {
+      content: "→";
+      font-size: 12px;
+      line-height: 0;
+    }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-5);
+      text-align: center;
+    }
+    .stat-value {
+      font-size: clamp(1.5rem, 3vw, 2.25rem);
+      font-weight: 600;
+      font-family: var(--font-mono);
+      color: var(--fg);
+      margin-bottom: var(--space-2);
+    }
+    .stat-label {
+      font-size: var(--text-sm);
+      color: var(--muted);
+    }
+    .stat-unit {
+      font-size: 0.75em;
+      opacity: 0.7;
+    }
+    .listing-card {
+      display: flex;
+      gap: var(--space-4);
+      align-items: start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-5);
+      margin-bottom: var(--space-4);
+    }
+    .listing-thumbnail {
+      width: 60px;
+      height: 60px;
+      flex-shrink: 0;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .listing-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .listing-details {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .listing-title {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-2);
+    }
+    .listing-meta {
+      display: flex;
+      gap: var(--space-4);
+      font-size: var(--text-sm);
+      color: var(--muted);
+      margin-bottom: var(--space-2);
+    }
+    .listing-price {
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+    .listing-actions {
+      margin-top: auto;
+      display: flex;
+      gap: var(--space-4);
+    }
+    .listing-actions button {
+      flex: 1;
+      padding: var(--space-3);
+      border-radius: var(--radius-sm);
+      font-size: var(--text-sm);
+      font-weight: 500;
+    }
+    .btn-approve { background: var(--success); color: var(--accent-on); border: none; }
+    .btn-approve:hover { background: color-mix(in oklab, var(--success) 80%, transparent); }
+    .btn-reject { background: var(--danger); color: var(--accent-on); border: none; }
+    .btn-reject:hover { background: color-mix(in oklab, var(--danger) 80%, transparent); }
+    .btn-needs-review { background: var(--warn); color: var(--accent-on); border: none; }
+    .btn-needs-review:hover { background: color-mix(in oklab, var(--warn) 80%, transparent); }
+    .filter-bar {
+      display: flex;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+      align-items: center;
+      padding: var(--space-5);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-6);
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .filter-label {
+      font-size: var(--text-sm);
+      color: var(--muted);
+    }
+    .filter-select,
+    .filter-input {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--text-sm);
+    }
+    .filter-select:focus,
+    .filter-input:focus {
+      outline: 2px solid var(--focus-ring);
+    }
+    .ds-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: var(--space-6);
+    }
+    .ds-table th,
+    .ds-table td {
+      padding: var(--space-3) var(--space-4);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: var(--text-sm);
+    }
+    .ds-table th {
+      background: var(--bg);
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .ds-table tr:hover {
+      background: color-mix(in oklab, var(--fg) 3%, transparent);
+    }
+    .ds-table .num-col {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+  <header class="topnav" data-od-id="topnav">
+    <div class="container topnav-inner">
+      <span class="logo">PriceBridge</span>
+      <nav>
+        <a href="index.html">Dashboard</a>
+        <a href="listings.html">Listings</a>
+        <a href="data-quality.html">Data Quality</a>
+        <a href="sources.html">Sources</a>
+      </nav>
+      <button class="btn btn-primary">Toggle Theme</button>
+    </div>
+  </header>
+
+  <main id="content">
+    <section class="section" data-od-id="listings-header">
+      <div class="container">
+        <h1 class="h1">Listings Review</h1>
+        <p class="lead">Review and moderate incoming listings from Algeria and Türkiye.</p>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="filters">
+      <div class="container">
+        <div class="filter-bar">
+          <div class="filter-group">
+            <label class="filter-label">Source:</label>
+            <select class="filter-select">
+              <option>All</option>
+              <option>Instagram</option>
+              <option>Ouedkniss</option>
+              <option>Sahibinden</option>
+              <option>Supplier</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Country:</label>
+            <select class="filter-select">
+              <option>All</option>
+              <option>Algeria</option>
+              <option>Türkiye</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Review Status:</label>
+            <select class="filter-select">
+              <option>All</option>
+              <option>Pending</option>
+              <option>Approved</option>
+              <option>Rejected</option>
+              <option>Needs Review</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Condition:</label>
+            <select class="filter-select">
+              <option>All</option>
+              <option>New</option>
+              <option>Like New</option>
+              <option>Good</option>
+              <option>Fair</option>
+              <option>Poor</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Has Variant:</label>
+            <select class="filter-select">
+              <option>All</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Has Price:</label>
+            <select class="filter-select">
+              <option>All</option>
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Search:</label>
+            <input type="text" class="filter-input" placeholder="Search model...">
+          </div>
+          <button class="btn btn-secondary">Reset Filters</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" data-od-id="listings-table">
+      <div class="container">
+        <table class="ds-table">
+          <thead>
+            <tr>
+              <th class="thumbnail-col">Thumbnail</th>
+              <th>Source</th>
+              <th>Country</th>
+              <th>Product</th>
+              <th>Variant</th>
+              <th class="num-col">Price (Original)</th>
+              <th class="num-col">Price (EUR)</th>
+              <th>Condition</th>
+              <th>Review Status</th>
+              <th class="num-col">Observed At</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="thumbnail-col"><img src="https://via.placeholder.com/40" alt="iPhone listing"></td>
+              <td><span class="source-badge source-badge-algeria">Instagram</span></td>
+              <td>Algeria</td>
+              <td>iPhone 15 Pro</td>
+              <td>128GB</td>
+              <td class="num-col">12,500 DZD</td>
+              <td class="num-col">85.50</td>
+              <td>New</td>
+              <td><span class="recommendation-badge recommendation-watch">Pending</span></td>
+              <td class="num-col">2 hours ago</td>
+              <td>
+                <div class="listing-actions">
+                  <button class="btn btn-approve mr-2">Approve</button>
+                  <button class="btn btn-reject mr-2">Reject</button>
+                  <button class="btn btn-needs-review">Needs Review</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="thumbnail-col"><img src="https://via.placeholder.com/40" alt="Samsung listing"></td>
+              <td><span class="source-badge source-badge-algeria">Ouedkniss</span></td>
+              <td>Algeria</td>
+              <td>Samsung Galaxy S23</td>
+              <td>256GB</td>
+              <td class="num-col">18,000 DZD</td>
+              <td class="num-col">122.30</td>
+              <td>Like New</td>
+              <td><span class="recommendation-badge recommendation-buy">Approved</span></td>
+              <td class="num-col">5 hours ago</td>
+              <td>
+                <div class="listing-actions">
+                  <button class="btn btn-approve mr-2">Approve</button>
+                  <button class="btn btn-reject mr-2">Reject</button>
+                  <button class="btn btn-needs-review">Needs Review</button>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td class="thumbnail-col"><img src="https://via.placeholder.com/40" alt="Sahibinden listing"></td>
+              <td><span class="source-badge source-badge-sahibinden">Sahibinden</span></td>
+              <td>Türkiye</td>
+              <td>Xiaomi Redmi Note 12</td>
+              <td>64GB</td>
+              <td class="num-col">2,150 TRY</td>
+              <td class="num-col">98.70</td>
+              <td>Good</td>
+              <td><span class="recommendation-badge recommendation-watch">Needs Review</span></td>
+              <td class="num-col">1 day ago</td>
+              <td>
+                <div class="listing-actions">
+                  <button class="btn btn-approve mr-2">Approve</button>
+                  <button class="btn btn-reject mr-2">Reject</button>
+                  <button class="btn btn-needs-review">Needs Review</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="section" style="margin-top: var(--space-6); text-align: right;">
+          <button class="btn btn-primary">Apply Selected</button>
+          <button class="btn btn-ghost">Export CSV</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pagefoot" data-od-id="footer">
+    <div class="container row-between">
+      <span>© PriceBridge · 2026</span>
+      <span class="meta">Internal Trading Tool · data@pricebridge.dz</span>
+    </div>
+  </footer>
+</body>
+</html>

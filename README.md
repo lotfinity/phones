@@ -31,7 +31,7 @@ python manage.py import_ouedkniss_from_cdp --cdp http://127.0.0.1:9222 --limit 5
 
 Instagram collection uses Instaloader for public profiles. It does not bypass login challenges. If a session is needed, set `INSTAGRAM_SESSION_PATH` for an Instaloader session file or `INSTAGRAM_COOKIE_FILE` for a Netscape-format browser cookie export containing Instagram cookies.
 
-OCR can use the local `tesseract` binary with `OCR_BACKEND=tesseract`. `OCR_BACKEND=easyocr` and `OCR_BACKEND=paddleocr` are prepared as optional stronger local backends; if the selected backend is missing, the app falls back to Tesseract instead of failing the whole queue. `OCR_BACKEND=ocrspace` uses OCR.space via `OCR_SPACE_API_KEY`, `OCR_SPACE_LANGUAGE`, and `OCR_SPACE_ENGINE`.
+OCR can use the local `tesseract` binary with `OCR_BACKEND=tesseract`. `OCR_BACKEND=easyocr` and `OCR_BACKEND=paddleocr` are prepared as optional stronger local backends; if the selected backend is missing, the app falls back to Tesseract instead of failing the whole queue. `OCR_BACKEND=ocrspace` uses OCR.space via `OCR_SPACE_API_KEY`, `OCR_SPACE_LANGUAGE`, and `OCR_SPACE_ENGINE`. `OCR_BACKEND=nvidia` uses NVIDIA NIM vision chat completions via `NVIDIA_API_KEY`, `NVIDIA_VISION_ENDPOINT`, and `NVIDIA_VISION_MODEL`.
 
 `harvest_instagram_profile_page` is the browser/CDP fallback for saving visible profile-grid post or reel URLs into `InstagramPost` when Instaloader is blocked. Start Chrome with remote debugging first.
 

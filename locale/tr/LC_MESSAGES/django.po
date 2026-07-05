@@ -1,0 +1,708 @@
+# Turkish translations for PriceBridge.
+# Copyright (C) 2026 PriceBridge
+# This file is distributed under the same license as the PriceBridge package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PriceBridge 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-07-05 19:36+0000\n"
+"PO-Revision-Date: 2026-07-05 22:00+0000\n"
+"Last-Translator: PriceBridge Team\n"
+"Language-Team: Turkish\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: market/templates/market/base.html:27
+msgid "Primary navigation"
+msgstr "Birincil navigasyon"
+
+#: market/templates/market/base.html:28 market/templates/market/base.html:51
+#: market/templates/market/base.html:60
+msgid "Workspace"
+msgstr "Calisma alani"
+
+#: market/templates/market/base.html:30 market/templates/market/base.html:51
+#: market/templates/market/base.html:60
+#: market/templates/market/opportunities.html:4
+#: market/templates/market/opportunities.html:5
+#: market/templates/market/opportunities.html:13
+msgid "Opportunities"
+msgstr "Firsatlar"
+
+#: market/templates/market/base.html:32
+#: market/templates/market/data_quality.html:110
+#: market/templates/market/data_quality.html:119
+#: market/templates/market/listings.html:181
+#: market/templates/market/sources.html:29
+msgid "Review"
+msgstr "Inceleme"
+
+#: market/templates/market/base.html:34 market/templates/market/base.html:51
+#: market/templates/market/base.html:81 market/templates/market/listings.html:3
+msgid "Listings"
+msgstr "Ilanlar"
+
+#: market/templates/market/base.html:37 market/templates/market/base.html:51
+#: market/templates/market/data_quality.html:3
+#: market/templates/market/data_quality.html:4
+#: market/templates/market/data_quality.html:11
+msgid "Data Quality"
+msgstr "Veri Kalitesi"
+
+#: market/templates/market/base.html:39
+msgid "Config"
+msgstr "Yapilandirma"
+
+#: market/templates/market/base.html:41 market/templates/market/base.html:51
+#: market/templates/market/base.html:87 market/templates/market/sources.html:3
+#: market/templates/market/sources.html:4
+#: market/templates/market/sources.html:11
+msgid "Sources"
+msgstr "Kaynaklar"
+
+#: market/templates/market/base.html:43
+#: market/templates/market/opportunities.html:8
+#: market/templates/market/opportunity_detail.html:7
+msgid "Admin"
+msgstr "Yonetim"
+
+#: market/templates/market/base.html:53 market/templates/market/base.html:63
+msgid "Toggle dark mode"
+msgstr "Karanlik modu degistir"
+
+#: market/templates/market/base.html:76
+msgid "Mobile navigation"
+msgstr "Mobil navigasyon"
+
+#: market/templates/market/base.html:78
+msgid "Deals"
+msgstr "Firsatlar"
+
+#: market/templates/market/base.html:84
+msgid "Quality"
+msgstr "Kalite"
+
+#: market/templates/market/data_quality.html:6
+msgid "Variants"
+msgstr "Varyasyonlar"
+
+#: market/templates/market/data_quality.html:12
+msgid ""
+"Pipeline health, trust signals, and structural issues that affect Algeria-to-"
+"Turkiye matching."
+msgstr ""
+"Cevrim ici durum guven sinyalleri ve Cezayir-Turkiye eslestirmesini "
+"etkileyen yapisal sorunlar."
+
+#: market/templates/market/data_quality.html:18
+msgid "Instagram posts"
+msgstr "Instagram gonderileri"
+
+#: market/templates/market/data_quality.html:20
+msgid "Collected media rows"
+msgstr "Toplanan medya satirlari"
+
+#: market/templates/market/data_quality.html:23
+msgid "Supplier prices"
+msgstr "Tedarikci fiyatlari"
+
+#: market/templates/market/data_quality.html:25
+msgid "Reference rows"
+msgstr "Referans satirlari"
+
+#: market/templates/market/data_quality.html:28
+msgid "Opportunity rows"
+msgstr "Firsat satirlari"
+
+#: market/templates/market/data_quality.html:30
+msgid "Latest batch only"
+msgstr "Yalnizca son parti"
+
+#: market/templates/market/data_quality.html:33
+msgid "Duplicate variants"
+msgstr "Tekrarlanan varyasyonlar"
+
+#: market/templates/market/data_quality.html:35
+msgid "Identity groups"
+msgstr "Kimlik gruplari"
+
+#: market/templates/market/data_quality.html:41
+msgid "OCR pending"
+msgstr "OCR bekleniyor"
+
+#: market/templates/market/data_quality.html:43
+msgid "Queued OCR rows"
+msgstr "Siradaki OCR satirlari"
+
+#: market/templates/market/data_quality.html:46
+msgid "Unmatched listings"
+msgstr "Eslesmeyen ilanlar"
+
+#: market/templates/market/data_quality.html:48
+msgid "Missing product model"
+msgstr "Eksik urun modeli"
+
+#: market/templates/market/data_quality.html:51
+msgid "Missing storage"
+msgstr "Eksik depolama"
+
+#: market/templates/market/data_quality.html:53
+msgid "Has model, no storage bucket"
+msgstr "Model var, depolama yok"
+
+#: market/templates/market/data_quality.html:56
+msgid "Pending suggestions"
+msgstr "Bekleyen oneriler"
+
+#: market/templates/market/data_quality.html:58
+msgid "Ready for staff review"
+msgstr "Personel incelemesine hazir"
+
+#: market/templates/market/data_quality.html:64
+msgid "Structural issues"
+msgstr "Yapisal sorunlar"
+
+#: market/templates/market/data_quality.html:67
+#: market/templates/market/data_quality.html:87
+msgid "Models without variants"
+msgstr "Varyasyonsuz modeller"
+
+#: market/templates/market/data_quality.html:67
+#: market/templates/market/data_quality.html:71
+#: market/templates/market/data_quality.html:75
+#: market/templates/market/data_quality.html:87
+#: market/templates/market/data_quality.html:88
+#: market/templates/market/data_quality.html:89
+msgid "review"
+msgstr "inceleme"
+
+#: market/templates/market/data_quality.html:71
+#: market/templates/market/data_quality.html:88
+msgid "Listings missing product model"
+msgstr "Urun modeli eksik ilanlar"
+
+#: market/templates/market/data_quality.html:75
+#: market/templates/market/data_quality.html:89
+msgid "Listings missing storage"
+msgstr "Depolama eksik ilanlar"
+
+#: market/templates/market/data_quality.html:79
+#: market/templates/market/data_quality.html:90
+msgid "Duplicate variant groups"
+msgstr "Tekrarlanan varyasyon gruplari"
+
+#: market/templates/market/data_quality.html:79
+#: market/templates/market/data_quality.html:90
+msgid "clean"
+msgstr "temiz"
+
+#: market/templates/market/data_quality.html:85
+msgid "Issue"
+msgstr "Sorun"
+
+#: market/templates/market/data_quality.html:85
+msgid "Count"
+msgstr "Sayi"
+
+#: market/templates/market/data_quality.html:85
+#: market/templates/market/data_quality.html:385
+msgid "Status"
+msgstr "Durum"
+
+#: market/templates/market/data_quality.html:97
+msgid "Source quality"
+msgstr "Kaynak kalitesi"
+
+#: market/templates/market/data_quality.html:106
+msgid "total"
+msgstr "toplam"
+
+#: market/templates/market/data_quality.html:109
+#: market/templates/market/data_quality.html:119
+#: market/templates/market/sources.html:28
+msgid "Usable"
+msgstr "Kullanilabilir"
+
+#: market/templates/market/data_quality.html:114
+#: market/templates/market/data_quality.html:130
+msgid "No listing sources yet."
+msgstr "Henuz ilan kaynagi yok."
+
+#: market/templates/market/data_quality.html:119
+#: market/templates/market/listings.html:173
+msgid "Source"
+msgstr "Kaynak"
+
+#: market/templates/market/data_quality.html:119
+#: market/templates/market/listings.html:174
+msgid "Country"
+msgstr "Ulke"
+
+#: market/templates/market/data_quality.html:119
+msgid "Total"
+msgstr "Toplam"
+
+#: market/templates/market/data_quality.html:140
+msgid "Review queue"
+msgstr "Inceleme sirasi"
+
+#: market/templates/market/data_quality.html:141
+msgid "shown"
+msgstr "gosterilen"
+
+#: market/templates/market/data_quality.html:145
+msgid "Search title, product, variant..."
+msgstr "Baslik, urun, varyasyon ara..."
+
+#: market/templates/market/data_quality.html:147
+#: market/templates/market/listings.html:19
+msgid "All sources"
+msgstr "Tum kaynaklar"
+
+#: market/templates/market/data_quality.html:153
+#: market/templates/market/listings.html:25
+msgid "All countries"
+msgstr "Tum ulkeler"
+
+#: market/templates/market/data_quality.html:159
+msgid "All statuses"
+msgstr "Tum durumlar"
+
+#: market/templates/market/data_quality.html:169
+#: market/templates/market/listings.html:36
+msgid "Apply"
+msgstr "Uygula"
+
+#: market/templates/market/data_quality.html:170
+#: market/templates/market/listings.html:37
+#: market/templates/market/opportunities.html:52
+msgid "Reset"
+msgstr "Sifirla"
+
+#: market/templates/market/data_quality.html:175
+msgid "Bulk storage actions"
+msgstr "Toplu depolama islemleri"
+
+#: market/templates/market/data_quality.html:178
+msgid "Storage bucket"
+msgstr "Depolama alani"
+
+#: market/templates/market/data_quality.html:180
+msgid "Clear storage"
+msgstr "Depolamayi temizle"
+
+#: market/templates/market/data_quality.html:187
+msgid "Quick pick"
+msgstr "Hizli secim"
+
+#: market/templates/market/data_quality.html:194
+msgid "Assign selected"
+msgstr "Secilenleri ata"
+
+#: market/templates/market/data_quality.html:195
+msgid "Delete selected"
+msgstr "Secilenleri sil"
+
+#: market/templates/market/data_quality.html:198
+msgid "Apply suggestions"
+msgstr "Onerileri uygula"
+
+#: market/templates/market/data_quality.html:199
+msgid "Reject suggestions"
+msgstr "Onerileri reddet"
+
+#: market/templates/market/data_quality.html:200
+msgid "Select visible"
+msgstr "Gorunenleri sec"
+
+#: market/templates/market/data_quality.html:201
+msgid "Clear"
+msgstr "Temizle"
+
+#: market/templates/market/data_quality.html:202
+msgid "selected"
+msgstr "secilen"
+
+#: market/templates/market/data_quality.html:214
+#: market/templates/market/data_quality.html:374
+msgid "Select"
+msgstr "Sec"
+
+#: market/templates/market/data_quality.html:240
+#: market/templates/market/data_quality.html:381
+msgid "Suggestion"
+msgstr "Oneri"
+
+#: market/templates/market/data_quality.html:244
+msgid "Model"
+msgstr "Model"
+
+#: market/templates/market/data_quality.html:245
+#: market/templates/market/data_quality.html:268
+#: market/templates/market/data_quality.html:379
+msgid "Storage"
+msgstr "Depolama"
+
+#: market/templates/market/data_quality.html:246
+#: market/templates/market/data_quality.html:279
+#: market/templates/market/data_quality.html:380
+msgid "SIM"
+msgstr "SIM"
+
+#: market/templates/market/data_quality.html:247
+#: market/templates/market/data_quality.html:384
+#: market/templates/market/listings.html:180
+msgid "Condition"
+msgstr "Durum"
+
+#: market/templates/market/data_quality.html:254
+#: market/templates/market/data_quality.html:378
+#: market/templates/market/listings.html:83
+#: market/templates/market/listings.html:176
+#: market/templates/market/opportunities.html:180
+msgid "Product"
+msgstr "Urun"
+
+#: market/templates/market/data_quality.html:289
+#: market/templates/market/data_quality.html:382
+msgid "Legacy variant"
+msgstr "Eski varyasyon"
+
+#: market/templates/market/data_quality.html:303
+#: market/templates/market/data_quality.html:383
+msgid "Price"
+msgstr "Fiyat"
+
+#: market/templates/market/data_quality.html:347
+#: market/templates/market/data_quality.html:525
+#: market/templates/market/listings.html:146
+#: market/templates/market/listings.html:308
+#: market/templates/market/opportunity_detail.html:153
+#: market/templates/market/opportunity_detail.html:218
+msgid "Open"
+msgstr "Ac"
+
+#: market/templates/market/data_quality.html:356
+#: market/templates/market/data_quality.html:534
+#: market/templates/market/listings.html:155
+#: market/templates/market/listings.html:185
+#: market/templates/market/listings.html:324
+#: market/templates/market/opportunity_detail.html:162
+#: market/templates/market/opportunity_detail.html:227
+msgid "Delete"
+msgstr "Sil"
+
+#: market/templates/market/data_quality.html:364
+#: market/templates/market/data_quality.html:540
+msgid "No listings match the review queue filters."
+msgstr "Inceleme sirasi filtreleriyle eslesen ilan yok."
+
+#: market/templates/market/data_quality.html:376
+msgid "Listing"
+msgstr "Ilan"
+
+#: market/templates/market/data_quality.html:377
+msgid "Issues"
+msgstr "Sorunlar"
+
+#: market/templates/market/data_quality.html:386
+msgid "Actions"
+msgstr "Islemler"
+
+#: market/templates/market/data_quality.html:453
+msgid "Suggested"
+msgstr "Onerilen"
+
+#: market/templates/market/data_quality.html:457
+msgid "Model:"
+msgstr "Model:"
+
+#: market/templates/market/data_quality.html:458
+msgid "Storage:"
+msgstr "Depolama:"
+
+#: market/templates/market/data_quality.html:459
+msgid "Condition:"
+msgstr "Durum:"
+
+#: market/templates/market/inline_edit_toolbar.html:4
+msgid "Edit data"
+msgstr "Veriyi duzenle"
+
+#: market/templates/market/inline_edit_toolbar.html:5
+msgid "Off"
+msgstr "Kapali"
+
+#: market/templates/market/listings.html:4
+#: market/templates/market/listings.html:11
+msgid "Listings Review"
+msgstr "Ilan Incelemesi"
+
+#: market/templates/market/listings.html:6
+msgid "Open admin"
+msgstr "Yonetimi ac"
+
+#: market/templates/market/listings.html:12
+msgid ""
+"Review imported listings before they enter opportunity matching. Approve "
+"verified rows in Django admin when needed."
+msgstr ""
+"Ithal edilen ilanlari firsat eslestirmesinden once inceleyin. Gerekli "
+"durumlarda dogrulanmis satirlari Django yonetim panelinde onaylayin."
+
+#: market/templates/market/listings.html:17
+msgid "Search product, storage, listing text..."
+msgstr "Urun, depolama, ilan metni ara..."
+
+#: market/templates/market/listings.html:31
+msgid "All review statuses"
+msgstr "Tum inceleme durumlari"
+
+#: market/templates/market/listings.html:97
+#: market/templates/market/listings.html:177
+msgid "Storage / SIM"
+msgstr "Depolama / SIM"
+
+#: market/templates/market/listings.html:118
+#: market/templates/market/opportunity_detail.html:135
+#: market/templates/market/opportunity_detail.html:200
+msgid "Original"
+msgstr "Orijinal"
+
+#: market/templates/market/listings.html:134
+#: market/templates/market/listings.html:179
+msgid "Converted"
+msgstr "Donusturulmus"
+
+#: market/templates/market/listings.html:163
+#: market/templates/market/listings.html:330
+msgid "No listings match the current filters."
+msgstr "Mevcut filtrelerle eslesen ilan yok."
+
+#: market/templates/market/listings.html:172
+msgid "Image"
+msgstr "Gorsel"
+
+#: market/templates/market/listings.html:175
+msgid "Title"
+msgstr "Baslik"
+
+#: market/templates/market/listings.html:178
+msgid "Original price"
+msgstr "Orijinal fiyat"
+
+#: market/templates/market/listings.html:182
+msgid "Observed"
+msgstr "Gozlemlenen"
+
+#: market/templates/market/listings.html:183
+msgid "Link"
+msgstr "Baglanti"
+
+#: market/templates/market/opportunities.html:7
+msgid "Review listings"
+msgstr "Ilanlari incele"
+
+#: market/templates/market/opportunities.html:14
+msgid ""
+"Buy-side Algeria listings compared against Turkiye sell-side prices, matched "
+"by product model and storage."
+msgstr ""
+"Urun modeli ve depolamaya gore eslestirilmis, Cezayir alis tarafindaki "
+"ilanlarin Turkiye satis fiyatlarina kiyaslanmasi."
+
+#: market/templates/market/opportunities.html:36
+msgid "Search"
+msgstr "Ara"
+
+#: market/templates/market/opportunities.html:37
+msgid "Model name..."
+msgstr "Model adi..."
+
+#: market/templates/market/opportunities.html:40
+msgid "Brand"
+msgstr "Marka"
+
+#: market/templates/market/opportunities.html:42
+msgid "All brands"
+msgstr "Tum markalar"
+
+#: market/templates/market/opportunities.html:51
+msgid "Filter"
+msgstr "Filtrele"
+
+#: market/templates/market/opportunities.html:70
+msgid "Best opportunity"
+msgstr "En iyi firsat"
+
+#: market/templates/market/opportunities.html:126
+msgid "Margin"
+msgstr "Marj"
+
+#: market/templates/market/opportunities.html:130
+msgid "Gross"
+msgstr "Brut"
+
+#: market/templates/market/opportunities.html:134
+#: market/templates/market/opportunities.html:183
+#: market/templates/market/opportunity_detail.html:43
+msgid "Algeria min"
+msgstr "Cezayir min"
+
+#: market/templates/market/opportunities.html:139
+#: market/templates/market/opportunities.html:186
+#: market/templates/market/opportunity_detail.html:56
+msgid "Supplier"
+msgstr "Tedarikci"
+
+#: market/templates/market/opportunities.html:144
+#: market/templates/market/opportunities.html:188
+#: market/templates/market/opportunity_detail.html:51
+msgid "Turkiye avg"
+msgstr "Turkiye ort"
+
+#: market/templates/market/opportunities.html:170
+msgid "No deals match those filters. Try broadening your search."
+msgstr "Bu filtrelerle eslesen firsat yok. Aramanizi genisletmeyi deneyin."
+
+#: market/templates/market/opportunities.html:179
+msgid "Recommendation"
+msgstr "Oneri"
+
+#: market/templates/market/opportunities.html:181
+msgid "Category"
+msgstr "Kategori"
+
+#: market/templates/market/opportunities.html:182
+msgid "Variant"
+msgstr "Varyasyon"
+
+#: market/templates/market/opportunities.html:184
+#: market/templates/market/opportunity_detail.html:47
+msgid "Algeria avg"
+msgstr "Cezayir ort"
+
+#: market/templates/market/opportunities.html:190
+#: market/templates/market/opportunity_detail.html:64
+msgid "Gross margin"
+msgstr "Brut marj"
+
+#: market/templates/market/opportunities.html:191
+#: market/templates/market/opportunity_detail.html:68
+#, python-format
+msgid "Margin %%"
+msgstr "Marj %%"
+
+#: market/templates/market/opportunities.html:192
+#: market/templates/market/opportunity_detail.html:72
+msgid "Confidence"
+msgstr "Guven"
+
+#: market/templates/market/opportunities.html:193
+msgid "Coverage"
+msgstr "Kapsama"
+
+#: market/templates/market/opportunities.html:194
+msgid "Updated"
+msgstr "Guncellenmis"
+
+#: market/templates/market/opportunities.html:271
+msgid "No opportunities match the current filters."
+msgstr "Mevcut filtrelerle eslesen firsat yok."
+
+#: market/templates/market/opportunity_detail.html:4
+msgid "Opportunity Detail"
+msgstr "Firsat Detayi"
+
+#: market/templates/market/opportunity_detail.html:6
+msgid "Back to opportunities"
+msgstr "Firsatlara don"
+
+#: market/templates/market/opportunity_detail.html:59
+msgid "margin"
+msgstr "marj"
+
+#: market/templates/market/opportunity_detail.html:79
+msgid "Cross-storage comparison"
+msgstr "Carsapraz depolama karsilastirmasi"
+
+#: market/templates/market/opportunity_detail.html:81
+msgid "This opportunity matches across different storage sizes."
+msgstr "Bu firsat farkli depolama boyutlarinda eslesiyor."
+
+#: market/templates/market/opportunity_detail.html:83
+msgid "Algeria listings:"
+msgstr "Cezayir ilanlari:"
+
+#: market/templates/market/opportunity_detail.html:86
+msgid "Turkiye listings:"
+msgstr "Turkiye ilanlari:"
+
+#: market/templates/market/opportunity_detail.html:93
+msgid "Calculation"
+msgstr "Hesaplama"
+
+#: market/templates/market/opportunity_detail.html:109
+msgid "Algeria listings"
+msgstr "Cezayir ilanlari"
+
+#: market/templates/market/opportunity_detail.html:168
+msgid "No Algeria listings match this model, storage, and SIM bucket."
+msgstr "Bu model, depolama ve SIM kutusuyla eslesen Cezayir ilani yok."
+
+#: market/templates/market/opportunity_detail.html:174
+msgid "Turkiye listings"
+msgstr "Turkiye ilanlari"
+
+#: market/templates/market/opportunity_detail.html:233
+msgid "No Turkiye listings match this model, storage, and SIM bucket."
+msgstr "Bu model, depolama ve SIM kutusuyla eslesen Turkiye ilani yok."
+
+#: market/templates/market/sources.html:6
+msgid "Manage sources"
+msgstr "Kaynaklari yonet"
+
+#: market/templates/market/sources.html:12
+msgid ""
+"Upstream data providers for PriceBridge. Monitor coverage and ingestion "
+"health."
+msgstr ""
+"PriceBridge icin yukaridaki veri saglayicilari. Kapsam ve alim durumunu "
+"izleyin."
+
+#: market/templates/market/sources.html:27
+msgid "Rows"
+msgstr "Satirlar"
+
+#: market/templates/market/sources.html:32
+msgid "Last seen:"
+msgstr "Son gorulme:"
+
+#: market/templates/market/sources.html:32
+msgid "never"
+msgstr "hic"
+
+#: market/templates/market/sources.html:33
+msgid "Manage"
+msgstr "Yonet"
+
+#: market/templates/market/sources.html:37
+msgid "No sources configured yet."
+msgstr "Henuz kaynak yapilandirilmamis."
+
+#: pricebridge/settings.py:130
+msgid "English"
+msgstr "Ingilizce"
+
+#: pricebridge/settings.py:131
+msgid "Turkish"
+msgstr "Turkce"
+
+#: market/templates/market/base.html:66
+#: market/templates/market/base.html:82
+msgid "Language"
+msgstr "Dil"

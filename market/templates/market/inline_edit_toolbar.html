@@ -1,0 +1,178 @@
+{% load i18n %}
+{% if request.user.is_authenticated and request.user.is_staff %}
+  <div class="inline-toolbar" data-inline-toolbar>
+    <button class="btn btn-secondary btn-sm" type="button" data-inline-toggle>{% trans "Edit data" %}</button>
+    <span class="inline-status" data-inline-status aria-live="polite">{% trans "Off" %}</span>
+  </div>
+  <script>
+    (function () {
+      const toolbar = document.querySelector("[data-inline-toolbar]");
+      if (!toolbar) return;
+
+      const toggle = toolbar.querySelector("[data-inline-toggle]");
+      const status = toolbar.querySelector("[data-inline-status]");
+      let editMode = false;
+
+      function csrfToken() {
+        const match = document.cookie.match(/(?:^|; )csrftoken=([^;]+)/);
+        return match ? decodeURIComponent(match[1]) : "";
+      }
+
+      function setStatus(text, state) {
+        status.textContent = text;
+        status.dataset.state = state || "";
+      }
+
+      function editableElements() {
+        return Array.from(document.querySelectorAll("[data-inline-field][data-inline-api][data-inline-id]"));
+      }
+
+      async function deleteListing(button) {
+        const label = button.dataset.inlineLabel || "this listing";
+        if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+
+        setStatus("Deleting", "saving");
+        button.disabled = true;
+        try {
+          const response = await fetch(`${button.dataset.inlineDelete}?id=${encodeURIComponent(button.dataset.inlineId)}`, {
+            method: "DELETE",
+            headers: { "X-CSRFToken": csrfToken() },
+          });
+          const payload = await response.json();
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error || "Delete failed");
+          }
+          const row = button.closest("[data-listing-row]");
+          if (row) row.remove();
+          setStatus("Deleted", "saved");
+        } catch (error) {
+          button.disabled = false;
+          setStatus(error.message, "error");
+        }
+      }
+
+      function normalizeValue(el) {
+        if (el.tagName === "SELECT" || el.tagName === "INPUT") {
+          return el.value.trim();
+        }
+        const type = el.dataset.inlineType || "text";
+        const text = el.textContent.trim();
+        if (type === "decimal") {
+          return text.replace(/[^\d,.-]/g, "");
+        }
+        if (type === "integer") {
+          return text.replace(/[^\d-]/g, "");
+        }
+        return text;
+      }
+
+      async function saveElement(el) {
+        const value = normalizeValue(el);
+        if (value === (el.dataset.inlineOriginal || "")) return;
+
+        setStatus("Saving", "saving");
+        el.dataset.inlineSaving = "1";
+        try {
+          const response = await fetch(`${el.dataset.inlineApi}?id=${encodeURIComponent(el.dataset.inlineId)}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": csrfToken(),
+            },
+            body: JSON.stringify({ field: el.dataset.inlineField, value: value }),
+          });
+          const payload = await response.json();
+          if (!response.ok || !payload.ok) {
+            throw new Error(payload.error || "Save failed");
+          }
+          el.dataset.inlineOriginal = value;
+          if (
+            payload.value !== undefined &&
+            el.tagName !== "SELECT" &&
+            el.tagName !== "INPUT" &&
+            (el.dataset.inlineType || "text") !== "decimal"
+          ) {
+            el.textContent = payload.value || "-";
+          }
+          el.classList.remove("inline-error");
+          el.classList.add("inline-saved");
+          setStatus("Saved", "saved");
+          window.setTimeout(function () {
+            el.classList.remove("inline-saved");
+            if (editMode) setStatus("Editing", "editing");
+          }, 900);
+        } catch (error) {
+          el.classList.add("inline-error");
+          setStatus(error.message, "error");
+        } finally {
+          delete el.dataset.inlineSaving;
+        }
+      }
+
+      function enableElement(el) {
+        if (el.dataset.inlineReady === "1") return;
+        el.dataset.inlineReady = "1";
+        el.dataset.inlineOriginal = normalizeValue(el);
+
+        if (el.tagName === "SELECT") {
+          el.addEventListener("change", function () {
+            if (editMode) saveElement(el);
+          });
+          return;
+        }
+
+        el.addEventListener("click", function (event) {
+          if (editMode) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        });
+        el.addEventListener("blur", function () {
+          if (editMode) saveElement(el);
+        });
+        el.addEventListener("keydown", function (event) {
+          if (!editMode) return;
+          if (event.key === "Enter") {
+            event.preventDefault();
+            el.blur();
+          }
+          if (event.key === "Escape") {
+            event.preventDefault();
+            el.textContent = el.dataset.inlineOriginal || "";
+            el.blur();
+          }
+        });
+      }
+
+      function setEditMode(enabled) {
+        editMode = enabled;
+        document.body.classList.toggle("inline-editing", editMode);
+        editableElements().forEach(function (el) {
+          enableElement(el);
+          if (el.tagName === "SELECT" || el.tagName === "INPUT") {
+            el.disabled = !editMode;
+          } else {
+            el.contentEditable = editMode ? "true" : "false";
+          }
+          if (editMode) {
+            el.dataset.inlineOriginal = normalizeValue(el);
+          }
+        });
+        toggle.textContent = editMode ? "Done editing" : "Edit data";
+        setStatus(editMode ? "Editing" : "Off", editMode ? "editing" : "");
+      }
+
+      toggle.addEventListener("click", function () {
+        setEditMode(!editMode);
+      });
+      document.addEventListener("click", function (event) {
+        const button = event.target.closest("[data-inline-delete][data-inline-id]");
+        if (!button) return;
+        event.preventDefault();
+        event.stopPropagation();
+        deleteListing(button);
+      });
+      setEditMode(false);
+    })();
+  </script>
+{% endif %}
