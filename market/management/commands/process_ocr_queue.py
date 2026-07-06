@@ -1,11 +1,24 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from pathlib import Path
 
 from market.models import Country, InstagramPost, MarketListing, OCRResult, SourceType
 from market.parsers.ocr_backend import get_ocr_backend
 from market.parsers.ocr_parser import parse_ocr_text
 from market.services.currency import dzd_to_eur
 from market.services.matching import find_existing_model, find_existing_variant
+
+
+def local_media_url(path):
+    if not path:
+        return ""
+    media_root = Path(settings.MEDIA_ROOT).resolve()
+    try:
+        rel_path = Path(path).resolve().relative_to(media_root)
+    except (OSError, ValueError):
+        return ""
+    media_url = "/" + settings.MEDIA_URL.lstrip("/")
+    return f"{media_url.rstrip('/')}/{rel_path.as_posix()}"
 
 
 class Command(BaseCommand):
@@ -50,9 +63,12 @@ class Command(BaseCommand):
                     else None
                 )
                 if parsed.model_text and (parsed.price_dzd or parsed.storage_gb):
+                    listing_url = post.post_url
+                    if "manual_image=" in (post.post_url or ""):
+                        listing_url = local_media_url(image_path) or post.post_url
                     MarketListing.objects.update_or_create(
                         source=post.source,
-                        listing_url=post.post_url,
+                        listing_url=listing_url,
                         defaults={
                             "source_type": SourceType.INSTAGRAM,
                             "country": post.source.country or Country.ALGERIA,
@@ -68,7 +84,7 @@ class Command(BaseCommand):
                             "battery_health": parsed.battery_health,
                             "battery_cycles": parsed.battery_cycles,
                             "sim_config": parsed.sim_text,
-                            "listing_url": post.post_url,
+                            "listing_url": listing_url,
                             "image_path": image_path,
                             "observed_at": post.posted_at or post.collected_at,
                             "parsed_confidence": parsed.confidence,

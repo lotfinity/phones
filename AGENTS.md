@@ -40,6 +40,7 @@ Useful commands:
 - `python manage.py import_sahibinden_from_cdp --cdp http://127.0.0.1:9222 --max-rows 300`
 - `python manage.py import_ouedkniss_from_cdp --cdp http://127.0.0.1:9222 --limit 50 --max-age-days 30`
 - `python manage.py run_opportunity_analysis`
+- `python manage.py recompute_deal_snapshots`
 - `python manage.py inspect_recent_data`
 - `python manage.py sync_commons_assets --dry-run --model-id 1`
 - `python manage.py sync_commons_assets --brand Samsung --min-score 60`

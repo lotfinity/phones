@@ -1,0 +1,38 @@
+{
+  "export_timestamp": "2026-07-06T13:44:15.801788+00:00",
+  "current_effective_fx_rates": {
+    "EUR_TO_USD_DERIVED_FROM_TRY": "1.144794359576968272620446533",
+    "EUR_TO_DZD": "277.000000",
+    "EUR_TO_TRY": "53.582100",
+    "USD_TO_TRY": "46.805000"
+  },
+  "listing_counts": {
+    "total_algeria_listings": 514,
+    "usable_algeria_listings": 491,
+    "total_turkiye_listings": 1317,
+    "usable_turkiye_listings": 880,
+    "total_supplier_list_rows": 24,
+    "unique_supplier_model_storage_items": 22
+  },
+  "opportunity_counts": {
+    "number_of_opportunities": 74,
+    "BUY": 46,
+    "WATCH": 9,
+    "IGNORE": 19,
+    "INSUFFICIENT_DATA": 0
+  },
+  "formulas": {
+    "algeria_buy_price": "Minimum usable Algeria listing price for same product/storage, converted to EUR, then USD through EUR/TRY divided by USD/TRY.",
+    "proposed_buyer_price": "algeria_buy_price + my_personal_gain.",
+    "my_personal_gain": "Tiered share of gross spread versus Turkiye benchmark from OpportunitySnapshot.gain_split.",
+    "buyer_gain": "turkey_benchmark - proposed_buyer_price.",
+    "buyer_roi": "buyer_gain / proposed_buyer_price * 100.",
+    "my_roi": "my_personal_gain / algeria_buy_price * 100.",
+    "supplier_usd": "Raw SupplierPrice.supplier_price_usd. It is not derived from EUR.",
+    "discount_vs_supplier": "proposed_buyer_price_usd - raw supplier_price_usd. Negative means proposed buyer price is below supplier benchmark."
+  },
+  "selection_notes": {
+    "supplier_only_basket": "Supplier-list opportunities with positive buyer gain, BUY/WATCH signal, and proposed buyer price below raw supplier USD benchmark, greedily fit into EUR 3350 budget.",
+    "unlimited_top_opportunities": "Exact 15-item dashboard-style unlimited-budget scenario requested in the session."
+  }
+}

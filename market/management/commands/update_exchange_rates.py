@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-from market.models import CurrencyRate, MarketListing
+from market.models import CurrencyRate, MarketListing, SupplierPrice
 from market.services.currency import convert_to_eur
 
 
@@ -37,16 +37,19 @@ def validate_rate(rate, low, high, label):
 
 
 def fetch_frankfurter_rates():
-    url = "https://api.frankfurter.app/latest?from=EUR&to=TRY,USD"
-    payload = json.loads(fetch_url(url))
-    rates = payload.get("rates") or {}
+    eur_url = "https://api.frankfurter.app/latest?from=EUR&to=TRY"
+    usd_url = "https://api.frankfurter.app/latest?from=USD&to=TRY"
+    eur_payload = json.loads(fetch_url(eur_url))
+    usd_payload = json.loads(fetch_url(usd_url))
+    eur_rates = eur_payload.get("rates") or {}
+    usd_rates = usd_payload.get("rates") or {}
     return {
-        "TRY": validate_rate(decimal_value(rates["TRY"]), 1, 200, "EUR/TRY"),
-        "USD": validate_rate(decimal_value(rates["USD"]), Decimal("0.5"), 2, "EUR/USD"),
+        ("EUR", "TRY"): validate_rate(decimal_value(eur_rates["TRY"]), 1, 200, "EUR/TRY"),
+        ("USD", "TRY"): validate_rate(decimal_value(usd_rates["TRY"]), 1, 200, "USD/TRY"),
     }, {
         "source": "frankfurter.app",
-        "url": url,
-        "date": payload.get("date", ""),
+        "url": f"{eur_url}; {usd_url}",
+        "date": eur_payload.get("date") or usd_payload.get("date") or "",
     }
 
 
@@ -89,10 +92,10 @@ def save_rate(base, quote, rate, source, notes="", dry_run=False):
 
 
 class Command(BaseCommand):
-    help = "Fetch EUR exchange rates and store them for marketplace price conversion."
+    help = "Fetch TRY-anchored exchange rates and store them for marketplace price conversion."
 
     def add_arguments(self, parser):
-        parser.add_argument("--skip-official", action="store_true", help="Skip EUR/TRY and EUR/USD fetch.")
+        parser.add_argument("--skip-official", action="store_true", help="Skip EUR/TRY and USD/TRY fetch.")
         parser.add_argument("--skip-dzd", action="store_true", help="Skip Algeria black-market EUR/DZD scrape.")
         parser.add_argument("--dry-run", action="store_true", help="Fetch and print rates without writing rows.")
         parser.add_argument(
@@ -111,16 +114,16 @@ class Command(BaseCommand):
                     rates, meta = fetch_frankfurter_rates()
                 except Exception as exc:
                     raise CommandError(f"Frankfurter fetch failed: {exc}") from exc
-                for quote, rate in rates.items():
+                for (base, quote), rate in rates.items():
                     save_rate(
-                        "EUR",
+                        base,
                         quote,
                         rate,
                         meta["source"],
                         notes=f"url={meta['url']}; date={meta['date']}",
                         dry_run=dry_run,
                     )
-                    saved.append(("EUR", quote, rate, meta["source"]))
+                    saved.append((base, quote, rate, meta["source"]))
 
             if not options["skip_dzd"]:
                 try:
@@ -148,11 +151,17 @@ class Command(BaseCommand):
                         listing.price_eur = new_price_eur
                         listing.save(update_fields=["price_eur"])
                         recalculated += 1
+                for supplier in SupplierPrice.objects.exclude(supplier_price_usd__isnull=True).iterator():
+                    new_price_eur = convert_to_eur(supplier.supplier_price_usd, "USD")
+                    if supplier.supplier_price_eur != new_price_eur:
+                        supplier.supplier_price_eur = new_price_eur
+                        supplier.save(update_fields=["supplier_price_eur"])
+                        recalculated += 1
 
         for base, quote, rate, source in saved:
             prefix = "Would save" if dry_run else "Saved"
             self.stdout.write(f"{prefix} {base}/{quote} {rate} from {source}")
         if options["recalculate_listings"] and not dry_run:
-            self.stdout.write(f"Recalculated {recalculated} listing EUR prices.")
+            self.stdout.write(f"Recalculated {recalculated} listing/supplier EUR prices.")
         if dry_run:
             self.stdout.write(self.style.WARNING("Dry run only; no CurrencyRate rows were created."))

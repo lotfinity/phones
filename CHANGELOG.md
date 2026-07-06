@@ -2,6 +2,19 @@
 
 ## 2026-07-05
 
+- Added `match_instagram_manual_links_from_markdown` and used it to replace exact suffix-matched manual Instagram image links with real post/reel URLs from the Markdown profile export.
+- Pointed manual Instagram OCR listing links at their local `/media/` evidence images instead of synthetic Instagram `manual_image` URLs.
+- Displayed the current effective FX rates used by calculations in the shared UI header, including EUR/TRY, USD/TRY, EUR/DZD, and TRY-derived EUR/USD.
+- Added a supplier-list pricing rule: reserve a USD 100 buyer discount versus supplier, then split the remaining supplier-to-Algeria spread 50/50 between buyer gain and internal gain.
+- Replaced direct EUR/USD FX usage with TRY-anchored EUR/TRY and USD/TRY conversion, recalculated supplier EUR prices, and regenerated deal-analysis JSON exports using raw supplier USD as the benchmark.
+- Cleaned up opportunity detail listing cards with aligned price blocks and explicit original-listing links that open the source URL.
+- Fixed OCR parsing to extract storage from full multi-line Instagram OCR text, then backfilled NVIDIA Instagram listings from `description_raw`.
+- Opened opportunity details in an in-page modal from the opportunities list and broadened laptop detail matching so Turkey laptop listings appear for cross-spec laptop opportunities.
+- Hid internal gain, buy-side pricing, supplier spread, and raw margin details from non-superuser buyer views while keeping superusers on the full internal opportunity view.
+- Fixed the internal language switcher to persist Django's locale cookie, preserve filtered page query strings, and render the active HTML language.
+- Added capital ROI and clearer buyer-gain percentage labels to opportunity list and detail screens without changing the current gain-split logic.
+- Added an absolute gross-spread floor so opportunities with at least EUR 150 gross spread are treated as at least medium quality even when buyer gain percent is low.
+- Fixed dashboard CSS serving by linking templates to the compiled Tailwind bundle and adding DEBUG-only static asset serving.
 - Added optional Django Debug Toolbar integration, gated to DEBUG and authenticated superusers only.
 - Added optional `OCR_BACKEND=nvidia` support for NVIDIA NIM vision chat completions using `NVIDIA_API_KEY`, `NVIDIA_VISION_ENDPOINT`, and `NVIDIA_VISION_MODEL`.
 - Added `queue_instagram_image_folder` for manually downloaded Instagram image folders and a `process_ocr_queue --source-username` filter so OCR can be run against one Instagram source at a time.

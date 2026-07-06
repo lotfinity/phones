@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "market/templates/market/listings.html",
+  "entry": "market/templates/market/listings.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-05T21:03:52.432Z",
+  "updatedAt": "2026-07-05T21:03:52.432Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

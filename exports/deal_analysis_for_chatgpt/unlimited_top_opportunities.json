@@ -1,0 +1,1464 @@
+{
+  "sorting_criteria": "Exact saved 15-item dashboard-style unlimited-budget scenario from the latest discussion; includes laptops/foldables.",
+  "totals": {
+    "total_items": 15,
+    "total_algeria_buy_usd": 12474.55,
+    "total_proposed_buyer_price_usd": 14565.26,
+    "total_my_gain_usd": 2090.72,
+    "total_buyer_gain_usd": 3418.31,
+    "total_turkey_benchmark_usd": 17983.53,
+    "total_supplier_benchmark_usd": 2774.0,
+    "my_roi_percent": 16.76,
+    "buyer_roi_percent": 23.47,
+    "average_discount_vs_supplier_percent": -4.5
+  },
+  "opportunities": [
+    {
+      "id": 3087,
+      "product_model_name": "iPhone 17 Pro",
+      "brand": "Apple",
+      "normalized_model_key": "apple-iphone-17-pro",
+      "storage": 256,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3201,
+        "algeria_min_source": "manual image",
+        "algeria_min_url": null,
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_61_684328272_1908942673143689_2062468845929316206_n.jpg",
+        "algeria_min_title": "iPhone 17 Pro",
+        "algeria_min_price_original": 189000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 682.31,
+        "algeria_min_price_usd": 781.1
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 840.13,
+        "proposed_buyer_price_usd": 961.78,
+        "proposed_buyer_price_dzd": 232716.01,
+        "proposed_buyer_price_try": 45015.93
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 1133.22,
+        "turkey_benchmark_usd": 1297.3,
+        "turkey_benchmark_try": 60720.31,
+        "number_of_turkey_comps": 29,
+        "turkey_comp_listing_ids": [
+          1699,
+          1767,
+          1679,
+          1763,
+          1764,
+          1581,
+          1874,
+          1626,
+          1738,
+          1739,
+          1864,
+          1765,
+          1614,
+          1620,
+          1632,
+          1603,
+          1640,
+          1641,
+          1685,
+          1636,
+          1852,
+          1843,
+          1844,
+          1595,
+          1666,
+          1695,
+          1683,
+          1845,
+          1621
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256gb-yurtdisi-1326342645/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256-gb-yd-cift-simli-pil-100-15-ay-acik-devir-10-1326098194/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-17-pro-256-gb-pil-100-hat-takilmamis-1326397279/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-cift-e-sim-bugune-ozel-1326138645/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-cift-e-sim-bugune-ozel-1326138117/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-17-pro-256-kutulu-pil-98-ydisi-15-ay-1321801300/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-asya-telecom-dan-yd-iphone-17-pro-256-gb-14-ay-kullanima-acik-1326235036/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-arey-mobile-dan-iphone-17-pro-256-gb-sifir-kart-taksit-1325723598/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-14-ay-kullanim-orjinal-1326226492/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-14-ay-kullanim-orjinal-1326225787/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-geylani-iletisimden-iphone-17-pro-256-sifir-kapali-kutu-1324157600/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-yd-cift-sim-garantili-1326136298/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256gb-sifir-kapali-kutu-avrupa-1-yil-garanti-15-ay-1326161586/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256gb-sifir-kapali-kutu,magazadan-takas-plustaksit-imkani-1325941171/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cift-fiziki-sifir-iphone-17-pro-256-gb-beyaz-kapali-kutu-1325176595/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-17-pro-256gb-kapali-kutu-sifir-16-ay-cift-sim-1324784868/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ct-iletisim-den-iphone-17-pro-256-gb-takas-ve-3-6-9-12-taksit-1326416340/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ct-iletisim-den-iphone-17-pro-256-gb-takas-ve-3-6-9-12-taksit-1326415717/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256gb-sifir-kapali-kutu-1326370762/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-1309812046/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-17-pro-256-sifir-kutulu-avrupa-ydisi-16-ay-1311506035/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256-global-garantili-seri-sifir-14-ay-acik-tum-renkler-1326396370/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256-global-garantili-seri-sifir-14-ay-acik-tum-renkler-1326395976/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-kardesler-iletisim-17-pro-256-gb-sifir-kapali-kutu-kart-taksit-1274475935/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-asya-telecom-dan-iphone-17-pro-256-gb-14-ay-kullanima-acik-1326409982/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-beyaz-1326352525/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-1-yd-sifir-kapali-kutu-garantili-model-1326386455/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-1-yd-sifir-kapali-kutu-garantili-model-1326385545/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-arey-mobile-dan-iphone-17-pro-256-gb-sifir-kart-taksit-1325921183/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": true,
+        "supplier_price_eur": 1179.25,
+        "supplier_price_usd": 1350.0,
+        "supplier_original_price": 1350.0,
+        "supplier_currency": "USD",
+        "supplier_item_name": "iPhone 17 Pro 256GB 1350$",
+        "supplier_row_id": 2
+      },
+      "gain_split": {
+        "my_gain_eur": 157.82,
+        "my_gain_usd": 180.67,
+        "my_gain_percent_on_algeria_buy": 23.13,
+        "buyer_gain_eur": 293.09,
+        "buyer_gain_usd": 335.53,
+        "buyer_gain_percent_on_proposed_price": 34.89,
+        "discount_vs_supplier_eur": -339.12,
+        "discount_vs_supplier_usd": -388.22,
+        "discount_vs_supplier_percent": -28.76,
+        "deal_quality": "strong"
+      },
+      "flags": {
+        "is_buyer_list_item": true,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": true,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 682.31,
+        "supplier_margin_percent": 72.83,
+        "turkiye_margin_percent": 66.09,
+        "confidence_score": 72,
+        "explanation": "1 Algeria listings, 29 Sahibinden rows, 1 supplier rows. Matched on product model, storage_gb=256. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3081,
+      "product_model_name": "iPhone 15 Pro",
+      "brand": "Apple",
+      "normalized_model_key": "apple-iphone-15-pro",
+      "storage": 128,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3194,
+        "algeria_min_source": "manual image",
+        "algeria_min_url": null,
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_52_671124960_4389346577975615_5386448177149557448_n.jpg",
+        "algeria_min_title": "iPhone 15 Pro",
+        "algeria_min_price_original": 99000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 357.4,
+        "algeria_min_price_usd": 409.15
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 415.48,
+        "proposed_buyer_price_usd": 475.64,
+        "proposed_buyer_price_dzd": 115087.96,
+        "proposed_buyer_price_try": 22262.29
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 589.71,
+        "turkey_benchmark_usd": 675.1,
+        "turkey_benchmark_try": 31597.9,
+        "number_of_turkey_comps": 5,
+        "turkey_comp_listing_ids": [
+          1810,
+          1585,
+          1757,
+          1780,
+          1733
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cinar-iletisim-den-iphone-15-pro-128gb-pil88-1325612401/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-15-pro-128-temiz-kutulu-ydisi-16-ay-1322840488/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15pro-128-gb-orjinal-seri-gg-1326158985/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-varol-iletisim-den-15-pro-yd-hatasiz-yili-kurtariyor-1325996166/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-pro-128-gb-yd-cihazi-1326233160/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 58.08,
+        "my_gain_usd": 66.49,
+        "my_gain_percent_on_algeria_buy": 16.25,
+        "buyer_gain_eur": 174.23,
+        "buyer_gain_usd": 199.46,
+        "buyer_gain_percent_on_proposed_price": 41.94,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "strong"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 548.39,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 65.0,
+        "confidence_score": 88,
+        "explanation": "5 Algeria listings, 5 Sahibinden rows, 0 supplier rows. Matched on product model, storage_gb=128. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3039,
+      "product_model_name": "Galaxy S23 Ultra",
+      "brand": "Samsung",
+      "normalized_model_key": "samsung-galaxy-s23-ultra",
+      "storage": 256,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3180,
+        "algeria_min_source": "manual image",
+        "algeria_min_url": null,
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_13_703745659_18092258426252480_2072521283511638632_n.jpg",
+        "algeria_min_title": "Samsung s23 ultra",
+        "algeria_min_price_original": 49000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 176.9,
+        "algeria_min_price_usd": 202.51
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 227.86,
+        "proposed_buyer_price_usd": 260.85,
+        "proposed_buyer_price_dzd": 63117.22,
+        "proposed_buyer_price_try": 12209.22
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 380.72,
+        "turkey_benchmark_usd": 435.85,
+        "turkey_benchmark_try": 20399.78,
+        "number_of_turkey_comps": 8,
+        "turkey_comp_listing_ids": [
+          324,
+          422,
+          303,
+          518,
+          408,
+          375,
+          447,
+          351
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-mobile-store-samsung-galaxy-s23-ultra-256gb-hatasiz-yd-cihazi-1325750285/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-toksoydan-firsat-samsung-galaxy-s23-ultra-6-ay-1318325321/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-hat-takilmadi-s23-ultra-256-hafiza-15-ay-kullanim-suresi-1326335742/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-hat-takilmadi-s23-ultra-256-hafiza-15-ay-kullanim-suresi-1323203355/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-magazadan-s23-ultra-256-gb-1318551393/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s23-ultra-256-gb-yd-1321098556/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-7-24-adrese-samsung-s23-ultra-12-256gb-tr-de-hat-takilmamis-1318961071/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-mavera-iletisimden-samsung-s23-ultra-256-gb-4-ay-kullanim-1323023630/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 50.96,
+        "my_gain_usd": 58.34,
+        "my_gain_percent_on_algeria_buy": 28.81,
+        "buyer_gain_eur": 152.87,
+        "buyer_gain_usd": 175.0,
+        "buyer_gain_percent_on_proposed_price": 67.09,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "strong"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 339.35,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 115.22,
+        "confidence_score": 88,
+        "explanation": "3 Algeria listings, 8 Sahibinden rows, 0 supplier rows. Matched on product model, storage_gb=256. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3055,
+      "product_model_name": "Redmi 14C",
+      "brand": "Xiaomi",
+      "normalized_model_key": "xiaomi-redmi-14c",
+      "storage": 256,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 2082,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/smartphones-redmi-14c-8256-el-eulma-setif-algeria-d54221762",
+        "algeria_min_local_media_path": "https://cdn9.ouedkniss.com/640/medias/announcements/images/RgPEO/N5WdTNXzYirzd7LQPGmmAZ6QT0mjozUCsglvnjIy.webp",
+        "algeria_min_title": "redmi 14c 8/256",
+        "algeria_min_price_original": 22500.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 81.23,
+        "algeria_min_price_usd": 92.99
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 130.32,
+        "proposed_buyer_price_usd": 149.19,
+        "proposed_buyer_price_dzd": 36098.64,
+        "proposed_buyer_price_try": 6982.82
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 277.59,
+        "turkey_benchmark_usd": 317.78,
+        "turkey_benchmark_try": 14873.86,
+        "number_of_turkey_comps": 2,
+        "turkey_comp_listing_ids": [
+          1444,
+          1443
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-14c-256-8-50mp-kmra-sifir-ayarinda-kayitli-kutulu-1325030763/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-acele-edin-yurt-disi-cep-telefonu-aksesuar-temiz-ikinci-el-68-inc-sok-sb2f-846758560/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 49.09,
+        "my_gain_usd": 56.2,
+        "my_gain_percent_on_algeria_buy": 60.43,
+        "buyer_gain_eur": 147.27,
+        "buyer_gain_usd": 168.59,
+        "buyer_gain_percent_on_proposed_price": 113.01,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "strong"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 89.17,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 241.73,
+        "confidence_score": 60,
+        "explanation": "2 Algeria listings, 2 Sahibinden rows, 0 supplier rows. Matched on product model, storage_gb=256. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3072,
+      "product_model_name": "iPhone 13 Pro",
+      "brand": "Apple",
+      "normalized_model_key": "apple-iphone-13-pro",
+      "storage": 128,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3182,
+        "algeria_min_source": "manual image",
+        "algeria_min_url": null,
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_18_702009360_1676431733606068_6173082116782847789_n.jpg",
+        "algeria_min_title": "iPhone 13 Pro",
+        "algeria_min_price_original": 69000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 249.1,
+        "algeria_min_price_usd": 285.17
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 297.03,
+        "proposed_buyer_price_usd": 340.04,
+        "proposed_buyer_price_dzd": 82277.31,
+        "proposed_buyer_price_try": 15915.49
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 440.81,
+        "turkey_benchmark_usd": 504.64,
+        "turkey_benchmark_try": 23619.53,
+        "number_of_turkey_comps": 5,
+        "turkey_comp_listing_ids": [
+          1665,
+          1676,
+          1577,
+          1751,
+          1579
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-13-pro-128-gb-ekime-kadar-acik-1326418372/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-13-pro-128gb-4-ay-aktif-1326405479/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-13-pro-128-grafiti-tertemiz-2.el-ydisi-15-ay-1326192556/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-pro-mavi-128gb-kapali-kutu-1326172299/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-13-pro-128-grafiti-pil-100-tr-cihazi-temiz-1324147776/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 47.93,
+        "my_gain_usd": 54.87,
+        "my_gain_percent_on_algeria_buy": 19.24,
+        "buyer_gain_eur": 143.78,
+        "buyer_gain_usd": 164.6,
+        "buyer_gain_percent_on_proposed_price": 48.41,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "strong"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 305.06,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 76.96,
+        "confidence_score": 88,
+        "explanation": "5 Algeria listings, 5 Sahibinden rows, 0 supplier rows. Matched on product model, storage_gb=128. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3058,
+      "product_model_name": "Redmi Note 14 Pro 5G",
+      "brand": "Xiaomi",
+      "normalized_model_key": "xiaomi-redmi-note-14-pro-5g",
+      "storage": 256,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 2065,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/smartphones-xiaomi-redmi-note-14-pro-5g-256gb12gb-256gb8gb-chargeur-bab-el-oued-alger-algeria-d46421705",
+        "algeria_min_local_media_path": "https://cdn9.ouedkniss.com/640/medias/announcements/images/k5PzK/6DBH6te9fHqNltchuLi9pX34pwg76PxUZoNA46Zu.webp",
+        "algeria_min_title": "Xiaomi Redmi note 14 pro 5G 256GB/12GB 256GB/8GB chargeur",
+        "algeria_min_price_original": 59900.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 216.25,
+        "algeria_min_price_usd": 247.56
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 254.57,
+        "proposed_buyer_price_usd": 291.43,
+        "proposed_buyer_price_dzd": 70515.89,
+        "proposed_buyer_price_try": 13640.4
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 369.51,
+        "turkey_benchmark_usd": 423.01,
+        "turkey_benchmark_try": 19799.12,
+        "number_of_turkey_comps": 3,
+        "turkey_comp_listing_ids": [
+          1477,
+          1510,
+          1502
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-5g-256-8-plus8-sifir-full-mazemeli-67w-1326167425/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-murat-iletisim-den-xiaomi-redmi-note-14-pro-256-8-siyah,beyaz-1325938901/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ikinci-el-garantili-redmi-sb2f-14-pro-5g-firsat-sifir-urun-yesil-yurt-disi-846840205/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": true,
+        "supplier_price_eur": 195.67,
+        "supplier_price_usd": 224.0,
+        "supplier_original_price": 224.0,
+        "supplier_currency": "USD",
+        "supplier_item_name": "NOTE 14 pro 5G 256/8 224$",
+        "supplier_row_id": 20
+      },
+      "gain_split": {
+        "my_gain_eur": 38.32,
+        "my_gain_usd": 43.87,
+        "my_gain_percent_on_algeria_buy": 17.72,
+        "buyer_gain_eur": 114.95,
+        "buyer_gain_usd": 131.59,
+        "buyer_gain_percent_on_proposed_price": 45.15,
+        "discount_vs_supplier_eur": 58.9,
+        "discount_vs_supplier_usd": 67.43,
+        "discount_vs_supplier_percent": 30.1,
+        "deal_quality": "strong"
+      },
+      "flags": {
+        "is_buyer_list_item": true,
+        "is_supplier_cheaper_than_my_offer": true,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 222.74,
+        "supplier_margin_percent": -9.52,
+        "turkiye_margin_percent": 70.87,
+        "confidence_score": 76,
+        "explanation": "2 Algeria listings, 3 Sahibinden rows, 1 supplier rows. Matched on product model, storage_gb=256. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3091,
+      "product_model_name": "Lenovo Legion 7 Pro",
+      "brand": "Lenovo",
+      "normalized_model_key": "lenovo-lenovo-legion-7-pro",
+      "storage": null,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3128,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/laptop-lenovo-legion-7-pro-gen-10-ultra-9-275hx-rtx-5070-8gb-gddr6-16-oled-bab-ezzouar-alger-algeria-d52753857",
+        "algeria_min_local_media_path": "https://cdn8.ouedkniss.com/640/medias/announcements/images/PN5yKA/y44SBnRGgllZyH7a74tdlp1HZTcnBsDND2kJIa40.webp",
+        "algeria_min_title": "LENOVO LEGION 7 PRO Gen 10 ULTRA 9 275HX & RTX 5070 8GB GDDR6 16\" OLED",
+        "algeria_min_price_original": 475000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 1714.8,
+        "algeria_min_price_usd": 1963.09
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 2092.26,
+        "proposed_buyer_price_usd": 2395.21,
+        "proposed_buyer_price_dzd": 579556.02,
+        "proposed_buyer_price_try": 112107.68
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 2469.72,
+        "turkey_benchmark_usd": 2827.32,
+        "turkey_benchmark_try": 132332.78,
+        "number_of_turkey_comps": 3,
+        "turkey_comp_listing_ids": [
+          3059,
+          3010,
+          2995
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-sifir-kapali-kutu-lenova-legion-7-pro-rtx4080-1286388023/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-sifir-legion-7-pro-u9-275hx-32-ram-rtx-5080-16-wqxga-oled-1323825570/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-7-pro-i9-14900hx-64gb-3tb-rtx-4090-16gb-1324468088/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 377.46,
+        "my_gain_usd": 432.11,
+        "my_gain_percent_on_algeria_buy": 22.01,
+        "buyer_gain_eur": 377.46,
+        "buyer_gain_usd": 432.11,
+        "buyer_gain_percent_on_proposed_price": 18.04,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 1714.8,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 44.02,
+        "confidence_score": 45,
+        "explanation": "CROSS-STORAGE comparison. Algeria storages: [8], Turkiye storages: [32, 32, 64]. 2 Algeria listings, 3 Sahibinden rows, 0 supplier rows. Margin is Türkiye average EUR minus Algeria minimum EUR."
+      }
+    },
+    {
+      "id": 3093,
+      "product_model_name": "Lenovo Legion Pro 7",
+      "brand": "Lenovo",
+      "normalized_model_key": "lenovo-lenovo-legion-pro-7",
+      "storage": null,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3125,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/laptop-lenovo-legion-pro-7-16iax10h-chlef-algeria-d56132077",
+        "algeria_min_local_media_path": "https://cdn7.ouedkniss.com/640/medias/announcements/images/AN6pw3/p2qsBg0rAD4ofkzbzmaW9YXIkF6HooVR4vbLJh9c.webp",
+        "algeria_min_title": "Lenovo Legion Pro 7 16IAX10H",
+        "algeria_min_price_original": 580000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 2093.86,
+        "algeria_min_price_usd": 2397.04
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 2370.05,
+        "proposed_buyer_price_usd": 2713.22,
+        "proposed_buyer_price_dzd": 656503.85,
+        "proposed_buyer_price_try": 126992.26
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 2646.23,
+        "turkey_benchmark_usd": 3029.39,
+        "turkey_benchmark_try": 141790.56,
+        "number_of_turkey_comps": 22,
+        "turkey_comp_listing_ids": [
+          3027,
+          2967,
+          3096,
+          3093,
+          2961,
+          3107,
+          3076,
+          2950,
+          2986,
+          2960,
+          2953,
+          3025,
+          3054,
+          3055,
+          3040,
+          3057,
+          2970,
+          3005,
+          3050,
+          2969,
+          3077,
+          2998
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-legion-pro-7-ryzen-7-7745hx-4070-32ram-16-2k-240hz-1322531606/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-1323393138/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-i9-13900hx-32g-1tb-rtx4080-2k-240hz-1279974489/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-16arx8h-82ws003ntr-1270357350/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-rtx-4080-3-tb-ssd-1324480474/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-intel-core-i9-14900hx-rtx-4080-32gb-2tb-ssd-1262269321/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-16irx8h-82wq00awtx-i9-13900hx-32gb-ram-1tb-1274895468/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7i-gen-10-16iax10h-1325636386/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-16irx8h-i9-13900hx-32-gb-ram-4090-175-w-1320819377/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-rtx-5070ti-i9-ultra-275hx-1295314202/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-ultra-9-275hx-rtx5070ti-32gb-1tb-sifir-tr-1325244444/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-ay-kut-bilgisayar-gsmden-lenova-legion-pro-7-i9-4080-1316924670/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7i-14900hx-rtx4080-1291284488/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-rtx-5080-u9-275hx-32gb-ddr5-1291278764/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-16-legion-pro-7i-gaming-laptop-1300776395/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-intel-ultra-9-275-hx-1290209417/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-rtx-5090-6-tb-m2-ssd-laptop-1322872481/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-legion-pro-7-ultra-9-275hx-64-ram-2tb-16-wqxga-oled-sifir-24ay-1308788875/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-legion-pro-7i-rtx-5090-ultra-9-275hx-64-gb-2tb-240hz-1305017679/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-pro-7-ultra-9-275hx-rtx-5090-64gb-ram-5tb-1322959934/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-legion-pro-7-16iax10h-rtx-5090-u9-275hx-64-gb-1-tb-400w-1276404975/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-legion-pro-7-u9-275hx-rtx-5090-64gb-ram-16-oled-240hz-2k-1324828091/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 276.19,
+        "my_gain_usd": 316.18,
+        "my_gain_percent_on_algeria_buy": 13.19,
+        "buyer_gain_eur": 276.19,
+        "buyer_gain_usd": 316.18,
+        "buyer_gain_percent_on_proposed_price": 11.65,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 2129.96,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 26.38,
+        "confidence_score": 51,
+        "explanation": "CROSS-STORAGE comparison. Algeria storages: [], Turkiye storages: [2, 16, 16, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 64, 64, 64, 64, 64]. 2 Algeria listings, 22 Sahibinden rows, 0 supplier rows. Margin is Türkiye average EUR minus Algeria minimum EUR."
+      }
+    },
+    {
+      "id": 3048,
+      "product_model_name": "Galaxy Z Fold 7",
+      "brand": "Samsung",
+      "normalized_model_key": "samsung-galaxy-z-fold-7",
+      "storage": 512,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 16,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/store/6442/abdou-cabba-store/annonce/55347235",
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/listing_images/16_jRkyxvHwED7brOhGO2oIxWAL5NmZ9SfOLjvTlq6y.webp",
+        "algeria_min_title": "Galaxy Z Fold 7 12GB 512GB 2SIM",
+        "algeria_min_price_original": 265000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 956.68,
+        "algeria_min_price_usd": 1095.2
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 1208.52,
+        "proposed_buyer_price_usd": 1383.51,
+        "proposed_buyer_price_dzd": 334760.04,
+        "proposed_buyer_price_try": 64755.04
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 1460.36,
+        "turkey_benchmark_usd": 1671.81,
+        "turkey_benchmark_try": 78249.16,
+        "number_of_turkey_comps": 2,
+        "turkey_comp_listing_ids": [
+          461,
+          416
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-galaxy-z-fold-7-512gb-sifir-kapali-kutu,magazadan-takas-plustaksit-1315574883/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-z-fol7-sifir-kapali-kutu-512-gb-yd-1322800488/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 251.84,
+        "my_gain_usd": 288.31,
+        "my_gain_percent_on_algeria_buy": 26.32,
+        "buyer_gain_eur": 251.84,
+        "buyer_gain_usd": 288.31,
+        "buyer_gain_percent_on_proposed_price": 20.84,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 965.7,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 52.65,
+        "confidence_score": 60,
+        "explanation": "2 Algeria listings, 2 Sahibinden rows, 0 supplier rows. Matched on product model, storage_gb=512. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3090,
+      "product_model_name": "Lenovo Legion 5 Pro",
+      "brand": "Lenovo",
+      "normalized_model_key": "lenovo-lenovo-legion-5-pro",
+      "storage": null,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3138,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/laptop-lenovo-legion-5-pro-2k-165hz-i5-12500h-16go-1to-rtx-3060-6go-oran-algeria-d51314980",
+        "algeria_min_local_media_path": "https://cdn8.ouedkniss.com/640/medias/announcements/images/qZGg2/a78qg0JsgVjlnG8z8HJxjh8vONEmPbDTyZeWy9TD.webp",
+        "algeria_min_title": "Lenovo Legion 5 Pro 2K 165Hz - I5 12500H - 16Go - 1To - RTX 3060 6Go",
+        "algeria_min_price_original": 185000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 667.87,
+        "algeria_min_price_usd": 764.57
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 788.46,
+        "proposed_buyer_price_usd": 902.62,
+        "proposed_buyer_price_dzd": 218403.42,
+        "proposed_buyer_price_try": 42247.34
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 1012.41,
+        "turkey_benchmark_usd": 1159.0,
+        "turkey_benchmark_try": 54247.05,
+        "number_of_turkey_comps": 17,
+        "turkey_comp_listing_ids": [
+          2949,
+          3111,
+          3118,
+          3085,
+          2978,
+          2977,
+          3081,
+          3062,
+          3018,
+          3113,
+          3070,
+          2971,
+          3112,
+          3013,
+          2983,
+          2968,
+          3004
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-gaming-laptop-temiz-1325944877/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-anakart-arizali-1257064971/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-i5-11-nesil-32gb-ram-3050ti-2-el-notebook-1276181549/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-16ith6h-i7-11800h-rtx3060-130w-2k-qhd-1270844300/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-ryzen-7-5800h-32gb-1tb-ssd-rtx3070-1325781386/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-firsat-legion-5-pro-ryzen-7-5800h-rtx-3070-32gb-ram-1-tb-ssd-plus-plus-plus-1321921832/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-3070-ilk-gunku-gibi-1273530305/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-legion-5-pro-rtx-3070ti-32-gb-ram-1tb-ssd-guc-canavari-1283908490/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-i7-11800h-rtx-3060-64-gb-ram-1-tb-1240875123/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-4070-1257053563/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-16irx8-1284680057/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-2t-plus16gb-sifir-gibi-oyun-is-laptopu-1322759357/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-1258175646/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-r9-8940hx-32-1tb-rtx-5060-16.1-2.5k-240hz-1322012612/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-pro-i9-14900hx-rtx-4070-8gb-32-gb-ddr5-1-tb-ssd-1321078775/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-sifir-legion-5-pro-1323142629/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-11.05.2026-alimli-4-yil-garantili-legion-5-pro-16-amd-r9-1318122994/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 120.59,
+        "my_gain_usd": 138.05,
+        "my_gain_percent_on_algeria_buy": 18.06,
+        "buyer_gain_eur": 223.95,
+        "buyer_gain_usd": 256.38,
+        "buyer_gain_percent_on_proposed_price": 28.4,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 667.87,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 51.59,
+        "confidence_score": 41,
+        "explanation": "CROSS-STORAGE comparison. Algeria storages: [16], Turkiye storages: [8, 16, 16, 16, 16, 16, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 64]. 1 Algeria listings, 17 Sahibinden rows, 0 supplier rows. Margin is Türkiye average EUR minus Algeria minimum EUR."
+      }
+    },
+    {
+      "id": 3047,
+      "product_model_name": "Galaxy Z Fold 7",
+      "brand": "Samsung",
+      "normalized_model_key": "samsung-galaxy-z-fold-7",
+      "storage": 256,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 101,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/store/6442/abdou-cabba-store/annonce/55400608",
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/listing_images/101_MJ7xRHnUNTFl6tvG2sZdCykJ2VcboPnaTCfvqAkf.webp",
+        "algeria_min_title": "Galaxy Z Fold 7 12GB 256GB 2SIM",
+        "algeria_min_price_original": 218000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 787.0,
+        "algeria_min_price_usd": 900.95
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 907.34,
+        "proposed_buyer_price_usd": 1038.72,
+        "proposed_buyer_price_dzd": 251333.18,
+        "proposed_buyer_price_try": 48617.18
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 1130.84,
+        "turkey_benchmark_usd": 1294.58,
+        "turkey_benchmark_try": 60592.78,
+        "number_of_turkey_comps": 6,
+        "turkey_comp_listing_ids": [
+          338,
+          333,
+          334,
+          335,
+          336,
+          403
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-semers-iletisim-samsung-z-fold-7-256-gb-hafiza-1324160213/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223472/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223933/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223534/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325222642/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-verona-mobile-dan-z-fold-7-256-gb-16-ay-kullanim-1320163218/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 120.34,
+        "my_gain_usd": 137.76,
+        "my_gain_percent_on_algeria_buy": 15.29,
+        "buyer_gain_eur": 223.5,
+        "buyer_gain_usd": 255.86,
+        "buyer_gain_percent_on_proposed_price": 24.63,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 817.69,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 43.69,
+        "confidence_score": 76,
+        "explanation": "2 Algeria listings, 6 Sahibinden rows, 0 supplier rows. Matched on product model, storage_gb=256. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3066,
+      "product_model_name": "Xiaomi 17 Ultra",
+      "brand": "Xiaomi",
+      "normalized_model_key": "xiaomi-xiaomi-17-ultra",
+      "storage": 512,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 92,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/store/6442/abdou-cabba-store/annonce/55091359",
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/listing_images/92_VKD4OY9mTVvqt73i2ZHVFHSd6kaoRh08my8obFUX.webp",
+        "algeria_min_title": "Xiaomi 17 Ultra 12GB 512GB 2SIM",
+        "algeria_min_price_original": 219000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 790.61,
+        "algeria_min_price_usd": 905.09
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 892.75,
+        "proposed_buyer_price_usd": 1022.02,
+        "proposed_buyer_price_dzd": 247291.75,
+        "proposed_buyer_price_try": 47835.42
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 1082.44,
+        "turkey_benchmark_usd": 1239.17,
+        "turkey_benchmark_try": 57999.41,
+        "number_of_turkey_comps": 4,
+        "turkey_comp_listing_ids": [
+          1522,
+          1547,
+          1521,
+          1567
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-semers-iletisim-xiaomi-mi-17-ultra-12-ram-512-gb-hafiza-1325589971/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ugur-iletisim-den-xiaomi-17-ultra-12-ram-512-gb-1325973554/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-semers-iletisim-xiaomi-mi-17-ultra-leika-16-ram-512-gb-hafiza-1325591183/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-17-ultra-512-gb-sifir-kapali-kutu-taksit-ve-takas-imkani-1326283951/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": true,
+        "supplier_price_eur": 1048.22,
+        "supplier_price_usd": 1200.0,
+        "supplier_original_price": 1200.0,
+        "supplier_currency": "USD",
+        "supplier_item_name": "Mi 17 Ultra 512/16 1200$",
+        "supplier_row_id": 7
+      },
+      "gain_split": {
+        "my_gain_eur": 102.14,
+        "my_gain_usd": 116.93,
+        "my_gain_percent_on_algeria_buy": 12.92,
+        "buyer_gain_eur": 189.69,
+        "buyer_gain_usd": 217.16,
+        "buyer_gain_percent_on_proposed_price": 21.25,
+        "discount_vs_supplier_eur": -155.47,
+        "discount_vs_supplier_usd": -177.98,
+        "discount_vs_supplier_percent": -14.83,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": true,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": true,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 907.34,
+        "supplier_margin_percent": 32.58,
+        "turkiye_margin_percent": 36.91,
+        "confidence_score": 96,
+        "explanation": "3 Algeria listings, 4 Sahibinden rows, 1 supplier rows. Matched on product model, storage_gb=512. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3089,
+      "product_model_name": "Lenovo Legion 5",
+      "brand": "Lenovo",
+      "normalized_model_key": "lenovo-lenovo-legion-5",
+      "storage": null,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3131,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/laptop-lenovo-legion-5-fhd-165hz-i7-11800h-16go-512go-rtx-3060-6go-oran-algeria-d53162630",
+        "algeria_min_local_media_path": "https://cdn9.ouedkniss.com/640/medias/announcements/images/qZGg2/6OJeH8V3Ah2MG4RwoAUpEzfA4Xr7LOY1K6iAJ5bA.webp",
+        "algeria_min_title": "Lenovo Legion 5 FHD 165Hz - I7 11800H - 16Go - 512Go - RTX 3060 6Go",
+        "algeria_min_price_original": 185000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 667.87,
+        "algeria_min_price_usd": 764.57
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 763.59,
+        "proposed_buyer_price_usd": 874.15,
+        "proposed_buyer_price_dzd": 211514.43,
+        "proposed_buyer_price_try": 40914.76
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 941.35,
+        "turkey_benchmark_usd": 1077.65,
+        "turkey_benchmark_try": 50439.51,
+        "number_of_turkey_comps": 39,
+        "turkey_comp_listing_ids": [
+          2972,
+          2994,
+          3014,
+          2946,
+          2948,
+          2988,
+          3079,
+          3080,
+          3044,
+          3083,
+          3021,
+          2982,
+          3046,
+          3024,
+          3038,
+          3052,
+          3075,
+          3092,
+          3110,
+          3102,
+          2947,
+          3031,
+          3108,
+          3095,
+          2990,
+          3103,
+          3009,
+          3105,
+          3023,
+          2962,
+          3011,
+          2997,
+          2974,
+          3051,
+          2956,
+          3100,
+          2999,
+          2963,
+          2964
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-1322456291/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-15imh6-1318201577/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-1650ti-16gb-ram-120-hz-ekran-acil-satilik-1315165839/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-1326472257/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-sifir-ayarinda-legion-5-1326043865/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-legion-5-15ith6h-1324013248/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-i7-10750h-rtx-2060-16gb-pil-95-1275622798/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-satilik-2-el-laptop-lenovo-legion-5-ryzen-7-rtx-2060-16-gb-1275036769/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-rtx-3060-laptop-1297870519/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-ryzen5-5600h-rtx3060-130watt-16gb-512gb-ssd-1272393991/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-16-512-ssd-1312931756/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-rtx-3060-2-k-1321099002/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-acil-satilik-1294213899/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-i7-11-3060-16-1tb-1314164282/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-15imh05h-i7-10750h-64gb-ram-rtx2060-1301751432/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-i7-11600h-16gb-512gb-rtx3060-6gb-15.6-2k-165hz-1313997753/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-i7-11600h-16gb-512gb-rtx3060-6gb-15.6-2k-165hz-1299656267/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-rtx3060-300watt-ryzen-5-5600h-16-gb-2-plus0,5gb-ssd-1269390494/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-15imh05h-intel-core-i7-10750h-1-tb-16-gb-8-bg-1259852619/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5i-1262729263/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-3070-1324153963/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-r7-5800h-130w-rtx-3060-165hz-100-srgb-1-1307843512/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-1-tb-2-yil-garantili-4060-ve-ryzen-7840hs-1198050052/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-model-degisikligi-icin-satiyorum-lenovo-legion-5-gaming-laptop-1266388173/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-sifirdan-farksiz-5-aylik-pil-dongusu-5-1309195985/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-16irx9-1261520705/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-16irx9-gaming-laptop-nvidia-geforce-rtx-4060-1316609747/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5i-pro-kredi-kartina-vade-farksiz-12-ay-taksit-1262965578/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-i9-14900hx-32g-ram-1tb-ssd-8gb-rtx4070-240hz-1322557448/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-legion-5-5070-oled-1324246443/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-rtx5070-i7-13650hx-1288617999/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-16irx9-i9-14900hx-32-gb-1-tb-ssd-rtx4060-16-1326317220/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-16irx9-i9-14900hx-32-gb-1-tb-ssd-rtx4060-16-1326369983/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-16irx9-i9-14900hx-32-gb-1-tb-ssd-rtx4060-16-1315539868/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-i7-12700h-32-gb-ddr5-1,5-tb-ssd-2k-ekran-1324904560/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-ozel-seri-1267192500/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-i9-14900hx-32gb-1tb-rtx4070-8g-16-qhd-240hz-1326359059/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-legion-5-core-ultra-9-275hx-32gb-ddr5-1tb-ssd-rtx5070-8gb-1324182484/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-satilik-tam-gaming-setup-lenovo-legion-5-plus-ekipmanlar-1323475308/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 95.72,
+        "my_gain_usd": 109.58,
+        "my_gain_percent_on_algeria_buy": 14.33,
+        "buyer_gain_eur": 177.76,
+        "buyer_gain_usd": 203.5,
+        "buyer_gain_percent_on_proposed_price": 23.28,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 1101.68,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 40.95,
+        "confidence_score": 62,
+        "explanation": "CROSS-STORAGE comparison. Algeria storages: [16, 16, 16, 16, 16, 32], Turkiye storages: [8, 8, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 16, 24, 24, 24, 32, 32, 32, 32, 32, 32, 32, 32, 32, 64]. 6 Algeria listings, 39 Sahibinden rows, 0 supplier rows. Margin is Türkiye average EUR minus Algeria minimum EUR."
+      }
+    },
+    {
+      "id": 3046,
+      "product_model_name": "Galaxy S26 Ultra",
+      "brand": "Samsung",
+      "normalized_model_key": "samsung-galaxy-s26-ultra",
+      "storage": 512,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 119,
+        "algeria_min_source": "ouedkniss",
+        "algeria_min_url": "https://www.ouedkniss.com/store/12366/moutcha-phone/annonce/56366119",
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/listing_images/119_Yk73k3c2L9xmAChbZ8Y8Jzl9ZYoUcncxnWfn7hPE.webp",
+        "algeria_min_title": "Samsung S26 Ultra 12/512",
+        "algeria_min_price_original": 234000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 844.77,
+        "algeria_min_price_usd": 967.09
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 885.32,
+        "proposed_buyer_price_usd": 1013.51,
+        "proposed_buyer_price_dzd": 245233.64,
+        "proposed_buyer_price_try": 47437.3
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 1006.96,
+        "turkey_benchmark_usd": 1152.76,
+        "turkey_benchmark_try": 53955.03,
+        "number_of_turkey_comps": 27,
+        "turkey_comp_listing_ids": [
+          331,
+          450,
+          374,
+          366,
+          491,
+          499,
+          490,
+          503,
+          446,
+          488,
+          497,
+          487,
+          502,
+          498,
+          460,
+          486,
+          489,
+          501,
+          463,
+          462,
+          367,
+          368,
+          369,
+          370,
+          371,
+          377,
+          424
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildizlardan-samsung-s26-ultra-kapali-kutu-1325304811/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-sifir-kapali-kutu-mor-renk-1322168948/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-sifir-kapali-kutu-1322206569/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-sifir-sb2f-alan-kazanir-kutulu-yurt-disi-kampanya-cep-telefonu-aksesuar-69-inc-846902090/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-512-gb-takasli-satis-1324938730/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-512-gb-takas-ve-taksit-secenekli-1324648379/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-siyah-renk-samsung-s26-ultra-512-gb-taksitli-ve-garantili-1324942400/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-512-gb-siyah-renk-aksesuar-hediyeli-1324644509/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-galaxy-a13-yurt-disi-sifir-sb2f-inc-son-alan-kazanir-orjinal-acele-edin-846830209/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-512-gb-takas-ve-taksit-secenekli-1324945581/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-512-gb-mor-renk-taksit-imkanli-1324650252/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-512-gb-1-yil-garantili-1324946780/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-deluxe-set-airpods-pro-hediye-samsung-s26u-siyah-renk-1324645898/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-512-gb-mor-renk-aksesuar-hediye-1324649166/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26-ultra-512-gb-kutulu-sifir-niyetine-ciziksiz-1311774767/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-512-gb-takasli-satis-1324946945/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-aksesuariniz-bizden-samsung-s26-ultra-512-gb-siyah-1324943812/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-512-gb-siyah-renk-apple-watch-ultra-saat-hediye-1324646734/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-kapali-kutu-1312445041/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-galaxy-s26-ultra-512gb-sifir-kapali-kutu,magazadan-taksit-plustakas-1315527885/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-512gb-global-avrupa-orjinal-1324758640/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-512gb-global-avrupa-orjinal-1324757417/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-512gb-global-avrupa-orjinal-1324757660/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-512gb-global-avrupa-orjinal-1324756745/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-512gb-global-avrupa-orjinal-1324756933/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-512gb-global-avrupa-orjinal-1324756142/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-512-gb-kapali-kutu-yd-1315135977/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 40.55,
+        "my_gain_usd": 46.42,
+        "my_gain_percent_on_algeria_buy": 4.8,
+        "buyer_gain_eur": 121.64,
+        "buyer_gain_usd": 139.25,
+        "buyer_gain_percent_on_proposed_price": 13.74,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 982.2,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 19.2,
+        "confidence_score": 88,
+        "explanation": "13 Algeria listings, 27 Sahibinden rows, 0 supplier rows. Matched on product model, storage_gb=512. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    },
+    {
+      "id": 3086,
+      "product_model_name": "iPhone 16 Pro Max",
+      "brand": "Apple",
+      "normalized_model_key": "apple-iphone-16-pro-max",
+      "storage": 256,
+      "condition": "unknown",
+      "signal": "BUY",
+      "source_side": {
+        "algeria_min_listing_id": 3222,
+        "algeria_min_source": "instagram",
+        "algeria_min_url": "https://www.instagram.com/deghoul_haroun_telecom/reel/DaYigZPoF3S/",
+        "algeria_min_local_media_path": "/home/lofa/DEV/phones/media/instagram/deghoul_haroun_telecom/cdp_images/DaYigZPoF3S.jpg",
+        "algeria_min_title": "iPhone 16 pro Max",
+        "algeria_min_price_original": 169000.0,
+        "algeria_min_currency": "DZD",
+        "algeria_min_price_eur": 610.11,
+        "algeria_min_price_usd": 698.45
+      },
+      "buyer_proposal": {
+        "proposed_buyer_price_eur": 649.36,
+        "proposed_buyer_price_usd": 743.38,
+        "proposed_buyer_price_dzd": 179872.72,
+        "proposed_buyer_price_try": 34794.07
+      },
+      "turkiye_benchmark": {
+        "turkey_benchmark_eur": 767.09,
+        "turkey_benchmark_usd": 878.16,
+        "turkey_benchmark_try": 41102.29,
+        "number_of_turkey_comps": 19,
+        "turkey_comp_listing_ids": [
+          1859,
+          1664,
+          1836,
+          1644,
+          1645,
+          1648,
+          1650,
+          1593,
+          1723,
+          1615,
+          1709,
+          1768,
+          1690,
+          1837,
+          1720,
+          1634,
+          1741,
+          1658,
+          1592
+        ],
+        "turkey_comp_urls": [
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256gb-yurtdisi-1325298410/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256-gb-col-titanium-temiz-1326419241/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-16-pro-max-256gb-pil96-3-ay-aktif-1326400519/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-max-256gb-pil-92-3-ay-kullanim-cift-sim-1326336352/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-max-256gb-pil-92-3-ay-kullanim-cift-sim-1326326595/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-max-256gb-pil-92-3-ay-kullanim-cift-sim-1326317567/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-max-256gb-pil-92-4-ay-kullanim-cift-sim-1325948391/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-bozdogan-store-iphone-16-promax-256-gb-pil-96-hatasiz-1325785931/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256-gb-yd-73-gun-acik-temiz-degisensiz-1326252089/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-promax-256-gb-pil-88-12-aya-kadar-kullanilabilir-1325719134/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256-gb-natural-titanium-temiz-1326322051/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-16-pro-max-256-gb-siyah-14-ay-acik-1326079289/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-yurt-disi-16-ay-acik-256-gb-1326365919/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16promax-256gb-beyaz-yd-temiz-cift-hat-1326400338/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256gb-1326285301/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256-gb-1319828345/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-promax-256-gb-tr-de-hat-takilmamis-16-ay-sure-1326214672/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-promax-256-pil-100-devir-95-hatasiz-14-ay-acik-1326427904/detay",
+          "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-16-pro-max-256-sifir-kutulu-ydisi-16-ay-1317852807/detay"
+        ]
+      },
+      "supplier_benchmark": {
+        "supplier_match_found": false,
+        "supplier_price_eur": null,
+        "supplier_price_usd": null,
+        "supplier_original_price": null,
+        "supplier_currency": null,
+        "supplier_item_name": null,
+        "supplier_row_id": null
+      },
+      "gain_split": {
+        "my_gain_eur": 39.25,
+        "my_gain_usd": 44.93,
+        "my_gain_percent_on_algeria_buy": 6.43,
+        "buyer_gain_eur": 117.74,
+        "buyer_gain_usd": 134.79,
+        "buyer_gain_percent_on_proposed_price": 18.13,
+        "discount_vs_supplier_eur": null,
+        "discount_vs_supplier_usd": null,
+        "discount_vs_supplier_percent": null,
+        "deal_quality": "medium"
+      },
+      "flags": {
+        "is_buyer_list_item": false,
+        "is_supplier_cheaper_than_my_offer": false,
+        "included_in_supplier_only_basket": false,
+        "included_in_unlimited_top_list": true,
+        "excluded_reason": null
+      },
+      "raw_snapshot_metrics": {
+        "algeria_avg_eur": 821.9,
+        "supplier_margin_percent": null,
+        "turkiye_margin_percent": 25.73,
+        "confidence_score": 88,
+        "explanation": "3 Algeria listings, 19 Sahibinden rows, 0 supplier rows. Matched on product model, storage_gb=256. Margin is Türkiye average EUR minus Algeria minimum EUR. Confidence is a simple count and storage-match heuristic."
+      }
+    }
+  ]
+}

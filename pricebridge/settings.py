@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from importlib.util import find_spec
 
@@ -34,7 +35,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.environ.get(
         "DJANGO_ALLOWED_HOSTS",
-        "127.0.0.1,localhost,100.89.48.48",
+        "127.0.0.1,localhost,100.89.48.48,0.0.0.0,phones.whatsynaptic.tech",
     ).split(",")
     if host.strip()
 ]
@@ -52,7 +53,8 @@ INSTALLED_APPS = [
     'market',
 ]
 
-DEBUG_TOOLBAR_AVAILABLE = find_spec("debug_toolbar") is not None
+RUNNING_TESTS = "test" in sys.argv
+DEBUG_TOOLBAR_AVAILABLE = not RUNNING_TESTS and find_spec("debug_toolbar") is not None
 if DEBUG and DEBUG_TOOLBAR_AVAILABLE:
     INSTALLED_APPS.append("debug_toolbar")
 
@@ -127,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'en'
 
 TIME_ZONE = 'UTC'
 
@@ -181,12 +183,9 @@ NVIDIA_VISION_ENDPOINT = os.environ.get(
 NVIDIA_VISION_MODEL = os.environ.get("NVIDIA_VISION_MODEL", "meta/llama-3.2-11b-vision-instruct")
 CHROME_CDP_ENDPOINT = os.environ.get("CHROME_CDP_ENDPOINT", "http://127.0.0.1:9222")
 
-# Editable local defaults. Algeria calculations should primarily use DZD -> EUR
-# because the real informal market is euro-heavy. Supplier lists are often USD,
-# so analysis converts supplier USD -> EUR. Türkiye settlement may happen in USD
-# or TRY, but EUR remains the baseline for comparison.
+# Editable local defaults. Algeria calculations primarily use DZD -> EUR.
+# Supplier USD is converted through TRY using USD/TRY and EUR/TRY, not EUR/USD.
 DZD_PER_EUR_BLACK = float(os.environ.get("DZD_PER_EUR_BLACK", "280"))
-EUR_USD = float(os.environ.get("EUR_USD", "1.08"))
 EUR_TRY = float(os.environ.get("EUR_TRY", "45"))
 USD_TRY = float(os.environ.get("USD_TRY", "41.5"))
 

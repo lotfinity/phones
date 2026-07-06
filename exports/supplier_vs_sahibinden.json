@@ -1,0 +1,3256 @@
+{
+  "title": "PriceBridge: Supplier vs Sahibinden Market Comparison",
+  "generated_at": "2026-07-06T14:47:49.154248",
+  "fx_rates": {
+    "USD_TRY": 46.805,
+    "EUR_TRY": 53.5821,
+    "source": "frankfurter.app + exchangedz"
+  },
+  "methodology": {
+    "price_comparison": "Supplier USD converted to TRY at live USD/TRY rate. Sahibinden prices are median (not mean) to filter outliers.",
+    "median_explanation": "Median picks the middle value, ignoring extreme outliers. For even counts, averages the two middle values.",
+    "currency": "All TRY values shown. EUR equivalents provided for reference."
+  },
+  "comparisons": [
+    {
+      "product_model": "Redmi Note 13 Pro 5G",
+      "brand": "Xiaomi",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "NOTE 13 pro 5G 256/8 203$",
+        "price_usd": 203.0,
+        "price_try": 9501.41,
+        "price_eur": 177.32,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 2,
+        "median_try": 12244.0,
+        "min_try": 11988.0,
+        "max_try": 12500.0,
+        "listings": [
+          {
+            "title": "X\u0130AOM\u0130 REDM\u0130 NOTE 13 PRO 5G 256GB FULL KUTU-11!-",
+            "price_try": 11988.0,
+            "price_eur": 223.73,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-note-13-pro-5g-256gb-full-kutu-11-1325771351/detay",
+            "observed_at": "2026-07-04T14:51:13.779431+00:00"
+          },
+          {
+            "title": "MURAT \u0130LET\u0130\u015e\u0130M'DEN X\u0130AOM\u0130 REDM\u0130 NOTE 13 PRO 5G 256/8 BEYAZ SIFIR",
+            "price_try": 12500.0,
+            "price_eur": 233.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-murat-iletisim-den-xiaomi-redmi-note-13-pro-5g-256-8-beyaz-sifir-1325937763/detay",
+            "observed_at": "2026-07-04T14:51:08.328765+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 2742.59,
+        "percent": 28.9,
+        "verdict": "BUY"
+      }
+    },
+    {
+      "product_model": "Redmi Note 14 Pro 5G",
+      "brand": "Xiaomi",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "NOTE 14 pro 5G 256/8 224$",
+        "price_usd": 224.0,
+        "price_try": 10484.32,
+        "price_eur": 195.67,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 3,
+        "median_try": 13500.0,
+        "min_try": 10899.0,
+        "max_try": 34999.0,
+        "listings": [
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 14 PRO 5G 256/8+8 SIFIR FULL MAZEMEL\u0130 67W",
+            "price_try": 10899.0,
+            "price_eur": 203.41,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-5g-256-8-plus8-sifir-full-mazemeli-67w-1326167425/detay",
+            "observed_at": "2026-07-04T14:51:06.996104+00:00"
+          },
+          {
+            "title": "MURAT \u0130LET\u0130\u015e\u0130M'DEN X\u0130AOM\u0130 REDM\u0130 NOTE 14 PRO 256/8 S\u0130YAH,BEYAZ",
+            "price_try": 13500.0,
+            "price_eur": 251.95,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-murat-iletisim-den-xiaomi-redmi-note-14-pro-256-8-siyah,beyaz-1325938901/detay",
+            "observed_at": "2026-07-04T14:51:08.251566+00:00"
+          },
+          {
+            "title": "\u0130kinci El Garantili Redmi Note 14 Pro 5G F\u0131rsat S\u0131f\u0131r \u00dcr\u00fcn Ye\u015fil Yurt d\u0131\u015f\u0131",
+            "price_try": 34999.0,
+            "price_eur": 653.18,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ikinci-el-garantili-redmi-sb2f-14-pro-5g-firsat-sifir-urun-yesil-yurt-disi-846840205/detay",
+            "observed_at": "2026-07-04T14:51:07.944565+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 3015.68,
+        "percent": 28.8,
+        "verdict": "BUY"
+      }
+    },
+    {
+      "product_model": "Redmi Note 15",
+      "brand": "Xiaomi",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "NOTE 15 GLB 256/8 210$",
+        "price_usd": 210.0,
+        "price_try": 9829.05,
+        "price_eur": 183.44,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 2,
+        "median_try": 12249.5,
+        "min_try": 11499.0,
+        "max_try": 13000.0,
+        "listings": [
+          {
+            "title": "REDM\u0130 NOTE 15 8+8 256 GB GLOBAL NFC L\u0130",
+            "price_try": 11499.0,
+            "price_eur": 214.61,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-8-plus8-256-gb-global-nfc-li-1325538702/detay",
+            "observed_at": "2026-07-04T14:51:12.941412+00:00"
+          },
+          {
+            "title": "REDM\u0130 NOTE 15 SIFIR YURTDI\u015eI \u00dcR\u00dcN",
+            "price_try": 13000.0,
+            "price_eur": 242.62,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-sifir-yurtdisi-urun-1325521553/detay",
+            "observed_at": "2026-07-04T14:51:14.088860+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 2420.45,
+        "percent": 24.6,
+        "verdict": "BUY"
+      }
+    },
+    {
+      "product_model": "Redmi Note 15",
+      "brand": "Xiaomi",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "NOTE 15 NFC k kutu 256/8 215$",
+        "price_usd": 215.0,
+        "price_try": 10063.08,
+        "price_eur": 187.81,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 2,
+        "median_try": 12249.5,
+        "min_try": 11499.0,
+        "max_try": 13000.0,
+        "listings": [
+          {
+            "title": "REDM\u0130 NOTE 15 8+8 256 GB GLOBAL NFC L\u0130",
+            "price_try": 11499.0,
+            "price_eur": 214.61,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-8-plus8-256-gb-global-nfc-li-1325538702/detay",
+            "observed_at": "2026-07-04T14:51:12.941412+00:00"
+          },
+          {
+            "title": "REDM\u0130 NOTE 15 SIFIR YURTDI\u015eI \u00dcR\u00dcN",
+            "price_try": 13000.0,
+            "price_eur": 242.62,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-sifir-yurtdisi-urun-1325521553/detay",
+            "observed_at": "2026-07-04T14:51:14.088860+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 2186.42,
+        "percent": 21.7,
+        "verdict": "BUY"
+      }
+    },
+    {
+      "product_model": "Xiaomi 17T",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "MI 17T 512/12 585$",
+        "price_usd": 585.0,
+        "price_try": 27380.92,
+        "price_eur": 511.01,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 1,
+        "median_try": 32000.0,
+        "min_try": 32000.0,
+        "max_try": 32000.0,
+        "listings": [
+          {
+            "title": "*U\u011eUR \u0130LET\u0130\u015e\u0130M'DEN*XIAOMI 17T 12 RAM 512 GB",
+            "price_try": 32000.0,
+            "price_eur": 597.21,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ugur-iletisim-den-xiaomi-17t-12-ram-512-gb-1325984974/detay",
+            "observed_at": "2026-07-04T14:51:08.084206+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 4619.08,
+        "percent": 16.9,
+        "verdict": "BUY"
+      }
+    },
+    {
+      "product_model": "Xiaomi 17T Pro",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "MI 17T PRO 512/12 715$",
+        "price_usd": 715.0,
+        "price_try": 33465.57,
+        "price_eur": 624.57,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 3,
+        "median_try": 35890.0,
+        "min_try": 32999.0,
+        "max_try": 35890.0,
+        "listings": [
+          {
+            "title": "X\u0130AOM\u0130 17T PRO 512/12+12 LEC\u0130A KMRA PUBG CANAVARI 100W SARJ GLOB",
+            "price_try": 32999.0,
+            "price_eur": 615.86,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-17t-pro-512-12-plus12-lecia-kmra-pubg-canavari-100w-sarj-glob-1326180690/detay",
+            "observed_at": "2026-07-04T14:51:02.334682+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN X\u0130AOM\u0130 M\u0130 17T PRO 512GB FULL TURKCE!!!!",
+            "price_try": 35890.0,
+            "price_eur": 669.81,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-xiaomi-mi-17t-pro-512gb-full-turkce-1325228595/detay",
+            "observed_at": "2026-07-04T14:51:13.387535+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN X\u0130AOM\u0130 M\u0130 17T PRO 512GB FULL TURKCE!!!!",
+            "price_try": 35890.0,
+            "price_eur": 669.81,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-xiaomi-mi-17t-pro-512gb-full-turkce-1325228483/detay",
+            "observed_at": "2026-07-04T14:51:13.417994+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 2424.43,
+        "percent": 7.2,
+        "verdict": "WATCH"
+      }
+    },
+    {
+      "product_model": "Redmi Note 15 Pro",
+      "brand": "Xiaomi",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "NOTE 15 pro GLB 256/8 265$",
+        "price_usd": 265.0,
+        "price_try": 12403.33,
+        "price_eur": 231.48,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 12,
+        "median_try": 13249.0,
+        "min_try": 12899.0,
+        "max_try": 16740.0,
+        "listings": [
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MAZEMEL\u0130 GLOBAL 67W",
+            "price_try": 12899.0,
+            "price_eur": 240.73,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-mazemeli-global-67w-1326187944/detay",
+            "observed_at": "2026-07-04T14:51:06.764128+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MAZEMEL\u0130 GLOBAL 67W",
+            "price_try": 12899.0,
+            "price_eur": 240.73,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-mazemeli-global-67w-1325940383/detay",
+            "observed_at": "2026-07-04T14:51:07.340887+00:00"
+          },
+          {
+            "title": "Redmi note 15 pro 256 s\u0131f\u0131r \u00fcr\u00fcn",
+            "price_try": 12979.0,
+            "price_eur": 242.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-sifir-urun-1325305406/detay",
+            "observed_at": "2026-07-04T14:51:14.303415+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 12999.0,
+            "price_eur": 242.6,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326381052/detay",
+            "observed_at": "2026-07-04T14:51:03.482492+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 12999.0,
+            "price_eur": 242.6,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326381453/detay",
+            "observed_at": "2026-07-04T14:51:03.496539+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 12999.0,
+            "price_eur": 242.6,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326347450/detay",
+            "observed_at": "2026-07-04T14:51:03.817941+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 NOTE 15 PRO 256/8+8 200MP KMRA NFC 67W \u015eARJ GLOBAL KUTULU",
+            "price_try": 13499.0,
+            "price_eur": 251.93,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-note-15-pro-256-8-plus8-200mp-kmra-nfc-67w-sarj-global-kutulu-1326171389/detay",
+            "observed_at": "2026-07-04T14:51:02.487630+00:00"
+          },
+          {
+            "title": "GLOBAL KAYITLI SIFIR X\u0130AOM\u0130 REDM\u0130 NOTE 15 PRO 8+8/256GB S\u0130YAH67W",
+            "price_try": 13499.0,
+            "price_eur": 251.93,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-global-kayitli-sifir-xiaomi-redmi-note-15-pro-8-plus8-256gb-siyah67w-1325210554/detay",
+            "observed_at": "2026-07-04T14:51:03.158559+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 REDM\u0130 NOTE 15 PRO 256GB FULL KUTU-!!1-",
+            "price_try": 13790.0,
+            "price_eur": 257.36,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-note-15-pro-256gb-full-kutu-1-1325771538/detay",
+            "observed_at": "2026-07-04T14:51:13.836293+00:00"
+          },
+          {
+            "title": "AREY MOB\u0130LE'DAN REDM\u0130 NOTE 15 PRO 256GB SIFIR // KART-TAKS\u0130T",
+            "price_try": 14490.0,
+            "price_eur": 270.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-arey-mobile-dan-redmi-note-15-pro-256gb-sifir-kart-taksit-1325717184/detay",
+            "observed_at": "2026-07-04T14:51:03.103937+00:00"
+          },
+          {
+            "title": "MURAT \u0130LET\u0130\u015e\u0130M'DEN X\u0130AOM\u0130 REDM\u0130 NOTE 15 PRO 256/8 S\u0130YAH,NATURAL",
+            "price_try": 14500.0,
+            "price_eur": 270.61,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-murat-iletisim-den-xiaomi-redmi-note-15-pro-256-8-siyah,natural-1325935116/detay",
+            "observed_at": "2026-07-04T14:51:13.727784+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 REDM\u0130 NOTE 15 PRO 4G 256 GB SIFIR KAPALI KUTU C\u0130HAZ 256GB",
+            "price_try": 16740.0,
+            "price_eur": 312.42,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-note-15-pro-4g-256-gb-sifir-kapali-kutu-cihaz-256gb-1326285370/detay",
+            "observed_at": "2026-07-04T14:51:13.315029+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 845.67,
+        "percent": 6.8,
+        "verdict": "WATCH"
+      }
+    },
+    {
+      "product_model": "Redmi Note 15 Pro",
+      "brand": "Xiaomi",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "NOTE 15 pro k kutu 256/8 272$",
+        "price_usd": 272.0,
+        "price_try": 12730.96,
+        "price_eur": 237.6,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 12,
+        "median_try": 13249.0,
+        "min_try": 12899.0,
+        "max_try": 16740.0,
+        "listings": [
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MAZEMEL\u0130 GLOBAL 67W",
+            "price_try": 12899.0,
+            "price_eur": 240.73,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-mazemeli-global-67w-1326187944/detay",
+            "observed_at": "2026-07-04T14:51:06.764128+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MAZEMEL\u0130 GLOBAL 67W",
+            "price_try": 12899.0,
+            "price_eur": 240.73,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-mazemeli-global-67w-1325940383/detay",
+            "observed_at": "2026-07-04T14:51:07.340887+00:00"
+          },
+          {
+            "title": "Redmi note 15 pro 256 s\u0131f\u0131r \u00fcr\u00fcn",
+            "price_try": 12979.0,
+            "price_eur": 242.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-sifir-urun-1325305406/detay",
+            "observed_at": "2026-07-04T14:51:14.303415+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 12999.0,
+            "price_eur": 242.6,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326381052/detay",
+            "observed_at": "2026-07-04T14:51:03.482492+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 12999.0,
+            "price_eur": 242.6,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326381453/detay",
+            "observed_at": "2026-07-04T14:51:03.496539+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO 256/8+8 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 12999.0,
+            "price_eur": 242.6,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326347450/detay",
+            "observed_at": "2026-07-04T14:51:03.817941+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 NOTE 15 PRO 256/8+8 200MP KMRA NFC 67W \u015eARJ GLOBAL KUTULU",
+            "price_try": 13499.0,
+            "price_eur": 251.93,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-note-15-pro-256-8-plus8-200mp-kmra-nfc-67w-sarj-global-kutulu-1326171389/detay",
+            "observed_at": "2026-07-04T14:51:02.487630+00:00"
+          },
+          {
+            "title": "GLOBAL KAYITLI SIFIR X\u0130AOM\u0130 REDM\u0130 NOTE 15 PRO 8+8/256GB S\u0130YAH67W",
+            "price_try": 13499.0,
+            "price_eur": 251.93,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-global-kayitli-sifir-xiaomi-redmi-note-15-pro-8-plus8-256gb-siyah67w-1325210554/detay",
+            "observed_at": "2026-07-04T14:51:03.158559+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 REDM\u0130 NOTE 15 PRO 256GB FULL KUTU-!!1-",
+            "price_try": 13790.0,
+            "price_eur": 257.36,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-note-15-pro-256gb-full-kutu-1-1325771538/detay",
+            "observed_at": "2026-07-04T14:51:13.836293+00:00"
+          },
+          {
+            "title": "AREY MOB\u0130LE'DAN REDM\u0130 NOTE 15 PRO 256GB SIFIR // KART-TAKS\u0130T",
+            "price_try": 14490.0,
+            "price_eur": 270.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-arey-mobile-dan-redmi-note-15-pro-256gb-sifir-kart-taksit-1325717184/detay",
+            "observed_at": "2026-07-04T14:51:03.103937+00:00"
+          },
+          {
+            "title": "MURAT \u0130LET\u0130\u015e\u0130M'DEN X\u0130AOM\u0130 REDM\u0130 NOTE 15 PRO 256/8 S\u0130YAH,NATURAL",
+            "price_try": 14500.0,
+            "price_eur": 270.61,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-murat-iletisim-den-xiaomi-redmi-note-15-pro-256-8-siyah,natural-1325935116/detay",
+            "observed_at": "2026-07-04T14:51:13.727784+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 REDM\u0130 NOTE 15 PRO 4G 256 GB SIFIR KAPALI KUTU C\u0130HAZ 256GB",
+            "price_try": 16740.0,
+            "price_eur": 312.42,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-note-15-pro-4g-256-gb-sifir-kapali-kutu-cihaz-256gb-1326285370/detay",
+            "observed_at": "2026-07-04T14:51:13.315029+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 518.04,
+        "percent": 4.1,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Redmi Note 14 Pro Plus 5G",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "NOTE 14 P plas Cin 5G 512/12 300$",
+        "price_usd": 300.0,
+        "price_try": 14041.5,
+        "price_eur": 262.06,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 7,
+        "median_try": 14499.0,
+        "min_try": 13749.0,
+        "max_try": 17999.0,
+        "listings": [
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 14 PRO+ PLUS 5G 512/12+12 SIFIR FULL MAZEMEL\u0130 120W",
+            "price_try": 13749.0,
+            "price_eur": 256.6,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-plus-plus-5g-512-12-plus12-sifir-full-mazemeli-120w-1326324362/detay",
+            "observed_at": "2026-07-04T14:51:03.607399+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 14 PRO+ PLUS 5G 512/12+12 SIFIR FULL MAZEMEL\u0130 120W",
+            "price_try": 13749.0,
+            "price_eur": 256.6,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-plus-plus-5g-512-12-plus12-sifir-full-mazemeli-120w-1326174368/detay",
+            "observed_at": "2026-07-04T14:51:06.964043+00:00"
+          },
+          {
+            "title": "REDM\u0130 NOTE 14 PRO PLAS 5G 512/12+12",
+            "price_try": 14000.0,
+            "price_eur": 261.28,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-plas-5g-512-12-plus12-1326098431/detay",
+            "observed_at": "2026-07-04T14:51:07.742571+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 NOTE 14 PRO PLUS 5G 512/12+12 50MP KMRA PUBG CANAVARI",
+            "price_try": 14499.0,
+            "price_eur": 270.59,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-note-14-pro-plus-5g-512-12-plus12-50mp-kmra-pubg-canavari-1326169401/detay",
+            "observed_at": "2026-07-04T14:51:02.513288+00:00"
+          },
+          {
+            "title": "1 AYLIK REDM\u0130 NOTE 14 PRO PLUS 5G 12/512",
+            "price_try": 15000.0,
+            "price_eur": 279.94,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-aylik-redmi-note-14-pro-plus-5g-12-512-1325387160/detay",
+            "observed_at": "2026-07-04T14:51:13.143895+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 REDM\u0130 NOTE 14 PRO PLUS 512g/12 FULL KUTU!-!1-",
+            "price_try": 15970.0,
+            "price_eur": 298.05,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-note-14-pro-plus-512g-12-full-kutu-1-1325771701/detay",
+            "observed_at": "2026-07-04T14:51:13.808063+00:00"
+          },
+          {
+            "title": "REDM\u0130 NOTE 14 PRO PLUS 5G 12/512 GB GLOBAL MODEL FUL KUTU",
+            "price_try": 17999.0,
+            "price_eur": 335.91,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-plus-5g-12-512-gb-global-model-ful-kutu-1326224559/detay",
+            "observed_at": "2026-07-04T14:51:13.446212+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 457.5,
+        "percent": 3.3,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Poco X8 Pro",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "POCO X8 pro 512/12 410$",
+        "price_usd": 410.0,
+        "price_try": 19190.05,
+        "price_eur": 358.14,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 12,
+        "median_try": 19493.0,
+        "min_try": 16499.0,
+        "max_try": 19998.0,
+        "listings": [
+          {
+            "title": "X\u0130AOM\u0130 POCO X8 PRO 512/12+12 PUBG CANAVARI 100W \u015eARJ FUL KUTU",
+            "price_try": 16499.0,
+            "price_eur": 307.92,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-poco-x8-pro-512-12-plus12-pubg-canavari-100w-sarj-ful-kutu-1326365241/detay",
+            "observed_at": "2026-07-04T14:51:02.168255+00:00"
+          },
+          {
+            "title": "\u0130ND\u0130R\u0130M ! POCO X8 PRO 512 GB 8+8 RAM GLOBAL Y.D",
+            "price_try": 16999.0,
+            "price_eur": 317.25,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-indirim-poco-x8-pro-512-gb-8-plus8-ram-global-y.d-1326055185/detay",
+            "observed_at": "2026-07-04T14:51:13.540751+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende POCO X8 PRO 5G 512/12+12 SIFIR FULL MAZEMEL\u0130 GLOBAL 120W",
+            "price_try": 18999.0,
+            "price_eur": 354.58,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-5g-512-12-plus12-sifir-full-mazemeli-global-120w-1326334051/detay",
+            "observed_at": "2026-07-04T14:51:03.573569+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende POCO X8 PRO 5G 512/12+12 SIFIR FULL MAZEMEL\u0130 GLOBAL 120W",
+            "price_try": 18999.0,
+            "price_eur": 354.58,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-5g-512-12-plus12-sifir-full-mazemeli-global-120w-1325941996/detay",
+            "observed_at": "2026-07-04T14:51:07.217929+00:00"
+          },
+          {
+            "title": "ATE\u015e \u0130LET\u0130\u015e\u0130M'DEN POCO X8 PRO 12 RAM 512 GB",
+            "price_try": 18999.0,
+            "price_eur": 354.58,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-poco-x8-pro-12-ram-512-gb-1326324683/detay",
+            "observed_at": "2026-07-04T14:51:07.428380+00:00"
+          },
+          {
+            "title": "ATE\u015e \u0130LET\u0130\u015e\u0130M'DEN POCO X8 PRO 12 RAM 512 GB",
+            "price_try": 19487.0,
+            "price_eur": 363.68,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-poco-x8-pro-12-ram-512-gb-1325759927/detay",
+            "observed_at": "2026-07-04T14:51:08.477380+00:00"
+          },
+          {
+            "title": "GLOBAL SIFIR X\u0130AOM\u0130 POCO X8 PRO 12+12/512 GB S\u0130YAH ORJ\u0130NAL \u015eARJ",
+            "price_try": 19499.0,
+            "price_eur": 363.91,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-global-sifir-xiaomi-poco-x8-pro-12-plus12-512-gb-siyah-orjinal-sarj-1325199972/detay",
+            "observed_at": "2026-07-04T14:51:03.190342+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 POCO X8 PRO 512/12+12 PUBG CANAVARI 120FPS 100W SARJ GLOB",
+            "price_try": 19699.0,
+            "price_eur": 367.64,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-poco-x8-pro-512-12-plus12-pubg-canavari-120fps-100w-sarj-glob-1326182744/detay",
+            "observed_at": "2026-07-04T14:51:02.254317+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende POCO X8 PRO 5G 512/12+12 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 19749.0,
+            "price_eur": 368.57,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-5g-512-12-plus12-sifir-full-malzemeli-global-1326403164/detay",
+            "observed_at": "2026-07-04T14:51:03.451339+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende POCO X8 PRO 5G 512/12+12 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 19749.0,
+            "price_eur": 368.57,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-5g-512-12-plus12-sifir-full-malzemeli-global-1326401875/detay",
+            "observed_at": "2026-07-04T14:51:03.467562+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende POCO X8 PRO 5G 512/12+12 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 19749.0,
+            "price_eur": 368.57,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-5g-512-12-plus12-sifir-full-malzemeli-global-1326317514/detay",
+            "observed_at": "2026-07-04T14:51:06.796735+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 POCO X8 PRO 512/12 FULL KUTU 12 AY TAKS\u0130T!-",
+            "price_try": 19998.0,
+            "price_eur": 373.22,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-poco-x8-pro-512-12-full-kutu-12-ay-taksit-1325773030/detay",
+            "observed_at": "2026-07-04T14:51:08.448125+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 302.95,
+        "percent": 1.6,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Xiaomi 17 Ultra",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "Mi 17 Ultra 512/16 1200$",
+        "price_usd": 1200.0,
+        "price_try": 56166.0,
+        "price_eur": 1048.22,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 4,
+        "median_try": 56999.5,
+        "min_try": 51999.0,
+        "max_try": 66000.0,
+        "listings": [
+          {
+            "title": "SEMERS \u0130LET\u0130\u015e\u0130M X\u0130AOM\u0130 M\u0130 17 ULTRA 12 RAM -512 GB HAFIZA",
+            "price_try": 51999.0,
+            "price_eur": 970.45,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-semers-iletisim-xiaomi-mi-17-ultra-12-ram-512-gb-hafiza-1325589971/detay",
+            "observed_at": "2026-07-04T14:51:12.836589+00:00"
+          },
+          {
+            "title": "*U\u011eUR \u0130LET\u0130\u015e\u0130M'DEN*XIAOMI 17 ULTRA 12 RAM 512 GB",
+            "price_try": 56000.0,
+            "price_eur": 1045.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ugur-iletisim-den-xiaomi-17-ultra-12-ram-512-gb-1325973554/detay",
+            "observed_at": "2026-07-04T14:51:13.671856+00:00"
+          },
+          {
+            "title": "SEMERS \u0130LET\u0130\u015e\u0130M X\u0130AOM\u0130 M\u0130 17 ULTRA LE\u0130KA 16 RAM -512 GB HAFIZA",
+            "price_try": 57999.0,
+            "price_eur": 1082.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-semers-iletisim-xiaomi-mi-17-ultra-leika-16-ram-512-gb-hafiza-1325591183/detay",
+            "observed_at": "2026-07-04T14:51:12.784727+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 17 ULTRA 512 GB SIFIR KAPALI KUTU TAKS\u0130T VE TAKAS \u0130MKANI",
+            "price_try": 66000.0,
+            "price_eur": 1231.75,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-17-ultra-512-gb-sifir-kapali-kutu-taksit-ve-takas-imkani-1326283951/detay",
+            "observed_at": "2026-07-04T14:51:14.362022+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": 833.5,
+        "percent": 1.5,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Redmi Note 15 Pro Plus 5G",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "NOTE 15 pro plas 5G 512/12 420$",
+        "price_usd": 420.0,
+        "price_try": 19658.1,
+        "price_eur": 366.88,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 8,
+        "median_try": 19374.0,
+        "min_try": 18749.0,
+        "max_try": 22499.0,
+        "listings": [
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO+ PLUS 5G 512/12+12 SIFIR FULL MAZEMELi 120W",
+            "price_try": 18749.0,
+            "price_eur": 349.91,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-plus-plus-5g-512-12-plus12-sifir-full-mazemeli-120w-1326322348/detay",
+            "observed_at": "2026-07-04T14:51:03.706200+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO+ PLUS 5G 512/16+16 SIFIR FULL MAZEMEL\u0130 120W",
+            "price_try": 18749.0,
+            "price_eur": 349.91,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-plus-plus-5g-512-16-plus16-sifir-full-mazemeli-120w-1326174726/detay",
+            "observed_at": "2026-07-04T14:51:06.932318+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO+ PLUS 5G 512/16+16 SIFIR FULL MAZEMEL\u0130 120W",
+            "price_try": 18749.0,
+            "price_eur": 349.91,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-plus-plus-5g-512-16-plus16-sifir-full-mazemeli-120w-1325944104/detay",
+            "observed_at": "2026-07-04T14:51:07.182388+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO+ PLUS 5G 512/16+16 SIFIR FULL MAZEMEL\u0130 120W",
+            "price_try": 18749.0,
+            "price_eur": 349.91,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-plus-plus-5g-512-16-plus16-sifir-full-mazemeli-120w-1325926872/detay",
+            "observed_at": "2026-07-04T14:51:08.387597+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 NOTE 15 PRO PLUS 5G 512/12+12 200MP KMRA 100W \u015eARJ GLOBAL",
+            "price_try": 19999.0,
+            "price_eur": 373.24,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-note-15-pro-plus-5g-512-12-plus12-200mp-kmra-100w-sarj-global-1326184028/detay",
+            "observed_at": "2026-07-04T14:51:02.201063+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende REDM\u0130 NOTE 15 PRO+ PLUS 5G 512/12+12 SIFIR FULL MALZEMEL\u0130 GLOBAL",
+            "price_try": 19999.0,
+            "price_eur": 373.24,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-plus-plus-5g-512-12-plus12-sifir-full-malzemeli-global-1326347661/detay",
+            "observed_at": "2026-07-04T14:51:03.802657+00:00"
+          },
+          {
+            "title": "REDM\u0130 NOTE 15 PRO PLUS 512GB 12RAM YD SIFIR",
+            "price_try": 21449.0,
+            "price_eur": 400.3,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-plus-512gb-12ram-yd-sifir-1326188510/detay",
+            "observed_at": "2026-07-04T14:51:07.571903+00:00"
+          },
+          {
+            "title": "REDM\u0130 NOTE 15 PRO PLUS 5G 12/512 GB GLOBAL MODEL FUL KUTU",
+            "price_try": 22499.0,
+            "price_eur": 419.9,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-plus-5g-12-512-gb-global-model-ful-kutu-1326225054/detay",
+            "observed_at": "2026-07-04T14:51:07.542494+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": -284.1,
+        "percent": -1.4,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Poco X8 Pro Max",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "POCO X8 PRO MAX 512/12 550$",
+        "price_usd": 550.0,
+        "price_try": 25742.75,
+        "price_eur": 480.44,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 5,
+        "median_try": 25249.0,
+        "min_try": 25249.0,
+        "max_try": 26499.0,
+        "listings": [
+          {
+            "title": "Param G\u00fcvende POCO X8 PRO MAX 512/12+12 SIFIR FULL MAZEMEL\u0130 GLOBAL 120W",
+            "price_try": 25249.0,
+            "price_eur": 471.22,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-max-512-12-plus12-sifir-full-mazemeli-global-120w-1326324043/detay",
+            "observed_at": "2026-07-04T14:51:03.687944+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende POCO X8 PRO MAX 512/12+12 SIFIR FULL MAZEMEL\u0130 GLOBAL 120W",
+            "price_try": 25249.0,
+            "price_eur": 471.22,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-max-512-12-plus12-sifir-full-mazemeli-global-120w-1326189396/detay",
+            "observed_at": "2026-07-04T14:51:06.673778+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende POCO X8 PRO MAX 512/12+12 SIFIR FULL MAZEMEL\u0130 GLOBAL 120W",
+            "price_try": 25249.0,
+            "price_eur": 471.22,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-max-512-12-plus12-sifir-full-mazemeli-global-120w-1325939321/detay",
+            "observed_at": "2026-07-04T14:51:08.274178+00:00"
+          },
+          {
+            "title": "X\u0130AOM\u0130 POCO X8 PRO MAX 512/12+12 PUBG CANAVARI 120FPS 100W \u015eARJ",
+            "price_try": 25499.0,
+            "price_eur": 475.89,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-poco-x8-pro-max-512-12-plus12-pubg-canavari-120fps-100w-sarj-1326178963/detay",
+            "observed_at": "2026-07-04T14:51:02.357274+00:00"
+          },
+          {
+            "title": "SIFIR X\u0130AOM\u0130 POCO X8 PRO MAX 12+12/512 GB S\u0130YAH ORJ \u015eARJLA",
+            "price_try": 26499.0,
+            "price_eur": 494.55,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-sifir-xiaomi-poco-x8-pro-max-12-plus12-512-gb-siyah-orj-sarjla-1325228317/detay",
+            "observed_at": "2026-07-04T14:51:03.125192+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": -493.75,
+        "percent": -1.9,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "iPhone 17 Pro",
+      "brand": "Apple",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "iPhone 17 Pro 256GB 1350$",
+        "price_usd": 1350.0,
+        "price_try": 63186.75,
+        "price_eur": 1179.25,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 29,
+        "median_try": 60999.0,
+        "min_try": 47999.0,
+        "max_try": 64990.0,
+        "listings": [
+          {
+            "title": "\u0130phone 17 pro 256gb yurtd\u0131\u015f\u0131",
+            "price_try": 47999.0,
+            "price_eur": 895.8,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256gb-yurtdisi-1326342645/detay",
+            "observed_at": "2026-07-04T17:58:21.773721+00:00"
+          },
+          {
+            "title": "17 PRO (256 GB) YD \u00c7\u0130FT S\u0130ML\u0130 P\u0130L 100--15 AY A\u00c7IK--DEV\u0130R 10--",
+            "price_try": 56499.0,
+            "price_eur": 1054.44,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256-gb-yd-cift-simli-pil-100-15-ay-acik-devir-10-1326098194/detay",
+            "observed_at": "2026-07-04T17:58:25.871012+00:00"
+          },
+          {
+            "title": "CADDE APPLE'DAN \u0130PHONE 17 PRO 256 GB P\u0130L 100 HAT TAKILMAMI\u015e !",
+            "price_try": 56999.0,
+            "price_eur": 1063.77,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-17-pro-256-gb-pil-100-hat-takilmamis-1326397279/detay",
+            "observed_at": "2026-07-04T17:58:21.470045+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO 256 GB SIFIR KAPALI KUTU C\u0130FT E-S\u0130M BUG\u00dcNE \u00d6ZEL",
+            "price_try": 57499.0,
+            "price_eur": 1073.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-cift-e-sim-bugune-ozel-1326138645/detay",
+            "observed_at": "2026-07-04T17:58:25.822601+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO 256 GB SIFIR KAPALI KUTU C\u0130FT E-S\u0130M BUG\u00dcNE \u00d6ZEL",
+            "price_try": 57499.0,
+            "price_eur": 1073.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-cift-e-sim-bugune-ozel-1326138117/detay",
+            "observed_at": "2026-07-04T17:58:25.833448+00:00"
+          },
+          {
+            "title": "APPLE TECH / iPhone 17 Pro 256 KUTULU P\u0130L 98 YDISI 15 AY !",
+            "price_try": 57500.0,
+            "price_eur": 1073.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-17-pro-256-kutulu-pil-98-ydisi-15-ay-1321801300/detay",
+            "observed_at": "2026-07-04T17:58:13.027907+00:00"
+          },
+          {
+            "title": "ASYA TELECOM'DAN YD \u0130PHONE 17 PRO 256 GB 14 AY KULLANIMA A\u00c7IK",
+            "price_try": 57999.0,
+            "price_eur": 1082.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-asya-telecom-dan-yd-iphone-17-pro-256-gb-14-ay-kullanima-acik-1326235036/detay",
+            "observed_at": "2026-07-04T17:58:33.858032+00:00"
+          },
+          {
+            "title": "AREY MOB\u0130LE'DAN \u0130PHONE 17 PRO 256 GB SIFIR!!//KART TAKS\u0130T",
+            "price_try": 59990.0,
+            "price_eur": 1119.59,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-arey-mobile-dan-iphone-17-pro-256-gb-sifir-kart-taksit-1325723598/detay",
+            "observed_at": "2026-07-04T17:58:14.128215+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO 256 GB SIFIR KAPALI KUTU 14 AY KULLANIM ORJ\u0130NAL",
+            "price_try": 59995.0,
+            "price_eur": 1119.68,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-14-ay-kullanim-orjinal-1326226492/detay",
+            "observed_at": "2026-07-04T17:58:25.371273+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO 256 GB SIFIR KAPALI KUTU 14 AY KULLANIM ORJ\u0130NAL",
+            "price_try": 59995.0,
+            "price_eur": 1119.68,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-14-ay-kullanim-orjinal-1326225787/detay",
+            "observed_at": "2026-07-04T17:58:25.390704+00:00"
+          },
+          {
+            "title": "GEYLAN\u0130 \u0130LET\u0130\u015e\u0130MDEN \u0130PHONE 17 PRO 256 SIFIR KAPALI KUTU",
+            "price_try": 60000.0,
+            "price_eur": 1119.78,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-geylani-iletisimden-iphone-17-pro-256-sifir-kapali-kutu-1324157600/detay",
+            "observed_at": "2026-07-04T17:58:33.619635+00:00"
+          },
+          {
+            "title": "\u0130phone 17 Pro YD \u00c7ift Sim Garantili",
+            "price_try": 60950.0,
+            "price_eur": 1137.51,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-yd-cift-sim-garantili-1326136298/detay",
+            "observed_at": "2026-07-04T17:58:25.849421+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO 256GB SIFIR KAPALI KUTU AVRUPA 1 YIL GARANT\u0130 15 AY",
+            "price_try": 60999.0,
+            "price_eur": 1138.42,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256gb-sifir-kapali-kutu-avrupa-1-yil-garanti-15-ay-1326161586/detay",
+            "observed_at": "2026-07-04T17:58:13.934895+00:00"
+          },
+          {
+            "title": "17 PRO 256GB SIFIR KAPALI KUTU,MA\u011eAZADAN TAKAS+TAKS\u0130T \u0130MKANI",
+            "price_try": 60999.0,
+            "price_eur": 1138.42,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256gb-sifir-kapali-kutu,magazadan-takas-plustaksit-imkani-1325941171/detay",
+            "observed_at": "2026-07-04T17:58:14.023188+00:00"
+          },
+          {
+            "title": "\u00c7iFT F\u0130Z\u0130K\u0130 SIFIR \u0130PHONE 17 PRO 256 GB BEYAZ KAPALI KUTU",
+            "price_try": 60999.0,
+            "price_eur": 1138.42,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cift-fiziki-sifir-iphone-17-pro-256-gb-beyaz-kapali-kutu-1325176595/detay",
+            "observed_at": "2026-07-04T17:58:17.292904+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende PLAT\u0130NUM GSM'DEN 17 PRO 256GB KAPALI KUTU SIFIR 16 AY \u00c7\u0130FT S\u0130M !",
+            "price_try": 61999.0,
+            "price_eur": 1157.08,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-17-pro-256gb-kapali-kutu-sifir-16-ay-cift-sim-1324784868/detay",
+            "observed_at": "2026-07-04T17:58:13.696383+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende CT \u0130LET\u0130\u015e\u0130M'DEN \u0130PHONE 17 PRO 256 GB TAKAS VE 3-6-9-12 TAKS\u0130T",
+            "price_try": 61999.0,
+            "price_eur": 1157.08,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ct-iletisim-den-iphone-17-pro-256-gb-takas-ve-3-6-9-12-taksit-1326416340/detay",
+            "observed_at": "2026-07-04T17:58:17.410160+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende CT \u0130LET\u0130\u015e\u0130M'DEN \u0130PHONE 17 PRO 256 GB TAKAS VE 3-6-9-12 TAKS\u0130T",
+            "price_try": 61999.0,
+            "price_eur": 1157.08,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ct-iletisim-den-iphone-17-pro-256-gb-takas-ve-3-6-9-12-taksit-1326415717/detay",
+            "observed_at": "2026-07-04T17:58:17.422690+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO 256GB SIFIR KAPALI KUTU",
+            "price_try": 61999.0,
+            "price_eur": 1157.08,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256gb-sifir-kapali-kutu-1326370762/detay",
+            "observed_at": "2026-07-04T17:58:21.574501+00:00"
+          },
+          {
+            "title": "IPHONE 17 PRO 256 GB",
+            "price_try": 62000.0,
+            "price_eur": 1157.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-1309812046/detay",
+            "observed_at": "2026-07-04T17:58:17.352202+00:00"
+          },
+          {
+            "title": "APPLE TECH / iPhone 17 Pro 256 S\u0131f\u0131r Kutulu Avrupa Yd\u0131s\u0131 16 Ay !",
+            "price_try": 63000.0,
+            "price_eur": 1175.77,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-17-pro-256-sifir-kutulu-avrupa-ydisi-16-ay-1311506035/detay",
+            "observed_at": "2026-07-04T17:58:33.382220+00:00"
+          },
+          {
+            "title": "17 PRO 256-GLOBAL GARANT\u0130L\u0130 SER\u0130-SIFIR-14 AY A\u00c7IK-T\u00dcM RENKLER",
+            "price_try": 63500.0,
+            "price_eur": 1185.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256-global-garantili-seri-sifir-14-ay-acik-tum-renkler-1326396370/detay",
+            "observed_at": "2026-07-04T17:58:33.258924+00:00"
+          },
+          {
+            "title": "17 PRO 256-GLOBAL GARANT\u0130L\u0130 SER\u0130-SIFIR-14 AY A\u00c7IK-T\u00dcM RENKLER",
+            "price_try": 63500.0,
+            "price_eur": 1185.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256-global-garantili-seri-sifir-14-ay-acik-tum-renkler-1326395976/detay",
+            "observed_at": "2026-07-04T17:58:33.270944+00:00"
+          },
+          {
+            "title": "KARDE\u015eLER \u0130LET\u0130\u015e\u0130M 17 PRO 256 GB SIFIR KAPALI KUTU KART TAKS\u0130T",
+            "price_try": 63990.0,
+            "price_eur": 1194.24,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-kardesler-iletisim-17-pro-256-gb-sifir-kapali-kutu-kart-taksit-1274475935/detay",
+            "observed_at": "2026-07-04T17:58:13.429313+00:00"
+          },
+          {
+            "title": "ASYA TELECOM'DAN \u0130PHONE 17 PRO 256 GB 14 AY KULLANIMA A\u00c7IK",
+            "price_try": 63999.0,
+            "price_eur": 1194.41,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-asya-telecom-dan-iphone-17-pro-256-gb-14-ay-kullanima-acik-1326409982/detay",
+            "observed_at": "2026-07-04T17:58:18.030550+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO 256 GB SIFIR KAPALI KUTU BEYAZ",
+            "price_try": 63999.0,
+            "price_eur": 1194.41,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-beyaz-1326352525/detay",
+            "observed_at": "2026-07-04T17:58:21.725967+00:00"
+          },
+          {
+            "title": "iPhone 17 Pro 256/1 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 MODEL",
+            "price_try": 64000.0,
+            "price_eur": 1194.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-1-yd-sifir-kapali-kutu-garantili-model-1326386455/detay",
+            "observed_at": "2026-07-04T17:58:21.543238+00:00"
+          },
+          {
+            "title": "iPhone 17 Pro 256/1 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 MODEL",
+            "price_try": 64000.0,
+            "price_eur": 1194.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-1-yd-sifir-kapali-kutu-garantili-model-1326385545/detay",
+            "observed_at": "2026-07-04T17:58:33.283878+00:00"
+          },
+          {
+            "title": "AREY MOB\u0130LE'DAN \u0130PHONE 17 PRO 256 GB SIFIR!!//KART TAKS\u0130T",
+            "price_try": 64990.0,
+            "price_eur": 1212.91,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-arey-mobile-dan-iphone-17-pro-256-gb-sifir-kart-taksit-1325921183/detay",
+            "observed_at": "2026-07-04T17:58:14.033319+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": -2187.75,
+        "percent": -3.5,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Galaxy S26 Ultra",
+      "brand": "Samsung",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "Samsung s26 ultra 256GB 1.050$",
+        "price_usd": 1050.0,
+        "price_try": 49145.25,
+        "price_eur": 917.2,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 156,
+        "median_try": 46850.0,
+        "min_try": 43000.0,
+        "max_try": 55990.0,
+        "listings": [
+          {
+            "title": "SAMSUNG G\u00d6ZDES\u0130 S26 ULTRA 256 GB TAKASLI SATI\u015e!!",
+            "price_try": 43000.0,
+            "price_eur": 802.51,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1324638403/detay",
+            "observed_at": "2026-07-04T13:41:15.597182+00:00"
+          },
+          {
+            "title": "PREM\u0130UM SER\u0130 S26 ULTRA- D\u0130LED\u0130\u011e\u0130N AKSESUAR HED\u0130YES\u0130YLE!",
+            "price_try": 43450.0,
+            "price_eur": 810.91,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-premium-seri-s26-ultra-diledigin-aksesuar-hediyesiyle-1324638965/detay",
+            "observed_at": "2026-07-04T13:41:15.565170+00:00"
+          },
+          {
+            "title": "SAMSUNG G\u00d6ZDES\u0130 S26 ULTRA 256 GB TAKASLI SATI\u015e!",
+            "price_try": 43500.0,
+            "price_eur": 811.84,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1324948149/detay",
+            "observed_at": "2026-07-04T13:41:11.265605+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 43550.0,
+            "price_eur": 812.77,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1324639751/detay",
+            "observed_at": "2026-07-04T13:41:15.528667+00:00"
+          },
+          {
+            "title": "S\u0130YAH RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 43600.0,
+            "price_eur": 813.7,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-siyah-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1324560609/detay",
+            "observed_at": "2026-07-04T13:41:15.744237+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 43650.0,
+            "price_eur": 814.64,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1324641445/detay",
+            "observed_at": "2026-07-04T13:41:15.446798+00:00"
+          },
+          {
+            "title": "TANI\u015eMA F\u0130YATI ile SAMSUNG S26U 256 GB 1 YIL GARANT\u0130L\u0130",
+            "price_try": 43700.0,
+            "price_eur": 815.57,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-tanisma-fiyati-ile-samsung-s26u-256-gb-1-yil-garantili-1324636436/detay",
+            "observed_at": "2026-07-04T13:41:15.674391+00:00"
+          },
+          {
+            "title": "MOR RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 43750.0,
+            "price_eur": 816.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-mor-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1324948564/detay",
+            "observed_at": "2026-07-04T13:41:11.230689+00:00"
+          },
+          {
+            "title": "DEV \u0130ND\u0130R\u0130M! S26U 256 GB- OYUNCU KULAKLI\u011eI HED\u0130YEL\u0130",
+            "price_try": 43750.0,
+            "price_eur": 816.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-dev-indirim-s26u-256-gb-oyuncu-kulakligi-hediyeli-1324561394/detay",
+            "observed_at": "2026-07-04T13:41:15.710776+00:00"
+          },
+          {
+            "title": "S26U - 256 GB MAV\u0130 RENK AKSESUAR HED\u0130YE",
+            "price_try": 43800.0,
+            "price_eur": 817.44,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-mavi-renk-aksesuar-hediye-1325943559/detay",
+            "observed_at": "2026-07-04T13:41:05.077868+00:00"
+          },
+          {
+            "title": "BEYAZ RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 43900.0,
+            "price_eur": 819.3,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-beyaz-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1325945580/detay",
+            "observed_at": "2026-07-04T13:41:00.988753+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB TAKAS VE TAKS\u0130T SE\u00c7ENEKL\u0130",
+            "price_try": 43900.0,
+            "price_eur": 819.3,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-takas-ve-taksit-secenekli-1325944093/detay",
+            "observed_at": "2026-07-04T13:41:05.047349+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 43900.0,
+            "price_eur": 819.3,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1324950453/detay",
+            "observed_at": "2026-07-04T13:41:11.210059+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 44000.0,
+            "price_eur": 821.17,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1325944481/detay",
+            "observed_at": "2026-07-04T13:41:04.990247+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB BEYAZ RENK- YEN\u0130L\u0130K ZAMANI",
+            "price_try": 44000.0,
+            "price_eur": 821.17,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-beyaz-renk-yenilik-zamani-1324955525/detay",
+            "observed_at": "2026-07-04T13:41:11.186289+00:00"
+          },
+          {
+            "title": "TANI\u015eMA F\u0130YATI ile SAMSUNG S26U 256 GB 1 YIL GARANT\u0130L\u0130",
+            "price_try": 44100.0,
+            "price_eur": 823.04,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-tanisma-fiyati-ile-samsung-s26u-256-gb-1-yil-garantili-1324957921/detay",
+            "observed_at": "2026-07-04T13:41:11.159346+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 256 ULTRA GB MAV\u0130 RENK KARTA TAKS\u0130T \u0130MKANLI",
+            "price_try": 44500.0,
+            "price_eur": 830.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-256-ultra-gb-mavi-renk-karta-taksit-imkanli-1324640559/detay",
+            "observed_at": "2026-07-04T13:41:15.480961+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra 256/12 YD \u00c7ift Sim S\u0131f\u0131r",
+            "price_try": 44950.0,
+            "price_eur": 838.9,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-12-yd-cift-sim-sifir-1325754144/detay",
+            "observed_at": "2026-07-04T13:40:55.743199+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB SIFIR KAPALI KUTU",
+            "price_try": 44990.0,
+            "price_eur": 839.65,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-sifir-kapali-kutu-1319697502/detay",
+            "observed_at": "2026-07-04T13:41:05.110992+00:00"
+          },
+          {
+            "title": "S 26 ULTRA 256 GB SIFIR KAPALI KUTU MA\u011eAZADAN",
+            "price_try": 44999.0,
+            "price_eur": 839.81,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s-26-ultra-256-gb-sifir-kapali-kutu-magazadan-1304012607/detay",
+            "observed_at": "2026-07-04T13:41:22.544866+00:00"
+          },
+          {
+            "title": "GALAXY S26 ULTRA SIFIR KAPALI KUTU,MA\u011eAZADAN TAKS\u0130T+TAKAS \u0130MKANI",
+            "price_try": 45999.0,
+            "price_eur": 858.48,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-galaxy-s26-ultra-sifir-kapali-kutu,magazadan-taksit-plustakas-imkani-1325716819/detay",
+            "observed_at": "2026-07-04T13:40:55.415659+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256/12 SIFIR KAPALI KUTU AVRUPA 15 AY!!",
+            "price_try": 45999.0,
+            "price_eur": 858.48,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-12-sifir-kapali-kutu-avrupa-15-ay-1324356215/detay",
+            "observed_at": "2026-07-04T13:41:05.503765+00:00"
+          },
+          {
+            "title": "4 G\u00dcNL\u00dcK S26 ULTRA 256GB-GLOBAL-\u00c7\u0130FT F\u0130Z\u0130K\u0130-14 AY KULLANM S\u00dcRES\u0130",
+            "price_try": 45999.0,
+            "price_eur": 858.48,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-4-gunluk-s26-ultra-256gb-global-cift-fiziki-14-ay-kullanm-suresi-1325362705/detay",
+            "observed_at": "2026-07-04T13:41:05.630401+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende SAMSUNG S26 ULTRA 256/12 SIFIR KAPALI KUTU",
+            "price_try": 45999.0,
+            "price_eur": 858.48,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-12-sifir-kapali-kutu-1320509598/detay",
+            "observed_at": "2026-07-04T13:41:10.665993+00:00"
+          },
+          {
+            "title": "GLOBAL SIFIR SAMSUNG S26 ULTRA 12/256 GB MOR KAPALI KUTU",
+            "price_try": 45999.0,
+            "price_eur": 858.48,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-global-sifir-samsung-s26-ultra-12-256-gb-mor-kapali-kutu-1325179358/detay",
+            "observed_at": "2026-07-04T13:41:11.099730+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB SIYAH 1 GUNLUK HATASIZ 15 AY A\u00c7IK",
+            "price_try": 46000.0,
+            "price_eur": 858.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-siyah-1-gunluk-hatasiz-15-ay-acik-1324012925/detay",
+            "observed_at": "2026-07-04T13:41:00.747863+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB S\u0130YAH RENK TAKS\u0130T \u0130MKANLI",
+            "price_try": 46000.0,
+            "price_eur": 858.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-siyah-renk-taksit-imkanli-1322985235/detay",
+            "observed_at": "2026-07-04T13:41:16.210633+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB BEYAZ RENK TAKS\u0130T \u0130MKANLI",
+            "price_try": 46000.0,
+            "price_eur": 858.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-beyaz-renk-taksit-imkanli-1322973981/detay",
+            "observed_at": "2026-07-04T13:41:16.345429+00:00"
+          },
+          {
+            "title": "S26U - 256 GB BEYAZ RENK AKSESUAR HED\u0130YE",
+            "price_try": 46000.0,
+            "price_eur": 858.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-beyaz-renk-aksesuar-hediye-1321804544/detay",
+            "observed_at": "2026-07-04T13:41:22.253583+00:00"
+          },
+          {
+            "title": "S26U - 256 GB S\u0130YAH RENK AKSESUAR HED\u0130YE",
+            "price_try": 46100.0,
+            "price_eur": 860.36,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-siyah-renk-aksesuar-hediye-1322985997/detay",
+            "observed_at": "2026-07-04T13:41:16.182232+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB TAKAS VE TAKS\u0130T SE\u00c7ENEKL\u0130",
+            "price_try": 46100.0,
+            "price_eur": 860.36,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-takas-ve-taksit-secenekli-1321805038/detay",
+            "observed_at": "2026-07-04T13:41:22.221022+00:00"
+          },
+          {
+            "title": "SAMSUNG G\u00d6ZDES\u0130 S26 ULTRA 256 GB TAKASLI SATI\u015e!!",
+            "price_try": 46100.0,
+            "price_eur": 860.36,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1321419017/detay",
+            "observed_at": "2026-07-04T13:41:22.730053+00:00"
+          },
+          {
+            "title": "S26U - 256 GB BEYAZ RENK AKSESUAR HED\u0130YE",
+            "price_try": 46200.0,
+            "price_eur": 862.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-beyaz-renk-aksesuar-hediye-1322974291/detay",
+            "observed_at": "2026-07-04T13:41:16.309719+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB TAKAS VE TAKS\u0130T SE\u00c7ENEKL\u0130",
+            "price_try": 46200.0,
+            "price_eur": 862.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-takas-ve-taksit-secenekli-1322968021/detay",
+            "observed_at": "2026-07-04T13:41:16.666233+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB BEYAZ RENK TAKS\u0130T \u0130MKANLI",
+            "price_try": 46200.0,
+            "price_eur": 862.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-beyaz-renk-taksit-imkanli-1322581694/detay",
+            "observed_at": "2026-07-04T13:41:21.545274+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB BEYAZ RENK- YEN\u0130L\u0130K ZAMANI",
+            "price_try": 46200.0,
+            "price_eur": 862.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-beyaz-renk-yenilik-zamani-1321805552/detay",
+            "observed_at": "2026-07-04T13:41:22.170314+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 46200.0,
+            "price_eur": 862.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1321805206/detay",
+            "observed_at": "2026-07-04T13:41:22.196678+00:00"
+          },
+          {
+            "title": "S26U - 256 GB S\u0130YAH RENK AKSESUAR HED\u0130YE",
+            "price_try": 46200.0,
+            "price_eur": 862.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-siyah-renk-aksesuar-hediye-1321799871/detay",
+            "observed_at": "2026-07-04T13:41:22.468891+00:00"
+          },
+          {
+            "title": "MOR RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 46200.0,
+            "price_eur": 862.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-mor-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1321420308/detay",
+            "observed_at": "2026-07-04T13:41:22.701830+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 46300.0,
+            "price_eur": 864.09,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1322987499/detay",
+            "observed_at": "2026-07-04T13:41:16.137045+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 46300.0,
+            "price_eur": 864.09,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1322967632/detay",
+            "observed_at": "2026-07-04T13:41:16.639078+00:00"
+          },
+          {
+            "title": "S26U - 256 GB MOR RENK AKSESUAR HED\u0130YE",
+            "price_try": 46300.0,
+            "price_eur": 864.09,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-mor-renk-aksesuar-hediye-1322586220/detay",
+            "observed_at": "2026-07-04T13:41:21.055439+00:00"
+          },
+          {
+            "title": "S26U - 256 GB BEYAZ RENK AKSESUAR HED\u0130YE",
+            "price_try": 46300.0,
+            "price_eur": 864.09,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-beyaz-renk-aksesuar-hediye-1322582263/detay",
+            "observed_at": "2026-07-04T13:41:21.518207+00:00"
+          },
+          {
+            "title": "S26U - 256 GB S\u0130YAH RENK AKSESUAR HED\u0130YE",
+            "price_try": 46300.0,
+            "price_eur": 864.09,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-siyah-renk-aksesuar-hediye-1322576321/detay",
+            "observed_at": "2026-07-04T13:41:21.840910+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 46300.0,
+            "price_eur": 864.09,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1321806301/detay",
+            "observed_at": "2026-07-04T13:41:22.128216+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB TAKAS VE TAKS\u0130T SE\u00c7ENEKL\u0130",
+            "price_try": 46300.0,
+            "price_eur": 864.09,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-takas-ve-taksit-secenekli-1321800582/detay",
+            "observed_at": "2026-07-04T13:41:22.437013+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 46300.0,
+            "price_eur": 864.09,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1321420776/detay",
+            "observed_at": "2026-07-04T13:41:22.669934+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB MOR RENK- YEN\u0130L\u0130K ZAMANI",
+            "price_try": 46400.0,
+            "price_eur": 865.96,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-mor-renk-yenilik-zamani-1322968401/detay",
+            "observed_at": "2026-07-04T13:41:16.613577+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB TAKAS VE TAKS\u0130T SE\u00c7ENEKL\u0130",
+            "price_try": 46400.0,
+            "price_eur": 865.96,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-takas-ve-taksit-secenekli-1322586881/detay",
+            "observed_at": "2026-07-04T13:41:20.997020+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB TAKAS VE TAKS\u0130T SE\u00c7ENEKL\u0130",
+            "price_try": 46400.0,
+            "price_eur": 865.96,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-takas-ve-taksit-secenekli-1322582390/detay",
+            "observed_at": "2026-07-04T13:41:21.483139+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB TAKAS VE TAKS\u0130T SE\u00c7ENEKL\u0130",
+            "price_try": 46400.0,
+            "price_eur": 865.96,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-takas-ve-taksit-secenekli-1322576351/detay",
+            "observed_at": "2026-07-04T13:41:21.805333+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 46400.0,
+            "price_eur": 865.96,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1321800827/detay",
+            "observed_at": "2026-07-04T13:41:22.411873+00:00"
+          },
+          {
+            "title": "MA\u011eAZADAN SAMSUNG S26 ULTRA SIFIR KAPALI KUTU K.KART KURYE",
+            "price_try": 46499.0,
+            "price_eur": 867.81,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-magazadan-samsung-s26-ultra-sifir-kapali-kutu-k.kart-kurye-1306384644/detay",
+            "observed_at": "2026-07-04T13:41:05.343295+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB BEYAZ RENK- YEN\u0130L\u0130K ZAMANI",
+            "price_try": 46500.0,
+            "price_eur": 867.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-beyaz-renk-yenilik-zamani-1322975661/detay",
+            "observed_at": "2026-07-04T13:41:16.268492+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 256 ULTRA GB MOR RENK KARTA TAKS\u0130T \u0130MKANLI",
+            "price_try": 46500.0,
+            "price_eur": 867.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-256-ultra-gb-mor-renk-karta-taksit-imkanli-1322970208/detay",
+            "observed_at": "2026-07-04T13:41:16.571345+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 46500.0,
+            "price_eur": 867.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1322587603/detay",
+            "observed_at": "2026-07-04T13:41:20.933024+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 46500.0,
+            "price_eur": 867.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1322581627/detay",
+            "observed_at": "2026-07-04T13:41:21.427388+00:00"
+          },
+          {
+            "title": "SAMSUNG G\u00d6ZDES\u0130 S26 ULTRA 256 GB TAKASLI SATI\u015e!!",
+            "price_try": 46500.0,
+            "price_eur": 867.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1321807609/detay",
+            "observed_at": "2026-07-04T13:41:22.104417+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB S\u0130YAH RENK- YEN\u0130L\u0130K ZAMANI",
+            "price_try": 46500.0,
+            "price_eur": 867.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-siyah-renk-yenilik-zamani-1321800507/detay",
+            "observed_at": "2026-07-04T13:41:22.371008+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 46500.0,
+            "price_eur": 867.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1321422079/detay",
+            "observed_at": "2026-07-04T13:41:22.650787+00:00"
+          },
+          {
+            "title": "SAMSUNG GALAXY S26 ULTRA KAPALI KUTU 12 AY TAKS\u0130T-!!1",
+            "price_try": 46590.0,
+            "price_eur": 869.51,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-kapali-kutu-12-ay-taksit-1-1325323425/detay",
+            "observed_at": "2026-07-04T13:41:00.538544+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB MOR RENK- YEN\u0130L\u0130K ZAMANI",
+            "price_try": 46600.0,
+            "price_eur": 869.69,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-mor-renk-yenilik-zamani-1322587727/detay",
+            "observed_at": "2026-07-04T13:41:20.765973+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB BEYAZ RENK- YEN\u0130L\u0130K ZAMANI",
+            "price_try": 46600.0,
+            "price_eur": 869.69,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-beyaz-renk-yenilik-zamani-1322583002/detay",
+            "observed_at": "2026-07-04T13:41:21.375182+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB S\u0130YAH RENK- YEN\u0130L\u0130K ZAMANI",
+            "price_try": 46600.0,
+            "price_eur": 869.69,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-siyah-renk-yenilik-zamani-1322577813/detay",
+            "observed_at": "2026-07-04T13:41:21.723413+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 256 ULTRA GB S\u0130YAH RENK KARTA TAKS\u0130T \u0130MKANLI",
+            "price_try": 46600.0,
+            "price_eur": 869.69,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-256-ultra-gb-siyah-renk-karta-taksit-imkanli-1321801963/detay",
+            "observed_at": "2026-07-04T13:41:22.345852+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 46700.0,
+            "price_eur": 871.56,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1322977192/detay",
+            "observed_at": "2026-07-04T13:41:16.236315+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 46700.0,
+            "price_eur": 871.56,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1322970623/detay",
+            "observed_at": "2026-07-04T13:41:16.533941+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 256 ULTRA GB MOR RENK KARTA TAKS\u0130T \u0130MKANLI",
+            "price_try": 46700.0,
+            "price_eur": 871.56,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-256-ultra-gb-mor-renk-karta-taksit-imkanli-1322588226/detay",
+            "observed_at": "2026-07-04T13:41:16.853890+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 256 ULTRA GB BEYAZ RENK KARTA TAKS\u0130T \u0130MKANLI",
+            "price_try": 46700.0,
+            "price_eur": 871.56,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-256-ultra-gb-beyaz-renk-karta-taksit-imkanli-1322583604/detay",
+            "observed_at": "2026-07-04T13:41:21.329763+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 256 ULTRA GB S\u0130YAH RENK KARTA TAKS\u0130T \u0130MKANLI",
+            "price_try": 46700.0,
+            "price_eur": 871.56,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-256-ultra-gb-siyah-renk-karta-taksit-imkanli-1322578228/detay",
+            "observed_at": "2026-07-04T13:41:21.676691+00:00"
+          },
+          {
+            "title": "S26U - 256 GB MOR RENK AKSESUAR HED\u0130YE",
+            "price_try": 46700.0,
+            "price_eur": 871.56,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26u-256-gb-mor-renk-aksesuar-hediye-1321811690/detay",
+            "observed_at": "2026-07-04T13:41:22.069518+00:00"
+          },
+          {
+            "title": "MOR RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 46800.0,
+            "price_eur": 873.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-mor-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1322971138/detay",
+            "observed_at": "2026-07-04T13:41:16.492826+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 46800.0,
+            "price_eur": 873.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1322588515/detay",
+            "observed_at": "2026-07-04T13:41:16.811526+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 46800.0,
+            "price_eur": 873.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1322584065/detay",
+            "observed_at": "2026-07-04T13:41:21.230622+00:00"
+          },
+          {
+            "title": "1 YIL GARANT\u0130L\u0130 SAMSUNG S26 ULTRA 256 GB AKSESUAR SET HED\u0130YEL\u0130",
+            "price_try": 46800.0,
+            "price_eur": 873.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1322578698/detay",
+            "observed_at": "2026-07-04T13:41:21.623373+00:00"
+          },
+          {
+            "title": "STOKLAR G\u00dcNCELLEND\u0130 SAMSUNG S26 ULTRA 256 GB 1 YIL GARANT\u0130L\u0130!",
+            "price_try": 46800.0,
+            "price_eur": 873.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-stoklar-guncellendi-samsung-s26-ultra-256-gb-1-yil-garantili-1322576761/detay",
+            "observed_at": "2026-07-04T13:41:21.760557+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB TAKAS VE TAKS\u0130T SE\u00c7ENEKL\u0130",
+            "price_try": 46800.0,
+            "price_eur": 873.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-takas-ve-taksit-secenekli-1321812151/detay",
+            "observed_at": "2026-07-04T13:41:22.036330+00:00"
+          },
+          {
+            "title": "S\u0130YAH RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 46800.0,
+            "price_eur": 873.43,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-siyah-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1321802504/detay",
+            "observed_at": "2026-07-04T13:41:22.310229+00:00"
+          },
+          {
+            "title": "SAMSUNG GALAXY S26 ULTRA KAPALI KUTU 12 AY TAKS\u0130T-!!1?",
+            "price_try": 46900.0,
+            "price_eur": 875.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-kapali-kutu-12-ay-taksit-1-1325770567/detay",
+            "observed_at": "2026-07-04T13:40:55.689460+00:00"
+          },
+          {
+            "title": "SAMSUNG G\u00d6ZDES\u0130 S26 ULTRA 256 GB TAKASLI SATI\u015e!!",
+            "price_try": 46900.0,
+            "price_eur": 875.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1322971564/detay",
+            "observed_at": "2026-07-04T13:41:16.432033+00:00"
+          },
+          {
+            "title": "MOR RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 46900.0,
+            "price_eur": 875.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-mor-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1322588081/detay",
+            "observed_at": "2026-07-04T13:41:16.773299+00:00"
+          },
+          {
+            "title": "BEYAZ RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 46900.0,
+            "price_eur": 875.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-beyaz-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1322583861/detay",
+            "observed_at": "2026-07-04T13:41:21.156850+00:00"
+          },
+          {
+            "title": "S\u0130YAH RENK SAMSUNG S26 ULTRA 256 GB TAKS\u0130TL\u0130 VE GARANT\u0130L\u0130",
+            "price_try": 46900.0,
+            "price_eur": 875.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-siyah-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1322580103/detay",
+            "observed_at": "2026-07-04T13:41:21.585729+00:00"
+          },
+          {
+            "title": "TANI\u015eMA F\u0130YATI \u0130LE SAMSUNG S26U 256 GB 1 YIL GARANT\u0130L\u0130",
+            "price_try": 46900.0,
+            "price_eur": 875.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-tanisma-fiyati-ile-samsung-s26u-256-gb-1-yil-garantili-1321803698/detay",
+            "observed_at": "2026-07-04T13:41:22.278062+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB MOR RENK TAKS\u0130T \u0130MKANLI",
+            "price_try": 46900.0,
+            "price_eur": 875.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-mor-renk-taksit-imkanli-1321422987/detay",
+            "observed_at": "2026-07-04T13:41:22.618544+00:00"
+          },
+          {
+            "title": "SAMSUNG GALAXY S26 ULTRA KAPALI KUTU 12 AY TAKS\u0130T-!!",
+            "price_try": 46950.0,
+            "price_eur": 876.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-kapali-kutu-12-ay-taksit-1324797244/detay",
+            "observed_at": "2026-07-04T13:41:05.566761+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra",
+            "price_try": 46998.0,
+            "price_eur": 877.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-1325510716/detay",
+            "observed_at": "2026-07-04T13:40:55.448332+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra 12/256 gb S\u0131f\u0131r Kapal\u0131 Kutu!!!",
+            "price_try": 46999.0,
+            "price_eur": 877.14,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-gb-sifir-kapali-kutu-1324545887/detay",
+            "observed_at": "2026-07-04T13:40:55.788798+00:00"
+          },
+          {
+            "title": "SRC STORE - SAMSUNG S26 ULTRA YD",
+            "price_try": 46999.0,
+            "price_eur": 877.14,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-src-store-samsung-s26-ultra-yd-1321558276/detay",
+            "observed_at": "2026-07-04T13:41:05.757589+00:00"
+          },
+          {
+            "title": "Samsung S26 ULTRA Mavi 12/256 YD",
+            "price_try": 46999.0,
+            "price_eur": 877.14,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-mavi-12-256-yd-1321414391/detay",
+            "observed_at": "2026-07-04T13:41:10.733267+00:00"
+          },
+          {
+            "title": "SAMSUNG S26+ ULTRA Siyah YD",
+            "price_try": 46999.0,
+            "price_eur": 877.14,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-plus-ultra-siyah-yd-1321414046/detay",
+            "observed_at": "2026-07-04T13:41:10.768055+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra 12/256 Siyah",
+            "price_try": 46999.0,
+            "price_eur": 877.14,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-siyah-1321414125/detay",
+            "observed_at": "2026-07-04T13:41:10.795207+00:00"
+          },
+          {
+            "title": "S26 Ultra Samsung 12/256",
+            "price_try": 47000.0,
+            "price_eur": 877.16,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26-ultra-samsung-12-256-1325510139/detay",
+            "observed_at": "2026-07-04T13:40:55.460654+00:00"
+          },
+          {
+            "title": "TANI\u015eMA F\u0130YATI \u0130LE SAMSUNG S26U 256 GB 1 YIL GARANT\u0130L\u0130",
+            "price_try": 47000.0,
+            "price_eur": 877.16,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-tanisma-fiyati-ile-samsung-s26u-256-gb-1-yil-garantili-1322973089/detay",
+            "observed_at": "2026-07-04T13:41:16.388120+00:00"
+          },
+          {
+            "title": "SAMSUNG G\u00d6ZDES\u0130 S26 ULTRA 256 GB TAKASLI SATI\u015e!!",
+            "price_try": 47000.0,
+            "price_eur": 877.16,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1322584925/detay",
+            "observed_at": "2026-07-04T13:41:21.115093+00:00"
+          },
+          {
+            "title": "Samsung Galaxy S26 ULTRA 256/12 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 M",
+            "price_try": 47500.0,
+            "price_eur": 886.49,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-256-12-yd-sifir-kapali-kutu-garantili-m-1325373012/detay",
+            "observed_at": "2026-07-04T13:40:55.839158+00:00"
+          },
+          {
+            "title": "Samsung Galaxy S26 ULTRA 256/12 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 M",
+            "price_try": 47500.0,
+            "price_eur": 886.49,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-256-12-yd-sifir-kapali-kutu-garantili-m-1324778181/detay",
+            "observed_at": "2026-07-04T13:41:00.792773+00:00"
+          },
+          {
+            "title": "SAMSUNG GALAXY S26 ULTRA KAPALI KUTU 12 AY TAKS\u0130T-!",
+            "price_try": 47790.0,
+            "price_eur": 891.9,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-kapali-kutu-12-ay-taksit-1323958380/detay",
+            "observed_at": "2026-07-04T13:41:05.998678+00:00"
+          },
+          {
+            "title": "ATE\u015e \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA SIFIR KAPALI KUTU",
+            "price_try": 47984.0,
+            "price_eur": 895.52,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-samsung-s26-ultra-sifir-kapali-kutu-1322318312/detay",
+            "observed_at": "2026-07-04T13:41:01.185001+00:00"
+          },
+          {
+            "title": "ATE\u015e \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA SIFIR KAPALI KUTU",
+            "price_try": 47985.0,
+            "price_eur": 895.54,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-samsung-s26-ultra-sifir-kapali-kutu-1322122992/detay",
+            "observed_at": "2026-07-04T13:41:05.253794+00:00"
+          },
+          {
+            "title": "ATE\u015e \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA SIFIR KAPALI KUTU",
+            "price_try": 47985.0,
+            "price_eur": 895.54,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-samsung-s26-ultra-sifir-kapali-kutu-1321731376/detay",
+            "observed_at": "2026-07-04T13:41:05.600568+00:00"
+          },
+          {
+            "title": "ATE\u015e \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA SIFIR KAPALI KUTU",
+            "price_try": 47998.0,
+            "price_eur": 895.78,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-samsung-s26-ultra-sifir-kapali-kutu-1321583223/detay",
+            "observed_at": "2026-07-04T13:41:05.736042+00:00"
+          },
+          {
+            "title": "Samsung Galaxy S26 ultra 256gb kapal\u0131 kutu",
+            "price_try": 47999.0,
+            "price_eur": 895.8,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-256gb-kapali-kutu-1324146945/detay",
+            "observed_at": "2026-07-04T13:40:59.711566+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra 12/256 gb S\u0131f\u0131r Kapal\u0131 Kutu!!!",
+            "price_try": 47999.0,
+            "price_eur": 895.8,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-gb-sifir-kapali-kutu-1317601173/detay",
+            "observed_at": "2026-07-04T13:41:05.839393+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra 12/256 gb S\u0131f\u0131r Kapal\u0131 Kutu!!!",
+            "price_try": 47999.0,
+            "price_eur": 895.8,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-gb-sifir-kapali-kutu-1316973013/detay",
+            "observed_at": "2026-07-04T13:41:06.203407+00:00"
+          },
+          {
+            "title": "Samsung Galaxy S26 ultra 256gb 12 ram kapal\u0131 kutu",
+            "price_try": 47999.0,
+            "price_eur": 895.8,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-256gb-12-ram-kapali-kutu-1312605057/detay",
+            "observed_at": "2026-07-04T13:41:10.285155+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 48490.0,
+            "price_eur": 904.97,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-256gb-global-avrupa-orjinal-1324612058/detay",
+            "observed_at": "2026-07-04T13:41:01.044557+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 48490.0,
+            "price_eur": 904.97,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-256gb-global-avrupa-orjinal-1324611591/detay",
+            "observed_at": "2026-07-04T13:41:01.065716+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 48490.0,
+            "price_eur": 904.97,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-256gb-global-avrupa-orjinal-1324610974/detay",
+            "observed_at": "2026-07-04T13:41:01.091427+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 48490.0,
+            "price_eur": 904.97,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-256gb-global-avrupa-orjinal-1324610154/detay",
+            "observed_at": "2026-07-04T13:41:05.138846+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 48490.0,
+            "price_eur": 904.97,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-256gb-global-avrupa-orjinal-1324609636/detay",
+            "observed_at": "2026-07-04T13:41:05.172326+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S26 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 48490.0,
+            "price_eur": 904.97,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s26-ultra-256gb-global-avrupa-orjinal-1324608627/detay",
+            "observed_at": "2026-07-04T13:41:05.219568+00:00"
+          },
+          {
+            "title": "YILDIZLARDAN SAMSUNG S26 ULTRA 256GB",
+            "price_try": 48499.0,
+            "price_eur": 905.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildizlardan-samsung-s26-ultra-256gb-1324672017/detay",
+            "observed_at": "2026-07-04T13:41:01.026415+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 12 RAM 256 GB KAPALI KUTU !!!",
+            "price_try": 48499.0,
+            "price_eur": 905.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-ram-256-gb-kapali-kutu-1317065682/detay",
+            "observed_at": "2026-07-04T13:41:05.815912+00:00"
+          },
+          {
+            "title": "S26 ULTRA 256 \u00c7\u0130FT F\u0130Z\u0130K\u0130 S\u0130M*GLOBAL* 14 AY KULLANIM-SIFIR KAPAL",
+            "price_try": 48499.0,
+            "price_eur": 905.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26-ultra-256-cift-fiziki-sim-global-14-ay-kullanim-sifir-kapal-1324666264/detay",
+            "observed_at": "2026-07-04T13:41:15.075110+00:00"
+          },
+          {
+            "title": "S26 ULTRA 256 \u00c7\u0130FT F\u0130Z\u0130K\u0130 S\u0130M*GLOBAL* 14 AY KULLANIM-SIFIR KAPAL",
+            "price_try": 48499.0,
+            "price_eur": 905.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26-ultra-256-cift-fiziki-sim-global-14-ay-kullanim-sifir-kapal-1324664751/detay",
+            "observed_at": "2026-07-04T13:41:15.108533+00:00"
+          },
+          {
+            "title": "S26 ULTRA 256 \u00c7\u0130FT F\u0130Z\u0130K\u0130 S\u0130M*GLOBAL* 14 AY KULLANIM-SIFIR KAPAL",
+            "price_try": 48499.0,
+            "price_eur": 905.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26-ultra-256-cift-fiziki-sim-global-14-ay-kullanim-sifir-kapal-1324662933/detay",
+            "observed_at": "2026-07-04T13:41:15.134144+00:00"
+          },
+          {
+            "title": "S26 ULTRA \u00c7\u0130FT F\u0130Z\u0130K\u0130 S\u0130M-GLOBAL-15 AY KULLANM-SIFIR KAPALI KUTU",
+            "price_try": 48499.0,
+            "price_eur": 905.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26-ultra-cift-fiziki-sim-global-15-ay-kullanm-sifir-kapali-kutu-1322789487/detay",
+            "observed_at": "2026-07-04T13:41:16.741600+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 SIFIR KAPALI KUTU GLOBAL MA\u011eAZADAN TESL\u0130M",
+            "price_try": 48500.0,
+            "price_eur": 905.15,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-sifir-kapali-kutu-global-magazadan-teslim-1323300879/detay",
+            "observed_at": "2026-07-04T13:41:00.312456+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB SIFIR KAPALI KUTU",
+            "price_try": 48580.0,
+            "price_eur": 906.65,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-sifir-kapali-kutu-1325210229/detay",
+            "observed_at": "2026-07-04T13:40:55.522616+00:00"
+          },
+          {
+            "title": "SAMSUNG GALAXY S26 ULTRA KAPALI KUTU 12 AY TAKS\u0130T-",
+            "price_try": 48900.0,
+            "price_eur": 912.62,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-kapali-kutu-12-ay-taksit-1323586851/detay",
+            "observed_at": "2026-07-04T13:41:10.145589+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra YD \u00c7ift Sim Garantili",
+            "price_try": 48950.0,
+            "price_eur": 913.55,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-yd-cift-sim-garantili-1325315935/detay",
+            "observed_at": "2026-07-04T13:41:00.950221+00:00"
+          },
+          {
+            "title": "YILDIZLARDAN SAMSUNG S26 ULTRA KAPALI KUTU",
+            "price_try": 48999.0,
+            "price_eur": 914.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildizlardan-samsung-s26-ultra-kapali-kutu-1325751088/detay",
+            "observed_at": "2026-07-04T13:40:55.385817+00:00"
+          },
+          {
+            "title": "YILDIZLARDAN SAMSUNG S26 ULTRA 3,6,9,12 TAKS\u0130T \u0130MKANI",
+            "price_try": 48999.0,
+            "price_eur": 914.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildizlardan-samsung-s26-ultra-3,6,9,12-taksit-imkani-1324608999/detay",
+            "observed_at": "2026-07-04T13:41:01.109550+00:00"
+          },
+          {
+            "title": "YILDIZLARDAN SAMSUNG S26 ULTRA 3,6,9,12 TAKS\u0130T \u0130MKANI",
+            "price_try": 48999.0,
+            "price_eur": 914.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildizlardan-samsung-s26-ultra-3,6,9,12-taksit-imkani-1324598543/detay",
+            "observed_at": "2026-07-04T13:41:01.133531+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra // 256 GB 12+12 // 16AY!!!",
+            "price_try": 49250.0,
+            "price_eur": 919.15,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-12-plus12-16ay-1324517333/detay",
+            "observed_at": "2026-07-04T13:41:05.434071+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB",
+            "price_try": 49500.0,
+            "price_eur": 923.82,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-1309830643/detay",
+            "observed_at": "2026-07-04T13:41:10.994559+00:00"
+          },
+          {
+            "title": "SAMSUNG GALAXY S26 ULTRA KAPALI KUTU 12 AY TAKS\u0130T",
+            "price_try": 49900.0,
+            "price_eur": 931.28,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-kapali-kutu-12-ay-taksit-1323204405/detay",
+            "observed_at": "2026-07-04T13:41:10.941399+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256/12 SIFIR KAPALI KUTU GLOBAL",
+            "price_try": 49995.0,
+            "price_eur": 933.05,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-12-sifir-kapali-kutu-global-1322798659/detay",
+            "observed_at": "2026-07-04T13:41:05.894706+00:00"
+          },
+          {
+            "title": "Samsung Glaxy S26 ULTRA 256/12 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 MO",
+            "price_try": 50000.0,
+            "price_eur": 933.15,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-glaxy-s26-ultra-256-12-yd-sifir-kapali-kutu-garantili-mo-1323757537/detay",
+            "observed_at": "2026-07-04T13:41:05.305436+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende SAMSUNG S26 ULTRA 12/256 SIFIR KAPALI KUTU",
+            "price_try": 50999.0,
+            "price_eur": 951.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-sifir-kapali-kutu-1326130653/detay",
+            "observed_at": "2026-07-04T13:40:55.298167+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende SAMSUNG S26 ULTRA 12/256 SIFIR KAPALI KUTU",
+            "price_try": 50999.0,
+            "price_eur": 951.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-sifir-kapali-kutu-1325977253/detay",
+            "observed_at": "2026-07-04T13:41:05.717652+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende SAMSUNG S26 ULTRA 12/256 SIFIR KAPALI KUTU",
+            "price_try": 50999.0,
+            "price_eur": 951.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-sifir-kapali-kutu-1325747176/detay",
+            "observed_at": "2026-07-04T13:41:06.294521+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende SAMSUNG S26 ULTRA 12/256 SIFIR KAPALI KUTU",
+            "price_try": 50999.0,
+            "price_eur": 951.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-sifir-kapali-kutu-1325549421/detay",
+            "observed_at": "2026-07-04T13:41:06.317660+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende SAMSUNG S26 ULTRA 12/256 SIFIR KAPALI KUTU",
+            "price_try": 50999.0,
+            "price_eur": 951.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-sifir-kapali-kutu-1325318791/detay",
+            "observed_at": "2026-07-04T13:41:06.342014+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende SAMSUNG S26 ULTRA 12/256 SIFIR KAPALI KUTU",
+            "price_try": 50999.0,
+            "price_eur": 951.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-sifir-kapali-kutu-1324928104/detay",
+            "observed_at": "2026-07-04T13:41:06.424995+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende SAMSUNG S26 ULTRA 12/256 SIFIR KAPALI KUTU",
+            "price_try": 50999.0,
+            "price_eur": 951.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256-sifir-kapali-kutu-1324852749/detay",
+            "observed_at": "2026-07-04T13:41:06.452620+00:00"
+          },
+          {
+            "title": "Samsung S26 Ultra // 256 GB 12+12 // 16AY!!!",
+            "price_try": 50999.0,
+            "price_eur": 951.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-12-plus12-16ay-1322066254/detay",
+            "observed_at": "2026-07-04T13:41:16.069782+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB SIFIR KAPALI KUTU S\u0130YAH RENK",
+            "price_try": 51499.0,
+            "price_eur": 961.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-sifir-kapali-kutu-siyah-renk-1322169409/detay",
+            "observed_at": "2026-07-04T13:41:10.216486+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB SIFIR KAPALI KUTU MAV\u0130 RENK",
+            "price_try": 51499.0,
+            "price_eur": 961.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-sifir-kapali-kutu-mavi-renk-1322167996/detay",
+            "observed_at": "2026-07-04T13:41:10.266680+00:00"
+          },
+          {
+            "title": "GALAXY S26 ULTRA 256 GB SIFIR KAPALI KUTU TAKS\u0130T VE TAKAS \u0130MKANI",
+            "price_try": 51999.0,
+            "price_eur": 970.45,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-galaxy-s26-ultra-256-gb-sifir-kapali-kutu-taksit-ve-takas-imkani-1326286084/detay",
+            "observed_at": "2026-07-04T13:40:55.279142+00:00"
+          },
+          {
+            "title": "VERONA MOBILE'DAN SAMSUNG S26 ULTRA 256 SIFIR KAPALI KUTU",
+            "price_try": 51999.0,
+            "price_eur": 970.45,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-verona-mobile-dan-samsung-s26-ultra-256-sifir-kapali-kutu-1323578388/detay",
+            "observed_at": "2026-07-04T13:40:59.924742+00:00"
+          },
+          {
+            "title": "Samsung Galaxy S26 ULTRA 256/12 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 M",
+            "price_try": 52000.0,
+            "price_eur": 970.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-256-12-yd-sifir-kapali-kutu-garantili-m-1321962528/detay",
+            "observed_at": "2026-07-04T13:41:10.072899+00:00"
+          },
+          {
+            "title": "S 26 ultra 256 gb siyah avrupa",
+            "price_try": 52400.0,
+            "price_eur": 977.94,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s-26-ultra-256-gb-siyah-avrupa-1306908347/detay",
+            "observed_at": "2026-07-04T13:41:10.966464+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA (256 GB HAFIZA) YURTDI\u015eI ( SIFIR )",
+            "price_try": 52900.0,
+            "price_eur": 987.27,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-hafiza-yurtdisi-sifir-1321136629/detay",
+            "observed_at": "2026-07-04T13:41:00.654885+00:00"
+          },
+          {
+            "title": "SIFIR KAPALI KUTU SAMSUNG S26 ULTRA 256 GB",
+            "price_try": 52999.0,
+            "price_eur": 989.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-sifir-kapali-kutu-samsung-s26-ultra-256-gb-1322491082/detay",
+            "observed_at": "2026-07-04T13:41:01.152329+00:00"
+          },
+          {
+            "title": "SIFIR SAMSUNG S26 ULTRA 256 GB KAPALI KUTU",
+            "price_try": 52999.0,
+            "price_eur": 989.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-sifir-samsung-s26-ultra-256-gb-kapali-kutu-1317773282/detay",
+            "observed_at": "2026-07-04T13:41:10.056529+00:00"
+          },
+          {
+            "title": "Samsung s26 ultra 12/256gb S\u0131f\u0131r kapal\u0131 kutu",
+            "price_try": 52999.0,
+            "price_eur": 989.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-12-256gb-sifir-kapali-kutu-1309102311/detay",
+            "observed_at": "2026-07-04T13:41:15.831033+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende PLAT\u0130NUM GSM'DEN S26 ULTRA 256GB/12RAM SIFIR KAPALI KUTU 16 AY!!",
+            "price_try": 52999.0,
+            "price_eur": 989.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-s26-ultra-256gb-12ram-sifir-kapali-kutu-16-ay-1316672237/detay",
+            "observed_at": "2026-07-04T13:41:22.005946+00:00"
+          },
+          {
+            "title": "SAMSUNG Y.D\u0130S\u0130 S26 ULTRA 256 GB MOR",
+            "price_try": 53290.0,
+            "price_eur": 994.55,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-y.disi-s26-ultra-256-gb-mor-1322255164/detay",
+            "observed_at": "2026-07-04T13:41:21.889253+00:00"
+          },
+          {
+            "title": "Y.D\u0130S\u0130 SAMSUNG GALAXY S26 ULTRA 256 GB SIFIR KAPALI KUTU",
+            "price_try": 53290.0,
+            "price_eur": 994.55,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-y.disi-samsung-galaxy-s26-ultra-256-gb-sifir-kapali-kutu-1322253832/detay",
+            "observed_at": "2026-07-04T13:41:21.914772+00:00"
+          },
+          {
+            "title": "SAMSUNG GALAXY S26 ULTRA 256 GB Y.D\u0130S\u0130",
+            "price_try": 53290.0,
+            "price_eur": 994.55,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s26-ultra-256-gb-y.disi-1322252650/detay",
+            "observed_at": "2026-07-04T13:41:21.966567+00:00"
+          },
+          {
+            "title": "16 AY KULLANIMA A\u00c7IK S26 ULTRA 256 GB SIFIR TAKAS/TAKS\u0130T/K.KART",
+            "price_try": 54999.0,
+            "price_eur": 1026.44,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-16-ay-kullanima-acik-s26-ultra-256-gb-sifir-takas-taksit-k.kart-1319336283/detay",
+            "observed_at": "2026-07-04T13:41:10.346005+00:00"
+          },
+          {
+            "title": "S\u0130STEM'DEN SAMSUNG S26 ULTRA 12-256 GB YD",
+            "price_try": 54999.0,
+            "price_eur": 1026.44,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-sistem-den-samsung-s26-ultra-12-256-gb-yd-1307734168/detay",
+            "observed_at": "2026-07-04T13:41:11.046277+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB KAPAL\u0130 KUTU",
+            "price_try": 55500.0,
+            "price_eur": 1035.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-kapali-kutu-1315334790/detay",
+            "observed_at": "2026-07-04T13:41:06.077450+00:00"
+          },
+          {
+            "title": "S26 ULTRA 12/256GB BEYAZ KAPALI KUTU MA\u011eAZADAN TESL\u0130M",
+            "price_try": 55990.0,
+            "price_eur": 1044.94,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s26-ultra-12-256gb-beyaz-kapali-kutu-magazadan-teslim-1312615703/detay",
+            "observed_at": "2026-07-04T13:41:15.010107+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": -2295.25,
+        "percent": -4.7,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "iPhone 17 Pro Max",
+      "brand": "Apple",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "iPhone 17ProMax256/1 1450$",
+        "price_usd": 1450.0,
+        "price_try": 67867.25,
+        "price_eur": 1266.6,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 46,
+        "median_try": 62300.0,
+        "min_try": 50000.0,
+        "max_try": 69990.0,
+        "listings": [
+          {
+            "title": "17 PRO MAX 256GB 90G\u00dcN - MERKEZ \u0130LET\u0130\u015e\u0130M -",
+            "price_try": 50000.0,
+            "price_eur": 933.15,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-max-256gb-90gun-merkez-iletisim-1326402207/detay",
+            "observed_at": "2026-07-04T17:58:18.128388+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PROMAX 256 GB P\u0130L 100 / 14 AY KULLANIM HAKKI",
+            "price_try": 50995.0,
+            "price_eur": 951.72,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-256-gb-pil-100-14-ay-kullanim-hakki-1326235332/detay",
+            "observed_at": "2026-07-04T17:58:25.160668+00:00"
+          },
+          {
+            "title": "17 pro max 256",
+            "price_try": 53500.0,
+            "price_eur": 998.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-max-256-1325963751/detay",
+            "observed_at": "2026-07-04T17:58:29.197132+00:00"
+          },
+          {
+            "title": "CADDE APPLE'DAN 17PROMAX 256GB 16AY A\u00c7IK HATASIZ FIRSAT!",
+            "price_try": 53999.0,
+            "price_eur": 1007.78,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-17promax-256gb-16ay-acik-hatasiz-firsat-1326331786/detay",
+            "observed_at": "2026-07-04T17:58:13.718167+00:00"
+          },
+          {
+            "title": "iphone 17 PRO MAX 256 GB P\u0130L 91 S\u00dcRE 110 G\u00dcN",
+            "price_try": 54999.0,
+            "price_eur": 1026.44,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256-gb-pil-91-sure-110-gun-1325403491/detay",
+            "observed_at": "2026-07-04T17:58:29.596195+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX YD 3 AY AKT\u0130F P\u0130L 98 DETAYLAR A\u00c7IKLAMADA",
+            "price_try": 56000.0,
+            "price_eur": 1045.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-yd-3-ay-aktif-pil-98-detaylar-aciklamada-1325832914/detay",
+            "observed_at": "2026-07-04T17:58:29.295913+00:00"
+          },
+          {
+            "title": "ATA \u0130LET\u0130S\u0130MDEN \u0130PHONE 17 PRO MAX 256GB P\u0130L99 3 AY",
+            "price_try": 56000.0,
+            "price_eur": 1045.13,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-17-pro-max-256gb-pil99-3-ay-1326400491/detay",
+            "observed_at": "2026-07-04T17:58:32.800786+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX YD 4 AYLIK HATASIZ",
+            "price_try": 58500.0,
+            "price_eur": 1091.78,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-yd-4-aylik-hatasiz-1325957472/detay",
+            "observed_at": "2026-07-04T17:58:29.227915+00:00"
+          },
+          {
+            "title": "ASYA TELEKOMDAN \u0130PHONE 17 PRO MAX 256GB TURUNCU HATASIZ GLOB4L",
+            "price_try": 58999.0,
+            "price_eur": 1101.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-asya-telekomdan-iphone-17-pro-max-256gb-turuncu-hatasiz-glob4l-1326324632/detay",
+            "observed_at": "2026-07-04T17:58:21.865687+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX 256GB P\u0130L99 KUTULU TERTEM\u0130Z DE\u011e\u0130\u015eENS\u0130Z",
+            "price_try": 59000.0,
+            "price_eur": 1101.11,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256gb-pil99-kutulu-tertemiz-degisensiz-1325569016/detay",
+            "observed_at": "2026-07-04T17:58:29.564853+00:00"
+          },
+          {
+            "title": "15 G\u00dcNL\u00dcK \u0130PHONE 17 PRO MAX 256 GB TURUNCU P\u0130L 100 DEV\u0130R 20",
+            "price_try": 59999.0,
+            "price_eur": 1119.76,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-15-gunluk-iphone-17-pro-max-256-gb-turuncu-pil-100-devir-20-1326187877/detay",
+            "observed_at": "2026-07-04T17:58:13.919950+00:00"
+          },
+          {
+            "title": "ERN GROUP'TAN SIFIR 17 PRO MAX GARANTILI SERI!!",
+            "price_try": 60000.0,
+            "price_eur": 1119.78,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ern-group-tan-sifir-17-pro-max-garantili-seri-1325816172/detay",
+            "observed_at": "2026-07-04T17:58:13.597701+00:00"
+          },
+          {
+            "title": "iPhone 17 promax 256 pil 100 devir 94 14 ay a\u00e7\u0131k",
+            "price_try": 60000.0,
+            "price_eur": 1119.78,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-256-pil-100-devir-94-14-ay-acik-1326366626/detay",
+            "observed_at": "2026-07-04T17:58:21.632548+00:00"
+          },
+          {
+            "title": "\u0130phone 17 Promax Global",
+            "price_try": 60000.0,
+            "price_eur": 1119.78,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-global-1326012808/detay",
+            "observed_at": "2026-07-04T17:58:25.973740+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX 256 GB P\u0130L 100 E\u015e\u0130M NO AKT\u0130F",
+            "price_try": 60000.0,
+            "price_eur": 1119.78,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256-gb-pil-100-esim-no-aktif-1325738099/detay",
+            "observed_at": "2026-07-04T17:58:29.428115+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN \u0130PHONE 17 PRO MAX KAPALI KUTU SIFIR !!",
+            "price_try": 60500.0,
+            "price_eur": 1129.11,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-iphone-17-pro-max-kapali-kutu-sifir-1326227698/detay",
+            "observed_at": "2026-07-04T17:58:12.667760+00:00"
+          },
+          {
+            "title": "ATE\u015e \u0130LET\u0130\u015e\u0130M'DEN \u0130PHONE 17 PRO MAX SIFIR \u00c7\u0130FT FIZIKI SIMLI",
+            "price_try": 60988.0,
+            "price_eur": 1138.22,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-iphone-17-pro-max-sifir-cift-fiziki-simli-1326323532/detay",
+            "observed_at": "2026-07-04T17:58:21.882884+00:00"
+          },
+          {
+            "title": "FIRSAT \u00dcR\u00dcN\u00dc \u0130PHONE 17 PRO MAX AVRUPA HAT TAKILMAMI\u015e",
+            "price_try": 60999.0,
+            "price_eur": 1138.42,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-firsat-urunu-iphone-17-pro-max-avrupa-hat-takilmamis-1326253185/detay",
+            "observed_at": "2026-07-04T17:58:22.043841+00:00"
+          },
+          {
+            "title": "ATE\u015e \u0130LET\u0130\u015e\u0130M'DEN \u0130PHONE 17 PRO MAX SIFIR \u00c7\u0130FT FIZIKI SIMLI",
+            "price_try": 61498.0,
+            "price_eur": 1147.73,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-iphone-17-pro-max-sifir-cift-fiziki-simli-1325760358/detay",
+            "observed_at": "2026-07-04T17:58:29.400171+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende PLAT\u0130NUM GSM'DEN 17 PRO MAX 256GB P\u0130L 100 14 AY A\u00c7IK 1 AYLIK !!!",
+            "price_try": 61999.0,
+            "price_eur": 1157.08,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-17-pro-max-256gb-pil-100-14-ay-acik-1-aylik-1325299205/detay",
+            "observed_at": "2026-07-04T17:58:21.811473+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN \u0130PHONE 17 PRO MAX KAPALI KUTU SIFIR !!",
+            "price_try": 62000.0,
+            "price_eur": 1157.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-iphone-17-pro-max-kapali-kutu-sifir-1324805624/detay",
+            "observed_at": "2026-07-04T17:58:25.703870+00:00"
+          },
+          {
+            "title": "iPhone 17 promax 256 devir 28 s\u0131f\u0131r gibi 14 ay a\u00e7\u0131k",
+            "price_try": 62000.0,
+            "price_eur": 1157.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-256-devir-28-sifir-gibi-14-ay-acik-1326157025/detay",
+            "observed_at": "2026-07-04T17:58:25.757143+00:00"
+          },
+          {
+            "title": "17 PRO MAX 256GB SIFIR KAPALI KUTU ORJINAL AKSESUAR HEDIYE!!!",
+            "price_try": 62000.0,
+            "price_eur": 1157.1,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-max-256gb-sifir-kapali-kutu-orjinal-aksesuar-hediye-1324192725/detay",
+            "observed_at": "2026-07-04T17:58:29.585270+00:00"
+          },
+          {
+            "title": "KARADA\u011e \u0130LET\u0130\u015e\u0130M'DEN 17 PROMAX 256 GB P\u0130L/100 - 15 AY !!!",
+            "price_try": 62600.0,
+            "price_eur": 1168.3,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-karadag-iletisim-den-17-promax-256-gb-pil-100-15-ay-1326229485/detay",
+            "observed_at": "2026-07-04T17:58:13.764700+00:00"
+          },
+          {
+            "title": "GEYLAN\u0130 \u0130LET\u0130\u015e\u0130MDEN \u0130PHONE 17 PROMAX 256 GB SIFIR KAPALI KUTU",
+            "price_try": 63000.0,
+            "price_eur": 1175.77,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-geylani-iletisimden-iphone-17-promax-256-gb-sifir-kapali-kutu-1325967403/detay",
+            "observed_at": "2026-07-04T17:58:13.733151+00:00"
+          },
+          {
+            "title": "\u0130K\u0130ZLER GSM \u0130PHONE 17 PRO MAX 256GB 1 G\u00dcNL\u00dcK YD 15 AY!!!",
+            "price_try": 63000.0,
+            "price_eur": 1175.77,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ikizler-gsm-iphone-17-pro-max-256gb-1-gunluk-yd-15-ay-1326065273/detay",
+            "observed_at": "2026-07-04T17:58:25.544419+00:00"
+          },
+          {
+            "title": "CADDE APPLE'DAN \u0130PHONE 17 PROMAX 256 GB T\u00dcM RENK SE\u00c7ENE\u011e\u0130",
+            "price_try": 63899.0,
+            "price_eur": 1192.54,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-17-promax-256-gb-tum-renk-secenegi-1325373956/detay",
+            "observed_at": "2026-07-04T17:58:14.100041+00:00"
+          },
+          {
+            "title": "BOZDO\u011eAN STORE/\u0130PHONE 17 PROMAX 256 GB T\u00dcM RENKLER \u00c7\u0130FT S\u0130M",
+            "price_try": 63999.0,
+            "price_eur": 1194.41,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-bozdogan-store-iphone-17-promax-256-gb-tum-renkler-cift-sim-1325728631/detay",
+            "observed_at": "2026-07-04T17:58:13.568167+00:00"
+          },
+          {
+            "title": "\u0130Phone 17 pro max 256 gb",
+            "price_try": 64499.0,
+            "price_eur": 1203.74,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256-gb-1326179752/detay",
+            "observed_at": "2026-07-04T17:58:25.602319+00:00"
+          },
+          {
+            "title": "\u0130Phone 17 promax 256 gb",
+            "price_try": 64499.0,
+            "price_eur": 1203.74,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-256-gb-1326147506/detay",
+            "observed_at": "2026-07-04T17:58:25.769215+00:00"
+          },
+          {
+            "title": "CADDE APPLE'DAN 17 PRO MAX 256 GB SIFIR KAPALI KUTU 16 AY !",
+            "price_try": 64999.0,
+            "price_eur": 1213.07,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-17-pro-max-256-gb-sifir-kapali-kutu-16-ay-1326357315/detay",
+            "observed_at": "2026-07-04T17:58:33.472518+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX 256GB SIFIR KAPALI KUTU NO AKT\u0130F",
+            "price_try": 65999.0,
+            "price_eur": 1231.74,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256gb-sifir-kapali-kutu-no-aktif-1326345030/detay",
+            "observed_at": "2026-07-04T17:58:21.761863+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX 256 GB SIFIR KAPALI KUTU TAKS\u0130T VE TAKAS \u0130MKAN",
+            "price_try": 65999.0,
+            "price_eur": 1231.74,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256-gb-sifir-kapali-kutu-taksit-ve-takas-imkan-1326286583/detay",
+            "observed_at": "2026-07-04T17:58:22.013216+00:00"
+          },
+          {
+            "title": "iPhone 17 pro Max 256gb kapal\u0131 kutu",
+            "price_try": 65999.0,
+            "price_eur": 1231.74,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256gb-kapali-kutu-1325764346/detay",
+            "observed_at": "2026-07-04T17:58:29.369845+00:00"
+          },
+          {
+            "title": "AREY MOB\u0130LE'DAN \u0130PHONE 17 PRO MAX 256 GB SIFIR!!//KART TAKS\u0130T",
+            "price_try": 66990.0,
+            "price_eur": 1250.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-arey-mobile-dan-iphone-17-pro-max-256-gb-sifir-kart-taksit-1325729362/detay",
+            "observed_at": "2026-07-04T17:58:14.111154+00:00"
+          },
+          {
+            "title": "PLAT\u0130NUM GSM'DEN 17 PRO MAX 256GB SIFIR \u00c7\u0130FT F\u0130Z\u0130KSEL 16 AY !!",
+            "price_try": 66999.0,
+            "price_eur": 1250.4,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-17-pro-max-256gb-sifir-cift-fiziksel-16-ay-1324784157/detay",
+            "observed_at": "2026-07-04T17:58:13.621825+00:00"
+          },
+          {
+            "title": "\u00c7\u0130FT F\u0130Z\u0130K\u0130 S\u0130M SIFIR \u0130PHONE 17 PRO MAX 256 GB AB\u0130S KAPALI KUTU",
+            "price_try": 66999.0,
+            "price_eur": 1250.4,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cift-fiziki-sim-sifir-iphone-17-pro-max-256-gb-abis-kapali-kutu-1325175844/detay",
+            "observed_at": "2026-07-04T17:58:17.306747+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX 256GB SIFIR KAPALI KUTU NO AKT\u0130F",
+            "price_try": 66999.0,
+            "price_eur": 1250.4,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256gb-sifir-kapali-kutu-no-aktif-1326338350/detay",
+            "observed_at": "2026-07-04T17:58:21.791028+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX 256GB SIFIR KAPALI KUTU NO AKT\u0130F",
+            "price_try": 66999.0,
+            "price_eur": 1250.4,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256gb-sifir-kapali-kutu-no-aktif-1325346523/detay",
+            "observed_at": "2026-07-04T17:58:33.352454+00:00"
+          },
+          {
+            "title": "IPHONE 17 PRO MAX 256 GB",
+            "price_try": 67000.0,
+            "price_eur": 1250.42,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256-gb-1309810599/detay",
+            "observed_at": "2026-07-04T17:58:17.368799+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 PRO MAX 256GB G\u00dcM\u00dc\u015e KAPALI KUTU 14AY",
+            "price_try": 67500.0,
+            "price_eur": 1259.75,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256gb-gumus-kapali-kutu-14ay-1326291652/detay",
+            "observed_at": "2026-07-04T17:58:21.969223+00:00"
+          },
+          {
+            "title": "iPhone 17 Promax 256/1 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 MODEL",
+            "price_try": 67500.0,
+            "price_eur": 1259.75,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-256-1-yd-sifir-kapali-kutu-garantili-model-1326383947/detay",
+            "observed_at": "2026-07-04T17:58:33.340572+00:00"
+          },
+          {
+            "title": "APPLE TECH / iPhone 17 PRO MAX 256 SIFIR KUTU EVRAKLI YDIS 16 AY",
+            "price_try": 68000.0,
+            "price_eur": 1269.08,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-17-pro-max-256-sifir-kutu-evrakli-ydis-16-ay-1306634533/detay",
+            "observed_at": "2026-07-04T17:58:13.253286+00:00"
+          },
+          {
+            "title": "iPhone 17 Promax 256/1 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 MODEL",
+            "price_try": 68000.0,
+            "price_eur": 1269.08,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-256-1-yd-sifir-kapali-kutu-garantili-model-1326385241/detay",
+            "observed_at": "2026-07-04T17:58:33.296588+00:00"
+          },
+          {
+            "title": "iPhone 17 Promax 256/1 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 MODEL",
+            "price_try": 68500.0,
+            "price_eur": 1278.41,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-256-1-yd-sifir-kapali-kutu-garantili-model-1326384801/detay",
+            "observed_at": "2026-07-04T17:58:33.308736+00:00"
+          },
+          {
+            "title": "AREY MOB\u0130LE'DAN \u0130PHONE 17 PRO MAX 256 GB SIFIR!!//KART TAKS\u0130T",
+            "price_try": 69990.0,
+            "price_eur": 1306.22,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-arey-mobile-dan-iphone-17-pro-max-256-gb-sifir-kart-taksit-1325920233/detay",
+            "observed_at": "2026-07-04T17:58:14.054508+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": -5567.25,
+        "percent": -8.2,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "iPhone 17",
+      "brand": "Apple",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "iPhone 17. 256GB. 920$",
+        "price_usd": 920.0,
+        "price_try": 43060.6,
+        "price_eur": 803.64,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 27,
+        "median_try": 38999.0,
+        "min_try": 37000.0,
+        "max_try": 48999.0,
+        "listings": [
+          {
+            "title": "OYUNCU Kulakl\u0131\u011f\u0131 Hediyeli TAKAS Se\u00e7enekli iPhone 17!!!",
+            "price_try": 37000.0,
+            "price_eur": 690.53,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-oyuncu-kulakligi-hediyeli-takas-secenekli-iphone-17-1326401553/detay",
+            "observed_at": "2026-07-04T17:58:32.831034+00:00"
+          },
+          {
+            "title": "DEV KAMPANYA 17 256 gb / KULAKLIK Hediye!!",
+            "price_try": 37000.0,
+            "price_eur": 690.53,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-dev-kampanya-17-256-gb-kulaklik-hediye-1326399912/detay",
+            "observed_at": "2026-07-04T17:58:32.853055+00:00"
+          },
+          {
+            "title": "A\u0130RPODS 4 HED\u0130YEL\u0130 Ye\u015fil iPhone 17 256 GB! KKa 12 ay TAKS\u0130T!!",
+            "price_try": 37000.0,
+            "price_eur": 690.53,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-airpods-4-hediyeli-yesil-iphone-17-256-gb-kka-12-ay-taksit-1326400254/detay",
+            "observed_at": "2026-07-04T17:58:33.197055+00:00"
+          },
+          {
+            "title": "F\u0130YATI \u00d6LD\u00dcRMED\u0130K, AMA FIRSAT BU! \u0130PHONE 17 S\u0130YAH RENK 256 GB",
+            "price_try": 37700.0,
+            "price_eur": 703.59,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-fiyati-oldurmedik-ama-firsat-bu-iphone-17-siyah-renk-256-gb-1326360097/detay",
+            "observed_at": "2026-07-04T17:58:33.446971+00:00"
+          },
+          {
+            "title": "ADAN ZYE SIFIR! \u0130PHONE 17 256 GB S\u0130YAH-1 YIL APPLE GARANT\u0130L\u0130",
+            "price_try": 37800.0,
+            "price_eur": 705.46,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-adan-zye-sifir-iphone-17-256-gb-siyah-1-yil-apple-garantili-1326361723/detay",
+            "observed_at": "2026-07-04T17:58:33.428016+00:00"
+          },
+          {
+            "title": "\u00c7\u0130FT F\u0130Z\u0130K\u0130 SIM-256 GB iPhone 17-A\u0130RPODS 4 HED\u0130YEL\u0130",
+            "price_try": 38100.0,
+            "price_eur": 711.06,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cift-fiziki-sim-256-gb-iphone-17-airpods-4-hediyeli-1326422543/detay",
+            "observed_at": "2026-07-04T17:58:17.920634+00:00"
+          },
+          {
+            "title": "\u0130ND\u0130R\u0130M \u0130LANIDIR!! 17-\u00c7\u0130FTS\u0130M-0 PE\u015e\u0130NAT ve KKa TAKS\u0130TLE!!",
+            "price_try": 38100.0,
+            "price_eur": 711.06,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-indirim-ilanidir-17-ciftsim-0-pesinat-ve-kka-taksitle-1326420687/detay",
+            "observed_at": "2026-07-04T17:58:29.628088+00:00"
+          },
+          {
+            "title": "F\u0130Z\u0130K\u0130 \u00c7\u0130FT SIM 17-KKa TAKS\u0130TL\u0130- KULAKLIK HED\u0130YE",
+            "price_try": 38200.0,
+            "price_eur": 712.92,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-fiziki-cift-sim-17-kka-taksitli-kulaklik-hediye-1326422622/detay",
+            "observed_at": "2026-07-04T17:58:17.893218+00:00"
+          },
+          {
+            "title": "\u0130Phone 17 256 gb \u00c7\u0130FTS\u0130M TAKS\u0130T ve TAKASLI !",
+            "price_try": 38300.0,
+            "price_eur": 714.79,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-256-gb-ciftsim-taksit-ve-takasli-1326423279/detay",
+            "observed_at": "2026-07-04T17:58:17.874105+00:00"
+          },
+          {
+            "title": "YILDIZLARDAN \u0130PHONE 17 256 GB NOKTA HATASIZ",
+            "price_try": 38499.0,
+            "price_eur": 718.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildizlardan-iphone-17-256-gb-nokta-hatasiz-1326041911/detay",
+            "observed_at": "2026-07-04T17:58:25.942264+00:00"
+          },
+          {
+            "title": "GEYLAN\u0130 \u0130LET\u0130\u015e\u0130MDEN \u0130PHONE 17 256 GB SIFIR KAPALI KUTU",
+            "price_try": 38500.0,
+            "price_eur": 718.52,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-geylani-iletisimden-iphone-17-256-gb-sifir-kapali-kutu-1325965600/detay",
+            "observed_at": "2026-07-04T17:58:13.747810+00:00"
+          },
+          {
+            "title": "\u00c7\u0130FT S\u0130M \u0130PHONE 17 256 GB SIFIR \u0130LK KULLANICI S\u0130Z OLUN",
+            "price_try": 38800.0,
+            "price_eur": 724.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cift-sim-iphone-17-256-gb-sifir-ilk-kullanici-siz-olun-1326233338/detay",
+            "observed_at": "2026-07-04T17:58:33.867720+00:00"
+          },
+          {
+            "title": "\u00c7\u0130FT S\u0130M \u0130LK SEN A\u00c7 \u0130PHONE 17 256 GB KAPALI KUTU",
+            "price_try": 38900.0,
+            "price_eur": 725.99,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cift-sim-ilk-sen-ac-iphone-17-256-gb-kapali-kutu-1326235217/detay",
+            "observed_at": "2026-07-04T17:58:33.847443+00:00"
+          },
+          {
+            "title": "BOZDO\u011eAN STORE/\u0130PHONE 17-256 GB \u00c7\u0130FT S\u0130M T\u00dcM RENKLER SIFIR",
+            "price_try": 38999.0,
+            "price_eur": 727.84,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-bozdogan-store-iphone-17-256-gb-cift-sim-tum-renkler-sifir-1326001709/detay",
+            "observed_at": "2026-07-04T17:58:12.592253+00:00"
+          },
+          {
+            "title": "\u00c7\u0130FT F\u0130Z\u0130K\u0130 S\u0130ML\u0130 SIFIR \u0130PHONE 17 256 GB S\u0130YAH KAPALI KUTU",
+            "price_try": 41499.0,
+            "price_eur": 774.49,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cift-fiziki-simli-sifir-iphone-17-256-gb-siyah-kapali-kutu-1325180086/detay",
+            "observed_at": "2026-07-04T17:58:17.282670+00:00"
+          },
+          {
+            "title": "iPhone 17 256gb kapal\u0131 kutu",
+            "price_try": 41500.0,
+            "price_eur": 774.51,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-256gb-kapali-kutu-1325763054/detay",
+            "observed_at": "2026-07-04T17:58:29.378973+00:00"
+          },
+          {
+            "title": "iPhone 17 256gb kapal\u0131 kutu garantili serii",
+            "price_try": 41500.0,
+            "price_eur": 774.51,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-256gb-kapali-kutu-garantili-serii-1325762268/detay",
+            "observed_at": "2026-07-04T17:58:29.389405+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende PLAT\u0130NUM GSM'DEN \u0130PHONE 17 256GB SIFIR KAPALI KUTU 16 AY !!!!!!!",
+            "price_try": 41999.0,
+            "price_eur": 783.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-iphone-17-256gb-sifir-kapali-kutu-16-ay-1325721575/detay",
+            "observed_at": "2026-07-04T17:58:17.707472+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende PLAT\u0130NUM GSM'DEN \u0130PHONE 17 256GB SIFIR KAPALI KUTU 16 AY !!!!!!!",
+            "price_try": 41999.0,
+            "price_eur": 783.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-iphone-17-256gb-sifir-kapali-kutu-16-ay-1325715812/detay",
+            "observed_at": "2026-07-04T17:58:17.727457+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende PLAT\u0130NUM GSM'DEN \u0130PHONE 17 256GB SIFIR KAPALI KUTU 16 AY !!!!!!!",
+            "price_try": 41999.0,
+            "price_eur": 783.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-iphone-17-256gb-sifir-kapali-kutu-16-ay-1325296227/detay",
+            "observed_at": "2026-07-04T17:58:21.842641+00:00"
+          },
+          {
+            "title": "\u0130PHONE 17 256 GB SIFIR KUTULU TAKS\u0130T VE TAKAS \u0130MKANI",
+            "price_try": 41999.0,
+            "price_eur": 783.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-256-gb-sifir-kutulu-taksit-ve-takas-imkani-1326286444/detay",
+            "observed_at": "2026-07-04T17:58:22.002860+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende PLAT\u0130NUM GSM'DEN \u0130PHONE 17 256GB SIFIR KAPALI KUTU 16 AY !!!!!!!",
+            "price_try": 41999.0,
+            "price_eur": 783.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-iphone-17-256gb-sifir-kapali-kutu-16-ay-1325292882/detay",
+            "observed_at": "2026-07-04T17:58:33.539470+00:00"
+          },
+          {
+            "title": "iPhone 17 256/1 YD SIFIR KAPALI KUTU GARANT\u0130L\u0130 MODEL",
+            "price_try": 42000.0,
+            "price_eur": 783.84,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-256-1-yd-sifir-kapali-kutu-garantili-model-1326387653/detay",
+            "observed_at": "2026-07-04T17:58:21.501292+00:00"
+          },
+          {
+            "title": "Param G\u00fcvende CT \u0130LET\u0130\u015e\u0130M'DEN \u0130PHONE 17 256 GB TAKAS VE 3-6-9-12 AY TAKS\u0130TLE",
+            "price_try": 42200.0,
+            "price_eur": 787.58,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ct-iletisim-den-iphone-17-256-gb-takas-ve-3-6-9-12-ay-taksitle-1326417153/detay",
+            "observed_at": "2026-07-04T17:58:17.398359+00:00"
+          },
+          {
+            "title": "IPHONE 17 256 GB",
+            "price_try": 42999.0,
+            "price_eur": 802.49,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-256-gb-1325971594/detay",
+            "observed_at": "2026-07-04T17:58:13.985544+00:00"
+          },
+          {
+            "title": "KARDE\u015eLER \u0130LET\u0130\u015e\u0130M'DEN 17 D\u00dcZ SIFIR 256 GB KART TAKS\u0130T",
+            "price_try": 43990.0,
+            "price_eur": 820.98,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-kardesler-iletisim-den-17-duz-sifir-256-gb-kart-taksit-1325476265/detay",
+            "observed_at": "2026-07-04T17:58:29.574266+00:00"
+          },
+          {
+            "title": "YILDIZLARDAN 17 256 GB BLACK KAPALI KUTU",
+            "price_try": 48999.0,
+            "price_eur": 914.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildizlardan-17-256-gb-black-kapali-kutu-1326204098/detay",
+            "observed_at": "2026-07-04T17:58:25.522926+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": -4061.6,
+        "percent": -9.4,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Galaxy S25 Ultra",
+      "brand": "Samsung",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "Samsung S25 ultra 256/12 930$",
+        "price_usd": 930.0,
+        "price_try": 43528.65,
+        "price_eur": 812.37,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 35,
+        "median_try": 36000.0,
+        "min_try": 26999.0,
+        "max_try": 46490.0,
+        "listings": [
+          {
+            "title": "GALAXY S25 ULTRA TEM\u0130Z 2.EL,MA\u011eAZADAN TAKAS+TAKS\u0130T \u0130MKANI",
+            "price_try": 26999.0,
+            "price_eur": 503.88,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-galaxy-s25-ultra-temiz-2.el,magazadan-takas-plustaksit-imkani-1325721195/detay",
+            "observed_at": "2026-07-04T13:40:55.402559+00:00"
+          },
+          {
+            "title": "Samsung s25 Ultra 256/12 YD",
+            "price_try": 28950.0,
+            "price_eur": 540.29,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-256-12-yd-1323146211/detay",
+            "observed_at": "2026-07-04T13:41:06.382011+00:00"
+          },
+          {
+            "title": "Samsung S25 Ultra 256/12 YD \u00c7ift Sim Hatas\u0131z",
+            "price_try": 29950.0,
+            "price_eur": 558.96,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-256-12-yd-cift-sim-hatasiz-1322753044/detay",
+            "observed_at": "2026-07-04T13:41:10.093180+00:00"
+          },
+          {
+            "title": "Samsung S25 Ultra 256 Gb Y.d\u0131s\u0131",
+            "price_try": 30290.0,
+            "price_eur": 565.3,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-256-gb-y.disi-1326009725/detay",
+            "observed_at": "2026-07-04T13:41:00.329588+00:00"
+          },
+          {
+            "title": "S25 ULTRA 120G\u00dcN A\u00c7IK 256GB",
+            "price_try": 30999.0,
+            "price_eur": 578.53,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s25-ultra-120gun-acik-256gb-1320408468/detay",
+            "observed_at": "2026-07-04T13:41:01.167685+00:00"
+          },
+          {
+            "title": "SAMSUNG S25 ULTRA FULL ORJ\u0130NAL \u0130\u015eLEMS\u0130Z FIRSAT!3/4 AY DAHA A\u00c7IK",
+            "price_try": 31200.0,
+            "price_eur": 582.28,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-full-orjinal-islemsiz-firsat-3-4-ay-daha-acik-1325458127/detay",
+            "observed_at": "2026-07-04T13:40:55.479423+00:00"
+          },
+          {
+            "title": "SAMSUNG S25 ULTRA SIFIR AYARINDA \u0130\u015eLEMS\u0130Z FIRSATTT!!!",
+            "price_try": 31200.0,
+            "price_eur": 582.28,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-sifir-ayarinda-islemsiz-firsattt-1324304948/detay",
+            "observed_at": "2026-07-04T13:40:55.933734+00:00"
+          },
+          {
+            "title": "7/24 KURYE S25 ULTRA 12/256 GB SORUNSUZ TEMIZ 3 AY YD",
+            "price_try": 31995.0,
+            "price_eur": 597.12,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-7-24-kurye-s25-ultra-12-256-gb-sorunsuz-temiz-3-ay-yd-1326181654/detay",
+            "observed_at": "2026-07-04T13:40:56.047290+00:00"
+          },
+          {
+            "title": "NOKTA \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S25 ULTRA 256GB MAV\u0130 2.EL TEM\u0130Z",
+            "price_try": 32499.0,
+            "price_eur": 606.53,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-nokta-iletisim-den-samsung-s25-ultra-256gb-mavi-2.el-temiz-1325157572/detay",
+            "observed_at": "2026-07-04T13:41:00.622470+00:00"
+          },
+          {
+            "title": "TOKSOYDAN FIRSAT GALAXY S25 ULTRA 12/256 GB 4 AY",
+            "price_try": 32999.0,
+            "price_eur": 615.86,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-toksoydan-firsat-galaxy-s25-ultra-12-256-gb-4-ay-1324373921/detay",
+            "observed_at": "2026-07-04T13:40:55.886514+00:00"
+          },
+          {
+            "title": "SAMSUNG S25 ULTRA 12/256 GB MAV\u0130 T\u0130TAN EMSALS\u0130Z TEM\u0130ZL\u0130KTE",
+            "price_try": 32999.0,
+            "price_eur": 615.86,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-12-256-gb-mavi-titan-emsalsiz-temizlikte-1325193260/detay",
+            "observed_at": "2026-07-04T13:41:11.078424+00:00"
+          },
+          {
+            "title": "NOKTA'DAN SAMSUNG S25 ULTRA 12/256GB MAV\u0130 2.EL TEM\u0130Z (4AY)",
+            "price_try": 32999.0,
+            "price_eur": 615.86,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-nokta-dan-samsung-s25-ultra-12-256gb-mavi-2.el-temiz-4ay-1321537813/detay",
+            "observed_at": "2026-07-04T13:41:22.519784+00:00"
+          },
+          {
+            "title": "\u00c7ok temiz Samsung S25 ultra 256 GB",
+            "price_try": 33500.0,
+            "price_eur": 625.21,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cok-temiz-samsung-s25-ultra-256-gb-1321934232/detay",
+            "observed_at": "2026-07-04T13:41:11.025172+00:00"
+          },
+          {
+            "title": "Samsung Galaxy S25 Ultra 256 Gb Mavi Temiz",
+            "price_try": 34000.0,
+            "price_eur": 634.54,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s25-ultra-256-gb-mavi-temiz-1323361980/detay",
+            "observed_at": "2026-07-04T13:41:15.928930+00:00"
+          },
+          {
+            "title": "Samsung Galaxy S25 Ultra 256 Gb Siyah Temiz",
+            "price_try": 34000.0,
+            "price_eur": 634.54,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s25-ultra-256-gb-siyah-temiz-1323360724/detay",
+            "observed_at": "2026-07-04T13:41:15.992703+00:00"
+          },
+          {
+            "title": "SAMSUNG GALAXY S25 ULTRA",
+            "price_try": 34500.0,
+            "price_eur": 643.87,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s25-ultra-1313293267/detay",
+            "observed_at": "2026-07-04T13:41:10.326009+00:00"
+          },
+          {
+            "title": "Samsung s25 ultra 256gb 12 ram hatas\u0131z s\u0131f\u0131rdan farks\u0131z",
+            "price_try": 35000.0,
+            "price_eur": 653.2,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-256gb-12-ram-hatasiz-sifirdan-farksiz-1321209864/detay",
+            "observed_at": "2026-07-04T13:41:01.212572+00:00"
+          },
+          {
+            "title": "Samsung S25 Ultra - Hatas\u0131z",
+            "price_try": 36000.0,
+            "price_eur": 671.87,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-hatasiz-1322208829/detay",
+            "observed_at": "2026-07-04T13:41:00.706222+00:00"
+          },
+          {
+            "title": "7/24 ADRESE TESL\u0130M SAMSUNG GALAXY S25 ULTRA 12/256 TEM\u0130Z FUL",
+            "price_try": 36499.0,
+            "price_eur": 681.18,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-7-24-adrese-teslim-samsung-galaxy-s25-ultra-12-256-temiz-ful-1320644883/detay",
+            "observed_at": "2026-07-04T13:41:06.153029+00:00"
+          },
+          {
+            "title": "SAMSUNG S25 ULTRA 12/256 GB SIFIR AYARINDA GLOBAL MODEL",
+            "price_try": 36999.0,
+            "price_eur": 690.51,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-12-256-gb-sifir-ayarinda-global-model-1325982175/detay",
+            "observed_at": "2026-07-04T13:40:55.619907+00:00"
+          },
+          {
+            "title": "CADDE APPLE'DAN SAMSUNG S25 ULTRA 256 GB KASIMA KADAR A\u00c7IK !",
+            "price_try": 36999.0,
+            "price_eur": 690.51,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-samsung-s25-ultra-256-gb-kasima-kadar-acik-1323923798/detay",
+            "observed_at": "2026-07-04T13:41:15.862551+00:00"
+          },
+          {
+            "title": "SAMSUNG S25 ULTRA YD",
+            "price_try": 37000.0,
+            "price_eur": 690.53,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-yd-1325811581/detay",
+            "observed_at": "2026-07-04T13:40:55.370450+00:00"
+          },
+          {
+            "title": "BOZDO\u011eAN STORE/SAMSUNG S25 ULTRA 256 GB HATASIZ KUTULU",
+            "price_try": 38999.0,
+            "price_eur": 727.84,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-bozdogan-store-samsung-s25-ultra-256-gb-hatasiz-kutulu-1324558898/detay",
+            "observed_at": "2026-07-04T13:41:10.030858+00:00"
+          },
+          {
+            "title": "2.C\u0130 EL \u00d6ZT\u00dcRK \u0130LET\u0130\u015e\u0130MDEN S25 ULTRA NATUREL 256GB 14 AY A\u00c7IK",
+            "price_try": 39999.0,
+            "price_eur": 746.5,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-2.ci-el-ozturk-iletisimden-s25-ultra-naturel-256gb-14-ay-acik-1323912342/detay",
+            "observed_at": "2026-07-04T13:40:59.828276+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S25 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 43480.0,
+            "price_eur": 811.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s25-ultra-256gb-global-avrupa-orjinal-1325220796/detay",
+            "observed_at": "2026-07-04T13:41:00.072063+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S25 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 43480.0,
+            "price_eur": 811.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s25-ultra-256gb-global-avrupa-orjinal-1325220698/detay",
+            "observed_at": "2026-07-04T13:41:00.155985+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S25 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 43480.0,
+            "price_eur": 811.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s25-ultra-256gb-global-avrupa-orjinal-1325219765/detay",
+            "observed_at": "2026-07-04T13:41:00.216550+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S25 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 43480.0,
+            "price_eur": 811.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s25-ultra-256gb-global-avrupa-orjinal-1325218142/detay",
+            "observed_at": "2026-07-04T13:41:00.254626+00:00"
+          },
+          {
+            "title": "EREN \u0130LET\u0130\u015e\u0130M'DEN SAMSUNG S25 ULTRA 256GB GLOBAL AVRUPA ORJ\u0130NAL!",
+            "price_try": 43480.0,
+            "price_eur": 811.47,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-s25-ultra-256gb-global-avrupa-orjinal-1325216882/detay",
+            "observed_at": "2026-07-04T13:41:00.276833+00:00"
+          },
+          {
+            "title": "Samsung S25 Ultra 12/256",
+            "price_try": 43500.0,
+            "price_eur": 811.84,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-12-256-1321415432/detay",
+            "observed_at": "2026-07-04T13:41:10.708575+00:00"
+          },
+          {
+            "title": "SAMSUNG S26 ULTRA 256 GB S\u0130YAH RENK TAKS\u0130T \u0130MKANLI",
+            "price_try": 43880.0,
+            "price_eur": 818.93,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-256-gb-siyah-renk-taksit-imkanli-1324637214/detay",
+            "observed_at": "2026-07-04T13:41:15.625032+00:00"
+          },
+          {
+            "title": "SAMSUNG S25 ULTRA 256 GB SIFIR KAPALI KUTU",
+            "price_try": 44499.0,
+            "price_eur": 830.48,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-256-gb-sifir-kapali-kutu-1325277816/detay",
+            "observed_at": "2026-07-04T13:40:55.254220+00:00"
+          },
+          {
+            "title": "Samsung S25 Ultra S\u0131f\u0131r // 256 GB 12+12 // 16AY!!!",
+            "price_try": 45750.0,
+            "price_eur": 853.83,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-sifir-256-gb-12-plus12-16ay-1324516511/detay",
+            "observed_at": "2026-07-04T13:41:05.473556+00:00"
+          },
+          {
+            "title": "SAMSUNG S25 ULTRA (256 GB HAFIZA) YURTDI\u015eI ( SIFIR )",
+            "price_try": 45900.0,
+            "price_eur": 856.63,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s25-ultra-256-gb-hafiza-yurtdisi-sifir-1321135733/detay",
+            "observed_at": "2026-07-04T13:41:00.691772+00:00"
+          },
+          {
+            "title": "S25 ULTRA 12/256 NATURAL KAPALI KUTU MA\u011eAZADAN TESL\u0130M",
+            "price_try": 46490.0,
+            "price_eur": 867.64,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-s25-ultra-12-256-natural-kapali-kutu-magazadan-teslim-1312613493/detay",
+            "observed_at": "2026-07-04T13:41:15.037409+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": -7528.65,
+        "percent": -17.3,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "iPhone 16",
+      "brand": "Apple",
+      "storage_gb": 128,
+      "supplier": {
+        "raw_text": "iPhone 16 Duz 128GB 780$",
+        "price_usd": 780.0,
+        "price_try": 36507.9,
+        "price_eur": 681.35,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 11,
+        "median_try": 27500.0,
+        "min_try": 24500.0,
+        "max_try": 34999.0,
+        "listings": [
+          {
+            "title": "\u0130PHONE 16 128 GB P\u0130L 89 9.AYA KADAR KULLANILAB\u0130L\u0130R",
+            "price_try": 24500.0,
+            "price_eur": 457.24,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-128-gb-pil-89-9.aya-kadar-kullanilabilir-1325507569/detay",
+            "observed_at": "2026-07-04T17:58:17.221589+00:00"
+          },
+          {
+            "title": "\u0130PHONE 16 P\u0130L 92 128 GB TEM\u0130Z UYGUN F\u0130YAT",
+            "price_try": 25999.0,
+            "price_eur": 485.22,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pil-92-128-gb-temiz-uygun-fiyat-1325353156/detay",
+            "observed_at": "2026-07-04T17:58:33.325389+00:00"
+          },
+          {
+            "title": "ASYA TELECOM'DAN YD \u0130PHONE 16 128 GB MAV\u0130 70 G\u00dcN KULLANIMA A\u00c7IK",
+            "price_try": 26499.0,
+            "price_eur": 494.55,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-asya-telecom-dan-yd-iphone-16-128-gb-mavi-70-gun-kullanima-acik-1326240815/detay",
+            "observed_at": "2026-07-04T17:58:33.818866+00:00"
+          },
+          {
+            "title": "\u0130PHONE 16 (128 GB) YD P\u0130L 93--3 AY A\u00c7IK--",
+            "price_try": 26999.0,
+            "price_eur": 503.88,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-128-gb-yd-pil-93-3-ay-acik-1326278426/detay",
+            "observed_at": "2026-07-04T17:58:22.034483+00:00"
+          },
+          {
+            "title": "\u0130PHONE 16 128GB",
+            "price_try": 27000.0,
+            "price_eur": 503.9,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-128gb-1326273408/detay",
+            "observed_at": "2026-07-04T17:58:33.657252+00:00"
+          },
+          {
+            "title": "\u0130PHONE 16 128 GB P\u0130L 90 12.AYA KADAR KULLANILAB\u0130L\u0130R",
+            "price_try": 27500.0,
+            "price_eur": 513.23,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-128-gb-pil-90-12.aya-kadar-kullanilabilir-1324950004/detay",
+            "observed_at": "2026-07-04T17:58:25.716384+00:00"
+          },
+          {
+            "title": "| APPLE TECH | iPhone 16 S\u0130YAH Temiz Hastas\u0131na Pil 90 YDIS 16 AY",
+            "price_try": 31500.0,
+            "price_eur": 587.88,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-16-siyah-temiz-hastasina-pil-90-ydis-16-ay-1323226381/detay",
+            "observed_at": "2026-07-04T17:58:13.335092+00:00"
+          },
+          {
+            "title": "S\u0131n\u0131rl\u0131 Say\u0131da Yurt d\u0131\u015f\u0131 Cep Telefonu M\u00fckemmel \u0130kinci El 6.1 in\u00e7 Son 3 g\u00fcn!",
+            "price_try": 33500.0,
+            "price_eur": 625.21,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-sinirli-sayida-yurt-disi-cep-telefonu-mukemmel-ikinci-sb2f-61-inc-son-3-gun-846913339/detay",
+            "observed_at": "2026-07-04T17:58:32.812187+00:00"
+          },
+          {
+            "title": "BOZDO\u011eAN STORE/\u0130PHONE 16 128 GB SIFIR T\u00dcM RENKLER \u00c7\u0130FT S\u0130M",
+            "price_try": 33999.0,
+            "price_eur": 634.52,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-bozdogan-store-iphone-16-128-gb-sifir-tum-renkler-cift-sim-1325353892/detay",
+            "observed_at": "2026-07-04T17:58:13.865720+00:00"
+          },
+          {
+            "title": "VAROL \u0130LET\u0130\u015e\u0130M'DEN 16 YD HATASIZ YILI KURTARIYOR",
+            "price_try": 34750.0,
+            "price_eur": 648.54,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-varol-iletisim-den-16-yd-hatasiz-yili-kurtariyor-1325995702/detay",
+            "observed_at": "2026-07-04T17:58:29.162676+00:00"
+          },
+          {
+            "title": "APPLE TECH / iPhone 16 128 GB SIFIR KUTULU - YDISI 16 AY !!",
+            "price_try": 34999.0,
+            "price_eur": 653.18,
+            "url": "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-16-128-gb-sifir-kutulu-ydisi-16-ay-1313145148/detay",
+            "observed_at": "2026-07-04T17:58:13.077596+00:00"
+          }
+        ]
+      },
+      "margin": {
+        "try": -9007.9,
+        "percent": -24.7,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "F22 Tuslu Dokunmatik Android",
+      "brand": "Unknown",
+      "storage_gb": null,
+      "supplier": {
+        "raw_text": "F22 tuslu dokunmatik android 95$",
+        "price_usd": 95.0,
+        "price_try": 4446.48,
+        "price_eur": 82.98,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 0,
+        "median_try": null,
+        "min_try": null,
+        "max_try": null,
+        "listings": []
+      },
+      "margin": {
+        "try": null,
+        "percent": null,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Note 14 Glb",
+      "brand": "Unknown",
+      "storage_gb": 256,
+      "supplier": {
+        "raw_text": "NOTE 14 GLB 256/8 182$",
+        "price_usd": 182.0,
+        "price_try": 8518.51,
+        "price_eur": 158.98,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 0,
+        "median_try": null,
+        "min_try": null,
+        "max_try": null,
+        "listings": []
+      },
+      "margin": {
+        "try": null,
+        "percent": null,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Poco F8 Pro",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "POCO F8 PRO 512/12 570$",
+        "price_usd": 570.0,
+        "price_try": 26678.85,
+        "price_eur": 497.91,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 0,
+        "median_try": null,
+        "min_try": null,
+        "max_try": null,
+        "listings": []
+      },
+      "margin": {
+        "try": null,
+        "percent": null,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Spark GO 2",
+      "brand": "Unknown",
+      "storage_gb": 128,
+      "supplier": {
+        "raw_text": "Spark GO 2 128/4 116$",
+        "price_usd": 116.0,
+        "price_try": 5429.38,
+        "price_eur": 101.33,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 0,
+        "median_try": null,
+        "min_try": null,
+        "max_try": null,
+        "listings": []
+      },
+      "margin": {
+        "try": null,
+        "percent": null,
+        "verdict": "NO_ARBITRAGE"
+      }
+    },
+    {
+      "product_model": "Xiaomi 13 Ultra",
+      "brand": "Xiaomi",
+      "storage_gb": 512,
+      "supplier": {
+        "raw_text": "MI 13 Ultra 512/16 590$",
+        "price_usd": 590.0,
+        "price_try": 27614.95,
+        "price_eur": 515.38,
+        "condition": "unknown"
+      },
+      "sahibinden": {
+        "listing_count": 0,
+        "median_try": null,
+        "min_try": null,
+        "max_try": null,
+        "listings": []
+      },
+      "margin": {
+        "try": null,
+        "percent": null,
+        "verdict": "NO_ARBITRAGE"
+      }
+    }
+  ],
+  "summary": {
+    "total_models": 24,
+    "buy_opportunities": 5,
+    "watch": 2,
+    "no_arbitrage": 17
+  }
+}

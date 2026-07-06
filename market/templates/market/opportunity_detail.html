@@ -15,12 +15,38 @@
     </span>
     <div class="min-w-0">
       <div class="badge-row mb-3">
-        <span class="cell-rec {{ recommendation_class }}">{{ opportunity.get_recommendation_display }}</span>
+        <span class="cell-rec {{ recommendation_class }}">
+          <span class="rec-icon" aria-hidden="true">
+            {% if recommendation_class == 'rec-buy' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+            {% elif recommendation_class == 'rec-watch' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            {% else %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>
+            {% endif %}
+          </span>
+          {{ opportunity.get_recommendation_display }}
+        </span>
         {% for item in coverage %}
           <span class="badge {{ item.class }}">{{ item.code }} {{ item.count }}</span>
         {% endfor %}
         {% if category_slug %}
-          <span class="cat-chip cat-{{ category_slug }}">{{ category_name }}</span>
+          <span class="cat-chip cat-{{ category_slug }}">
+            {% if category_slug == 'laptops' %}
+              <span class="cat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M2 19h20"/></svg>
+              </span>
+            {% elif category_slug == 'phones' %}
+              <span class="cat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2H7a2 2 0 0 1 2 1.72c.12.78.33 1.53.63 2.24a2 2 0 0 1-.45 2L8.82 8.82a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2-.45c.71.3 1.46.51 2.24.63A2 2 0 0 1 22 16.92z"/></svg>
+              </span>
+            {% elif category_slug == 'non-phones' %}
+              <span class="cat-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8"/><path d="M8 14h8"/><path d="M8 19h4"/></svg>
+              </span>
+            {% endif %}
+            {{ category_name }}
+          </span>
         {% endif %}
       </div>
       <h1 class="page-title">
@@ -32,13 +58,14 @@
       </h1>
       <p class="page-desc">
         {{ brand }}
-        {% if storage %} / {{ storage }}GB{% endif %}
+        {% if storage %} / {{ spec_label }} {{ storage }}GB{% endif %}
         {% if opportunity.sim_config %} / {{ opportunity.sim_config }}{% endif %}
       </p>
     </div>
   </section>
 
   <section class="summary-strip">
+    {% if can_view_internal_gain %}
     <div class="stat-card">
       <div class="lbl">{% trans "Algeria Price" %}</div>
       <div class="num">{{ algeria_min|default:"-" }}</div>
@@ -47,10 +74,23 @@
       <div class="lbl">{% trans "Algeria avg" %}</div>
       <div class="num">{{ algeria_avg|default:"-" }}</div>
     </div>
+    {% endif %}
     <div class="stat-card">
       <div class="lbl">{% trans "Turkey Avg" %}</div>
       <div class="num">{{ turkiye_avg|default:"-" }}</div>
     </div>
+    {% if gain_split and not can_view_internal_gain %}
+    <div class="stat-card">
+      <div class="lbl">{% trans "Buyer Price" %}</div>
+      <div class="num">{{ buyer_price|default:"-" }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">{% trans "Buyer Gain" %}</div>
+      <div class="num">{{ buyer_gain|default:"-" }}</div>
+      <span class="delta">{{ buyer_gain_percent }}</span>
+    </div>
+    {% endif %}
+    {% if can_view_internal_gain %}
     {% if supplier %}
     <div class="stat-card stat-supplier">
       <div class="lbl">{% trans "Supplier" %}</div>
@@ -65,16 +105,21 @@
       <div class="num">{{ gross_margin|default:"-" }}</div>
     </div>
     <div class="stat-card">
-      <div class="lbl">{% trans "Margin %" %}</div>
+      <div class="lbl">{% trans "Spread ROI" %}</div>
+      <div class="num">{{ capital_roi|default:"-" }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">{% trans "Market Margin" %}</div>
       <div class="num">{{ margin_percent|default:"-" }}</div>
     </div>
+    {% endif %}
     <div class="stat-card">
       <div class="lbl">{% trans "Confidence" %}</div>
       <div class="num">{{ opportunity.confidence_score }}</div>
     </div>
   </section>
 
-  {% if is_cross_storage %}
+  {% if is_cross_storage and can_view_internal_gain %}
   <div class="card mb-4 border-amber-200 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/30">
     <div class="card-h">{% trans "Cross-storage comparison" %}</div>
     <div class="text-sm text-slate-700 dark:text-slate-300">
@@ -89,6 +134,7 @@
   </div>
   {% endif %}
 
+  {% if can_view_internal_gain %}
   <div class="card mb-4 border-blue-200 bg-blue-50/70 dark:border-blue-900 dark:bg-blue-950/30">
     <div class="card-h">{% trans "Raw Market Spread" %}</div>
     <div class="price-calc-row">
@@ -102,19 +148,22 @@
     </div>
     <div class="hint">{{ opportunity.explanation }}</div>
   </div>
+  {% endif %}
 
   {% if gain_split %}
   <div class="card mb-4 border-emerald-200 bg-emerald-50/70 dark:border-emerald-900 dark:bg-emerald-950/30">
     <div class="card-h">
-      {% trans "Suggested Deal Split" %}
+      {% if can_view_internal_gain %}{% trans "Suggested Deal Split" %}{% else %}{% trans "Buyer Offer" %}{% endif %}
       <span class="badge {{ gain_split.deal_quality }}">{{ gain_split.deal_quality|title }}</span>
     </div>
     <div class="grid gap-4 sm:grid-cols-3">
+      {% if can_view_internal_gain %}
       <div>
         <div class="lbl">{% trans "My Gain" %}</div>
         <div class="num text-xl">{{ my_gain }}</div>
         <div class="delta">{{ my_gain_dzd }} / {{ my_gain_percent_of_gross }} {% trans "of spread" %}</div>
       </div>
+      {% endif %}
       <div>
         <div class="lbl">{% trans "Buyer Price" %}</div>
         <div class="num text-xl">{{ buyer_price }}</div>
@@ -123,23 +172,24 @@
       <div>
         <div class="lbl">{% trans "Buyer Gain" %}</div>
         <div class="num text-xl">{{ buyer_gain }}</div>
-        <div class="delta">{{ buyer_gain_percent }} {% trans "expected gain" %}</div>
+        <div class="delta">{{ buyer_gain_percent }} {% trans "vs offer price" %}</div>
       </div>
     </div>
-    {% if gain_split.notes %}
+    {% if gain_split.notes and can_view_internal_gain %}
       <div class="hint">{{ gain_split.notes }}</div>
     {% endif %}
   </div>
   {% endif %}
 
   <section class="detail-grid">
+    {% if can_view_internal_gain %}
     <div class="card">
       <div class="card-h">
         {% trans "Algeria listings" %}
         <span class="badge ok">{{ algeria_rows|length }}</span>
       </div>
       {% for row in algeria_rows %}
-        <article class="listing-card" data-listing-row>
+        <article class="listing-card{% if row.item.listing_url %} clickable{% endif %}" data-listing-row{% if row.item.listing_url %} data-listing-url="{{ row.item.listing_url }}"{% endif %}>
           <span class="thumb thumb-md">
             {% if row.image_url %}
               <img src="{{ row.image_url }}" alt="{{ row.item.title_raw|default:row.item.product_model }}">
@@ -155,31 +205,35 @@
             <div class="listing-meta">
               <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
               <span class="badge {{ row.review_class }}">{{ row.item.get_review_status_display }}</span>
-              <span>{% if row.storage_gb %}{{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}</span>
+              <span>{% if row.storage_gb %}{{ row.spec_label }} {{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}</span>
             </div>
             <div class="listing-meta"><span>{{ row.item.observed_at|date:"M d H:i" }}</span><span>{{ row.item.get_condition_display }}</span></div>
           </div>
           <div class="listing-price">
-            <div class="listing-meta sm:justify-end">
-              <span class="font-sans text-slate-500 dark:text-slate-400">{% trans "Original" %}</span>
-              <span
-                data-inline-field="price_original"
-                data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
-                data-inline-id="{{ row.item.id }}"
-                data-inline-type="decimal"
-              >{{ row.item.price_original|default:"" }}</span>
-              <span>{{ row.item.currency_original }}</span>
+            <div class="price-stack">
+              <div class="price-line">
+                <span class="price-label">{% trans "Original" %}</span>
+                <span class="num price-value">
+                  <span
+                    data-inline-field="price_original"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    data-inline-type="decimal"
+                  >{{ row.item.price_original|default:"" }}</span>
+                  <span>{{ row.item.currency_original }}</span>
+                </span>
+              </div>
+              <div class="price-conversions">
+                {% for price in row.converted_prices %}
+                  <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
+                {% empty %}
+                  <span class="num">-</span>
+                {% endfor %}
+              </div>
             </div>
-            <div class="mt-2 grid grid-cols-1 gap-y-1 text-xs sm:grid-cols-2 sm:gap-x-3 sm:justify-items-end">
-              {% for price in row.converted_prices %}
-                <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
-              {% empty %}
-                <span class="num">-</span>
-              {% endfor %}
-            </div>
-            <div class="mt-2 flex flex-wrap gap-2 sm:justify-end">
+            <div class="listing-actions">
               {% if row.item.listing_url %}
-                <a class="btn btn-secondary btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
+                <a class="btn btn-secondary btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open listing" %}</a>
               {% endif %}
               {% if request.user.is_authenticated and request.user.is_staff %}
                 <button
@@ -197,6 +251,7 @@
         <p class="page-desc">{% trans "No Algeria listings match this model, storage, and SIM bucket." %}</p>
       {% endfor %}
     </div>
+    {% endif %}
 
     <div class="card">
       <div class="card-h">
@@ -204,7 +259,7 @@
         <span class="badge sh">{{ turkiye_rows|length }}</span>
       </div>
       {% for row in turkiye_rows %}
-        <article class="listing-card" data-listing-row>
+        <article class="listing-card{% if row.item.listing_url %} clickable{% endif %}" data-listing-row{% if row.item.listing_url %} data-listing-url="{{ row.item.listing_url }}"{% endif %}>
           <span class="thumb thumb-md">
             {% if row.image_url %}
               <img src="{{ row.image_url }}" alt="{{ row.item.title_raw|default:row.item.product_model }}">
@@ -220,31 +275,35 @@
             <div class="listing-meta">
               <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
               <span class="badge {{ row.review_class }}">{{ row.item.get_review_status_display }}</span>
-              <span>{% if row.storage_gb %}{{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}</span>
+              <span>{% if row.storage_gb %}{{ row.spec_label }} {{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}</span>
             </div>
             <div class="listing-meta"><span>{{ row.item.observed_at|date:"M d H:i" }}</span><span>{{ row.item.get_condition_display }}</span></div>
           </div>
           <div class="listing-price">
-            <div class="listing-meta sm:justify-end">
-              <span class="font-sans text-slate-500 dark:text-slate-400">{% trans "Original" %}</span>
-              <span
-                data-inline-field="price_original"
-                data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
-                data-inline-id="{{ row.item.id }}"
-                data-inline-type="decimal"
-              >{{ row.item.price_original|default:"" }}</span>
-              <span>{{ row.item.currency_original }}</span>
+            <div class="price-stack">
+              <div class="price-line">
+                <span class="price-label">{% trans "Original" %}</span>
+                <span class="num price-value">
+                  <span
+                    data-inline-field="price_original"
+                    data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
+                    data-inline-id="{{ row.item.id }}"
+                    data-inline-type="decimal"
+                  >{{ row.item.price_original|default:"" }}</span>
+                  <span>{{ row.item.currency_original }}</span>
+                </span>
+              </div>
+              <div class="price-conversions">
+                {% for price in row.converted_prices %}
+                  <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
+                {% empty %}
+                  <span class="num">-</span>
+                {% endfor %}
+              </div>
             </div>
-            <div class="mt-2 grid grid-cols-1 gap-y-1 text-xs sm:grid-cols-2 sm:gap-x-3 sm:justify-items-end">
-              {% for price in row.converted_prices %}
-                <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
-              {% empty %}
-                <span class="num">-</span>
-              {% endfor %}
-            </div>
-            <div class="mt-2 flex flex-wrap gap-2 sm:justify-end">
+            <div class="listing-actions">
               {% if row.item.listing_url %}
-                <a class="btn btn-secondary btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
+                <a class="btn btn-secondary btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open listing" %}</a>
               {% endif %}
               {% if request.user.is_authenticated and request.user.is_staff %}
                 <button
@@ -263,4 +322,14 @@
       {% endfor %}
     </div>
   </section>
+  <script>
+    (function () {
+      document.addEventListener("click", function (event) {
+        const card = event.target.closest("[data-listing-url]");
+        if (!card) return;
+        if (event.target.closest("a, button, input, select, textarea, [data-inline-field], [data-inline-delete]")) return;
+        window.open(card.getAttribute("data-listing-url"), "_blank", "noopener,noreferrer");
+      });
+    })();
+  </script>
 {% endblock %}

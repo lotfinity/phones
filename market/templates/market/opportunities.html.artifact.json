@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "market/templates/market/opportunities.html",
+  "entry": "market/templates/market/opportunities.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-07-05T21:02:40.100Z",
+  "updatedAt": "2026-07-05T21:02:40.100Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

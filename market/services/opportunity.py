@@ -1,3 +1,4 @@
+import statistics
 from decimal import Decimal
 
 from django.db import transaction
@@ -5,6 +6,14 @@ from django.db.models import Avg, Min, Q
 
 from market.models import Country, MarketListing, OpportunitySnapshot, ProductModel, SourceType, SupplierPrice
 from market.services.matching import SUPPORTED_STORAGE_GB
+
+
+def median_value(queryset, field):
+    """Return the median of a numeric field from a queryset. Robust to outliers."""
+    values = list(queryset.values_list(field, flat=True))
+    if not values:
+        return None
+    return Decimal(str(statistics.median(values)))
 
 
 def confidence_for(algeria_count, sahibinden_count, supplier_count, exact_variant, sell_side_src="sahibinden"):
@@ -97,30 +106,27 @@ def run_analysis(include_insufficient=False):
                 else:
                     variant = None
 
-                listing_stats = listings.aggregate(min_price=Min("price_eur"), avg_price=Avg("price_eur"))
-                sahibinden_stats = sahibinden.aggregate(avg_price=Avg("price_eur"))
-                supplier_stats = suppliers.aggregate(avg_price=Avg("supplier_price_eur"))
-                algeria_min = listing_stats["min_price"]
-                algeria_avg = listing_stats["avg_price"]
-                sahibinden_avg = sahibinden_stats["avg_price"]
-                supplier_eur = supplier_stats["avg_price"]
+                algeria_min = listings.aggregate(min_price=Min("price_eur"))["min_price"]
+                algeria_median = median_value(listings, "price_eur")
+                sahibinden_median = median_value(sahibinden, "price_eur")
+                supplier_median = median_value(suppliers, "supplier_price_eur")
                 listing_count = listings.count()
                 sahibinden_count = sahibinden.count()
                 supplier_count = suppliers.count()
 
-                if not include_insufficient and (not algeria_min or not sahibinden_avg):
+                if not include_insufficient and (not algeria_min or not sahibinden_median):
                     continue
                 if include_insufficient and not (listing_count or sahibinden_count or supplier_count):
                     continue
 
-                if not algeria_min or not sahibinden_avg:
+                if not algeria_min or not sahibinden_median:
                     recommendation = OpportunitySnapshot.Recommendation.INSUFFICIENT_DATA
                     margin = None
                     margin_percent = None
                 else:
                     # PriceBridge direction: buy in Algeria, sell in Türkiye.
-                    # Use Algeria minimum as the buy-side target and Sahibinden average as the sell-side baseline.
-                    margin = Decimal(sahibinden_avg) - Decimal(algeria_min)
+                    # Use Algeria minimum as the buy-side target and Sahibinden median as the sell-side baseline.
+                    margin = Decimal(sahibinden_median) - Decimal(algeria_min)
                     margin_percent = (margin / Decimal(algeria_min)) * Decimal("100")
                     if margin_percent > 15:
                         recommendation = OpportunitySnapshot.Recommendation.BUY
@@ -129,18 +135,18 @@ def run_analysis(include_insufficient=False):
                     else:
                         recommendation = OpportunitySnapshot.Recommendation.IGNORE
 
-                # Supplier margin: Algeria min vs supplier average
+                # Supplier margin: Algeria min vs supplier median
                 supplier_margin = None
                 supplier_margin_pct = None
-                if algeria_min and supplier_eur:
-                    supplier_margin = Decimal(supplier_eur) - Decimal(algeria_min)
+                if algeria_min and supplier_median:
+                    supplier_margin = Decimal(supplier_median) - Decimal(algeria_min)
                     supplier_margin_pct = (supplier_margin / Decimal(algeria_min)) * Decimal("100")
 
                 confidence = confidence_for(listing_count, sahibinden_count, supplier_count, bool(storage_gb))
                 explanation = (
                     f"{listing_count} Algeria listings, {sahibinden_count} Sahibinden rows, "
                     f"{supplier_count} supplier rows. Matched on product model, storage_gb={storage_gb}. "
-                    "Margin is Türkiye average EUR minus Algeria minimum EUR. "
+                    "Margin is Türkiye median EUR minus Algeria minimum EUR. "
                     "Confidence is a simple count and storage-match heuristic."
                 )
                 OpportunitySnapshot.objects.create(
@@ -149,9 +155,9 @@ def run_analysis(include_insufficient=False):
                     storage_gb=storage_gb,
                     sim_config="",
                     algeria_min_eur=algeria_min,
-                    algeria_avg_eur=algeria_avg,
-                    supplier_eur=supplier_eur,
-                    sahibinden_avg_eur=sahibinden_avg,
+                    algeria_avg_eur=algeria_median,
+                    supplier_eur=supplier_median,
+                    sahibinden_avg_eur=sahibinden_median,
                     gross_margin_vs_supplier_eur=supplier_margin,
                     gross_margin_vs_sahibinden_eur=margin,
                     supplier_margin_percent=supplier_margin_pct,
@@ -204,26 +210,23 @@ def run_analysis(include_insufficient=False):
                 supplier_price_eur__isnull=False,
             )
 
-            listing_stats = listings.aggregate(min_price=Min("price_eur"), avg_price=Avg("price_eur"))
-            sahibinden_stats = sahibinden.aggregate(avg_price=Avg("price_eur"))
-            supplier_stats = suppliers.aggregate(avg_price=Avg("supplier_price_eur"))
-            algeria_min = listing_stats["min_price"]
-            algeria_avg = listing_stats["avg_price"]
-            sahibinden_avg = sahibinden_stats["avg_price"]
-            supplier_eur = supplier_stats["avg_price"]
+            algeria_min = listings.aggregate(min_price=Min("price_eur"))["min_price"]
+            algeria_median = median_value(listings, "price_eur")
+            sahibinden_median = median_value(sahibinden, "price_eur")
+            supplier_median = median_value(suppliers, "supplier_price_eur")
             listing_count = listings.count()
             sahibinden_count = sahibinden.count()
             supplier_count = suppliers.count()
 
-            if not include_insufficient and (not algeria_min or not sahibinden_avg):
+            if not include_insufficient and (not algeria_min or not sahibinden_median):
                 continue
 
-            if not algeria_min or not sahibinden_avg:
+            if not algeria_min or not sahibinden_median:
                 recommendation = OpportunitySnapshot.Recommendation.INSUFFICIENT_DATA
                 margin = None
                 margin_percent = None
             else:
-                margin = Decimal(sahibinden_avg) - Decimal(algeria_min)
+                margin = Decimal(sahibinden_median) - Decimal(algeria_min)
                 margin_percent = (margin / Decimal(algeria_min)) * Decimal("100")
                 if margin_percent > 15:
                     recommendation = OpportunitySnapshot.Recommendation.BUY
@@ -234,8 +237,8 @@ def run_analysis(include_insufficient=False):
 
             supplier_margin = None
             supplier_margin_pct = None
-            if algeria_min and supplier_eur:
-                supplier_margin = Decimal(supplier_eur) - Decimal(algeria_min)
+            if algeria_min and supplier_median:
+                supplier_margin = Decimal(supplier_median) - Decimal(algeria_min)
                 supplier_margin_pct = (supplier_margin / Decimal(algeria_min)) * Decimal("100")
 
             confidence = confidence_for(listing_count, sahibinden_count, supplier_count, False)
@@ -247,7 +250,7 @@ def run_analysis(include_insufficient=False):
                 f"CROSS-STORAGE comparison. Algeria storages: {a_storages}, Turkiye storages: {t_storages}. "
                 f"{listing_count} Algeria listings, {sahibinden_count} Sahibinden rows, "
                 f"{supplier_count} supplier rows. "
-                "Margin is Türkiye average EUR minus Algeria minimum EUR."
+                "Margin is Türkiye median EUR minus Algeria minimum EUR."
             )
             OpportunitySnapshot.objects.create(
                 product_model=product_model,
@@ -255,9 +258,9 @@ def run_analysis(include_insufficient=False):
                 storage_gb=None,
                 sim_config="",
                 algeria_min_eur=algeria_min,
-                algeria_avg_eur=algeria_avg,
-                supplier_eur=supplier_eur,
-                sahibinden_avg_eur=sahibinden_avg,
+                algeria_avg_eur=algeria_median,
+                supplier_eur=supplier_median,
+                sahibinden_avg_eur=sahibinden_median,
                 gross_margin_vs_supplier_eur=supplier_margin,
                 gross_margin_vs_sahibinden_eur=margin,
                 supplier_margin_percent=supplier_margin_pct,

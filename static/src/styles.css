@@ -69,6 +69,10 @@
     @apply inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 font-mono text-[11px] font-semibold text-slate-500 dark:bg-slate-900 dark:text-slate-400;
   }
 
+  .icon svg {
+    @apply h-4 w-4;
+  }
+
   .active .icon {
     @apply bg-blue-100 text-blue-700 dark:bg-blue-900/70 dark:text-blue-200;
   }
@@ -103,6 +107,18 @@
 
   .bread strong {
     @apply font-semibold text-slate-900 dark:text-slate-100;
+  }
+
+  .fx-strip {
+    @apply hidden max-w-[620px] flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-slate-200 bg-white/70 px-3 py-1.5 font-mono text-[11px] leading-5 text-slate-500 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-400 xl:flex;
+  }
+
+  .fx-strip strong {
+    @apply font-semibold text-slate-700 dark:text-slate-200;
+  }
+
+  .fx-strip-mobile {
+    @apply mt-1 flex max-w-none gap-x-2 overflow-hidden border-0 bg-transparent px-0 py-0 text-[10px] leading-4;
   }
 
   .main {
@@ -245,7 +261,15 @@
 
   .badge,
   .cell-rec {
-    @apply inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wide;
+    @apply inline-flex items-center gap-2 rounded-full border px-2.5 py-1 font-mono text-[11px] font-semibold uppercase tracking-wide;
+  }
+
+  .rec-icon {
+    @apply inline-flex h-4 w-4 items-center justify-center;
+  }
+
+  .rec-icon svg {
+    @apply h-3 w-3;
   }
 
   .badge {
@@ -456,7 +480,15 @@
   }
 
   .listing-card {
-    @apply grid grid-cols-[4rem_minmax(0,1fr)] gap-3 border-t border-slate-100 py-4 first:border-t-0 first:pt-0 dark:border-slate-800 sm:grid-cols-[4rem_minmax(0,1fr)_auto];
+    @apply relative grid grid-cols-[4rem_minmax(0,1fr)] gap-3 border-t border-slate-100 py-4 first:border-t-0 first:pt-0 dark:border-slate-800 transition duration-150 ease-in-out lg:grid-cols-[4rem_minmax(0,1fr)_minmax(13rem,16rem)];
+  }
+
+  .listing-card.clickable {
+    @apply cursor-pointer rounded-lg hover:bg-slate-50 dark:hover:bg-slate-900/70;
+  }
+
+  .listing-card.clickable:hover .listing-title {
+    @apply text-blue-700 dark:text-blue-300;
   }
 
   .listing-title {
@@ -468,7 +500,31 @@
   }
 
   .listing-price {
-    @apply col-start-2 flex flex-wrap items-center gap-2 font-mono text-sm text-slate-900 dark:text-slate-100 sm:col-start-auto sm:block sm:text-right;
+    @apply col-start-2 min-w-0 rounded-lg border border-slate-100 bg-slate-50 p-3 font-mono text-sm text-slate-900 dark:border-slate-800 dark:bg-slate-950/50 dark:text-slate-100 lg:col-start-auto;
+  }
+
+  .price-stack {
+    @apply grid gap-2;
+  }
+
+  .price-line {
+    @apply grid grid-cols-[5.5rem_minmax(0,1fr)] items-baseline gap-2;
+  }
+
+  .price-label {
+    @apply font-sans text-xs text-slate-500 dark:text-slate-400;
+  }
+
+  .price-value {
+    @apply min-w-0 text-right text-base font-semibold text-slate-950 dark:text-white;
+  }
+
+  .price-conversions {
+    @apply grid grid-cols-1 gap-1 border-t border-slate-200 pt-2 text-right text-xs dark:border-slate-800;
+  }
+
+  .listing-actions {
+    @apply mt-3 flex flex-wrap justify-end gap-2;
   }
 
   .source-row {
@@ -605,7 +661,11 @@
 }
 
 .cat-icon {
-  @apply inline-flex h-5 w-5 items-center justify-center rounded bg-slate-200 font-mono text-[9px] font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300;
+  @apply inline-flex h-5 w-5 shrink-0 items-center justify-center rounded bg-slate-200 font-mono text-[9px] font-bold text-slate-600 dark:bg-slate-700 dark:text-slate-300;
+}
+
+.cat-icon svg {
+  @apply h-3 w-3;
 }
 
 .opp-tab.active .cat-icon {
@@ -777,16 +837,16 @@
   @apply flex h-3 overflow-hidden rounded-lg bg-slate-200 dark:bg-slate-800;
 }
 
+.price-calc-segment {
+  @apply h-full first:rounded-l-lg last:rounded-r-lg;
+}
+
 .price-calc-algeria {
   @apply bg-emerald-500;
 }
 
 .price-calc-margin {
   @apply bg-blue-600 dark:bg-blue-400;
-}
-
-.price-calc-segment {
-  @apply h-full first:rounded-l-lg last:rounded-r-lg;
 }
 
 .dark .opp-filter-grid {

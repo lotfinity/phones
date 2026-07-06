@@ -1,6 +1,9 @@
 from decimal import Decimal
+from types import SimpleNamespace
 
+from django.conf import settings
 from django.test import SimpleTestCase, TestCase
+from django.urls import reverse
 
 from market.collectors.sahibinden_cdp import parse_condition, parse_storage_gb, parse_try_price, review_status_for
 from market.collectors.ouedkniss_cdp import (
@@ -12,11 +15,108 @@ from market.collectors.ouedkniss_cdp import (
     parse_sim_config as parse_ouedkniss_sim_config,
     parse_storage_ram as parse_ouedkniss_storage_ram,
 )
-from market.models import Condition
+from market.models import Condition, OpportunitySnapshot
 from market.services.matching import SUPPORTED_STORAGE_GB, get_or_create_model, get_or_create_variant
 from market.services.normalization import canonical_model_name, likely_brand
 from market.parsers.ocr_parser import parse_ocr_text
 from market.parsers.supplier_parser import parse_supplier_line
+from market.views import base_context
+
+
+class LanguageSwitcherTests(TestCase):
+    def test_set_language_sets_locale_cookie_and_redirects_back(self):
+        response = self.client.post(
+            reverse("set_language"),
+            {"language": "tr", "next": "/?source=instagram"},
+        )
+
+        self.assertRedirects(response, "/?source=instagram", fetch_redirect_response=False)
+        self.assertEqual(response.cookies[settings.LANGUAGE_COOKIE_NAME].value, "tr")
+
+    def test_locale_cookie_translates_next_request(self):
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "tr"
+
+        response = self.client.get(reverse("opportunities"))
+
+        self.assertContains(response, '<html lang="tr">')
+        self.assertContains(response, "Calisma alani")
+
+    def test_set_currency_sets_cookie_and_redirects_back(self):
+        response = self.client.post(
+            reverse("set_currency"),
+            {"currency": "USD", "next": "/"},
+        )
+
+        self.assertRedirects(response, "/", fetch_redirect_response=False)
+        self.assertEqual(response.cookies["pricebridge_currency"].value, "USD")
+
+    def test_base_context_includes_current_fx_rates(self):
+        context = base_context(self.client.request().wsgi_request, "opportunities")
+
+        self.assertIn("fx_rates", context)
+        rendered_rates = [f"{rate['label']} = {rate['value']}" for rate in context["fx_rates"]]
+        self.assertEqual(len(rendered_rates), 4)
+        self.assertIn("€1 = ₺45.00", rendered_rates)
+        self.assertIn("$1 = ₺41.50", rendered_rates)
+        self.assertIn("€1 = 280.00 DZD", rendered_rates)
+        self.assertIn("€1 = $1.08", rendered_rates)
+
+
+class OpportunityGainSplitTests(TestCase):
+    def test_large_absolute_spread_is_at_least_medium_even_when_percent_is_low(self):
+        opportunity = OpportunitySnapshot(
+            algeria_min_eur=Decimal("1500"),
+            sahibinden_avg_eur=Decimal("1700"),
+            gross_margin_vs_sahibinden_eur=Decimal("200"),
+        )
+
+        gain_split = opportunity.gain_split()
+
+        self.assertEqual(gain_split["buyer_gain_eur"], Decimal("150.00"))
+        self.assertEqual(gain_split["buyer_gain_percent"], Decimal("9.68"))
+        self.assertEqual(gain_split["deal_quality"], "medium")
+
+    def test_smaller_low_percent_spread_remains_weak(self):
+        opportunity = OpportunitySnapshot(
+            algeria_min_eur=Decimal("900"),
+            sahibinden_avg_eur=Decimal("1000"),
+            gross_margin_vs_sahibinden_eur=Decimal("100"),
+        )
+
+        gain_split = opportunity.gain_split()
+
+        self.assertEqual(gain_split["buyer_gain_percent"], Decimal("8.11"))
+        self.assertEqual(gain_split["deal_quality"], "weak")
+
+    def test_high_buyer_gain_percent_stays_strong(self):
+        opportunity = OpportunitySnapshot(
+            algeria_min_eur=Decimal("250"),
+            sahibinden_avg_eur=Decimal("500"),
+            gross_margin_vs_sahibinden_eur=Decimal("250"),
+        )
+
+        gain_split = opportunity.gain_split()
+
+        self.assertEqual(gain_split["buyer_gain_percent"], Decimal("48.15"))
+        self.assertEqual(gain_split["deal_quality"], "strong")
+
+    def test_supplier_list_offer_reserves_100_usd_then_splits_remaining_spread(self):
+        from market.services.currency import money, usd_to_eur
+
+        opportunity = OpportunitySnapshot(
+            algeria_min_eur=Decimal("700"),
+            supplier_eur=Decimal("1000"),
+        )
+
+        gain_split = opportunity.gain_split()
+        buyer_floor = usd_to_eur(100)
+        split_gain = money((Decimal("300") - buyer_floor) / Decimal("2"))
+
+        self.assertEqual(gain_split["pricing_basis"], "supplier")
+        self.assertEqual(gain_split["gross_margin_eur"], Decimal("300.00"))
+        self.assertEqual(gain_split["my_gain_eur"], split_gain)
+        self.assertEqual(gain_split["buyer_gain_eur"], money(buyer_floor + split_gain))
+        self.assertEqual(gain_split["offer_price_to_buyer_eur"], money(Decimal("700") + split_gain))
 
 
 class BrandListTests(SimpleTestCase):
@@ -65,7 +165,7 @@ class BrandListTests(SimpleTestCase):
                 self.assertEqual(canonical_model_name(text), canonical)
 
     def test_storage_capacity_set_is_explicit(self):
-        self.assertEqual(SUPPORTED_STORAGE_GB, {64, 128, 256, 512, 1024})
+        self.assertEqual(SUPPORTED_STORAGE_GB, {64, 128, 256, 512, 1024, 2048})
 
 
 class VariantMatchingTests(TestCase):
@@ -127,9 +227,11 @@ class SahibindenParserTests(SimpleTestCase):
         self.assertEqual(parse_condition("iPhone 17 Pro Max 256 GB"), Condition.UNKNOWN)
 
     def test_review_status_requires_variant_and_sane_price(self):
-        self.assertEqual(review_status_for(71000, object(), object()), "auto")
-        self.assertEqual(review_status_for(71000, object(), None), "needs_review")
-        self.assertEqual(review_status_for(177000, object(), object()), "needs_review")
+        model = SimpleNamespace(canonical_name="iPhone 17 Pro Max")
+
+        self.assertEqual(review_status_for(71000, model, 256), "auto")
+        self.assertEqual(review_status_for(71000, model, None), "needs_review")
+        self.assertEqual(review_status_for(177000, model, 256), "needs_review")
 
 
 class OuedknissParserTests(SimpleTestCase):

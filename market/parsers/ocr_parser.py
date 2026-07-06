@@ -66,7 +66,7 @@ def parse_ocr_text(text):
             break
     product_text = product_line_match.group(0) if product_line_match else ""
 
-    capacity_match = CAPACITY_RE.search(product_text)
+    capacity_match = CAPACITY_RE.search(product_text) or CAPACITY_RE.search(raw)
     if capacity_match:
         first = int(capacity_match.group("a"))
         second = int(capacity_match.group("b"))
@@ -77,7 +77,7 @@ def parse_ocr_text(text):
             parsed.storage_gb = first
             parsed.storage_text = capacity_match.group(0)
 
-    storage_match = STORAGE_RE.search(product_text)
+    storage_match = STORAGE_RE.search(product_text) or STORAGE_RE.search(raw)
     if storage_match:
         parsed.storage_text = storage_match.group(0)
         token = storage_match.group("storage").lower().replace(" ", "")

@@ -1,7 +1,8 @@
 {% load static %}
 {% load i18n %}
+{% get_current_language as CURRENT_LANG %}
 <!doctype html>
-<html lang="en">
+<html lang="{{ CURRENT_LANG|default:'en' }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -15,7 +16,8 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="{% static 'src/styles.css' %}">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block head_css %}{% endblock %}
 </head>
 <body>
   <div class="layout">
@@ -27,20 +29,37 @@
       <nav class="nav" aria-label="{% trans 'Primary navigation' %}">
         <div class="nav-section">{% trans "Workspace" %}</div>
         <a href="{% url 'opportunities' %}" class="{% if active == 'opportunities' %}active{% endif %}">
-          <span class="icon">OP</span><span>{% trans "Opportunities" %}</span>
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </span><span>{% trans "Opportunities" %}</span>
         </a>
         <div class="nav-section">{% trans "Review" %}</div>
+        <a href="{% url 'deals_swiper' %}" class="{% if active == 'deals_swiper' %}active{% endif %}">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 3h-8l-2 4h12z"/></svg>
+          </span><span>{% trans "Deals" %}</span>
+        </a>
         <a href="{% url 'listings' %}" class="{% if active == 'listings' %}active{% endif %}">
-          <span class="icon">LS</span><span>{% trans "Listings" %}</span>
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/><path d="M14 2v6h6"/><path d="M8 12h8"/><path d="M8 16h8"/></svg>
+          </span><span>{% trans "Listings" %}</span>
         </a>
         <a href="{% url 'data_quality' %}" class="{% if active == 'data_quality' %}active{% endif %}">
-          <span class="icon">DQ</span><span>{% trans "Data Quality" %}</span>
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M9.5 12.5l1.5 1.5 3-3"/></svg>
+          </span><span>{% trans "Data Quality" %}</span>
         </a>
         <div class="nav-section">{% trans "Config" %}</div>
         <a href="{% url 'sources' %}" class="{% if active == 'sources' %}active{% endif %}">
-          <span class="icon">SC</span><span>{% trans "Sources" %}</span>
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><path d="M4 6v12"/><path d="M20 6v12"/></svg>
+          </span><span>{% trans "Sources" %}</span>
         </a>
-        <a href="/admin/"><span class="icon">AD</span><span>{% trans "Admin" %}</span></a>
+        <a href="/admin/">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 4v5c0 5-3.2 9.3-7 11-3.8-1.7-7-6-7-11V7l7-4z"/><path d="M9.5 12.5l1.5 1.5 3-3"/></svg>
+          </span><span>{% trans "Admin" %}</span>
+        </a>
       </nav>
     </aside>
 
@@ -48,16 +67,20 @@
       <div class="mobile-topbar">
         <div class="min-w-0 flex-1">
           <div class="logo">PriceBridge<span class="logo-dot">.</span></div>
-          <div class="bread">{% trans "Workspace" %} / <strong>{% if active == 'opportunities' %}{% trans "Opportunities" %}{% elif active == 'listings' %}{% trans "Listings" %}{% elif active == 'data_quality' %}{% trans "Data Quality" %}{% elif active == 'sources' %}{% trans "Sources" %}{% endif %}</strong></div>
+          <div class="bread">{% trans "Workspace" %} / <strong>{% if active == 'opportunities' %}{% trans "Opportunities" %}{% elif active == 'deals_swiper' %}{% trans "Deals" %}{% elif active == 'listings' %}{% trans "Listings" %}{% elif active == 'data_quality' %}{% trans "Data Quality" %}{% elif active == 'sources' %}{% trans "Sources" %}{% endif %}</strong></div>
+          <div class="fx-strip fx-strip-mobile" aria-label="{% trans 'Current FX rates used in calculations' %}">
+            {% for rate in fx_rates %}
+              <span><strong>{{ rate.label }}</strong> = {{ rate.value }}</span>
+            {% endfor %}
+          </div>
         </div>
         <button class="theme-toggle" type="button" data-theme-toggle aria-label="{% trans 'Toggle dark mode' %}">
           <span data-theme-icon>DM</span>
         </button>
         <form action="{% url 'set_language' %}" method="post" class="lang-switcher">
           {% csrf_token %}
-          <input type="hidden" name="next" value="{{ request.path }}">
+          <input type="hidden" name="next" value="{{ request.get_full_path }}">
           <select name="language" onchange="this.form.submit()" class="f-select f-select-sm" aria-label="{% trans 'Language' %}">
-            {% get_current_language as CURRENT_LANG %}
             {% get_available_languages as AVAILABLE_LANGUAGES %}
             {% get_language_info_list for AVAILABLE_LANGUAGES as languages %}
             {% for lang in languages %}
@@ -73,18 +96,31 @@
         <div class="header-inner">
           <div class="bread">{% trans "Workspace" %} / <strong>{% block crumb %}{% trans "Opportunities" %}{% endblock %}</strong></div>
           <div class="ml-auto flex items-center gap-2">
+            <div class="fx-strip" aria-label="{% trans 'Current FX rates used in calculations' %}">
+              {% for rate in fx_rates %}
+                <span><strong>{{ rate.label }}</strong> = {{ rate.value }}</span>
+              {% endfor %}
+            </div>
             {% block header_actions %}{% endblock %}
             <form action="{% url 'set_language' %}" method="post" class="lang-switcher">
               {% csrf_token %}
-              <input type="hidden" name="next" value="{{ request.path }}">
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
               <select name="language" onchange="this.form.submit()" class="f-select f-select-sm" aria-label="{% trans 'Language' %}">
-                {% get_current_language as CURRENT_LANG %}
                 {% get_available_languages as AVAILABLE_LANGUAGES %}
                 {% get_language_info_list for AVAILABLE_LANGUAGES as languages %}
                 {% for lang in languages %}
                   <option value="{{ lang.code }}" {% if lang.code == CURRENT_LANG %}selected{% endif %}>
                     {{ lang.name_local }}
                   </option>
+                {% endfor %}
+              </select>
+            </form>
+            <form action="{% url 'set_currency' %}" method="post" class="currency-switcher">
+              {% csrf_token %}
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              <select name="currency" onchange="this.form.submit()" class="f-select f-select-sm" aria-label="{% trans 'Currency' %}">
+                {% for code, label in currency_options %}
+                  <option value="{{ code }}" {% if code == selected_currency %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
               </select>
             </form>
@@ -104,6 +140,9 @@
   <nav class="mobile-bottom-nav" aria-label="{% trans 'Mobile navigation' %}">
     <a href="{% url 'opportunities' %}" class="{% if active == 'opportunities' %}active{% endif %}">
       <span class="font-mono text-xs font-bold">OP</span><span>{% trans "Deals" %}</span>
+    </a>
+    <a href="{% url 'deals_swiper' %}" class="{% if active == 'deals_swiper' %}active{% endif %}">
+      <span class="font-mono text-xs font-bold">SW</span><span>{% trans "Swipe" %}</span>
     </a>
     <a href="{% url 'listings' %}" class="{% if active == 'listings' %}active{% endif %}">
       <span class="font-mono text-xs font-bold">LS</span><span>{% trans "Listings" %}</span>

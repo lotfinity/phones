@@ -24,13 +24,19 @@ urlpatterns = [
     path('', views.opportunities, name='opportunities'),
     path('opportunities/<int:pk>/', views.opportunity_detail, name='opportunity_detail'),
     path('listings/', views.listings, name='listings'),
+    path('deals/', views.deals_swiper, name='deals_swiper'),
+    path('api/deals/', views.deals_api, name='deals_api'),
     path('data-quality/', views.data_quality, name='data_quality'),
     path('sources/', views.sources, name='sources'),
     path('api/inline-edit/<slug:model_key>/', views.inline_edit_api, name='inline_edit_api'),
     path('api/listing-bulk/', views.listing_bulk_api, name='listing_bulk_api'),
     path('i18n/set-language/', views.set_language, name='set_language'),
+    path('i18n/set-currency/', views.set_currency, name='set_currency'),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG and settings.STATICFILES_DIRS:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
 
 if settings.DEBUG and getattr(settings, "DEBUG_TOOLBAR_AVAILABLE", False):
     urlpatterns.append(path("__debug__/", include("debug_toolbar.urls")))

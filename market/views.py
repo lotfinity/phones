@@ -1,6 +1,6 @@
 import json
 import types
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 
 from django.conf import settings
@@ -11,6 +11,7 @@ from django.db.models import Avg, Count, F, Max, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
 from market.models import (
@@ -28,7 +29,16 @@ from market.models import (
     SourceType,
     SupplierPrice,
 )
-from market.services.currency import convert_to_eur
+from market.services.currency import (
+    convert_to_eur,
+    eur_rate_or_setting,
+    eur_to_dzd,
+    eur_to_try,
+    eur_to_usd,
+    eur_try_rate,
+    eur_usd_rate,
+    usd_try_rate,
+)
 from market.services.listing_suggestions import apply_listing_suggestion
 
 
@@ -36,11 +46,24 @@ from market.services.listing_suggestions import apply_listing_suggestion
 def set_language(request):
     """Switch the active language and redirect back."""
     next_url = request.POST.get("next") or request.GET.get("next") or "/"
+    if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+        next_url = "/"
     lang = request.POST.get("language") or request.GET.get("language")
-    if lang and lang in {"en", "tr"}:
+    response = redirect(next_url)
+    supported_languages = {code for code, _name in settings.LANGUAGES}
+    if lang in supported_languages and translation.check_for_language(lang):
         translation.activate(lang)
-        request.session["django_language"] = lang
-    return redirect(next_url)
+        response.set_cookie(
+            settings.LANGUAGE_COOKIE_NAME,
+            lang,
+            max_age=settings.LANGUAGE_COOKIE_AGE,
+            path=settings.LANGUAGE_COOKIE_PATH,
+            domain=settings.LANGUAGE_COOKIE_DOMAIN,
+            secure=settings.LANGUAGE_COOKIE_SECURE,
+            httponly=settings.LANGUAGE_COOKIE_HTTPONLY,
+            samesite=settings.LANGUAGE_COOKIE_SAMESITE,
+        )
+    return response
 
 
 def pct(value):
@@ -49,10 +72,33 @@ def pct(value):
     return f"{value:.1f}%"
 
 
+def ratio_pct(numerator, denominator):
+    if numerator is None or denominator in (None, 0):
+        return ""
+    numerator = Decimal(str(numerator))
+    denominator = Decimal(str(denominator))
+    if denominator == 0:
+        return ""
+    return pct((numerator / denominator) * Decimal("100"))
+
+
 def money(value, suffix="EUR"):
     if value is None:
         return ""
-    return f"{value:,.2f} {suffix}"
+
+    if suffix is None:
+        suffix = "EUR"
+    currency = suffix.upper()
+    amount = Decimal(str(value))
+    if currency == "EUR":
+        return f"{amount:,.2f} EUR"
+    if currency == "USD":
+        return f"{eur_to_usd(amount):,.2f} USD"
+    if currency == "TRY":
+        return f"{eur_to_try(amount):,.2f} TRY"
+    if currency == "DZD":
+        return f"{eur_to_dzd(amount):,.2f} DZD"
+    return f"{amount:,.2f} {suffix}"
 
 
 def money_amount(value, suffix):
@@ -61,15 +107,37 @@ def money_amount(value, suffix):
     return f"{Decimal(str(value)):,.2f} {suffix}"
 
 
+def get_active_currency(request):
+    supported = {code for code in ["EUR", "USD", "TRY", "DZD"]}
+    currency = request.GET.get("currency") or request.COOKIES.get("pricebridge_currency")
+    if currency:
+        currency = str(currency).upper()
+        if currency in supported:
+            return currency
+    return "EUR"
+
+
+def current_fx_rates():
+    def rate(value):
+        return Decimal(str(value)).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+    return [
+        {"label": "€1", "value": f"₺{rate(eur_try_rate()):,.2f}"},
+        {"label": "$1", "value": f"₺{rate(usd_try_rate()):,.2f}"},
+        {"label": "€1", "value": f"{rate(eur_rate_or_setting('DZD', 'DZD_PER_EUR_BLACK')):,.2f} DZD"},
+        {"label": "€1", "value": f"${rate(eur_usd_rate()):,.2f}"},
+    ]
+
+
 def converted_price_lines(price_eur, original_currency=""):
     if price_eur is None:
         return []
     eur = Decimal(str(price_eur))
     values = {
         "EUR": eur,
-        "USD": eur * Decimal(str(settings.EUR_USD)),
-        "TRY": eur * Decimal(str(settings.EUR_TRY)),
-        "DZD": eur * Decimal(str(settings.DZD_PER_EUR_BLACK)),
+        "USD": eur_to_usd(eur),
+        "TRY": eur_to_try(eur),
+        "DZD": eur_to_dzd(eur),
     }
     original_currency = (original_currency or "").upper()
     return [
@@ -429,13 +497,44 @@ def coverage_counts(product_model, storage_gb, sim_config=""):
     return sorted(coverage, key=lambda item: order.get(item["code"], 99))
 
 
-def base_context(active):
-    return {"active": active}
+def base_context(request, active):
+    return {
+        "active": active,
+        "selected_currency": get_active_currency(request),
+        "fx_rates": current_fx_rates(),
+        "currency_options": [
+            ("EUR", "EUR"),
+            ("USD", "USD"),
+            ("TRY", "TRY"),
+            ("DZD", "DZD"),
+        ],
+    }
+
+
+def set_currency(request):
+    next_url = request.POST.get("next") or request.GET.get("next") or "/"
+    if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}):
+        next_url = "/"
+    currency = (request.POST.get("currency") or request.GET.get("currency") or "EUR").upper()
+    supported_currencies = {code for code, _ in [("EUR", "EUR"), ("USD", "USD"), ("TRY", "TRY"), ("DZD", "DZD")]}
+    response = redirect(next_url)
+    if currency in supported_currencies:
+        response.set_cookie(
+            "pricebridge_currency",
+            currency,
+            max_age=60 * 60 * 24 * 365,
+            path="/",
+            secure=settings.SESSION_COOKIE_SECURE,
+            httponly=False,
+            samesite=getattr(settings, "SESSION_COOKIE_SAMESITE", "Lax"),
+        )
+    return response
 
 
 def listing_display_rows(listings):
     rows = []
     for item in listings:
+        category_slug = item.product_model.category.slug if item.product_model and item.product_model.category else ""
         rows.append(
             {
                 "item": item,
@@ -449,11 +548,13 @@ def listing_display_rows(listings):
                 "product_label": str(item.product_model) if item.product_model else "-",
                 "variant_label": str(item.variant) if item.variant else "-",
                 "storage_gb": item.storage_gb,
+                "spec_label": "RAM" if category_slug == "laptops" else "Storage",
                 "sim_config": item.sim_config,
                 "price": f"{item.price_original or ''} {item.currency_original}".strip(),
                 "original_price": item.price_original,
                 "original_currency": item.currency_original,
                 "eur": money(item.price_eur),
+                "eur_raw": float(item.price_eur) if item.price_eur is not None else None,
                 "converted_prices": converted_price_lines(item.price_eur, item.currency_original),
                 "condition_label": item.get_condition_display(),
                 "observed_at": item.observed_at,
@@ -484,6 +585,7 @@ def supplier_display_rows(supplier_prices):
                 "original_price": item.supplier_price_usd,
                 "original_currency": "USD",
                 "eur": money(item.supplier_price_eur),
+                "eur_raw": float(item.supplier_price_eur) if item.supplier_price_eur is not None else None,
                 "converted_prices": converted_price_lines(item.supplier_price_eur, "USD"),
                 "condition_label": item.get_condition_display(),
                 "observed_at": item.created_at,
@@ -527,7 +629,12 @@ def suggestion_display(suggestion):
     }
 
 
-def build_opportunity_rows(opportunities, tab):
+def can_view_internal_gain(request):
+    user = getattr(request, "user", None)
+    return bool(user and user.is_authenticated and user.is_superuser)
+
+
+def build_opportunity_rows(opportunities, tab, selected_currency="EUR", show_internal_gain=False):
     rows = []
     for item in opportunities:
         storage = item.storage_gb
@@ -553,14 +660,15 @@ def build_opportunity_rows(opportunities, tab):
                 "recommendation_class": rec_class(item.recommendation),
                 "margin_class": "good" if active_margin and active_margin > 15 else "warn",
                 "margin_percent": pct(active_margin),
-                "algeria_min": money(item.algeria_min_eur),
-                "algeria_avg": money(item.algeria_avg_eur),
-                "turkiye_avg": money(item.sahibinden_avg_eur),
-                "gross_margin": money(active_gross),
+                "algeria_min": money(item.algeria_min_eur, selected_currency),
+                "algeria_avg": money(item.algeria_avg_eur, selected_currency),
+                "turkiye_avg": money(item.sahibinden_avg_eur, selected_currency),
+                "gross_margin": money(active_gross, selected_currency),
+                "capital_roi": ratio_pct(active_gross, item.algeria_min_eur),
                 "gain_split": gain_split,
-                "my_gain": money(gain_split["my_gain_eur"]) if gain_split else "",
-                "buyer_price": money(gain_split["offer_price_to_buyer_eur"]) if gain_split else "",
-                "buyer_gain": money(gain_split["buyer_gain_eur"]) if gain_split else "",
+                "my_gain": money(gain_split["my_gain_eur"], selected_currency) if gain_split and show_internal_gain else "",
+                "buyer_price": money(gain_split["offer_price_to_buyer_eur"], selected_currency) if gain_split else "",
+                "buyer_gain": money(gain_split["buyer_gain_eur"], selected_currency) if gain_split else "",
                 "buyer_gain_percent": pct(gain_split["buyer_gain_percent"]) if gain_split else "",
                 "supplier": money(item.supplier_eur),
                 "supplier_margin": pct(item.supplier_margin_percent),
@@ -732,8 +840,12 @@ def _median(values):
 
 
 def opportunities(request):
+    show_internal_gain = can_view_internal_gain(request)
+    selected_currency = get_active_currency(request)
     src = request.GET.get("src", "all")
     if src not in OPP_SOURCE_TABS:
+        src = "all"
+    if not show_internal_gain and src != "all":
         src = "all"
 
     cat = request.GET.get("cat", "all")
@@ -758,7 +870,7 @@ def opportunities(request):
             F("supplier_margin_percent").desc(nulls_last=True),
         )
         filtered = list(qs[:300])
-        rows = build_opportunity_rows(filtered, tab="supplier")
+        rows = build_opportunity_rows(filtered, tab="supplier", selected_currency=selected_currency, show_internal_gain=show_internal_gain)
         margins = [item.supplier_margin_percent for item in filtered if item.supplier_margin_percent is not None]
         confidences = [item.confidence_score for item in filtered if item.confidence_score is not None]
         grosses = [
@@ -797,7 +909,7 @@ def opportunities(request):
             F("margin_percent").desc(nulls_last=True),
         )
         filtered = list(qs[:300])
-        rows = build_opportunity_rows(filtered, tab="sahibinden")
+        rows = build_opportunity_rows(filtered, tab="sahibinden", selected_currency=selected_currency, show_internal_gain=show_internal_gain)
         margins = [item.margin_percent for item in filtered if item.margin_percent is not None]
         confidences = [item.confidence_score for item in filtered if item.confidence_score is not None]
         grosses = [
@@ -821,36 +933,50 @@ def opportunities(request):
     buy_count = len([r for r in rows if r["item"].recommendation == OpportunitySnapshot.Recommendation.BUY])
     watch_count = len([r for r in rows if r["item"].recommendation == OpportunitySnapshot.Recommendation.WATCH])
     ignore_count = len([r for r in rows if r["item"].recommendation == OpportunitySnapshot.Recommendation.IGNORE])
+    strong_count = len([r for r in rows if r.get("gain_split") and r["gain_split"]["deal_quality"] == "strong"])
+    medium_count = len([r for r in rows if r.get("gain_split") and r["gain_split"]["deal_quality"] == "medium"])
+    weak_count = len([r for r in rows if r.get("gain_split") and r["gain_split"]["deal_quality"] == "weak"])
     best_row = max(rows, key=lambda r: float(r.get("gross_value") or 0)) if rows else None
+    signal_stats = [
+        {"label": "Visible", "value": f"{counts['visible']} / {counts['total']}", "delta": "matching filters"},
+        {"label": "Buy", "value": buy_count, "delta": "actionable", "color": "green"},
+        {"label": "Watch", "value": watch_count, "delta": "monitor", "color": "amber"},
+        {"label": "Ignore", "value": ignore_count, "delta": "pass", "color": "slate"},
+        {"label": "Median margin", "value": pct(_median(margins)), "delta": "filtered"},
+        {"label": "Total gross", "value": money(sum(grosses), selected_currency), "delta": "if all actioned"},
+    ]
+    if not show_internal_gain:
+        signal_stats = [
+            {"label": "Visible", "value": f"{counts['visible']}", "delta": "matching filters"},
+            {"label": "Strong", "value": strong_count, "delta": "buyer gain", "color": "green"},
+            {"label": "Medium", "value": medium_count, "delta": "buyer gain", "color": "amber"},
+            {"label": "Weak", "value": weak_count, "delta": "thin gain", "color": "slate"},
+        ]
 
     return render(
         request,
         "market/opportunities.html",
-        base_context("opportunities")
+        base_context(request, "opportunities")
         | {
             "rows": rows,
-            "source_tabs": OPP_SOURCE_TABS,
+            "source_tabs": OPP_SOURCE_TABS if show_internal_gain else {"all": "All"},
             "active_src": src,
             "cat_tabs": CAT_TABS,
             "active_cat": cat,
             "brand_list": [{"name": b.name} for b in brands_with_data],
             "active_brand": brand,
             "search_query": q,
+            "can_view_internal_gain": show_internal_gain,
             "counts": counts,
-            "signal_stats": [
-                {"label": "Visible", "value": f"{counts['visible']} / {counts['total']}", "delta": "matching filters"},
-                {"label": "Buy", "value": buy_count, "delta": "actionable", "color": "green"},
-                {"label": "Watch", "value": watch_count, "delta": "monitor", "color": "amber"},
-                {"label": "Ignore", "value": ignore_count, "delta": "pass", "color": "slate"},
-                {"label": "Median margin", "value": pct(_median(margins)), "delta": "filtered"},
-                {"label": "Total gross", "value": money(sum(grosses)), "delta": "if all actioned"},
-            ],
+            "signal_stats": signal_stats,
             "best_opportunity": best_row,
         },
     )
 
 
 def opportunity_detail(request, pk):
+    show_internal_gain = can_view_internal_gain(request)
+    selected_currency = get_active_currency(request)
     opportunity = get_object_or_404(
         OpportunitySnapshot.objects.select_related("product_model", "product_model__brand", "product_model__category", "variant"),
         pk=pk,
@@ -874,8 +1000,21 @@ def opportunity_detail(request, pk):
     )
 
     cat_obj = opportunity.product_model.category
+    is_laptop = bool(cat_obj and cat_obj.slug == "laptops")
     supplier_margin = pct(opportunity.supplier_margin_percent) if opportunity.supplier_margin_percent else ""
     gain_split = opportunity.gain_split()
+
+    if is_laptop and storage is None:
+        algeria_listings = (
+            MarketListing.objects.select_related("source", "product_model", "variant")
+            .filter(country=Country.ALGERIA, product_model=opportunity.product_model)
+            .order_by("price_eur", "-observed_at")
+        )
+        turkiye_listings = (
+            MarketListing.objects.select_related("source", "product_model", "variant")
+            .filter(country=Country.TURKIYE, product_model=opportunity.product_model)
+            .order_by("price_eur", "-observed_at")
+        )
 
     all_algeria_storages = sorted(
         s for s in MarketListing.objects.filter(
@@ -894,28 +1033,32 @@ def opportunity_detail(request, pk):
     return render(
         request,
         "market/opportunity_detail.html",
-        base_context("opportunities")
+        base_context(request, "opportunities")
         | {
             "opportunity": opportunity,
             "brand": opportunity.product_model.brand.name if opportunity.product_model.brand else "Unknown",
             "category_name": cat_obj.name if cat_obj else "",
             "category_slug": cat_obj.slug if cat_obj else "",
             "storage": storage,
+            "spec_label": "RAM" if is_laptop else "Storage",
             "recommendation_class": rec_class(opportunity.recommendation),
             "margin_percent": pct(opportunity.margin_percent),
-            "algeria_min": money(opportunity.algeria_min_eur),
-            "algeria_avg": money(opportunity.algeria_avg_eur),
-            "turkiye_avg": money(opportunity.sahibinden_avg_eur),
-            "gross_margin": money(opportunity.gross_margin_vs_sahibinden_eur),
+            "algeria_min": money(opportunity.algeria_min_eur, selected_currency),
+            "algeria_avg": money(opportunity.algeria_avg_eur, selected_currency),
+            "turkiye_avg": money(opportunity.sahibinden_avg_eur, selected_currency),
+            "gross_margin": money(opportunity.gross_margin_vs_sahibinden_eur, selected_currency),
+            "capital_roi": ratio_pct(opportunity.gross_margin_vs_sahibinden_eur, opportunity.algeria_min_eur),
             "gain_split": gain_split,
-            "my_gain": money(gain_split["my_gain_eur"]) if gain_split else "",
-            "my_gain_dzd": money_amount(gain_split["my_gain_dzd"], "DZD") if gain_split else "",
-            "buyer_price": money(gain_split["offer_price_to_buyer_eur"]) if gain_split else "",
+            "my_gain": money(gain_split["my_gain_eur"], selected_currency) if gain_split and show_internal_gain else "",
+            "my_gain_dzd": money_amount(gain_split["my_gain_dzd"], "DZD") if gain_split and show_internal_gain else "",
+            "buyer_price": money(gain_split["offer_price_to_buyer_eur"], selected_currency) if gain_split else "",
             "buyer_price_dzd": money_amount(gain_split["offer_price_to_buyer_dzd"], "DZD") if gain_split else "",
-            "buyer_gain": money(gain_split["buyer_gain_eur"]) if gain_split else "",
+            "buyer_gain": money(gain_split["buyer_gain_eur"], selected_currency) if gain_split else "",
             "buyer_gain_percent": pct(gain_split["buyer_gain_percent"]) if gain_split else "",
-            "my_gain_percent_of_gross": pct(gain_split["my_gain_percent_of_gross"]) if gain_split else "",
-            "supplier": money(opportunity.supplier_eur),
+            "my_gain_percent_of_gross": (
+                pct(gain_split["my_gain_percent_of_gross"]) if gain_split and show_internal_gain else ""
+            ),
+            "supplier": money(opportunity.supplier_eur, selected_currency),
             "supplier_margin": supplier_margin,
             "coverage": coverage_counts(opportunity.product_model, storage),
             "hero_image_url": listing_image_url(
@@ -925,6 +1068,7 @@ def opportunity_detail(request, pk):
             ),
             "algeria_rows": listing_display_rows(algeria_listings),
             "turkiye_rows": listing_display_rows(turkiye_listings),
+            "can_view_internal_gain": show_internal_gain,
             "is_cross_storage": storage is None,
             "all_algeria_storages": all_algeria_storages,
             "all_turkiye_storages": all_turkiye_storages,
@@ -981,7 +1125,7 @@ def listings(request):
     return render(
         request,
         "market/listings.html",
-        base_context("listings")
+        base_context(request, "listings")
         | {
             "listing_rows": listing_rows,
             "filters": {
@@ -1066,7 +1210,7 @@ def data_quality(request):
     return render(
         request,
         "market/data_quality.html",
-        base_context("data_quality")
+        base_context(request, "data_quality")
         | {
             "source_quality": source_quality,
             "review_rows": review_rows,
@@ -1132,5 +1276,353 @@ def sources(request):
     return render(
         request,
         "market/sources.html",
-        base_context("sources") | {"source_rows": source_rows},
+        base_context(request, "sources") | {"source_rows": source_rows},
     )
+
+
+DEALS_PAGE_SIZE = 10
+
+
+def _compute_all_deals():
+    """Compute all deals grouped by brand, sorted by margin descending."""
+    import statistics
+    from market import services as market_services
+    from market.models import SupplierPrice
+
+    algeria_listings = (
+        MarketListing.objects.select_related("source", "product_model", "product_model__brand", "variant")
+        .filter(
+            country=Country.ALGERIA,
+            review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
+            price_eur__isnull=False,
+            product_model__isnull=False,
+        )
+        .order_by("product_model__brand__name", "product_model__canonical_name", "storage_gb", "price_eur")
+    )
+
+    brand_deals = {}
+    for listing in algeria_listings:
+        pm = listing.product_model
+        brand = pm.brand.name if pm.brand else "Unknown"
+        storage = listing.storage_gb
+
+        sah_query = MarketListing.objects.filter(
+            source_type=SourceType.SAHIBINDEN,
+            product_model=pm,
+            price_eur__isnull=False,
+            review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
+        )
+        if storage:
+            sah_query = sah_query.filter(storage_gb=storage)
+
+        sah_prices_eur = list(sah_query.values_list("price_eur", flat=True))
+        sah_prices_try = list(sah_query.values_list("price_original", flat=True))
+        sah_count = len(sah_prices_eur)
+
+        if not sah_count:
+            continue
+
+        sah_median_eur = statistics.median(sah_prices_eur)
+        sah_median_try = statistics.median(sah_prices_try)
+        sah_min_try = min(sah_prices_try)
+        sah_max_try = max(sah_prices_try)
+        sah_urls = list(sah_query.values_list("listing_url", flat=True)[:10])
+
+        margin_eur = (sah_median_eur - listing.price_eur) if listing.price_eur else None
+        margin_pct = (margin_eur / listing.price_eur * 100) if (margin_eur is not None and listing.price_eur) else None
+
+        supplier = SupplierPrice.objects.filter(
+            product_model=pm, active=True, supplier_price_usd__isnull=False,
+        )
+        if storage:
+            supplier = supplier.filter(storage_gb=storage)
+        supplier_first = supplier.first()
+
+        # Compute FX-converted display prices using current rates
+        try:
+            from market.services import currency as fx
+        except Exception:
+            fx = None
+
+        price_try = None
+        price_usd = None
+        price_dzd = None
+        if listing.price_eur is not None and fx:
+            try:
+                price_try = fx.eur_to_try(listing.price_eur)
+            except Exception:
+                price_try = None
+            try:
+                price_usd = fx.eur_to_usd(listing.price_eur)
+            except Exception:
+                price_usd = None
+            try:
+                price_dzd = fx.eur_to_dzd(listing.price_eur)
+            except Exception:
+                price_dzd = None
+
+        # Sahibinden median is stored in TRY; convert to EUR/USD/DZD
+        sah_median_eur = None
+        sah_median_usd = None
+        sah_median_dzd = None
+        if sah_median_try is not None and fx:
+            try:
+                sah_median_eur = fx.try_to_eur(sah_median_try)
+                sah_median_usd = fx.eur_to_usd(sah_median_eur)
+                sah_median_dzd = fx.eur_to_dzd(sah_median_eur)
+            except Exception:
+                sah_median_eur = sah_median_usd = sah_median_dzd = None
+
+        # Supplier conversions (prefer supplier_eur if present)
+        supplier_try = None
+        supplier_dzd = None
+        if supplier_first:
+            try:
+                if supplier_first.supplier_price_eur is not None and fx:
+                    supplier_try = fx.eur_to_try(supplier_first.supplier_price_eur)
+                    supplier_dzd = fx.eur_to_dzd(supplier_first.supplier_price_eur)
+                elif supplier_first.supplier_price_usd is not None and fx:
+                    sup_eur = fx.usd_to_eur(supplier_first.supplier_price_usd)
+                    supplier_try = fx.eur_to_try(sup_eur)
+                    supplier_dzd = fx.eur_to_dzd(sup_eur)
+            except Exception:
+                supplier_try = supplier_dzd = None
+
+        deal = {
+            "id": listing.id,
+            "brand": brand,
+            "model": pm.canonical_name,
+            "storage_gb": storage,
+            "title": listing.title_raw or f"{pm.canonical_name} {storage or ''}GB".strip(),
+            "price_original": listing.price_original,
+            "currency_original": listing.currency_original,
+            "price_eur": listing.price_eur,
+            "price_try": float(price_try) if price_try is not None else None,
+            "price_usd": float(price_usd) if price_usd is not None else None,
+            "price_dzd": float(price_dzd) if price_dzd is not None else None,
+            "condition": listing.get_condition_display(),
+            "source_code": source_code(listing.source_type),
+            "source_name": listing.source.name,
+            "image_url": listing_image_url(listing),
+            "listing_url": listing.listing_url,
+            "observed_at": listing.observed_at,
+            "sah_median": sah_median_try,
+            "sah_median_eur": float(sah_median_eur) if sah_median_eur is not None else None,
+            "sah_median_usd": float(sah_median_usd) if sah_median_usd is not None else None,
+            "sah_median_dzd": float(sah_median_dzd) if sah_median_dzd is not None else None,
+            "sah_min": sah_min_try,
+            "sah_max": sah_max_try,
+            "sah_count": sah_count,
+            "sah_urls": [u for u in sah_urls if u],
+            "sah_urls_json": json.dumps([u for u in sah_urls if u]),
+            "margin_eur": margin_eur,
+            "margin_pct": margin_pct,
+            "supplier_usd": float(supplier_first.supplier_price_usd) if supplier_first and supplier_first.supplier_price_usd is not None else None,
+            "supplier_eur": float(supplier_first.supplier_price_eur) if supplier_first and supplier_first.supplier_price_eur is not None else None,
+            "supplier_try": float(supplier_try) if supplier_try is not None else None,
+            "supplier_dzd": float(supplier_dzd) if supplier_dzd is not None else None,
+        }
+        brand_deals.setdefault(brand, []).append(deal)
+
+    brand_summaries = []
+    for brand_name, deals in brand_deals.items():
+        deals.sort(key=lambda d: d["margin_pct"] or -9999, reverse=True)
+        margins = [d["margin_pct"] for d in deals if d["margin_pct"] is not None]
+        avg_margin = sum(margins) / len(margins) if margins else 0
+        brand_summaries.append({
+            "brand": brand_name,
+            "deal_count": len(deals),
+            "avg_margin": avg_margin,
+            "deals": deals,
+        })
+
+    brand_summaries.sort(key=lambda b: b["avg_margin"], reverse=True)
+
+    all_deals = []
+    for bs in brand_summaries:
+        all_deals.extend(bs["deals"])
+    all_deals.sort(key=lambda d: d["margin_pct"] or -9999, reverse=True)
+    all_margins = [d["margin_pct"] for d in all_deals if d["margin_pct"] is not None]
+    all_avg = sum(all_margins) / len(all_margins) if all_margins else 0
+    brand_summaries.insert(0, {
+        "brand": "ALL",
+        "deal_count": len(all_deals),
+        "avg_margin": all_avg,
+        "deals": all_deals,
+    })
+
+    return brand_summaries
+
+
+def _deal_to_json(d):
+    """Convert a DealSnapshot instance or dict to JSON-safe dict."""
+    from decimal import Decimal
+
+    def _val(key, obj=d):
+        if isinstance(obj, dict):
+            return obj.get(key)
+        return getattr(obj, key, None)
+    def _float(key, obj=d):
+        v = _val(key, obj)
+        if v is None:
+            return None
+        if isinstance(v, Decimal):
+            return float(v)
+        try:
+            return float(v)
+        except (TypeError, ValueError):
+            return None
+
+    return {
+        "id": _val("id"),
+        "model": _val("model_name") or _val("model"),
+        "storage_gb": _val("storage_gb"),
+        "title": _val("title"),
+        "price_original": _float("price_original"),
+        "currency_original": _val("currency_original"),
+        "price_eur": _float("price_eur"),
+        "price_try": _float("price_try"),
+        "price_usd": _float("price_usd"),
+        "price_dzd": _float("price_dzd"),
+        "sah_median": _float("sah_median"),
+        "sah_count": _val("sah_count"),
+        "sah_urls": _val("sah_urls"),
+        "margin_pct": _float("margin_pct"),
+        "supplier_usd": _float("supplier_usd"),
+        "source_code": _val("source_code"),
+        "source_name": _val("source_name"),
+        "condition": _val("condition"),
+        "image_url": _val("image_url"),
+        "listing_url": _val("listing_url"),
+        "observed_at": _val("observed_at").isoformat() if hasattr(_val("observed_at"), "isoformat") else _val("observed_at"),
+    }
+
+
+def _snapshot_to_dict(snap):
+    """Convert a DealSnapshot instance to a template-friendly dict."""
+    return {
+        "id": snap.id,
+        "brand": snap.brand_name,
+        "model": snap.model_name,
+        "storage_gb": snap.storage_gb,
+        "title": snap.title,
+        "price_original": snap.price_original,
+        "currency_original": snap.currency_original,
+        "price_eur": snap.price_eur,
+        "price_try": snap.price_try,
+        "price_usd": snap.price_usd,
+        "price_dzd": snap.price_dzd,
+        "condition": snap.condition,
+        "source_code": snap.source_code,
+        "source_name": snap.source_name,
+        "image_url": snap.image_url,
+        "listing_url": snap.listing_url,
+        "observed_at": snap.observed_at,
+        "sah_median": snap.sah_median,
+        "sah_median_eur": snap.sah_median_eur,
+        "sah_median_usd": snap.sah_median_usd,
+        "sah_median_dzd": snap.sah_median_dzd,
+        "sah_min": snap.sah_min,
+        "sah_max": snap.sah_max,
+        "sah_count": snap.sah_count,
+        "sah_urls": snap.sah_urls,
+        "sah_urls_json": snap.sah_urls_json,
+        "margin_eur": snap.margin_eur,
+        "margin_pct": snap.margin_pct,
+        "supplier_usd": snap.supplier_usd,
+        "supplier_eur": snap.supplier_eur,
+        "supplier_try": snap.supplier_try,
+        "supplier_dzd": snap.supplier_dzd,
+    }
+
+
+def deals_swiper(request):
+    from django.db.models import Avg, Count
+    from market.models import DealSnapshot
+
+    selected_currency = get_active_currency(request)
+
+    # Build brand summaries from cached snapshots
+    brand_stats = (
+        DealSnapshot.objects
+        .values("brand_name")
+        .annotate(deal_count=Count("id"), avg_margin=Avg("margin_pct"))
+        .order_by("-avg_margin")
+    )
+
+    brand_summaries = []
+    for bs in brand_stats:
+        deals = list(
+            DealSnapshot.objects
+            .filter(brand_name=bs["brand_name"])
+            .order_by("-margin_pct")[:DEALS_PAGE_SIZE]
+        )
+        brand_summaries.append({
+            "brand": bs["brand_name"],
+            "deal_count": bs["deal_count"],
+            "avg_margin": bs["avg_margin"] or 0,
+            "deals": [_snapshot_to_dict(d) for d in deals],
+            "deal_count_total": bs["deal_count"],
+        })
+
+    # ALL tab
+    all_deals = list(
+        DealSnapshot.objects
+        .order_by("-margin_pct")[:DEALS_PAGE_SIZE]
+    )
+    all_margins = [d.margin_pct for d in all_deals if d.margin_pct is not None]
+    all_avg = sum(all_margins) / len(all_margins) if all_margins else 0
+    all_count = DealSnapshot.objects.count()
+    brand_summaries.insert(0, {
+        "brand": "ALL",
+        "deal_count": all_count,
+        "avg_margin": all_avg,
+        "deals": [_snapshot_to_dict(d) for d in all_deals],
+        "deal_count_total": all_count,
+    })
+
+    # Slice to first page per brand for initial render
+    brand_data_json = json.dumps([{
+        "brand": bs["brand"],
+        "deal_count": bs["deal_count"],
+        "total_deals": bs["deal_count"],
+        "avg_margin": float(bs["avg_margin"]),
+        "loaded": min(DEALS_PAGE_SIZE, bs["deal_count"]),
+        "deals": [_deal_to_json(d) for d in bs["deals"][:DEALS_PAGE_SIZE]],
+    } for bs in brand_summaries])
+
+    return render(
+        request,
+        "market/deals_swiper.html",
+        base_context(request, "deals_swiper")
+        | {
+            "brand_summaries": brand_summaries,
+            "brand_data_json": brand_data_json,
+            "selected_currency": selected_currency,
+        },
+    )
+
+
+@require_http_methods(["GET"])
+def deals_api(request):
+    """Return more deals for a brand tab. ?brand=X&offset=N"""
+    from market.models import DealSnapshot
+
+    brand = request.GET.get("brand", "")
+    offset = int(request.GET.get("offset", 0))
+    limit = int(request.GET.get("limit", DEALS_PAGE_SIZE))
+
+    if brand == "ALL":
+        qs = DealSnapshot.objects.all()
+    else:
+        qs = DealSnapshot.objects.filter(brand_name=brand)
+
+    total = qs.count()
+    deals = list(qs.order_by("-margin_pct")[offset:offset + limit])
+    return JsonResponse({
+        "ok": True,
+        "brand": brand,
+        "offset": offset,
+        "total": total,
+        "deals": [_deal_to_json(d) for d in deals],
+    })

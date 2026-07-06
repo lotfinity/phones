@@ -1,3 +1,4 @@
+import json
 import re
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -406,24 +407,78 @@ class OpportunitySnapshot(models.Model):
         (Decimal("500"), Decimal("0.35"), Decimal("100")),
         (None, Decimal("0.50"), Decimal("150")),
     ]
+    GOOD_DEAL_GROSS_FLOOR_EUR = Decimal("150")
+    SUPPLIER_BUYER_DISCOUNT_USD = Decimal("100")
 
     def gain_split(self):
         from decimal import Decimal as D
-        from market.services.currency import eur_to_dzd, money
+        from market.services.currency import eur_to_dzd, money, usd_to_eur
 
         gross = self.gross_margin_vs_sahibinden_eur
         algeria_min = self.algeria_min_eur
         sahibinden_avg = self.sahibinden_avg_eur
+        supplier = self.supplier_eur
 
-        if gross is None or algeria_min is None or sahibinden_avg is None:
+        if algeria_min is None:
+            return None
+
+        algeria_min = D(str(algeria_min))
+
+        if supplier is not None:
+            supplier = D(str(supplier))
+            buyer_floor = usd_to_eur(self.SUPPLIER_BUYER_DISCOUNT_USD)
+            gross = supplier - algeria_min
+            split_pool = gross - buyer_floor
+
+            if split_pool <= 0:
+                my_gain = D("0")
+                buyer_gain = gross
+                offer_price = algeria_min
+                deal_quality = "weak" if buyer_gain > 0 else "ignore"
+                notes = (
+                    f"Supplier-list rule: target buyer discount USD {self.SUPPLIER_BUYER_DISCOUNT_USD:.0f}; "
+                    "spread is too thin to split after the target discount."
+                )
+            else:
+                my_gain = split_pool / D("2")
+                buyer_gain = buyer_floor + (split_pool / D("2"))
+                offer_price = algeria_min + my_gain
+                buyer_gain_pct = (buyer_gain / offer_price * D("100")) if offer_price else D("0")
+                if buyer_gain_pct >= 30:
+                    deal_quality = "strong"
+                elif buyer_gain_pct >= 15 or split_pool >= self.GOOD_DEAL_GROSS_FLOOR_EUR:
+                    deal_quality = "medium"
+                else:
+                    deal_quality = "weak"
+                notes = (
+                    f"Supplier-list rule: buyer gets USD {self.SUPPLIER_BUYER_DISCOUNT_USD:.0f} below supplier, "
+                    "then remaining spread is split 50/50."
+                )
+
+            buyer_gain_pct = (buyer_gain / offer_price * D("100")) if offer_price else D("0")
+            my_gain_pct_of_gross = (my_gain / gross * D("100")) if gross else D("0")
+            return {
+                "pricing_basis": "supplier",
+                "gross_margin_eur": money(gross),
+                "my_gain_eur": money(my_gain),
+                "buyer_gain_eur": money(buyer_gain),
+                "offer_price_to_buyer_eur": money(offer_price),
+                "buyer_gain_percent": buyer_gain_pct.quantize(D("0.01"), rounding=ROUND_HALF_UP),
+                "my_gain_percent_of_gross": my_gain_pct_of_gross.quantize(D("0.01"), rounding=ROUND_HALF_UP),
+                "my_gain_dzd": money(eur_to_dzd(my_gain)),
+                "offer_price_to_buyer_dzd": money(eur_to_dzd(offer_price)),
+                "deal_quality": deal_quality,
+                "notes": notes,
+            }
+
+        if gross is None or sahibinden_avg is None:
             return None
 
         gross = D(str(gross))
 
-        algeria_min = D(str(algeria_min))
-
         if gross <= 0:
             return {
+                "pricing_basis": "turkiye_market",
                 "gross_margin_eur": money(gross),
                 "my_gain_eur": money(D("0")),
                 "buyer_gain_eur": money(gross),
@@ -468,6 +523,8 @@ class OpportunitySnapshot(models.Model):
             deal_quality = "strong"
         elif buyer_gain_pct >= 15:
             deal_quality = "medium"
+        elif gross >= self.GOOD_DEAL_GROSS_FLOOR_EUR and buyer_gain > 0:
+            deal_quality = "medium"
         elif buyer_gain_pct > 0:
             deal_quality = "weak"
         else:
@@ -481,12 +538,15 @@ class OpportunitySnapshot(models.Model):
             notes_parts.append(f"Capped to leave buyer at least EUR {buyer_min:.0f}")
         elif buyer_gain < buyer_min and buyer_min > 0:
             notes_parts.append(f"Buyer minimum target EUR {buyer_min:.0f} is not met")
+        if gross >= self.GOOD_DEAL_GROSS_FLOOR_EUR and deal_quality == "medium" and buyer_gain_pct < 15:
+            notes_parts.append(f"Absolute spread above EUR {self.GOOD_DEAL_GROSS_FLOOR_EUR:.0f}; kept as medium")
         if deal_quality == "weak":
             notes_parts.append("Thin margin for buyer; may not close")
         if deal_quality == "strong":
             notes_parts.append("Healthy buyer profit; attractive deal")
 
         return {
+            "pricing_basis": "turkiye_market",
             "gross_margin_eur": money(gross),
             "my_gain_eur": money(my_gain),
             "buyer_gain_eur": money(buyer_gain),
@@ -498,6 +558,66 @@ class OpportunitySnapshot(models.Model):
             "deal_quality": deal_quality,
             "notes": "; ".join(notes_parts),
         }
+
+
+class DealSnapshot(models.Model):
+    listing = models.ForeignKey("MarketListing", on_delete=models.CASCADE, related_name="deal_snapshots")
+    brand_name = models.CharField(max_length=120, db_index=True)
+    model_name = models.CharField(max_length=200)
+    storage_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    title = models.CharField(max_length=500)
+
+    price_original = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    currency_original = models.CharField(max_length=8, blank=True)
+    price_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    price_try = models.FloatField(null=True, blank=True)
+    price_usd = models.FloatField(null=True, blank=True)
+    price_dzd = models.FloatField(null=True, blank=True)
+
+    condition = models.CharField(max_length=40, blank=True)
+    source_code = models.CharField(max_length=10, blank=True)
+    source_name = models.CharField(max_length=200, blank=True)
+    image_url = models.URLField(max_length=1000, blank=True)
+    listing_url = models.URLField(max_length=1000, blank=True)
+    observed_at = models.DateTimeField(null=True, blank=True)
+
+    sah_median = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    sah_median_eur = models.FloatField(null=True, blank=True)
+    sah_median_usd = models.FloatField(null=True, blank=True)
+    sah_median_dzd = models.FloatField(null=True, blank=True)
+    sah_min = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    sah_max = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    sah_count = models.PositiveIntegerField(default=0)
+    sah_urls = models.JSONField(default=list, blank=True)
+
+    supplier_usd = models.FloatField(null=True, blank=True)
+    supplier_eur = models.FloatField(null=True, blank=True)
+    supplier_try = models.FloatField(null=True, blank=True)
+    supplier_dzd = models.FloatField(null=True, blank=True)
+
+    margin_eur = models.DecimalField(max_digits=12, decimal_places=2, null=True)
+    margin_pct = models.FloatField(null=True, blank=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["brand_name", "-margin_pct"]),
+            models.Index(fields=["-margin_pct"]),
+            models.Index(fields=["listing"]),
+        ]
+        ordering = ["-margin_pct"]
+
+    def __str__(self):
+        return f"{self.brand_name} {self.model_name} margin={self.margin_pct}"
+
+    @property
+    def model(self):
+        return self.model_name
+
+    @property
+    def sah_urls_json(self):
+        return json.dumps(self.sah_urls)
 
 
 class ProductAsset(models.Model):

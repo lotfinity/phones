@@ -1,42 +1,50 @@
 {% extends "market/base.html" %}
-{% load static %}
-{% load i18n %}
-{% block title %}PriceBridge - {% trans "Opportunities" %}{% endblock %}
+{% load static i18n %}
+
+{% block title %}PriceBridge — {% trans "Opportunities" %}{% endblock %}
 {% block crumb %}{% trans "Opportunities" %}{% endblock %}
 {% block header_actions %}
-  <a class="btn btn-secondary btn-sm" href="{% url 'listings' %}">{% trans "Review listings" %}</a>
-  <a class="btn btn-primary btn-sm" href="/admin/market/opportunitysnapshot/">{% trans "Admin" %}</a>
+<a class="btn btn-primary btn-sm" href="{% url 'admin:market_opportunitysnapshot_changelist' %}">{% trans "Admin" %}</a>
 {% endblock %}
+
 {% block content %}
 <div class="page-header">
   <div>
     <h1 class="page-title">{% trans "Opportunities" %}</h1>
-    <p class="page-desc">{% trans "Buy-side Algeria listings compared against Turkiye sell-side prices, matched by product model and storage." %}</p>
+    <p class="page-desc">{% trans "Algeria-vs-Turkiye cross-market margins, ranked by actionable spread and data quality." %}</p>
   </div>
 </div>
 
-<form class="filters opp-filters" method="get">
-  <div class="opp-tab-row">
-    {% for key, label in source_tabs.items %}
-      <a class="opp-tab {% if active_src == key %}active{% endif %}" href="?src={{ key }}&amp;cat={{ active_cat }}&amp;brand={{ active_brand }}&amp;q={{ search_query }}">{{ label }}</a>
-    {% endfor %}
-  </div>
-
-  <div class="opp-tab-row">
+<form class="opp-filters" method="get">
+  <div class="opp-tab-row" data-od-id="opportunity-category-tabs">
     {% for key, label in cat_tabs.items %}
-      <a class="opp-tab cat-tab {% if active_cat == key %}active{% endif %}" href="?src={{ active_src }}&amp;cat={{ key }}&amp;brand={{ active_brand }}&amp;q={{ search_query }}">
-        {% if key == 'laptops' %}<span class="cat-icon">NB</span>{% elif key == 'phones' %}<span class="cat-icon">PH</span>{% elif key == 'non-phones' %}<span class="cat-icon">OT</span>{% endif %}{{ label }}
+      <a class="opp-tab cat-tab {% if active_cat == key %}active{% endif %}"
+         href="?src={{ active_src }}&amp;cat={{ key }}&amp;brand={{ active_brand }}&amp;q={{ search_query }}">
+        {% if key == 'laptops' %}
+          <span class="cat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M2 19h20"/></svg>
+          </span>
+        {% elif key == 'phones' %}
+          <span class="cat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2H7a2 2 0 0 1 2 1.72c.12.78.33 1.53.63 2.24a2 2 0 0 1-.45 2L8.82 8.82a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2-.45c.71.3 1.46.51 2.24.63A2 2 0 0 1 22 16.92z"/></svg>
+          </span>
+        {% elif key == 'non-phones' %}
+          <span class="cat-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8"/><path d="M8 14h8"/><path d="M8 19h4"/></svg>
+          </span>
+        {% endif %}
+        {{ label }}
       </a>
     {% endfor %}
   </div>
 
   <div class="opp-filter-row">
     <div class="opp-filter-grid">
-      <label class="f-group f-group-wide">
+      <div class="f-group f-group-wide">
         <span class="f-label">{% trans "Search" %}</span>
-        <input class="f-input f-search" type="text" name="q" value="{{ search_query }}" placeholder="{% trans 'Model name...' %}">
-      </label>
-      <label class="f-group">
+        <input class="f-input f-search" type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'Model name…' %}">
+      </div>
+      <div class="f-group">
         <span class="f-label">{% trans "Brand" %}</span>
         <select class="f-select" name="brand">
           <option value="">{% trans "All brands" %}</option>
@@ -44,18 +52,19 @@
             <option value="{{ b.name }}" {% if active_brand == b.name %}selected{% endif %}>{{ b.name }}</option>
           {% endfor %}
         </select>
-      </label>
+      </div>
       <input type="hidden" name="src" value="{{ active_src }}">
       <input type="hidden" name="cat" value="{{ active_cat }}">
       <div class="f-actions">
-        <button class="btn btn-primary btn-sm" type="submit">{% trans "Filter" %}</button>
-        <a class="btn btn-ghost btn-sm" href="{% url 'opportunities' %}">{% trans "Reset" %}</a>
+        <button class="btn btn-primary" type="submit">{% trans "Filter" %}</button>
+        <a class="btn btn-secondary" href="{% url 'opportunities' %}">{% trans "Reset" %}</a>
       </div>
     </div>
   </div>
 </form>
 
-<section class="stat-row stat-row-6">
+{% if signal_stats %}
+<section class="stat-row-6" data-od-id="opportunity-signal-stats">
   {% for stat in signal_stats %}
     <div class="stat-card {% if stat.color %}stat-{{ stat.color }}{% endif %}">
       <div class="lbl">{{ stat.label }}</div>
@@ -64,35 +73,49 @@
     </div>
   {% endfor %}
 </section>
+{% endif %}
 
 {% if best_opportunity %}
-<div class="best-deal-banner">
+<div class="best-deal-banner" data-od-id="opportunity-best-deal">
   <div class="best-deal-label">{% trans "Best opportunity" %}</div>
   <div class="best-deal-content">
-    <span class="thumb thumb-sm">
+    <span class="thumb thumb-md">
       {% if best_opportunity.image_url %}
         <img src="{{ best_opportunity.image_url }}" alt="{{ best_opportunity.item.product_model }}">
       {% endif %}
     </span>
     <div class="min-w-0 flex-1">
-      <a href="{% url 'opportunity_detail' best_opportunity.item.id %}" class="best-deal-name">{{ best_opportunity.item.product_model }}</a>
-      <div class="best-deal-meta">{{ best_opportunity.brand }}{% if best_opportunity.item.storage_gb %} / {{ best_opportunity.item.storage_gb }}GB{% endif %}</div>
+      <a
+        href="{% url 'opportunity_detail' best_opportunity.item.id %}"
+        class="best-deal-name"
+        data-opportunity-modal
+      >{{ best_opportunity.item.product_model }}</a>
+      <div class="best-deal-meta">
+        {{ best_opportunity.brand }}{% if best_opportunity.item.storage_gb %} / {{ best_opportunity.item.storage_gb }}GB{% endif %}
+      </div>
     </div>
     <div class="best-deal-numbers">
-      <span class="best-deal-margin">{{ best_opportunity.margin_percent }}</span>
-      <span class="best-deal-gross">{{ best_opportunity.gross_margin }}</span>
+      {% if can_view_internal_gain %}
+        <span class="best-deal-margin">{{ best_opportunity.margin_percent }}</span>
+        <span class="best-deal-gross">{{ best_opportunity.gross_margin }} gross</span>
+      {% else %}
+        <span class="best-deal-margin">{{ best_opportunity.buyer_gain_percent }}</span>
+        <span class="best-deal-gross">{{ best_opportunity.buyer_gain }} buyer gain</span>
+      {% endif %}
     </div>
   </div>
 </div>
 {% endif %}
 
-<section class="mobile-card-list">
+<section class="mobile-card-list" data-od-id="opportunity-mobile-list">
   {% for row in rows %}
     {% if row.is_source_row %}
-      <article class="mobile-record-card">
+      <article class="mobile-record-card opp-source-row">
     {% else %}
-      <a class="mobile-record-card" href="{% url 'opportunity_detail' row.item.id %}">
+      <a class="mobile-record-card opp-card" href="{% url 'opportunity_detail' row.item.id %}" data-opportunity-modal>
     {% endif %}
+
+    {% if row.image_url or not row.is_source_row %}
       <div class="flex gap-3">
         <span class="thumb thumb-md">
           {% if row.image_url %}
@@ -102,70 +125,135 @@
         <div class="min-w-0 flex-1">
           <div class="flex flex-wrap items-start justify-between gap-2">
             <div class="min-w-0">
-              <div class="break-words text-base font-semibold text-slate-950 dark:text-white">
-                <span
+              <div class="text-base font-semibold text-slate-950 dark:text-white">
+                <span{% if not row.is_source_row %}
                   data-inline-field="canonical_name"
                   data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
                   data-inline-id="{{ row.item.product_model.id }}"
-                >{{ row.item.product_model }}</span>
+                {% endif %}>{{ row.item.product_model }}</span>
               </div>
-              <div class="mt-1 card-meta-row">
+              <div class="card-meta-row mt-1">
                 <span class="brand-chip">{{ row.brand }}</span>
                 {% if row.category_slug %}
-                  <span class="cat-chip cat-{{ row.category_slug }}">{{ row.category_name }}</span>
+                  <span class="cat-chip cat-{{ row.category_slug }}">
+                    {% if row.category_slug == 'laptops' %}
+                      <span class="cat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M2 19h20"/></svg>
+                      </span>
+                    {% elif row.category_slug == 'phones' %}
+                      <span class="cat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2H7a2 2 0 0 1 2 1.72c.12.78.33 1.53.63 2.24a2 2 0 0 1-.45 2L8.82 8.82a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2-.45c.71.3 1.46.51 2.24.63A2 2 0 0 1 22 16.92z"/></svg>
+                      </span>
+                    {% elif row.category_slug == 'non-phones' %}
+                      <span class="cat-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8"/><path d="M8 14h8"/><path d="M8 19h4"/></svg>
+                      </span>
+                    {% endif %}
+                    {{ row.category_name }}
+                  </span>
                 {% endif %}
                 {% if row.item.storage_gb %}
                   <span class="spec-chip">{{ row.item.storage_gb }}GB{% if row.item.sim_config %} / {{ row.item.sim_config }}{% endif %}</span>
                 {% endif %}
               </div>
             </div>
-            <span class="cell-rec {{ row.recommendation_class }}">{{ row.item.get_recommendation_display }}</span>
+            <span class="cell-rec {{ row.recommendation_class }}">
+              <span class="rec-icon" aria-hidden="true">
+                {% if row.recommendation_class == 'rec-buy' %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+                {% elif row.recommendation_class == 'rec-watch' %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                {% else %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>
+                {% endif %}
+              </span>
+              {{ row.item.get_recommendation_display }}
+            </span>
           </div>
-          <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
+
+          <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+            {% if can_view_internal_gain %}
             <div>
-              <div class="font-mono text-xs uppercase text-slate-500">{% trans "Margin" %}</div>
-              <div class="num cell-margin {{ row.margin_class }}">{{ row.margin_percent|default:"-" }}</div>
+              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Margin" %}</div>
+              <div class="num text-base {% if row.margin_class == 'good' %}text-emerald-700 dark:text-emerald-300{% elif row.margin_class == 'warn' %}text-amber-700 dark:text-amber-300{% endif %}">{{ row.margin_percent|default:"-" }}</div>
             </div>
             <div>
-              <div class="font-mono text-xs uppercase text-slate-500">{% trans "Gross" %}</div>
-              <div class="num">{{ row.gross_margin|default:"-" }}</div>
+              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Gross" %}</div>
+              <div class="num text-base">{{ row.gross_margin|default:"-" }}</div>
+            </div>
+            <div>
+              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Capital ROI" %}</div>
+              <div class="num text-base">{{ row.capital_roi|default:"-" }}</div>
             </div>
             {% if row.gain_split %}
               <div>
-                <div class="font-mono text-xs uppercase text-slate-500">{% trans "My Gain" %}</div>
-                <div class="num">{{ row.my_gain|default:"-" }}</div>
+                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "My Gain" %}</div>
+                <div class="num text-base">{{ row.my_gain|default:"-" }}</div>
               </div>
               <div>
-                <div class="font-mono text-xs uppercase text-slate-500">{% trans "Buyer Gain" %}</div>
-                <div class="num">{{ row.buyer_gain|default:"-" }}</div>
+                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Buyer Price" %}</div>
+                <div class="num text-base">{{ row.buyer_price|default:"-" }}</div>
+              </div>
+              <div>
+                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Buyer Gain" %}</div>
+                <div class="num text-base">{{ row.buyer_gain|default:"-" }}</div>
               </div>
             {% endif %}
             <div>
-              <div class="font-mono text-xs uppercase text-slate-500">{% trans "Algeria Price" %}</div>
-              <div class="num">{{ row.algeria_min|default:"-" }}</div>
+              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Algeria min" %}</div>
+              <div class="num text-base">{{ row.algeria_min|default:"-" }}</div>
             </div>
             {% if active_src == 'supplier' %}
               <div>
-                <div class="font-mono text-xs uppercase text-slate-500">{% trans "Supplier" %}</div>
-                <div class="num">{{ row.supplier|default:"-" }}</div>
+                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Supplier" %}</div>
+                <div class="num text-base">{{ row.supplier|default:"-" }}</div>
               </div>
             {% else %}
               <div>
-                <div class="font-mono text-xs uppercase text-slate-500">{% trans "Turkey Avg" %}</div>
-                <div class="num">{{ row.turkiye_avg|default:"-" }}</div>
+                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Turkey avg" %}</div>
+                <div class="num text-base">{{ row.turkiye_avg|default:"-" }}</div>
               </div>
             {% endif %}
+            {% else %}
+              <div>
+                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Turkey avg" %}</div>
+                <div class="num text-base">{{ row.turkiye_avg|default:"-" }}</div>
+              </div>
+              {% if row.gain_split %}
+                <div>
+                  <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Buyer Price" %}</div>
+                  <div class="num text-base">{{ row.buyer_price|default:"-" }}</div>
+                </div>
+                <div>
+                  <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Buyer Gain" %}</div>
+                  <div class="num text-base">{{ row.buyer_gain|default:"-" }}</div>
+                  {% if row.buyer_gain_percent %}
+                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.buyer_gain_percent }}</div>
+                  {% endif %}
+                </div>
+                <div>
+                  <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Deal Quality" %}</div>
+                  <div class="num text-base">{{ row.gain_split.deal_quality|title }}</div>
+                </div>
+              {% endif %}
+            {% endif %}
           </div>
-          {% if row.supplier_margin and active_src != 'supplier' %}
-          <div class="mt-2 text-xs text-slate-500 dark:text-slate-400">
-            vs Supplier: <span class="font-semibold">{{ row.supplier_margin }}</span>
-            ({% if row.supplier %}{{ row.supplier }}{% else %}-{% endif %})
-          </div>
+
+          {% if row.supplier_margin and active_src != 'supplier' and can_view_internal_gain %}
+            <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">
+              {% trans "vs Supplier" %}: <span class="font-semibold">{{ row.supplier_margin }}</span>
+              ({% if row.supplier %}{{ row.supplier }}{% else %}-{% endif %})
+            </div>
           {% endif %}
-          <div class="mt-3 conf-bar">
-            <div class="conf-track"><div class="conf-fill {% if row.item.confidence_score >= 70 %}conf-high{% elif row.item.confidence_score >= 40 %}conf-med{% else %}conf-low{% endif %}" style="width:{{ row.item.confidence_score }}%;"></div></div>
+
+          <div class="mt-3 flex items-center gap-2">
+            <div class="conf-track">
+              <div class="conf-fill conf-{% if row.item.confidence_score >= 70 %}high{% elif row.item.confidence_score >= 40 %}med{% else %}low{% endif %}"
+                   style="width: {{ row.item.confidence_score }}%"></div>
+            </div>
             <span class="conf-num">{{ row.item.confidence_score }}</span>
           </div>
+
           <div class="badge-row mt-3">
             {% for source in row.sources %}
               <span class="badge {{ source.class }}">{{ source.code }} {{ source.count }}</span>
@@ -175,126 +263,273 @@
           </div>
         </div>
       </div>
-    {% if not row.is_source_row %}</a>{% else %}</article>{% endif %}
+    {% endif %}
+    {% if row.is_source_row %}
+      </article>
+    {% else %}
+      </a>
+    {% endif %}
   {% empty %}
     <div class="mobile-record-card">{% trans "No deals match those filters. Try broadening your search." %}</div>
   {% endfor %}
 </section>
 
-<div class="desktop-table table-wrap">
-  <div class="table-scroll">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>{% trans "Recommendation" %}</th>
-          <th>{% trans "Product" %}</th>
-          <th>{% trans "Category" %}</th>
-          <th>{% trans "Variant" %}</th>
-          <th class="num-r">{% trans "Algeria Price" %}</th>
-          <th class="num-r">{% trans "Algeria avg" %}</th>
-          {% if active_src == 'supplier' %}
-            <th class="num-r">{% trans "Supplier" %}</th>
-          {% else %}
-            <th class="num-r">{% trans "Turkey Avg" %}</th>
-          {% endif %}
-          <th class="num-r">{% trans "Total Spread" %}</th>
-          {% if active_src != 'algeria' %}
-            <th class="num-r">{% trans "My Gain" %}</th>
-            <th class="num-r">{% trans "Buyer Gain" %}</th>
-          {% endif %}
-          <th class="num-r">{% trans "Margin %" %}</th>
-          <th>{% trans "Confidence" %}</th>
-          <th>{% trans "Coverage" %}</th>
-          <th>{% trans "Updated" %}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in rows %}
-          <tr class="click-row" {% if not row.is_source_row %}onclick="window.location='{% url 'opportunity_detail' row.item.id %}'"{% endif %}>
-            <td><span class="cell-rec {{ row.recommendation_class }}">{{ row.item.get_recommendation_display }}</span></td>
-            <td>
-              <div class="product-cell">
-                <span class="thumb thumb-sm">
-                  {% if row.image_url %}
-                    <img src="{{ row.image_url }}" alt="{{ row.item.product_model }}">
-                  {% endif %}
-                </span>
-                <span>
-                  {% if row.is_source_row %}
-                    <span class="font-semibold">
-                  {% else %}
-                    <a href="{% url 'opportunity_detail' row.item.id %}" class="font-semibold">
-                  {% endif %}
-                    <span
-                      data-inline-field="canonical_name"
-                      data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
-                      data-inline-id="{{ row.item.product_model.id }}"
-                    >{{ row.item.product_model }}</span>
-                  {% if row.is_source_row %}</span>{% else %}</a>{% endif %}
-                  <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.brand }}</div>
-                </span>
-              </div>
-            </td>
-            <td>
-              {% if row.category_slug %}
-                <span class="cat-chip cat-{{ row.category_slug }}">{{ row.category_name }}</span>
+<div class="desktop-table" data-od-id="opportunity-desktop-table">
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{% trans "Rec" %}</th>
+            <th>{% trans "Product" %}</th>
+            <th>{% trans "Category" %}</th>
+            <th>{% trans "Variant" %}</th>
+            {% if can_view_internal_gain %}
+              <th class="num-r">{% trans "Algeria min" %}</th>
+              <th class="num-r">{% trans "Algeria avg" %}</th>
+              {% if active_src == 'supplier' %}
+                <th class="num-r">{% trans "Supplier" %}</th>
               {% else %}
-                -
+                <th class="num-r">{% trans "Turkey avg" %}</th>
               {% endif %}
-            </td>
-            <td>
-              {% if row.item.storage_gb %}
-                {{ row.item.storage_gb }}GB{% if row.item.sim_config %} / {{ row.item.sim_config }}{% endif %}
-              {% else %}
-                -
-              {% endif %}
-            </td>
-            <td class="num num-r">{{ row.algeria_min|default:"-" }}</td>
-            <td class="num num-r">{{ row.algeria_avg|default:"-" }}</td>
-            {% if active_src == 'supplier' %}
-              <td class="num num-r">{{ row.supplier|default:"-" }}</td>
+              <th class="num-r">{% trans "Spread" %}</th>
+              <th class="num-r">{% trans "My Gain" %}</th>
+              <th class="num-r">{% trans "Buyer Price" %}</th>
+              <th class="num-r">{% trans "Buyer Gain" %}</th>
+              <th class="num-r">{% trans "Margin" %}</th>
+              <th class="num-r">{% trans "Capital ROI" %}</th>
             {% else %}
-              <td class="num num-r">{{ row.turkiye_avg|default:"-" }}</td>
+              <th class="num-r">{% trans "Turkey avg" %}</th>
+              <th class="num-r">{% trans "Buyer Price" %}</th>
+              <th class="num-r">{% trans "Buyer Gain" %}</th>
+              <th>{% trans "Deal Quality" %}</th>
             {% endif %}
-            <td class="num num-r">{{ row.gross_margin|default:"-" }}</td>
-            {% if active_src != 'algeria' %}
-              <td class="num num-r">{{ row.my_gain|default:"-" }}</td>
-              <td class="num num-r">
-                {{ row.buyer_gain|default:"-" }}
-                {% if row.buyer_gain_percent %}
-                  <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.buyer_gain_percent }}</div>
+            <th>{% trans "Confidence" %}</th>
+            <th>{% trans "Coverage" %}</th>
+            <th>{% trans "Updated" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in rows %}
+            <tr
+              class="{% if not row.is_source_row %}click-row{% endif %}"
+              {% if not row.is_source_row %}data-opportunity-modal data-modal-url="{% url 'opportunity_detail' row.item.id %}" tabindex="0"{% endif %}
+            >
+              <td><span class="cell-rec {{ row.recommendation_class }}">
+                  <span class="rec-icon" aria-hidden="true">
+                    {% if row.recommendation_class == 'rec-buy' %}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+                    {% elif row.recommendation_class == 'rec-watch' %}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                    {% else %}
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>
+                    {% endif %}
+                  </span>
+                  {{ row.item.get_recommendation_display }}
+                </span></td>
+              <td>
+                <div class="flex items-center gap-3">
+                  <span class="thumb thumb-sm">
+                    {% if row.image_url %}
+                      <img src="{{ row.image_url }}" alt="{{ row.item.product_model }}">
+                    {% endif %}
+                  </span>
+                  <span class="min-w-0">
+                    {% if row.is_source_row %}
+                      <span class="font-semibold text-slate-950 dark:text-white">{{ row.item.product_model }}</span>
+                    {% else %}
+                      <a href="{% url 'opportunity_detail' row.item.id %}" class="font-semibold text-slate-950 no-underline hover:underline dark:text-white" data-opportunity-modal>
+                        <span
+                          data-inline-field="canonical_name"
+                          data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+                          data-inline-id="{{ row.item.product_model.id }}"
+                        >{{ row.item.product_model }}</span>
+                      </a>
+                    {% endif %}
+                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.brand }}</div>
+                  </span>
+                </div>
+              </td>
+              <td>
+                {% if row.category_slug %}
+                  <span class="cat-chip cat-{{ row.category_slug }}">{{ row.category_name }}</span>
+                {% else %}
+                  <span class="text-slate-400">-</span>
                 {% endif %}
               </td>
-            {% endif %}
-            <td class="num num-r"><span class="cell-margin {{ row.margin_class }}">{{ row.margin_percent|default:"-" }}</span></td>
-            <td>
-              <div class="conf-bar">
-                <div class="conf-track"><div class="conf-fill {% if row.item.confidence_score >= 70 %}conf-high{% elif row.item.confidence_score >= 40 %}conf-med{% else %}conf-low{% endif %}" style="width:{{ row.item.confidence_score }}%;"></div></div>
-                <span class="conf-num">{{ row.item.confidence_score }}</span>
-              </div>
-            </td>
-            <td>
-              <div class="badge-row">
-                {% for source in row.sources %}
-                  <span class="badge {{ source.class }}">{{ source.code }} {{ source.count }}</span>
-                {% empty %}
-                  <span class="badge">none</span>
-                {% endfor %}
-              </div>
-            </td>
-            <td class="num">
-              {% if row.item.created_at %}
-                {{ row.item.created_at|date:"M d H:i" }}
+              <td>
+                {% if row.item.storage_gb %}
+                  {{ row.item.storage_gb }}GB{% if row.item.sim_config %} / {{ row.item.sim_config }}{% endif %}
+                {% else %}
+                  <span class="text-slate-400">-</span>
+                {% endif %}
+              </td>
+              {% if can_view_internal_gain %}
+                <td class="num-r">{{ row.algeria_min|default:"-" }}</td>
+                <td class="num-r">{{ row.algeria_avg|default:"-" }}</td>
+                {% if active_src == 'supplier' %}
+                  <td class="num-r">{{ row.supplier|default:"-" }}</td>
+                {% else %}
+                  <td class="num-r">{{ row.turkiye_avg|default:"-" }}</td>
+                {% endif %}
+                <td class="num-r">{{ row.gross_margin|default:"-" }}</td>
+                <td class="num-r">{{ row.my_gain|default:"-" }}</td>
+                <td class="num-r">{{ row.buyer_price|default:"-" }}</td>
+                <td class="num-r">
+                  {{ row.buyer_gain|default:"-" }}
+                  {% if row.buyer_gain_percent %}
+                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.buyer_gain_percent }}</div>
+                  {% endif %}
+                </td>
+                <td class="num-r"><span class="cell-margin {{ row.margin_class }}">{{ row.margin_percent|default:"-" }}</span></td>
+                <td class="num-r">{{ row.capital_roi|default:"-" }}</td>
               {% else %}
-                <span class="text-slate-400">live</span>
+                <td class="num-r">{{ row.turkiye_avg|default:"-" }}</td>
+                <td class="num-r">{{ row.buyer_price|default:"-" }}</td>
+                <td class="num-r">
+                  {{ row.buyer_gain|default:"-" }}
+                  {% if row.buyer_gain_percent %}
+                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.buyer_gain_percent }}</div>
+                  {% endif %}
+                </td>
+                <td>{{ row.gain_split.deal_quality|title|default:"-" }}</td>
               {% endif %}
-            </td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="12">{% trans "No opportunities match the current filters." %}</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+              <td>
+                <div class="flex items-center gap-2">
+                  <div class="conf-track" style="min-width: 4rem;">
+                    <div class="conf-fill {% if row.item.confidence_score >= 70 %}conf-high{% elif row.item.confidence_score >= 40 %}conf-med{% else %}conf-low{% endif %}"
+                         style="width: {{ row.item.confidence_score }}%"></div>
+                  </div>
+                  <span class="conf-num">{{ row.item.confidence_score }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="badge-row">
+                  {% for source in row.sources %}
+                    <span class="badge {{ source.class }}">{{ source.code }} {{ source.count }}</span>
+                  {% empty %}
+                    <span class="badge">none</span>
+                  {% endfor %}
+                </div>
+              </td>
+              <td class="num">
+                {% if row.item.created_at %}
+                  {{ row.item.created_at|date:"M d H:i" }}
+                {% else %}
+                  <span class="text-slate-400">live</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="12">{% trans "No opportunities match the current filters." %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
+<div class="hidden fixed inset-0 z-50" data-opportunity-modal-shell aria-hidden="true">
+  <div class="absolute inset-0 bg-slate-950/60" data-opportunity-modal-close></div>
+  <section class="absolute inset-x-3 top-3 bottom-3 mx-auto flex max-w-6xl flex-col overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:inset-x-6 sm:top-6 sm:bottom-6">
+    <div class="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
+      <div class="min-w-0">
+        <div class="font-mono text-xs uppercase text-slate-500">{% trans "Opportunity" %}</div>
+        <div class="font-semibold text-slate-950 dark:text-white" data-opportunity-modal-title>{% trans "Details" %}</div>
+      </div>
+      <button class="btn btn-secondary btn-sm" type="button" data-opportunity-modal-close>{% trans "Close" %}</button>
+    </div>
+    <div class="flex-1 overflow-y-auto p-4 sm:p-6" data-opportunity-modal-body>
+      <div class="page-desc">{% trans "Loading..." %}</div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    const shell = document.querySelector("[data-opportunity-modal-shell]");
+    if (!shell) return;
+
+    const body = shell.querySelector("[data-opportunity-modal-body]");
+    const title = shell.querySelector("[data-opportunity-modal-title]");
+    let lastFocus = null;
+
+    function openShell() {
+      lastFocus = document.activeElement;
+      shell.classList.remove("hidden");
+      shell.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+      const closeButton = shell.querySelector("[data-opportunity-modal-close]");
+      if (closeButton) closeButton.focus();
+    }
+
+    function closeShell() {
+      shell.classList.add("hidden");
+      shell.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+      body.innerHTML = "";
+      if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    function detailUrl(trigger) {
+      return trigger.getAttribute("data-modal-url") || trigger.getAttribute("href");
+    }
+
+    async function loadDetail(trigger) {
+      const url = detailUrl(trigger);
+      if (!url) return;
+      openShell();
+      body.innerHTML = '<div class="page-desc">{% trans "Loading..." %}</div>';
+      title.textContent = trigger.textContent.trim() || "{% trans 'Details' %}";
+      try {
+        const response = await fetch(url, {
+          headers: {"X-Requested-With": "XMLHttpRequest"},
+          credentials: "same-origin",
+        });
+        if (!response.ok) throw new Error("Request failed");
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, "text/html");
+        const detailMain = doc.querySelector("main.main");
+        body.innerHTML = detailMain ? detailMain.innerHTML : html;
+        const heading = body.querySelector("h1");
+        if (heading) title.textContent = heading.textContent.trim();
+      } catch (error) {
+        body.innerHTML = '<div class="card"><div class="card-h">{% trans "Could not load opportunity" %}</div><p class="page-desc">{% trans "Open the detail page directly and try again." %}</p></div>';
+      }
+    }
+
+    document.addEventListener("click", function (event) {
+      const close = event.target.closest("[data-opportunity-modal-close]");
+      if (close) {
+        closeShell();
+        return;
+      }
+      const listingCard = event.target.closest("[data-listing-url]");
+      if (listingCard && listingCard.closest("[data-opportunity-modal-shell]")) {
+        if (event.target.closest("a, button, input, select, textarea, [data-inline-field], [data-inline-delete]")) return;
+        window.open(listingCard.getAttribute("data-listing-url"), "_blank", "noopener,noreferrer");
+        return;
+      }
+      const trigger = event.target.closest("[data-opportunity-modal]");
+      if (!trigger || trigger.closest("[data-opportunity-modal-shell]")) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      loadDetail(trigger);
+    });
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && !shell.classList.contains("hidden")) {
+        closeShell();
+        return;
+      }
+      if (event.key !== "Enter" && event.key !== " ") return;
+      const trigger = event.target.closest("[data-opportunity-modal]");
+      if (!trigger || trigger.tagName === "A") return;
+      event.preventDefault();
+      loadDetail(trigger);
+    });
+  })();
+</script>
 {% endblock %}

@@ -97,3 +97,15 @@ class Command(BaseCommand):
                     self.stdout.write(f"  - {field}: {values['old']} -> {values['new']}")
         for skipped in result.skipped_no_price_details or []:
             self.stdout.write(f"DROP_NO_PRICE: {skipped['title']} | {skipped['url']}")
+
+        # Recompute deal snapshots
+        from django.db import transaction
+        from market.models import DealSnapshot
+        from market.management.commands.recompute_deal_snapshots import compute_deal_snapshots
+
+        self.stdout.write("Recomputing deal snapshots...")
+        snapshots = compute_deal_snapshots()
+        with transaction.atomic():
+            DealSnapshot.objects.all().delete()
+            DealSnapshot.objects.bulk_create(snapshots, batch_size=500)
+        self.stdout.write(self.style.SUCCESS(f"Created {len(snapshots)} deal snapshots."))
