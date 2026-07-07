@@ -60,14 +60,21 @@ def _listing_eligible_for_opportunity(listing: MarketListing) -> bool:
 
 
 def _opportunity_listing_gate(prefix="") -> Q:
-    """Return DB-level gate matching _listing_eligible_for_opportunity.
-
-    ``prefix`` is used for ProductModel queries that traverse through
-    ``marketlisting__``.
-    """
+    """Return DB-level gate matching _listing_eligible_for_opportunity."""
     return Q(**{f"{prefix}product_model__isnull": False}) & Q(
         **{f"{prefix}match_level__in": list(OPPORTUNITY_ELIGIBLE_MATCH_LEVELS)}
     ) & Q(**{f"{prefix}match_confidence__gte": MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY})
+
+
+def _eligible_review_gate(prefix="") -> Q:
+    """Return DB-level review/price gate for MarketListing paths."""
+    return Q(
+        **{f"{prefix}review_status__in": [
+            MarketListing.ReviewStatus.AUTO,
+            MarketListing.ReviewStatus.APPROVED,
+        ]},
+        **{f"{prefix}price_eur__isnull": False},
+    )
 
 
 def run_analysis(include_insufficient=False):
@@ -75,25 +82,15 @@ def run_analysis(include_insufficient=False):
         OpportunitySnapshot.objects.all().delete()
         created = 0
 
-        eligible_review = Q(
-            review_status__in=[
-                MarketListing.ReviewStatus.AUTO,
-                MarketListing.ReviewStatus.APPROVED,
-            ],
-            price_eur__isnull=False,
-        )
+        eligible_review = _eligible_review_gate()
         match_gate = _opportunity_listing_gate()
         base_filter = eligible_review & match_gate
 
-        pm_eligible_review = Q(
-            marketlisting__review_status__in=[
-                MarketListing.ReviewStatus.AUTO,
-                MarketListing.ReviewStatus.APPROVED,
-            ],
-            marketlisting__price_eur__isnull=False,
-        )
+        pm_eligible_review = _eligible_review_gate(prefix="marketlisting__")
         pm_match_gate = _opportunity_listing_gate(prefix="marketlisting__")
         pm_base_filter = pm_eligible_review & pm_match_gate
+
+        variant_listing_filter = _eligible_review_gate(prefix="marketlisting__") & _opportunity_listing_gate(prefix="marketlisting__")
 
         product_models = (
             ProductModel.objects.filter(pm_base_filter)
@@ -140,7 +137,7 @@ def run_analysis(include_insufficient=False):
                         .annotate(
                             listing_count=Avg(
                                 "marketlisting__price_eur",
-                                filter=eligible_review,
+                                filter=variant_listing_filter,
                             )
                         )
                         .order_by("id")
