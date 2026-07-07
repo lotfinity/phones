@@ -246,6 +246,37 @@ class CatalogTransitionHardeningTests(TestCase):
         output = out.getvalue()
         self.assertIn("WOULD SET product_type=phone", output)
 
+    def test_backfill_listing_specs_require_identity_spec_skips_panel_only_laptop(self):
+        """--require-identity-spec should skip rows with only non-identity specs."""
+        laptop_type = get_or_create_product_type("laptop", name="Laptop")
+        laptop_category, _ = Category.objects.get_or_create(slug="laptops", defaults={"name": "Laptops"})
+        laptop_model = ProductModel.objects.create(
+            brand=self.brand,
+            category=laptop_category,
+            product_type=laptop_type,
+            canonical_name="Panel Only Laptop",
+        )
+        MarketListing.objects.create(
+            source=self.source,
+            source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE,
+            product_model=laptop_model,
+            title_raw="Samsung laptop IPS panel",
+            listing_url="https://example.com/panel-only-laptop",
+        )
+
+        out = io.StringIO()
+        call_command(
+            "backfill_listing_specs",
+            "--product-type=laptop",
+            "--require-identity-spec",
+            "--dry-run",
+            stdout=out,
+        )
+        output = out.getvalue()
+        self.assertNotIn("WOULD WRITE laptop", output)
+        self.assertIn("Would write 0 spec rows", output)
+
     def test_resolution_va_is_not_treated_as_resolution(self):
         """parse_resolution should not return 'VA' as a resolution."""
         result = parse_resolution("Laptop IPS VA panel 1920x1080")
@@ -296,7 +327,6 @@ class CatalogTransitionHardeningTests(TestCase):
         out = io.StringIO()
         call_command("recompute_listing_matches", "--product-type=phone", "--dry-run", "--limit=10", stdout=out)
         output = out.getvalue()
-        # The command outputs listing PK, not model name
         self.assertIn(f"#{listing.pk}", output)
 
     def test_dry_run_does_not_mutate_db_for_backfill_variant_specs(self):
