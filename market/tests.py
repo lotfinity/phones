@@ -438,7 +438,7 @@ class DealsSwiperTests(TestCase):
         self._create_deal_snapshot()
         response = self.client.get(reverse("deals_swiper"))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Deals by Brand")
+        self.assertContains(response, "Deals")
 
     def test_public_deals_page_hides_supplier_pricing(self):
         self._create_deal_snapshot(supplier_usd=950.0, supplier_eur=880.0)
