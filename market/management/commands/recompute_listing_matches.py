@@ -1,6 +1,8 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 
 from market.models import MarketListing, MarketListingSpecValue
+from market.services.spec_extraction import detect_product_type
 
 
 class Command(BaseCommand):
@@ -11,7 +13,7 @@ class Command(BaseCommand):
             "--product-type",
             type=str,
             default="",
-            help="Filter by product type slug (e.g. laptop, phone).",
+            help="Filter by product type slug (e.g. laptop, phone). Untyped rows are detected from title text.",
         )
         parser.add_argument(
             "--limit",
@@ -24,24 +26,63 @@ class Command(BaseCommand):
             action="store_true",
             help="Show what would change without writing to the database.",
         )
+        parser.add_argument(
+            "--only-missing",
+            action="store_true",
+            help="Only recompute rows with unmatched/empty match data.",
+        )
 
     def handle(self, *args, **options):
-        from market.services.listing_matching import MatchResult, apply_match_to_listing, match_listing_to_catalog
+        from market.services.listing_matching import (
+            apply_match_to_listing,
+            match_listing_to_catalog,
+            match_result_to_level,
+        )
         from market.services.spec_extraction import extract_specs_from_text
 
+        limit = options["limit"]
+        if limit < 1:
+            raise CommandError("--limit must be >= 1")
+        limit = min(limit, 5000)
+
         qs = MarketListing.objects.select_related(
-            "product_model", "variant",
-            "product_model__product_type",
+            "source", "product_model", "variant",
+            "product_model__brand", "product_model__product_type",
         ).order_by("-id")
 
-        product_type_slug = options["product_type"]
+        if options["only_missing"]:
+            qs = qs.filter(
+                Q(match_level="") |
+                Q(match_level=MarketListing.MatchLevel.UNMATCHED) |
+                Q(match_confidence=0)
+            )
+
+        product_type_slug = options["product_type"].strip().lower()
         if product_type_slug:
-            qs = qs.filter(product_model__product_type__slug=product_type_slug)
+            # First-pass DB narrowing for typed rows. Untyped rows are detected
+            # row-by-row below so commands like --product-type phone still cover
+            # legacy phone rows whose ProductModel.product_type is blank.
+            qs = qs.filter(
+                Q(product_model__product_type__slug=product_type_slug) |
+                Q(product_model__product_type__isnull=True)
+            )
 
-        limit = options["limit"]
         dry_run = options["dry_run"]
+        candidates = list(qs[:limit])
+        if product_type_slug:
+            listings = []
+            for listing in candidates:
+                existing_slug = (
+                    listing.product_model.product_type.slug
+                    if listing.product_model and listing.product_model.product_type
+                    else None
+                )
+                detected_slug = existing_slug or detect_product_type(listing.title_raw or "", listing.description_raw or "")
+                if detected_slug == product_type_slug:
+                    listings.append(listing)
+        else:
+            listings = candidates
 
-        listings = list(qs[:limit])
         if not listings:
             self.stdout.write(self.style.WARNING("No listings found matching filters."))
             return
@@ -52,25 +93,19 @@ class Command(BaseCommand):
 
         for listing in listings:
             try:
-                old_level = listing.match_level
-                old_confidence = listing.match_confidence
+                old_level = listing.match_level or MarketListing.MatchLevel.UNMATCHED
+                old_confidence = listing.match_confidence or 0
 
-                # Extract specs from title/description
                 text = f"{listing.title_raw or ''} {listing.description_raw or ''}".strip()
                 product_type_slug_val = (
                     listing.product_model.product_type.slug
                     if listing.product_model and listing.product_model.product_type
-                    else None
+                    else detect_product_type(listing.title_raw or "", listing.description_raw or "")
                 )
                 specs = extract_specs_from_text(product_type_slug_val, text) if text else {}
 
-                # Run matching
-                brand_name = None
-                model_text = None
-                if listing.product_model and listing.product_model.brand:
-                    brand_name = listing.product_model.brand.name
-                if listing.product_model:
-                    model_text = listing.product_model.canonical_name
+                brand_name = listing.product_model.brand.name if listing.product_model and listing.product_model.brand else None
+                model_text = listing.product_model.canonical_name if listing.product_model else None
 
                 match = match_listing_to_catalog(
                     title=listing.title_raw or "",
@@ -80,16 +115,13 @@ class Command(BaseCommand):
                     model_text=model_text,
                     specs=specs,
                 )
+                new_level = match_result_to_level(match)
+                new_confidence = match.confidence_score
 
                 if not dry_run:
-                    # Clear old spec values
                     MarketListingSpecValue.objects.filter(listing=listing).delete()
-                    # Apply new match
                     apply_match_to_listing(listing, match, specs, confidence=match.confidence_score)
                     listing.save()
-
-                new_level = match.confidence if not dry_run else _compute_level(match)
-                new_confidence = match.confidence_score
 
                 if old_level != new_level or abs(old_confidence - new_confidence) > 0.01:
                     updated += 1
@@ -101,29 +133,12 @@ class Command(BaseCommand):
                 else:
                     unchanged += 1
 
-            except Exception as e:
+            except Exception as exc:
                 errors += 1
-                self.stdout.write(self.style.ERROR(f"  #{listing.pk}: ERROR {e}"))
+                self.stdout.write(self.style.ERROR(f"  #{listing.pk}: ERROR {exc}"))
 
         verb = "Would update" if dry_run else "Updated"
         self.stdout.write(self.style.SUCCESS(
             f"\nDone. {verb} {updated}, unchanged {unchanged}, errors {errors} "
             f"(out of {len(listings)} listings)"
         ))
-
-
-def _compute_level(match: MatchResult) -> str:
-    """Compute match level string from MatchResult without persisting."""
-    from market.models import MarketListing
-
-    if any("conflict" in r.lower() for r in match.reasons):
-        return MarketListing.MatchLevel.CONFLICT
-
-    confidence_to_level = {
-        "exact": MarketListing.MatchLevel.EXACT_VARIANT,
-        "high": MarketListing.MatchLevel.STRONG_CANDIDATE,
-        "medium": MarketListing.MatchLevel.STRONG_CANDIDATE,
-        "low": MarketListing.MatchLevel.MODEL_ONLY if match.product_model and not match.variant else MarketListing.MatchLevel.UNMATCHED,
-        "none": MarketListing.MatchLevel.UNMATCHED,
-    }
-    return confidence_to_level.get(match.confidence, MarketListing.MatchLevel.UNMATCHED)
