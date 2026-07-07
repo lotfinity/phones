@@ -31,14 +31,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get(
-        "DJANGO_ALLOWED_HOSTS",
-        "127.0.0.1,localhost,100.89.48.48,0.0.0.0,phones.whatsynaptic.tech",
-    ).split(",")
-    if host.strip()
-]
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -193,3 +186,10 @@ USD_TRY = float(os.environ.get("USD_TRY", "41.5"))
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "loggers": {"market.views": {"handlers": ["console"], "level": "INFO"}},
+}

@@ -1,0 +1,3 @@
+{% for deal in deals %}
+  {% include "market/partials/_deal_card.html" with deal=deal can_view_supplier=can_view_supplier only %}
+{% endfor %}

@@ -384,3 +384,104 @@ class OCRParserTests(SimpleTestCase):
         self.assertEqual(parsed.model_text, "iPhone 13 pro")
         self.assertEqual(parsed.storage_gb, 128)
         self.assertIsNone(parsed.price_dzd)
+
+
+class DealsSwiperTests(TestCase):
+    """Tests for the deals swiper page and lazy-load endpoint."""
+
+    def _create_deal_snapshot(self, **overrides):
+        from django.utils import timezone
+        from market.models import DealSnapshot, MarketListing, Source
+
+        source, _ = Source.objects.get_or_create(
+            name="Test Source",
+            source_type="ouedkniss",
+            defaults={"country": "DZ"},
+        )
+        listing = MarketListing.objects.create(
+            source=source,
+            source_type="ouedkniss",
+            country="DZ",
+            title_raw="Samsung Galaxy S25 Ultra 256GB",
+            price_original=180000,
+            currency_original="DZD",
+            price_eur=Decimal("1200.00"),
+            listing_url="https://example.com/listing/1",
+        )
+        defaults = {
+            "listing": listing,
+            "brand_name": "Samsung",
+            "model_name": "Galaxy S25 Ultra",
+            "storage_gb": 256,
+            "title": "Samsung Galaxy S25 Ultra 256GB",
+            "price_original": Decimal("180000"),
+            "currency_original": "DZD",
+            "price_eur": Decimal("1200.00"),
+            "condition": "Used",
+            "source_code": "ODK",
+            "source_name": "Test Source",
+            "image_url": "",
+            "listing_url": "https://example.com/listing/1",
+            "observed_at": timezone.now(),
+            "sah_median": Decimal("45000"),
+            "sah_count": 5,
+            "sah_urls": ["https://sahibinden.com/1", "https://sahibinden.com/2"],
+            "margin_pct": 25.0,
+            "margin_eur": Decimal("300.00"),
+            "supplier_usd": 950.0,
+            "supplier_eur": 880.0,
+        }
+        defaults.update(overrides)
+        return DealSnapshot.objects.create(**defaults)
+
+    def test_public_user_can_load_deals_page(self):
+        self._create_deal_snapshot()
+        response = self.client.get(reverse("deals_swiper"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Deals by Brand")
+
+    def test_public_deals_page_hides_supplier_pricing(self):
+        self._create_deal_snapshot(supplier_usd=950.0, supplier_eur=880.0)
+        response = self.client.get(reverse("deals_swiper"))
+        self.assertNotContains(response, "950")
+        self.assertNotContains(response, "880")
+
+    def test_superuser_deals_page_shows_supplier_pricing(self):
+        from django.contrib.auth.models import User
+
+        user = User.objects.create_user(username="staff", password="pass", is_staff=True)
+        self.client.force_login(user)
+        self._create_deal_snapshot(supplier_usd=950.0, supplier_eur=880.0)
+        response = self.client.get(reverse("deals_swiper"))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "950")
+        self.assertContains(response, "880")
+
+    def test_deals_more_returns_html_with_swiper_slides(self):
+        self._create_deal_snapshot()
+        response = self.client.get(
+            reverse("deals_more") + "?brand=ALL&offset=0&limit=10"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])
+        self.assertIn("swiper-slide", data["html"])
+        self.assertGreater(data["count"], 0)
+
+    def test_deals_more_invalid_offset_does_not_crash(self):
+        self._create_deal_snapshot()
+        response = self.client.get(
+            reverse("deals_more") + "?brand=ALL&offset=abc&limit=xyz"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])
+
+    def test_deals_more_limit_capped(self):
+        self._create_deal_snapshot()
+        response = self.client.get(
+            reverse("deals_more") + "?brand=ALL&offset=0&limit=999"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data["ok"])

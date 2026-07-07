@@ -25,6 +25,7 @@ urlpatterns = [
     path('opportunities/<int:pk>/', views.opportunity_detail, name='opportunity_detail'),
     path('listings/', views.listings, name='listings'),
     path('deals/', views.deals_swiper, name='deals_swiper'),
+    path('deals/more/', views.deals_more, name='deals_more'),
     path('api/deals/', views.deals_api, name='deals_api'),
     path('data-quality/', views.data_quality, name='data_quality'),
     path('sources/', views.sources, name='sources'),

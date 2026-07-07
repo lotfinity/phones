@@ -1,4 +1,5 @@
 import json
+import logging
 import types
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
@@ -1581,15 +1582,22 @@ def deals_swiper(request):
         "deal_count_total": all_count,
     })
 
-    # Slice to first page per brand for initial render
-    brand_data_json = json.dumps([{
+    can_view_supplier = request.user.is_authenticated and request.user.is_staff
+
+    def _deal_json_for_user(d):
+        data = _deal_to_json(d)
+        if not can_view_supplier:
+            data.pop("supplier_usd", None)
+        return data
+
+    brand_data_list = [{
         "brand": bs["brand"],
         "deal_count": bs["deal_count"],
         "total_deals": bs["deal_count"],
         "avg_margin": float(bs["avg_margin"]),
         "loaded": min(DEALS_PAGE_SIZE, bs["deal_count"]),
-        "deals": [_deal_to_json(d) for d in bs["deals"][:DEALS_PAGE_SIZE]],
-    } for bs in brand_summaries])
+        "deals": [_deal_json_for_user(d) for d in bs["deals"][:DEALS_PAGE_SIZE]],
+    } for bs in brand_summaries]
 
     return render(
         request,
@@ -1597,8 +1605,9 @@ def deals_swiper(request):
         base_context(request, "deals_swiper")
         | {
             "brand_summaries": brand_summaries,
-            "brand_data_json": brand_data_json,
+            "brand_data_list": brand_data_list,
             "selected_currency": selected_currency,
+            "can_view_supplier": can_view_supplier,
         },
     )
 
@@ -1625,4 +1634,64 @@ def deals_api(request):
         "offset": offset,
         "total": total,
         "deals": [_deal_to_json(d) for d in deals],
+    })
+
+
+DEALS_MORE_MAX_LIMIT = 30
+logger = logging.getLogger(__name__)
+
+
+@require_http_methods(["GET"])
+def deals_more(request):
+    """Return server-rendered HTML card fragments for lazy-loading.
+
+    Query params:
+        brand  – brand name or "ALL"
+        offset – starting index (default 0)
+        limit  – number of deals to return (default 10, max 30)
+    """
+    from django.template.loader import render_to_string
+    from market.models import DealSnapshot
+
+    brand = request.GET.get("brand", "ALL")[:120]
+
+    try:
+        offset = max(0, int(request.GET.get("offset", 0)))
+    except (TypeError, ValueError):
+        offset = 0
+    try:
+        limit = min(DEALS_MORE_MAX_LIMIT, max(1, int(request.GET.get("limit", DEALS_PAGE_SIZE))))
+    except (TypeError, ValueError):
+        limit = DEALS_PAGE_SIZE
+
+    logger.info("[deals_more] brand=%s offset=%s limit=%s", brand, offset, limit)
+
+    if brand == "ALL":
+        qs = DealSnapshot.objects.all()
+    else:
+        qs = DealSnapshot.objects.filter(brand_name=brand)
+
+    total = qs.count()
+    deals = list(qs.order_by("-margin_pct")[offset:offset + limit])
+
+    logger.info("[deals_more] total=%s returned=%s", total, len(deals))
+
+    can_view_supplier = request.user.is_authenticated and request.user.is_staff
+
+    html = render_to_string(
+        "market/partials/_deal_cards_fragment.html",
+        {
+            "deals": [_snapshot_to_dict(d) for d in deals],
+            "can_view_supplier": can_view_supplier,
+        },
+        request=request,
+    )
+
+    return JsonResponse({
+        "ok": True,
+        "brand": brand,
+        "offset": offset,
+        "total": total,
+        "count": len(deals),
+        "html": html,
     })

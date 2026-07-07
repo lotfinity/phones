@@ -1,6 +1,8 @@
 import json
 import statistics
+from pathlib import Path
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -21,12 +23,20 @@ def _source_code(value):
 
 def _listing_image_url(listing):
     path = (getattr(listing, "image_path", "") or "").strip()
-    if path:
-        if path.startswith("http"):
+    if not path:
+        return ""
+    if path.startswith("http://") or path.startswith("https://"):
+        return path
+    if hasattr(listing, "image_file") and listing.image_file:
+        return listing.image_file.url
+    media_root = Path(settings.MEDIA_ROOT).resolve()
+    try:
+        rel_path = Path(path).resolve().relative_to(media_root)
+        return f"{settings.MEDIA_URL}{rel_path.as_posix()}"
+    except (OSError, ValueError):
+        if path.startswith(str(settings.MEDIA_URL)):
             return path
-        if hasattr(listing, "image_file") and listing.image_file:
-            return listing.image_file.url
-    return ""
+        return ""
 
 
 def compute_deal_snapshots():

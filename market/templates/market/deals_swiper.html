@@ -172,19 +172,24 @@
   .dark .deal-sah-range .val { color: rgb(241 245 249); }
 
   .deal-actions { display: flex; flex-wrap: wrap; gap: 0.375rem; margin-top: auto; }
-  .deal-actions a {
+  .deal-actions a,
+  .deal-actions button {
     flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 0.25rem;
     padding: 0.375rem 0.5rem; border-radius: 0.375rem; border: 1px solid rgb(203 213 225);
     background: white; font-size: 0.65rem; font-weight: 600; color: rgb(51 65 85);
     text-decoration: none; transition: all 0.15s; overflow: hidden;
-    text-overflow: ellipsis; white-space: nowrap;
+    text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
   }
   @media (min-width: 640px) {
-    .deal-actions a { padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; gap: 0.375rem; }
+    .deal-actions a,
+    .deal-actions button { padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; gap: 0.375rem; }
   }
-  .dark .deal-actions a { border-color: rgb(51 65 85); background: rgb(30 41 59); color: rgb(203 213 225); }
-  .deal-actions a:hover { background: rgb(241 245 249); }
-  .dark .deal-actions a:hover { background: rgb(51 65 85); }
+  .dark .deal-actions a,
+  .dark .deal-actions button { border-color: rgb(51 65 85); background: rgb(30 41 59); color: rgb(203 213 225); }
+  .deal-actions a:hover,
+  .deal-actions button:hover { background: rgb(241 245 249); }
+  .dark .deal-actions a:hover,
+  .dark .deal-actions button:hover { background: rgb(51 65 85); }
   .deal-actions .btn-sahibinden {
     background: rgb(99 102 241); border-color: rgb(99 102 241); color: white;
   }
@@ -237,12 +242,20 @@
 
   .deal-counter {
     text-align: center; padding: 0.375rem; font-family: ui-monospace, monospace;
-    font-size: 0.65rem; color: rgb(100 116 139);
+    font-size: 0.65rem; color: rgb(100 116 139); display: flex; align-items: center; justify-content: center; gap: 0.5rem;
   }
   @media (min-width: 640px) {
     .deal-counter { padding: 0.5rem; font-size: 0.75rem; }
   }
   .dark .deal-counter { color: rgb(148 163 184); }
+
+  .deal-spinner {
+    display: none; width: 1rem; height: 1rem;
+    border: 2px solid rgb(203 213 225); border-top-color: rgb(37 99 235);
+    border-radius: 50%; animation: spin 0.6s linear infinite;
+  }
+  .deal-spinner.active { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
   .empty-state {
     text-align: center; padding: 2rem 1rem;
@@ -283,107 +296,12 @@
       <div class="swiper swiper-deal" id="swiper-{{ forloop.counter0 }}" data-brand="{{ bs.brand }}" data-loaded="{{ bs.deals|length }}" data-total="{{ bs.deal_count }}">
         <div class="swiper-wrapper">
           {% for deal in bs.deals|slice:":10" %}
-            <div class="swiper-slide">
-              <div class="deal-card">
-                <div class="deal-hero">
-                  {% if deal.image_url %}
-                    <img src="{{ deal.image_url }}" alt="{{ deal.title }}" loading="lazy">
-                  {% else %}
-                    <div class="placeholder-icon">&#x1F4F1;</div>
-                  {% endif %}
-                  <div class="deal-badge">
-                    <span class="badge {{ deal.source_code|lower }}">{{ deal.source_code }}</span>
-                    <span class="badge">{{ deal.condition }}</span>
-                  </div>
-                  {% if deal.margin_pct is not None %}
-                    <div class="deal-margin-badge {% if deal.margin_pct < 5 %}negative{% elif deal.margin_pct < 15 %}watch{% endif %}">
-                      {% if deal.margin_pct > 0 %}+{% endif %}{{ deal.margin_pct|floatformat:1 }}%
-                    </div>
-                  {% endif %}
-                </div>
-
-                <div class="deal-body">
-                  <div class="deal-title">{{ deal.title }}</div>
-
-                  <div class="deal-specs">
-                    <div class="deal-spec">
-                      <span class="lbl">{% trans "Model" %}</span>
-                      <span class="val">{{ deal.model }}</span>
-                    </div>
-                    <div class="deal-spec">
-                      <span class="lbl">{% trans "Storage" %}</span>
-                      <span class="val">{% if deal.storage_gb %}{{ deal.storage_gb }}GB{% else %}-{% endif %}</span>
-                    </div>
-                    <div class="deal-spec">
-                      <span class="lbl">{% trans "Source" %}</span>
-                      <span class="val">{{ deal.source_name }}</span>
-                    </div>
-                    <div class="deal-spec">
-                      <span class="lbl">{% trans "Observed" %}</span>
-                      <span class="val">{{ deal.observed_at|date:"M d" }}</span>
-                    </div>
-                  </div>
-
-                  <div class="deal-prices">
-                    <div class="deal-price-col">
-                      <span class="label">{% trans "Algeria" %}</span>
-                      <span class="amount">{{ deal.price_original|floatformat:0 }} {{ deal.currency_original }}</span>
-                      <span class="sub">EUR {{ deal.price_eur|floatformat:2 }}</span>
-                      {% if deal.price_usd is not None %}<span class="sub">USD {{ deal.price_usd|floatformat:2 }}</span>{% endif %}
-                      {% if deal.price_try is not None %}<span class="sub">TRY {{ deal.price_try|floatformat:0 }}</span>{% endif %}
-                      {% if deal.price_dzd is not None and deal.currency_original != 'DZD' %}<span class="sub">DZD {{ deal.price_dzd|floatformat:0 }}</span>{% endif %}
-                    </div>
-                    <div class="deal-price-col">
-                      <span class="label">{% trans "Turkey Median" %}</span>
-                      <span class="amount">{{ deal.sah_median|floatformat:0 }} TRY</span>
-                      {% if deal.sah_median_eur is not None %}<span class="sub">EUR {{ deal.sah_median_eur|floatformat:2 }}</span>{% endif %}
-                      {% if deal.sah_median_usd is not None %}<span class="sub">USD {{ deal.sah_median_usd|floatformat:2 }}</span>{% endif %}
-                      {% if deal.sah_median_dzd is not None %}<span class="sub">DZD {{ deal.sah_median_dzd|floatformat:0 }}</span>{% endif %}
-                      <span class="sub">{% trans "min" %} {{ deal.sah_min|floatformat:0 }} &middot; {% trans "max" %} {{ deal.sah_max|floatformat:0 }}</span>
-                    </div>
-                  </div>
-
-                  <div class="deal-sahibinden">
-                    <div class="deal-sah-header">
-                      <span class="title">{% trans "Sahibinden" %}</span>
-                      <span class="count">{{ deal.sah_count }} {% trans "listings" %}</span>
-                    </div>
-                    <div class="deal-sah-range">
-                      <span>{% trans "Spread" %}: <span class="val">{{ deal.sah_min|floatformat:0 }} &ndash; {{ deal.sah_max|floatformat:0 }} TRY</span></span>
-                    </div>
-                  </div>
-
-                  {% if deal.supplier_usd %}
-                  <div class="deal-specs supplier-block">
-                    <div class="deal-spec">
-                      <span class="lbl">{% trans "Supplier" %}</span>
-                      <span class="val">${{ deal.supplier_usd|floatformat:0 }} USD</span>
-                    </div>
-                    <div class="deal-spec">
-                      <span class="lbl">EUR</span>
-                      <span class="val">{{ deal.supplier_eur|floatformat:2 }}</span>
-                    </div>
-                  </div>
-                  {% endif %}
-
-                  <div class="deal-actions">
-                    {% if deal.listing_url %}
-                      <a href="{{ deal.listing_url }}" target="_blank" rel="noreferrer">{% trans "Algeria listing" %} &#8599;</a>
-                    {% endif %}
-                    {% if deal.sah_urls %}
-                      <button class="btn-sahibinden" type="button" data-sah-urls='{{ deal.sah_urls_json|safe }}' data-sah-model="{{ deal.model }}">
-                        {% trans "Sahibinden" %} ({{ deal.sah_count }}) &#9660;
-                      </button>
-                    {% endif %}
-                  </div>
-                </div>
-              </div>
-            </div>
+            {% include "market/partials/_deal_card.html" with deal=deal can_view_supplier=can_view_supplier only %}
           {% endfor %}
         </div>
         <div class="deal-counter">
-          <span id="counter-{{ forloop.counter0 }}">1</span> / <span id="total-{{ forloop.counter0 }}">{{ bs.deals|length }}</span>
-          <span class="deal-loading" id="loading-{{ forloop.counter0 }}" style="display:none">&#8230;{% trans "loading" %}</span>
+          <span id="counter-{{ forloop.counter0 }}">1</span> / <span id="total-{{ forloop.counter0 }}">{{ bs.deal_count }}</span>
+          <span class="deal-spinner" id="spinner-{{ forloop.counter0 }}"></span>
         </div>
       </div>
     </div>
@@ -398,67 +316,12 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  {{ brand_data_list|json_script:"brand-data" }}
   <script>
     (function () {
-      const brandData = {{ brand_data_json|safe }};
-      const swipers = {};
-      const loading = {};
-
-      function buildCardHTML(d) {
-        var marginClass = d.margin_pct < 5 ? "negative" : d.margin_pct < 15 ? "watch" : "";
-        var marginSign = d.margin_pct > 0 ? "+" : "";
-        var marginBadge = d.margin_pct != null
-          ? '<div class="deal-margin-badge ' + marginClass + '">' + marginSign + d.margin_pct.toFixed(1) + '%</div>'
-          : '';
-        var img = d.image_url
-          ? '<img src="' + d.image_url + '" alt="' + d.title + '" loading="lazy">'
-          : '<div class="placeholder-icon">&#x1F4F1;</div>';
-        var supplier = d.supplier_usd
-          ? '<div class="deal-specs supplier-block">'
-            + '<div class="deal-spec"><span class="lbl">Supplier</span><span class="val">$' + d.supplier_usd.toFixed(0) + ' USD</span></div>'
-            + '<div class="deal-spec"><span class="lbl">EUR</span><span class="val">' + d.price_eur.toFixed(2) + '</span></div></div>'
-          : '';
-        var sahBtn = d.sah_urls && d.sah_urls.length
-          ? '<button class="btn-sahibinden" type="button" data-sah-urls=\'' + JSON.stringify(d.sah_urls) + '\' data-sah-model="' + d.model + '">Sahibinden (' + d.sah_count + ') &#9660;</button>'
-          : '';
-
-        return '<div class="swiper-slide">'
-          + '<div class="deal-card">'
-          + '<div class="deal-hero">' + img
-          + '<div class="deal-badge"><span class="badge ' + (d.source_code || '').toLowerCase() + '">' + (d.source_code || '') + '</span>'
-          + '<span class="badge">' + (d.condition || '') + '</span></div>'
-          + marginBadge
-          + '</div>'
-          + '<div class="deal-body">'
-          + '<div class="deal-title">' + (d.title || '') + '</div>'
-          + '<div class="deal-specs">'
-          + '<div class="deal-spec"><span class="lbl">Model</span><span class="val">' + (d.model || '') + '</span></div>'
-          + '<div class="deal-spec"><span class="lbl">Storage</span><span class="val">' + (d.storage_gb ? d.storage_gb + 'GB' : '-') + '</span></div>'
-          + '<div class="deal-spec"><span class="lbl">Source</span><span class="val">' + (d.source_name || '') + '</span></div>'
-          + '<div class="deal-spec"><span class="lbl">Observed</span><span class="val">' + (d.observed_at || '').slice(0, 10) + '</span></div>'
-          + '</div>'
-          + '<div class="deal-prices">'
-          + '<div class="deal-price-col"><span class="label">Algeria</span>'
-          + '<span class="amount">' + (d.price_original || '') + ' ' + (d.currency_original || '') + '</span>'
-          + '<span class="sub">EUR ' + (d.price_eur != null ? Number(d.price_eur).toFixed(2) : '') + '</span>'
-          + (d.price_usd != null ? '<span class="sub">USD ' + Number(d.price_usd).toFixed(2) + '</span>' : '')
-          + (d.price_try != null ? '<span class="sub">TRY ' + Math.round(d.price_try) + '</span>' : '')
-          + (d.price_dzd != null && (d.currency_original || '') !== 'DZD' ? '<span class="sub">DZD ' + Math.round(d.price_dzd) + '</span>' : '')
-          + '</div>'
-          + '<div class="deal-price-col"><span class="label">Turkey Median</span>'
-          + '<span class="amount">' + (d.sah_median || '') + ' TRY</span>'
-          + (d.sah_median_eur != null ? '<span class="sub">EUR ' + Number(d.sah_median_eur).toFixed(2) + '</span>' : '')
-          + (d.sah_median_usd != null ? '<span class="sub">USD ' + Number(d.sah_median_usd).toFixed(2) + '</span>' : '')
-          + (d.sah_median_dzd != null ? '<span class="sub">DZD ' + Math.round(d.sah_median_dzd) + '</span>' : '')
-          + '<span class="sub">min ' + (d.sah_min || '') + ' · max ' + (d.sah_max || '') + '</span>'
-          + '</div>'
-          + '</div>'
-          + supplier
-          + '<div class="deal-actions">'
-          + (d.listing_url ? '<a href="' + d.listing_url + '" target="_blank" rel="noreferrer">Algeria listing &#8599;</a>' : '')
-          + sahBtn
-          + '</div></div></div></div>';
-      }
+      var brandData = JSON.parse(document.getElementById("brand-data").textContent);
+      var swipers = {};
+      var loading = {};
 
       function initSwiper(idx) {
         var el = document.getElementById("swiper-" + idx);
@@ -474,9 +337,8 @@
             slideChange: function () {
               var counter = document.getElementById("counter-" + idx);
               if (counter) counter.textContent = this.realIndex + 1;
-              var total = brandData[idx].total_deals;
-              var loaded = brandData[idx].loaded;
-              if (this.realIndex >= loaded - 2 && loaded < total && !loading[idx]) {
+              var data = brandData[idx];
+              if (this.realIndex >= data.loaded - 2 && data.loaded < data.total_deals && !loading[idx]) {
                 loadMore(idx);
               }
             }
@@ -489,31 +351,27 @@
         var data = brandData[idx];
         if (data.loaded >= data.total_deals) return;
         loading[idx] = true;
-        var loader = document.getElementById("loading-" + idx);
-        if (loader) loader.style.display = "inline";
+        var spinner = document.getElementById("spinner-" + idx);
+        if (spinner) spinner.classList.add("active");
 
-        var url = "/api/deals/?brand=" + encodeURIComponent(data.brand) + "&offset=" + data.loaded + "&limit=10";
+        var url = "/deals/more/?brand=" + encodeURIComponent(data.brand) + "&offset=" + data.loaded + "&limit=10";
         fetch(url)
           .then(function (r) { return r.json(); })
           .then(function (resp) {
-            if (!resp.ok || !resp.deals.length) { loading[idx] = false; return; }
+            if (!resp.ok || !resp.count) { loading[idx] = false; return; }
             var swiper = swipers[idx];
             var wrapper = swiper.wrapperEl;
-            resp.deals.forEach(function (d) {
-              data.deals.push(d);
-              var temp = document.createElement("div");
-              temp.innerHTML = buildCardHTML(d);
-              var slide = temp.firstChild;
-              wrapper.appendChild(slide);
-            });
-            data.loaded += resp.deals.length;
+            var temp = document.createElement("div");
+            temp.innerHTML = resp.html;
+            while (temp.firstChild) {
+              wrapper.appendChild(temp.firstChild);
+            }
+            data.loaded += resp.count;
             swiper.update();
-            var totalEl = document.getElementById("total-" + idx);
-            if (totalEl) totalEl.textContent = data.loaded + " / " + data.total_deals;
             loading[idx] = false;
-            if (loader) loader.style.display = "none";
+            if (spinner) spinner.classList.remove("active");
           })
-          .catch(function () { loading[idx] = false; if (loader) loader.style.display = "none"; });
+          .catch(function () { loading[idx] = false; if (spinner) spinner.classList.remove("active"); });
       }
 
       document.querySelectorAll(".swiper-deal").forEach(function (el) {
@@ -540,9 +398,17 @@
         var model = btn.dataset.sahModel;
         var modal = document.getElementById("sahModal");
         document.getElementById("sahModalTitle").textContent = model + " - Sahibinden Listings";
-        document.getElementById("sahModalLinks").innerHTML = urls.map(function (u) {
-          return '<a class="sah-link" href="' + u + '" target="_blank" rel="noreferrer">' + u + '</a>';
-        }).join("");
+        var linksEl = document.getElementById("sahModalLinks");
+        linksEl.innerHTML = "";
+        urls.forEach(function (u) {
+          var a = document.createElement("a");
+          a.className = "sah-link";
+          a.href = u;
+          a.target = "_blank";
+          a.rel = "noreferrer";
+          a.textContent = u;
+          linksEl.appendChild(a);
+        });
         modal.classList.add("open");
       });
 

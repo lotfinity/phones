@@ -1,0 +1,97 @@
+{% load i18n %}
+<div class="swiper-slide">
+  <div class="deal-card">
+    <div class="deal-hero">
+      {% if deal.image_url %}
+        <img src="{{ deal.image_url }}" alt="{{ deal.title }}" loading="lazy">
+      {% else %}
+        <div class="placeholder-icon">&#x1F4F1;</div>
+      {% endif %}
+      <div class="deal-badge">
+        <span class="badge {{ deal.source_code|lower }}">{{ deal.source_code }}</span>
+        <span class="badge">{{ deal.condition }}</span>
+      </div>
+      {% if deal.margin_pct is not None %}
+        <div class="deal-margin-badge {% if deal.margin_pct < 5 %}negative{% elif deal.margin_pct < 15 %}watch{% endif %}">
+          {% if deal.margin_pct > 0 %}+{% endif %}{{ deal.margin_pct|floatformat:1 }}%
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="deal-body">
+      <div class="deal-title">{{ deal.title }}</div>
+
+      <div class="deal-specs">
+        <div class="deal-spec">
+          <span class="lbl">{% trans "Model" %}</span>
+          <span class="val">{{ deal.model }}</span>
+        </div>
+        <div class="deal-spec">
+          <span class="lbl">{% trans "Storage" %}</span>
+          <span class="val">{% if deal.storage_gb %}{{ deal.storage_gb }}GB{% else %}-{% endif %}</span>
+        </div>
+        <div class="deal-spec">
+          <span class="lbl">{% trans "Source" %}</span>
+          <span class="val">{{ deal.source_name }}</span>
+        </div>
+        <div class="deal-spec">
+          <span class="lbl">{% trans "Observed" %}</span>
+          <span class="val">{{ deal.observed_at|date:"M d" }}</span>
+        </div>
+      </div>
+
+      <div class="deal-prices">
+        <div class="deal-price-col">
+          <span class="label">{% trans "Algeria" %}</span>
+          <span class="amount">{{ deal.price_original|floatformat:0 }} {{ deal.currency_original }}</span>
+          <span class="sub">EUR {{ deal.price_eur|floatformat:2 }}</span>
+          {% if deal.price_usd is not None %}<span class="sub">USD {{ deal.price_usd|floatformat:2 }}</span>{% endif %}
+          {% if deal.price_try is not None %}<span class="sub">TRY {{ deal.price_try|floatformat:0 }}</span>{% endif %}
+          {% if deal.price_dzd is not None and deal.currency_original != 'DZD' %}<span class="sub">DZD {{ deal.price_dzd|floatformat:0 }}</span>{% endif %}
+        </div>
+        <div class="deal-price-col">
+          <span class="label">{% trans "Turkey Median" %}</span>
+          <span class="amount">{{ deal.sah_median|floatformat:0 }} TRY</span>
+          {% if deal.sah_median_eur is not None %}<span class="sub">EUR {{ deal.sah_median_eur|floatformat:2 }}</span>{% endif %}
+          {% if deal.sah_median_usd is not None %}<span class="sub">USD {{ deal.sah_median_usd|floatformat:2 }}</span>{% endif %}
+          {% if deal.sah_median_dzd is not None %}<span class="sub">DZD {{ deal.sah_median_dzd|floatformat:0 }}</span>{% endif %}
+          <span class="sub">{% trans "min" %} {{ deal.sah_min|floatformat:0 }} &middot; {% trans "max" %} {{ deal.sah_max|floatformat:0 }}</span>
+        </div>
+      </div>
+
+      <div class="deal-sahibinden">
+        <div class="deal-sah-header">
+          <span class="title">{% trans "Sahibinden" %}</span>
+          <span class="count">{{ deal.sah_count }} {% trans "listings" %}</span>
+        </div>
+        <div class="deal-sah-range">
+          <span>{% trans "Spread" %}: <span class="val">{{ deal.sah_min|floatformat:0 }} &ndash; {{ deal.sah_max|floatformat:0 }} TRY</span></span>
+        </div>
+      </div>
+
+      {% if can_view_supplier and deal.supplier_usd %}
+      <div class="deal-specs supplier-block">
+        <div class="deal-spec">
+          <span class="lbl">{% trans "Supplier" %}</span>
+          <span class="val">${{ deal.supplier_usd|floatformat:0 }} USD</span>
+        </div>
+        <div class="deal-spec">
+          <span class="lbl">EUR</span>
+          <span class="val">{{ deal.supplier_eur|floatformat:2 }}</span>
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="deal-actions">
+        {% if deal.listing_url %}
+          <a href="{{ deal.listing_url }}" target="_blank" rel="noreferrer">{% trans "Algeria listing" %} &#8599;</a>
+        {% endif %}
+        {% if deal.sah_urls %}
+          <button class="btn-sahibinden" type="button" data-sah-urls="{{ deal.sah_urls_json|escapejs }}" data-sah-model="{{ deal.model }}">
+            {% trans "Sahibinden" %} ({{ deal.sah_count }}) &#9660;
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
