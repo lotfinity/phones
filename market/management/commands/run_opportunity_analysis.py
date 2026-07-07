@@ -12,9 +12,17 @@ class Command(BaseCommand):
             action="store_true",
             help="Also create one-sided insufficient-data snapshots for coverage/debugging.",
         )
+        parser.add_argument(
+            "--include-cross-storage",
+            action="store_true",
+            help="Also create lower-confidence model-level cross-storage snapshots for debugging.",
+        )
 
     def handle(self, *args, **options):
-        created = run_analysis(include_insufficient=options["include_insufficient"])
+        created = run_analysis(
+            include_insufficient=options["include_insufficient"],
+            include_cross_storage=options["include_cross_storage"],
+        )
         self.stdout.write(self.style.SUCCESS(f"Created {created} opportunity snapshots."))
 
         # Also recompute deal snapshots (cached deals for fast page loads)
