@@ -21,7 +21,8 @@ from market.services.listing_matching import apply_match_to_listing, match_listi
 
 class CatalogTransitionCommandTests(TestCase):
     def setUp(self):
-        call_command("seed_product_types_and_specs", verbosity=0)
+        out = io.StringIO()
+        call_command("seed_product_types_and_specs", verbosity=0, stdout=out)
         self.phone_type = get_or_create_product_type("phone", name="Phone")
         self.brand, _ = Brand.objects.get_or_create(name="Samsung")
         self.category, _ = Category.objects.get_or_create(slug="phones", defaults={"name": "Phones"})
@@ -29,7 +30,7 @@ class CatalogTransitionCommandTests(TestCase):
             brand=self.brand,
             category=self.category,
             product_type=self.phone_type,
-            canonical_name="Samsung Galaxy S25 Ultra",
+            canonical_name="Galaxy S25 Ultra",
         )
         self.source, _ = Source.objects.get_or_create(
             source_type=SourceType.SAHIBINDEN,
@@ -113,7 +114,7 @@ class CatalogTransitionCommandTests(TestCase):
         legacy_model = ProductModel.objects.create(
             brand=self.brand,
             category=self.category,
-            canonical_name="Samsung Galaxy A55",
+            canonical_name="Galaxy A55",
         )
         MarketListing.objects.create(
             source=self.source,
