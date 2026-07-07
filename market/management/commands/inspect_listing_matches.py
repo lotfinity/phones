@@ -56,8 +56,6 @@ class Command(BaseCommand):
         if level:
             qs = qs.filter(match_level=level)
 
-        # Keep the DB filtering broad enough for phone backward compatibility;
-        # exact opportunity eligibility is computed row-by-row below.
         limit = max(1, min(options["limit"], 500))
         candidates = list(qs[: limit * 4 if product_type_slug or options["eligible_only"] else limit])
 
@@ -87,7 +85,6 @@ class Command(BaseCommand):
         self.stdout.write(f"  Eligible levels: {', '.join(sorted(OPPORTUNITY_ELIGIBLE_MATCH_LEVELS))}")
         self.stdout.write(f"  Min match_confidence: {MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY}")
         self.stdout.write(f"  Allow model_only: {ALLOW_MODEL_ONLY_OPPORTUNITIES}")
-        self.stdout.write(f"  Phones/unknown types: eligible for backward compatibility")
         self.stdout.write("")
         for ml_value, ml_label in MarketListing.MatchLevel.choices:
             cnt = counts.get(ml_value, 0)
@@ -131,10 +128,9 @@ def _listing_product_type_slug(listing: MarketListing) -> str | None:
 
 
 def _is_eligible(listing: MarketListing) -> bool:
-    """Check if a listing is eligible for opportunity analysis."""
-    ptype = _listing_product_type_slug(listing)
-    if not ptype or ptype == "phone":
-        return True
+    """Check if a listing is eligible for automatic opportunity analysis."""
+    if not listing.product_model:
+        return False
 
     level = listing.match_level or MarketListing.MatchLevel.UNMATCHED
     if level in (MarketListing.MatchLevel.UNMATCHED, MarketListing.MatchLevel.CONFLICT):
