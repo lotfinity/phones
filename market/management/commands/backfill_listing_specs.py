@@ -9,10 +9,8 @@ from market.services.spec_extraction import (
     has_useful_specs,
 )
 
-# Product types allowed for auto-setting unless explicitly overridden.
 DEFAULT_SAFE_PRODUCT_TYPES = {"phone", "laptop"}
 
-# Identity spec keys per product type for --require-identity-spec.
 IDENTITY_SPECS_BY_TYPE = {
     "phone": {"storage_gb", "sim_config"},
     "laptop": {"cpu_model", "gpu_model", "ram_gb", "ssd_gb", "screen_inches", "refresh_hz"},
@@ -90,6 +88,7 @@ class Command(BaseCommand):
         would_write = 0
         skipped = 0
         typed = 0
+        typed_model_ids = set()
 
         for listing in candidates:
             text = f"{listing.title_raw or ''} {listing.description_raw or ''}".strip()
@@ -125,6 +124,7 @@ class Command(BaseCommand):
 
             if set_product_type and listing.product_model and not listing.product_model.product_type:
                 if detected_type in safe_product_types:
+                    typed_model_ids.add(listing.product_model_id)
                     if dry_run:
                         self.stdout.write(
                             f"  #{listing.pk} WOULD SET product_type={detected_type} on model #{listing.product_model_id}"
@@ -132,7 +132,6 @@ class Command(BaseCommand):
                     else:
                         listing.product_model.product_type = get_or_create_product_type(detected_type)
                         listing.product_model.save(update_fields=["product_type"])
-                        typed += 1
                 else:
                     if dry_run:
                         self.stdout.write(
@@ -158,8 +157,10 @@ class Command(BaseCommand):
                 f"  #{listing.pk} wrote {len(saved)} spec values ({detected_type}): {listing.title_raw[:70]}"
             )
 
+        typed = len(typed_model_ids)
         verb = "Would write" if dry_run else "Wrote"
+        type_verb = "would set" if dry_run else "set"
         self.stdout.write(self.style.SUCCESS(
-            f"\nDone. Processed {processed}, skipped {skipped}, set product_type {typed}. "
+            f"\nDone. Processed {processed}, skipped {skipped}, {type_verb} product_type on {typed} models. "
             f"{verb} {would_write} spec rows."
         ))
