@@ -59,9 +59,6 @@ class Command(BaseCommand):
 
         product_type_slug = options["product_type"].strip().lower()
         if product_type_slug:
-            # First-pass DB narrowing for typed rows. Untyped rows are detected
-            # row-by-row below so commands like --product-type phone still cover
-            # legacy phone rows whose ProductModel.product_type is blank.
             qs = qs.filter(
                 Q(product_model__product_type__slug=product_type_slug) |
                 Q(product_model__product_type__isnull=True)
@@ -114,6 +111,7 @@ class Command(BaseCommand):
                     brand_name=brand_name,
                     model_text=model_text,
                     specs=specs,
+                    allow_create=(not dry_run),
                 )
                 new_level = match_result_to_level(match)
                 new_confidence = match.confidence_score
