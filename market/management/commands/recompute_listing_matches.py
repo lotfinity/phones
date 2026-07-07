@@ -19,7 +19,7 @@ class Command(BaseCommand):
             "--limit",
             type=int,
             default=500,
-            help="Max listings to recompute (default 500).",
+            help="Max matching listings to recompute (default 500).",
         )
         parser.add_argument(
             "--dry-run",
@@ -65,10 +65,9 @@ class Command(BaseCommand):
             )
 
         dry_run = options["dry_run"]
-        candidates = list(qs[:limit])
+        listings = []
         if product_type_slug:
-            listings = []
-            for listing in candidates:
+            for listing in qs.iterator(chunk_size=500):
                 existing_slug = (
                     listing.product_model.product_type.slug
                     if listing.product_model and listing.product_model.product_type
@@ -77,8 +76,10 @@ class Command(BaseCommand):
                 detected_slug = existing_slug or detect_product_type(listing.title_raw or "", listing.description_raw or "")
                 if detected_slug == product_type_slug:
                     listings.append(listing)
+                    if len(listings) >= limit:
+                        break
         else:
-            listings = candidates
+            listings = list(qs[:limit])
 
         if not listings:
             self.stdout.write(self.style.WARNING("No listings found matching filters."))
