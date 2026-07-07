@@ -64,6 +64,9 @@ def compute_deal_snapshots():
     Deal snapshots power the public/mobile deals UI, so they must use the same
     match-quality gate as OpportunitySnapshot. Do not include model_only,
     unmatched, conflict, or storage-less rows in the cached buyer-facing deck.
+
+    Emit at most one deal per product model + storage, using the cheapest Algeria
+    listing because that is the actionable buy-side target for the buyer.
     """
     eligible_filter = _eligible_listing_filter()
     algeria_listings = (
@@ -73,14 +76,20 @@ def compute_deal_snapshots():
             storage_gb__isnull=False,
             **eligible_filter,
         )
-        .order_by("product_model__brand__name", "product_model__canonical_name", "storage_gb", "price_eur")
+        .order_by("product_model_id", "storage_gb", "price_eur", "id")
     )
 
     snapshots = []
+    seen_model_storage = set()
     for listing in algeria_listings:
         pm = listing.product_model
-        brand = pm.brand.name if pm.brand else "Unknown"
         storage = listing.storage_gb
+        key = (listing.product_model_id, storage)
+        if key in seen_model_storage:
+            continue
+        seen_model_storage.add(key)
+
+        brand = pm.brand.name if pm.brand else "Unknown"
 
         sah_query = MarketListing.objects.filter(
             source_type=SourceType.SAHIBINDEN,
