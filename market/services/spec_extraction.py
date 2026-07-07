@@ -18,11 +18,63 @@ from typing import Any
 from market.services.laptop_parser import (
     parse_cpu,
     parse_gpu,
+    parse_panel_type,
     parse_ram_gb,
     parse_screen_size,
     parse_storage_gb,
     parse_resolution,
 )
+
+
+from market.models import Condition
+
+# Specs that are too weak to count as meaningful extraction.
+USELESS_SPEC_KEYS = {"condition"}
+
+
+def clean_extracted_specs(specs: dict[str, Any], product_type_slug: str = "") -> dict[str, Any]:
+    """Remove useless or low-quality spec values before writing.
+
+    Filters out:
+    - condition=UNKNOWN / condition=empty
+    - box_status if empty
+    - resolution values that are actually panel types (VA, IPS, OLED, etc.)
+    - Any key with an empty/None value
+    """
+    cleaned: dict[str, Any] = {}
+    for key, value in specs.items():
+        if value is None:
+            continue
+        if isinstance(value, str) and not value.strip():
+            continue
+
+        # Filter unknown condition
+        if key == "condition":
+            val_str = str(value).strip().lower()
+            if val_str in ("", "unknown"):
+                continue
+
+        # Filter empty box_status
+        if key == "box_status" and not str(value).strip():
+            continue
+
+        # Filter resolution values that are actually panel types
+        if key == "resolution":
+            val_str = str(value).strip().upper()
+            if val_str in ("VA", "IPS", "OLED", "TN", "AMOLED", "MINI-LED", "MINI LED"):
+                continue
+
+        cleaned[key] = value
+    return cleaned
+
+
+def has_useful_specs(specs: dict[str, Any], product_type_slug: str = "") -> bool:
+    """Return True if the spec dict contains at least one meaningful spec value.
+
+    A dict with only condition=UNKNOWN (or similar weak metadata) is not useful.
+    """
+    cleaned = clean_extracted_specs(specs, product_type_slug)
+    return bool(cleaned)
 
 
 # ---------------------------------------------------------------------------
@@ -335,6 +387,11 @@ def extract_laptop_specs(text: str) -> dict[str, Any]:
     if resolution:
         specs["resolution"] = resolution
 
+    # Panel type (stored separately, not as resolution)
+    panel_type = parse_panel_type(text)
+    if panel_type:
+        specs["panel_type"] = panel_type
+
     # Refresh rate
     refresh = _extract_refresh_rate(text)
     if refresh is not None:
@@ -429,13 +486,13 @@ def extract_specs_from_text(
         product_type_slug = detect_product_type(title, description)
 
     if product_type_slug == "laptop":
-        return extract_laptop_specs(combined)
+        return clean_extracted_specs(extract_laptop_specs(combined), "laptop")
     elif product_type_slug == "phone":
-        return extract_phone_specs(combined)
+        return clean_extracted_specs(extract_phone_specs(combined), "phone")
     else:
         # For tablet/console/vr/camera, try laptop-style extraction as fallback
         # since they may share some specs (RAM, storage, screen)
-        return extract_laptop_specs(combined)
+        return clean_extracted_specs(extract_laptop_specs(combined), product_type_slug or "")
 
 
 def extract_specs_from_listing(

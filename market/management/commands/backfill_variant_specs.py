@@ -2,7 +2,13 @@ from django.core.management.base import BaseCommand, CommandError
 
 from market.models import DeviceVariant, ProductVariantSpecValue
 from market.services.catalog import upsert_variant_specs_from_dict
-from market.services.spec_extraction import extract_specs_from_text
+from market.services.spec_extraction import extract_specs_from_text, has_useful_specs
+
+# Identity spec keys per product type for --require-identity-spec.
+IDENTITY_SPECS_BY_TYPE = {
+    "phone": {"storage_gb", "sim_config"},
+    "laptop": {"cpu_model", "gpu_model", "ram_gb", "ssd_gb", "screen_inches", "refresh_hz"},
+}
 
 
 class Command(BaseCommand):
@@ -31,6 +37,19 @@ class Command(BaseCommand):
             action="store_true",
             help="Delete existing variant spec rows before backfilling each variant.",
         )
+        parser.add_argument(
+            "--min-spec-count",
+            type=int,
+            default=1,
+            help="Minimum number of useful spec values required to write (default 1).",
+        )
+        parser.add_argument(
+            "--require-identity-spec",
+            action="store_true",
+            default=False,
+            help="Require at least one identity spec (storage_gb/sim_config for phones, "
+                 "cpu/gpu/ram/ssd/screen/refresh for laptops) before writing.",
+        )
 
     def handle(self, *args, **options):
         limit = options["limit"]
@@ -41,6 +60,8 @@ class Command(BaseCommand):
         product_type_slug = options["product_type"].strip().lower()
         dry_run = options["dry_run"]
         replace = options["replace"]
+        min_spec_count = max(0, options["min_spec_count"])
+        require_identity = options["require_identity_spec"]
 
         qs = DeviceVariant.objects.select_related(
             "product_model", "product_model__product_type"
@@ -50,7 +71,7 @@ class Command(BaseCommand):
 
         variants = list(qs[:limit])
         processed = 0
-        written = 0
+        would_write = 0
         skipped = 0
 
         for variant in variants:
@@ -61,28 +82,41 @@ class Command(BaseCommand):
                 continue
 
             specs = self._specs_for_variant(variant, product_type.slug)
-            if not specs:
+            if not specs or not has_useful_specs(specs, product_type.slug):
                 skipped += 1
                 continue
 
+            # Count actual useful spec keys after cleaning
+            useful_count = len(specs)
+            if useful_count < min_spec_count:
+                skipped += 1
+                continue
+
+            if require_identity:
+                identity_keys = IDENTITY_SPECS_BY_TYPE.get(product_type.slug, set())
+                if not identity_keys.intersection(specs.keys()):
+                    skipped += 1
+                    continue
+
             processed += 1
             if dry_run:
+                would_write += len(specs)
                 self.stdout.write(
-                    f"  #{variant.pk} WOULD WRITE {product_type.slug}: {specs}"
+                    f"  #{variant.pk} WOULD WRITE {product_type.slug} ({len(specs)} specs): {specs}"
                 )
                 continue
 
             if replace:
                 ProductVariantSpecValue.objects.filter(variant=variant).delete()
             saved = upsert_variant_specs_from_dict(variant, specs)
-            written += len(saved)
+            would_write += len(saved)
             self.stdout.write(
                 f"  #{variant.pk} wrote {len(saved)} spec values: {variant.canonical_label}"
             )
 
         verb = "Would write" if dry_run else "Wrote"
         self.stdout.write(self.style.SUCCESS(
-            f"\nDone. Processed {processed}, skipped {skipped}. {verb} {written} spec rows."
+            f"\nDone. Processed {processed}, skipped {skipped}. {verb} {would_write} spec rows."
         ))
 
     def _specs_for_variant(self, variant: DeviceVariant, product_type_slug: str) -> dict:

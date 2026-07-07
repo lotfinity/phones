@@ -17,8 +17,8 @@ CPU_PATTERNS = [
     r"(?:Intel\s+)?(Pentium|Celeron)\s+(\w+)",
     # AMD Ryzen (must come before Apple to avoid false positives)
     r"(?:AMD\s+)?Ryzen\s+(\d)\s+(\d{4}[A-Z]*)",
-    # Apple Silicon
-    r"(?:Apple\s+)?M(\d)\s*(Pro|Max|Ultra)?",
+    # Apple Silicon (M1–M6 only; reject M0, M7, M8, M9 as invalid)
+    r"(?:Apple\s+)?M([1-6])\s*(Pro|Max|Ultra)?",
 ]
 
 # ── GPU patterns ──────────────────────────────────────────────────────────
@@ -57,7 +57,11 @@ SCREEN_PATTERNS = [
 RESOLUTION_PATTERNS = [
     r"(\d{3,4})\s*[xX×]\s*(\d{3,4})",
     r"(QHD\+?|FHD\+?|UHD|4K|2K|WXGA|WUXGA|3K|WQXGA)",
-    r"(OLED|IPS|VA|TN|Mini[\s-]?LED|AMOLED)",
+]
+
+# ── Panel type patterns (not resolution) ─────────────────────────────────
+PANEL_TYPE_PATTERNS = [
+    r"\b(OLED|IPS|VA|TN|Mini[\s-]?LED|AMOLED)\b",
 ]
 
 
@@ -156,6 +160,15 @@ def parse_screen_size(text):
 
 def parse_resolution(text):
     for pattern in RESOLUTION_PATTERNS:
+        m = re.search(pattern, text, re.IGNORECASE)
+        if m:
+            return m.group(0).strip()
+    return ""
+
+
+def parse_panel_type(text):
+    """Extract panel type (OLED, IPS, VA, etc.) from text. Not a resolution."""
+    for pattern in PANEL_TYPE_PATTERNS:
         m = re.search(pattern, text, re.IGNORECASE)
         if m:
             return m.group(0).strip()
