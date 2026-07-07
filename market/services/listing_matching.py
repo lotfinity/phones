@@ -103,7 +103,7 @@ def _has_conflicting_specs(
     specs: dict[str, Any],
 ) -> bool:
     """Check if extracted specs conflict with existing variant specs."""
-    if not variant or not variant.product_model or not variant.product_model.product_type:
+    if not variant or not variant.pk or not variant.product_model or not variant.product_model.product_type:
         return False
 
     product_type = variant.product_model.product_type
@@ -143,12 +143,7 @@ def _find_variant_by_spec_values(
     specs: dict[str, Any],
     product_type: ProductType,
 ) -> DeviceVariant | None:
-    """Find an existing typed variant by comparing ProductVariantSpecValue rows.
-
-    This avoids relying only on DeviceVariant.identity_key, because the legacy
-    DeviceVariant.save() method is phone-oriented and can recompute identity from
-    storage/SIM if a variant is later edited.
-    """
+    """Find an existing typed variant by comparing ProductVariantSpecValue rows."""
     for variant in product_model.devicevariant_set.all().prefetch_related("spec_values__spec", "spec_values__option"):
         if _variant_matches_specs(variant, specs, product_type):
             return variant
@@ -164,17 +159,27 @@ def _empty_identity_key(product_type: ProductType) -> str:
     return "|".join(f"{key}=" for key in keys)
 
 
+def _typed_variant_label(product_model: ProductModel, specs: dict[str, Any]) -> str:
+    label_parts = [product_model.canonical_name]
+    for key in ["gpu_model", "cpu_model", "ram_gb", "ssd_gb"]:
+        val = specs.get(key)
+        if val:
+            label_parts.append(str(val))
+    return " ".join(label_parts)[:220]
+
+
 def _find_or_create_variant(
     product_model: ProductModel,
     specs: dict[str, Any],
     product_type: ProductType | None = None,
+    *,
+    allow_create: bool = True,
 ) -> DeviceVariant | None:
     """Find or create a variant based on spec values.
 
-    For phones: uses existing storage_gb/sim_config logic.
-    For laptops and other typed devices: uses identity specs and persists those
-    specs onto ProductVariantSpecValue so future matching does not rely only on
-    a text identity key.
+    ``allow_create=False`` is used by dry-run commands. In that mode this
+    function may return an unsaved variant placeholder so confidence/level
+    reporting still reflects what would happen, but it must not mutate the DB.
     """
     if not product_type and product_model:
         product_type = product_model.product_type
@@ -182,18 +187,34 @@ def _find_or_create_variant(
     if not product_type:
         return None
 
-    # For phones, use the existing storage/sim-based variant logic.
     if product_type.slug == "phone":
         storage_gb = specs.get("storage_gb")
         sim_config = specs.get("sim_config", "")
         if not storage_gb:
             return None
-        from market.services.matching import get_or_create_variant
+
+        from market.services.matching import find_existing_variant, get_or_create_variant
+        existing = find_existing_variant(product_model, storage_gb=storage_gb, sim_config=sim_config)
+        if existing:
+            if allow_create:
+                upsert_variant_specs_from_dict(existing, {k: v for k, v in specs.items() if k in {"storage_gb", "ram_gb", "sim_config"}})
+            return existing
+
+        if not allow_create:
+            bits = [product_model.canonical_name, f"{storage_gb}GB"]
+            if sim_config:
+                bits.append(str(sim_config))
+            return DeviceVariant(
+                product_model=product_model,
+                storage_gb=storage_gb,
+                sim_config=sim_config,
+                canonical_label=" ".join(bits),
+            )
+
         variant = get_or_create_variant(product_model, storage_gb=storage_gb, sim_config=sim_config)
         upsert_variant_specs_from_dict(variant, {k: v for k, v in specs.items() if k in {"storage_gb", "ram_gb", "sim_config"}})
         return variant
 
-    # For laptops and other device types, use spec-based identity.
     identity_key = build_variant_identity_from_specs(product_type, specs)
     if not identity_key or identity_key == _empty_identity_key(product_type):
         return None
@@ -207,15 +228,19 @@ def _find_or_create_variant(
         identity_key=identity_key,
     ).first()
     if variant:
-        upsert_variant_specs_from_dict(variant, specs)
+        if allow_create:
+            upsert_variant_specs_from_dict(variant, specs)
         return variant
 
-    label_parts = [product_model.canonical_name]
-    for key in ["gpu_model", "cpu_model", "ram_gb", "ssd_gb"]:
-        val = specs.get(key)
-        if val:
-            label_parts.append(str(val))
-    label = " ".join(label_parts)[:220]
+    label = _typed_variant_label(product_model, specs)
+    if not allow_create:
+        return DeviceVariant(
+            product_model=product_model,
+            canonical_label=label,
+            storage_gb=specs.get("ssd_gb") or specs.get("storage_gb"),
+            sim_config="",
+            identity_key=identity_key,
+        )
 
     # DeviceVariant.save() currently recomputes legacy phone identity from
     # storage/SIM. Create first, then patch identity_key with update() so typed
@@ -239,10 +264,16 @@ def match_listing_to_catalog(
     brand_name: str | None = None,
     model_text: str | None = None,
     specs: dict[str, Any] | None = None,
+    *,
+    allow_create: bool = True,
 ) -> MatchResult:
-    """Progressive matching of a listing against the product catalog."""
+    """Progressive matching of a listing against the product catalog.
+
+    Set ``allow_create=False`` for dry-run/inspection paths. That prevents model,
+    variant, product_type, and spec-value writes while preserving match scoring.
+    """
     from market.services.matching import find_existing_model
-    from market.services.normalization import canonical_model_name, likely_brand
+    from market.services.normalization import likely_brand
 
     result = MatchResult()
     specs = specs or {}
@@ -276,6 +307,11 @@ def match_listing_to_catalog(
             result.product_model = product_model
             result.reasons.append(f"Found existing model: {product_model.canonical_name}")
         elif brand_name:
+            if not allow_create:
+                result.reasons.append(f"No existing model found for: {model_text}")
+                result.confidence = "low"
+                result.confidence_score = 0.2
+                return result
             from market.services.matching import get_or_create_model
             category_name = "Laptops" if product_type_slug == "laptop" else "Phones"
             product_model = get_or_create_model(model_text, category_name=category_name)
@@ -303,7 +339,12 @@ def match_listing_to_catalog(
     if result.product_model and specs:
         product_type = result.product_model.product_type
         if product_type:
-            variant = _find_or_create_variant(result.product_model, specs, product_type)
+            variant = _find_or_create_variant(
+                result.product_model,
+                specs,
+                product_type,
+                allow_create=allow_create,
+            )
             if variant:
                 if _has_conflicting_specs(variant, specs):
                     result.reasons.append("Conflicting specs with existing variant")
@@ -312,15 +353,13 @@ def match_listing_to_catalog(
                     result.variant = None
                 else:
                     result.variant = variant
-                    result.reasons.append(f"Matched variant: {variant.canonical_label}")
+                    label = variant.canonical_label or "unsaved variant"
+                    result.reasons.append(f"Matched variant: {label}")
             else:
                 result.reasons.append("Could not match variant (empty identity)")
 
     if result.product_model and result.variant:
         if product_type_slug == "phone":
-            # A known phone model + storage-backed variant is exact enough for
-            # phone arbitrage. SIM, RAM, and region improve metadata but storage
-            # is the key price identity in current data.
             if specs.get("storage_gb"):
                 result.confidence = "exact"
                 result.confidence_score = 0.95
