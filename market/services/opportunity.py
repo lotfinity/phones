@@ -77,7 +77,7 @@ def _eligible_review_gate(prefix="") -> Q:
     )
 
 
-def run_analysis(include_insufficient=False):
+def run_analysis(include_insufficient=False, include_cross_storage=False):
     with transaction.atomic():
         OpportunitySnapshot.objects.all().delete()
         created = 0
@@ -204,6 +204,9 @@ def run_analysis(include_insufficient=False):
                     explanation=explanation,
                 )
                 created += 1
+
+        if not include_cross_storage:
+            return created
 
         algeria_models = set(
             MarketListing.objects.filter(country=Country.ALGERIA)
