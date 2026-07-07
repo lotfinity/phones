@@ -48,7 +48,6 @@ class MatchResult:
     specs_saved: int = 0
 
 
-# Laptop identity weight tiers (higher = more important for matching)
 LAPTOP_IDENTITY_WEIGHTS = {
     "gpu_model": 10,
     "cpu_model": 8,
@@ -58,19 +57,13 @@ LAPTOP_IDENTITY_WEIGHTS = {
     "refresh_hz": 3,
 }
 
-# Minimum identity spec score for "exact" match
 EXACT_MATCH_THRESHOLD = 20
 HIGH_MATCH_THRESHOLD = 12
 MEDIUM_MATCH_THRESHOLD = 5
 
 
 def match_result_to_level(match: MatchResult) -> str:
-    """Map a MatchResult to the persisted MarketListing.match_level value.
-
-    Keep this in one place so commands, dry-run output, and writes do not drift
-    between MatchResult.confidence values (exact/high/medium/low) and stored
-    match levels (exact_variant/strong_candidate/model_only/unmatched/conflict).
-    """
+    """Map a MatchResult to the persisted MarketListing.match_level value."""
     if any("conflict" in r.lower() for r in match.reasons):
         return MarketListing.MatchLevel.CONFLICT
 
@@ -85,7 +78,6 @@ def match_result_to_level(match: MatchResult) -> str:
 
 
 def _compute_laptop_identity_score(specs: dict[str, Any]) -> int:
-    """Compute a weighted score for laptop identity specs."""
     score = 0
     for key, weight in LAPTOP_IDENTITY_WEIGHTS.items():
         val = specs.get(key)
@@ -98,11 +90,7 @@ def _has_identity_value(value: Any) -> bool:
     return value is not None and value != "" and value is not False
 
 
-def _has_conflicting_specs(
-    variant: DeviceVariant,
-    specs: dict[str, Any],
-) -> bool:
-    """Check if extracted specs conflict with existing variant specs."""
+def _has_conflicting_specs(variant: DeviceVariant, specs: dict[str, Any]) -> bool:
     if not variant or not variant.pk or not variant.product_model or not variant.product_model.product_type:
         return False
 
@@ -113,19 +101,13 @@ def _has_conflicting_specs(
         spec_def = get_spec_definition(product_type, key)
         if not spec_def or not spec_def.is_variant_identity:
             continue
-
         existing = get_variant_spec_value(variant, key)
         if existing is not None and str(existing).lower() != str(value).lower():
             return True
     return False
 
 
-def _variant_matches_specs(
-    variant: DeviceVariant,
-    specs: dict[str, Any],
-    product_type: ProductType,
-) -> bool:
-    """Return True when all provided identity specs match a variant's specs."""
+def _variant_matches_specs(variant: DeviceVariant, specs: dict[str, Any], product_type: ProductType) -> bool:
     checked = 0
     for spec in product_type.spec_definitions.filter(is_variant_identity=True):
         wanted = specs.get(spec.key)
@@ -143,7 +125,6 @@ def _find_variant_by_spec_values(
     specs: dict[str, Any],
     product_type: ProductType,
 ) -> DeviceVariant | None:
-    """Find an existing typed variant by comparing ProductVariantSpecValue rows."""
     for variant in product_model.devicevariant_set.all().prefetch_related("spec_values__spec", "spec_values__option"):
         if _variant_matches_specs(variant, specs, product_type):
             return variant
@@ -223,10 +204,7 @@ def _find_or_create_variant(
     if variant:
         return variant
 
-    variant = DeviceVariant.objects.filter(
-        product_model=product_model,
-        identity_key=identity_key,
-    ).first()
+    variant = DeviceVariant.objects.filter(product_model=product_model, identity_key=identity_key).first()
     if variant:
         if allow_create:
             upsert_variant_specs_from_dict(variant, specs)
@@ -242,9 +220,6 @@ def _find_or_create_variant(
             identity_key=identity_key,
         )
 
-    # DeviceVariant.save() currently recomputes legacy phone identity from
-    # storage/SIM. Create first, then patch identity_key with update() so typed
-    # variants keep the spec identity in this transitional schema.
     variant = DeviceVariant.objects.create(
         product_model=product_model,
         canonical_label=label,
@@ -255,6 +230,22 @@ def _find_or_create_variant(
     variant.identity_key = identity_key
     upsert_variant_specs_from_dict(variant, specs)
     return variant
+
+
+def _product_type_for_matching(
+    product_model: ProductModel,
+    product_type_slug: str | None,
+    *,
+    allow_create: bool,
+) -> ProductType | None:
+    """Resolve product type for scoring without forcing dry-run DB writes."""
+    if product_model.product_type:
+        return product_model.product_type
+    if not product_type_slug:
+        return None
+    if allow_create:
+        return get_or_create_product_type(product_type_slug)
+    return ProductType.objects.filter(slug=product_type_slug).first()
 
 
 def match_listing_to_catalog(
@@ -337,7 +328,11 @@ def match_listing_to_catalog(
         return result
 
     if result.product_model and specs:
-        product_type = result.product_model.product_type
+        product_type = _product_type_for_matching(
+            result.product_model,
+            product_type_slug,
+            allow_create=allow_create,
+        )
         if product_type:
             variant = _find_or_create_variant(
                 result.product_model,
@@ -396,11 +391,7 @@ def apply_match_to_listing(
     specs: dict[str, Any] | None = None,
     confidence: float = 0,
 ) -> int:
-    """Apply a MatchResult to a MarketListing and save spec values.
-
-    Persists match_level, match_confidence, and match_reason on the listing.
-    Returns the number of spec values saved.
-    """
+    """Apply a MatchResult to a MarketListing and save spec values."""
     specs_saved = 0
     match_level = match_result_to_level(match)
 
@@ -427,11 +418,7 @@ def apply_match_to_listing(
                 logger.exception("Failed setting detected product type on model=%s", match.product_model.pk)
 
     if specs and match.product_model and match.product_model.product_type:
-        saved = upsert_listing_specs_from_dict(
-            listing,
-            specs,
-            confidence=confidence or match.confidence_score,
-        )
+        saved = upsert_listing_specs_from_dict(listing, specs, confidence=confidence or match.confidence_score)
         specs_saved = len(saved)
 
     return specs_saved
