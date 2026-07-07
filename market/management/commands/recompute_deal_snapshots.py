@@ -6,7 +6,15 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from market.models import Country, DealSnapshot, MarketListing, SourceType, SupplierPrice
+from market.models import (
+    Country,
+    DealSnapshot,
+    MarketListing,
+    MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
+    OPPORTUNITY_ELIGIBLE_MATCH_LEVELS,
+    SourceType,
+    SupplierPrice,
+)
 from market.services import currency as fx
 
 
@@ -39,15 +47,31 @@ def _listing_image_url(listing):
         return ""
 
 
+def _eligible_listing_filter():
+    return {
+        "review_status__in": [MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
+        "price_eur__isnull": False,
+        "product_model__isnull": False,
+        "variant__isnull": False,
+        "match_level__in": list(OPPORTUNITY_ELIGIBLE_MATCH_LEVELS),
+        "match_confidence__gte": MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
+    }
+
+
 def compute_deal_snapshots():
-    """Compute all deals and return a list of DealSnapshot instances (not yet saved)."""
+    """Compute all deals and return a list of DealSnapshot instances (not yet saved).
+
+    Deal snapshots power the public/mobile deals UI, so they must use the same
+    match-quality gate as OpportunitySnapshot. Do not include model_only,
+    unmatched, conflict, or storage-less rows in the cached buyer-facing deck.
+    """
+    eligible_filter = _eligible_listing_filter()
     algeria_listings = (
         MarketListing.objects.select_related("source", "product_model", "product_model__brand", "variant")
         .filter(
             country=Country.ALGERIA,
-            review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
-            price_eur__isnull=False,
-            product_model__isnull=False,
+            storage_gb__isnull=False,
+            **eligible_filter,
         )
         .order_by("product_model__brand__name", "product_model__canonical_name", "storage_gb", "price_eur")
     )
@@ -61,11 +85,9 @@ def compute_deal_snapshots():
         sah_query = MarketListing.objects.filter(
             source_type=SourceType.SAHIBINDEN,
             product_model=pm,
-            price_eur__isnull=False,
-            review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
+            storage_gb=storage,
+            **eligible_filter,
         )
-        if storage:
-            sah_query = sah_query.filter(storage_gb=storage)
 
         sah_prices_eur = list(sah_query.values_list("price_eur", flat=True))
         sah_prices_try = list(sah_query.values_list("price_original", flat=True))
