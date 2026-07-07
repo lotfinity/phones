@@ -4,7 +4,6 @@ from django.db.models import Q
 from market.models import MarketListing, MarketListingSpecValue
 from market.services.catalog import get_or_create_product_type, upsert_listing_specs_from_dict
 from market.services.spec_extraction import (
-    clean_extracted_specs,
     detect_product_type,
     extract_specs_from_text,
     has_useful_specs,
@@ -12,6 +11,12 @@ from market.services.spec_extraction import (
 
 # Product types allowed for auto-setting unless explicitly overridden.
 DEFAULT_SAFE_PRODUCT_TYPES = {"phone", "laptop"}
+
+# Identity spec keys per product type for --require-identity-spec.
+IDENTITY_SPECS_BY_TYPE = {
+    "phone": {"storage_gb", "sim_config"},
+    "laptop": {"cpu_model", "gpu_model", "ram_gb", "ssd_gb", "screen_inches", "refresh_hz"},
+}
 
 
 class Command(BaseCommand):
@@ -63,7 +68,6 @@ class Command(BaseCommand):
         min_spec_count = max(0, options["min_spec_count"])
         require_identity = options["require_identity_spec"]
 
-        # Parse safe product types for auto-setting
         raw_safe = options["safe_product_types"].strip()
         if raw_safe:
             safe_product_types = {s.strip().lower() for s in raw_safe.split(",") if s.strip()}
@@ -111,9 +115,14 @@ class Command(BaseCommand):
                 skipped += 1
                 continue
 
+            if require_identity:
+                identity_keys = IDENTITY_SPECS_BY_TYPE.get(detected_type, set())
+                if identity_keys and not identity_keys.intersection(specs.keys()):
+                    skipped += 1
+                    continue
+
             processed += 1
 
-            # Product type auto-setting with safety guard
             if set_product_type and listing.product_model and not listing.product_model.product_type:
                 if detected_type in safe_product_types:
                     if dry_run:
