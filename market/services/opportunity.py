@@ -41,31 +41,33 @@ def confidence_for(algeria_count, sahibinden_count, supplier_count, exact_varian
 def _listing_eligible_for_opportunity(listing: MarketListing) -> bool:
     """Check if a listing is eligible for automatic opportunity analysis.
 
-    Rules:
-    - Phones and unknown product types are always eligible (backward compatible).
-    - Laptops with eligible match_level and sufficient match_confidence are eligible.
-    - model_only is eligible only if ALLOW_MODEL_ONLY_OPPORTUNITIES is True.
+    Opportunity analysis should use variant-quality matches. Phones are no longer
+    exempt from match-level gates: model_only rows are too vague for arbitrage.
     """
-    # Backward compatible: phones and unknown types always eligible
-    if not listing.product_model or not listing.product_model.product_type:
-        return True
-    if listing.product_model.product_type.slug == "phone":
-        return True
-
-    # Laptop and other typed listings: check match_level
-    level = listing.match_level or MarketListing.MatchLevel.UNMATCHED
-    if level == MarketListing.MatchLevel.UNMATCHED:
+    if not listing.product_model:
         return False
-    if level == MarketListing.MatchLevel.CONFLICT:
+
+    level = listing.match_level or MarketListing.MatchLevel.UNMATCHED
+    if level in (MarketListing.MatchLevel.UNMATCHED, MarketListing.MatchLevel.CONFLICT):
         return False
     if level == MarketListing.MatchLevel.MODEL_ONLY and not ALLOW_MODEL_ONLY_OPPORTUNITIES:
         return False
     if level not in OPPORTUNITY_ELIGIBLE_MATCH_LEVELS:
         return False
-    # Check match_confidence threshold
     if listing.match_confidence < MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY:
         return False
     return True
+
+
+def _opportunity_listing_gate(prefix="") -> Q:
+    """Return DB-level gate matching _listing_eligible_for_opportunity.
+
+    ``prefix`` is used for ProductModel queries that traverse through
+    ``marketlisting__``.
+    """
+    return Q(**{f"{prefix}product_model__isnull": False}) & Q(
+        **{f"{prefix}match_level__in": list(OPPORTUNITY_ELIGIBLE_MATCH_LEVELS)}
+    ) & Q(**{f"{prefix}match_confidence__gte": MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY})
 
 
 def run_analysis(include_insufficient=False):
@@ -73,7 +75,6 @@ def run_analysis(include_insufficient=False):
         OpportunitySnapshot.objects.all().delete()
         created = 0
 
-        # Base Q for eligible review status + price (applied to MarketListing)
         eligible_review = Q(
             review_status__in=[
                 MarketListing.ReviewStatus.AUTO,
@@ -81,22 +82,9 @@ def run_analysis(include_insufficient=False):
             ],
             price_eur__isnull=False,
         )
-        # Match-level gate: include phones/unknown always, typed listings need eligible match_level
-        match_gate = Q(
-            product_model__isnull=True
-        ) | Q(
-            product_model__product_type__isnull=True
-        ) | Q(
-            product_model__product_type__slug="phone"
-        ) | Q(
-            match_level__in=list(OPPORTUNITY_ELIGIBLE_MATCH_LEVELS),
-            match_confidence__gte=MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
-        )
-
-        # Combined filter for MarketListing queries
+        match_gate = _opportunity_listing_gate()
         base_filter = eligible_review & match_gate
 
-        # For ProductModel queries, use __ prefix to traverse relations
         pm_eligible_review = Q(
             marketlisting__review_status__in=[
                 MarketListing.ReviewStatus.AUTO,
@@ -104,16 +92,7 @@ def run_analysis(include_insufficient=False):
             ],
             marketlisting__price_eur__isnull=False,
         )
-        pm_match_gate = Q(
-            marketlisting__product_model__isnull=True
-        ) | Q(
-            marketlisting__product_model__product_type__isnull=True
-        ) | Q(
-            marketlisting__product_model__product_type__slug="phone"
-        ) | Q(
-            marketlisting__match_level__in=list(OPPORTUNITY_ELIGIBLE_MATCH_LEVELS),
-            marketlisting__match_confidence__gte=MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
-        )
+        pm_match_gate = _opportunity_listing_gate(prefix="marketlisting__")
         pm_base_filter = pm_eligible_review & pm_match_gate
 
         product_models = (
@@ -188,8 +167,6 @@ def run_analysis(include_insufficient=False):
                     margin = None
                     margin_percent = None
                 else:
-                    # PriceBridge direction: buy in Algeria, sell in Türkiye.
-                    # Use Algeria minimum as the buy-side target and Sahibinden median as the sell-side baseline.
                     margin = Decimal(sahibinden_median) - Decimal(algeria_min)
                     margin_percent = (margin / Decimal(algeria_min)) * Decimal("100")
                     if margin_percent > 15:
@@ -199,7 +176,6 @@ def run_analysis(include_insufficient=False):
                     else:
                         recommendation = OpportunitySnapshot.Recommendation.IGNORE
 
-                # Supplier margin: Algeria min vs supplier median
                 supplier_margin = None
                 supplier_margin_pct = None
                 if algeria_min and supplier_median:
@@ -232,7 +208,6 @@ def run_analysis(include_insufficient=False):
                 )
                 created += 1
 
-        # Second pass: models in both countries with no matching storage
         algeria_models = set(
             MarketListing.objects.filter(country=Country.ALGERIA)
             .filter(base_filter)
@@ -252,6 +227,8 @@ def run_analysis(include_insufficient=False):
         cross_storage_candidates = (algeria_models & turkiye_models) - already_done
 
         for pm_id in cross_storage_candidates:
+            if not pm_id:
+                continue
             product_model = ProductModel.objects.get(id=pm_id)
             listings = MarketListing.objects.filter(
                 country=Country.ALGERIA,
@@ -300,7 +277,7 @@ def run_analysis(include_insufficient=False):
                 supplier_margin_pct = (supplier_margin / Decimal(algeria_min)) * Decimal("100")
 
             confidence = confidence_for(listing_count, sahibinden_count, supplier_count, False)
-            confidence = int(confidence * 0.85)  # lower confidence for cross-storage
+            confidence = int(confidence * 0.85)
 
             a_storages = sorted(s for s in listings.values_list("storage_gb", flat=True).distinct() if s is not None)
             t_storages = sorted(s for s in sahibinden.values_list("storage_gb", flat=True).distinct() if s is not None)
