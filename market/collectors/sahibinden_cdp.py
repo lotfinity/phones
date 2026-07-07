@@ -274,6 +274,21 @@ def save_row(row, source, category=None):
     price_try = parse_try_price(row.get("price"))
     title = row.get("title", "")
 
+    # Detect product type
+    from market.services.spec_extraction import detect_product_type, extract_specs_from_listing
+    detected_type = detect_product_type(title, "")
+    product_type_slug = category.slug if category else detected_type
+
+    # Extract specs using generic spec extraction
+    parsed = extract_specs_from_listing(
+        product_type_slug,
+        title,
+        description=row.get("title", ""),
+        raw_metadata=row,
+    )
+    extracted_specs = parsed.specs
+    spec_confidence = parsed.confidence
+
     # Laptop mode
     if category and category.slug == "laptops":
         from market.services.laptop_parser import parse_laptop_title, laptop_review_status
@@ -334,6 +349,10 @@ def save_row(row, source, category=None):
                 "review_status": review_status,
             },
         )
+        # Save extracted spec values
+        if extracted_specs and product_model and product_model.product_type:
+            from market.services.catalog import upsert_listing_specs_from_dict
+            upsert_listing_specs_from_dict(listing, extracted_specs, confidence=spec_confidence)
         return listing
 
     # Phone mode (original logic)
@@ -377,6 +396,10 @@ def save_row(row, source, category=None):
             "review_status": review_status,
         },
     )
+    # Save extracted spec values
+    if extracted_specs and product_model and product_model.product_type:
+        from market.services.catalog import upsert_listing_specs_from_dict
+        upsert_listing_specs_from_dict(listing, extracted_specs, confidence=spec_confidence)
     return listing
 
 

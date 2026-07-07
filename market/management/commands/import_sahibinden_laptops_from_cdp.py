@@ -154,6 +154,17 @@ def save_laptop_row(row, source, category):
     ram_gb = specs.get("ram_gb")
     storage_gb = specs.get("storage_gb")
 
+    # Extract specs using generic spec extraction
+    from market.services.spec_extraction import extract_specs_from_listing
+    parsed = extract_specs_from_listing(
+        "laptop",
+        title,
+        description=json.dumps(row, ensure_ascii=False),
+        raw_metadata=row,
+    )
+    extracted_specs = parsed.specs
+    spec_confidence = parsed.confidence
+
     # Try to get model from title
     model_text = extract_model_text(title)
     product_model = find_existing_model(model_text) if model_text else None
@@ -209,11 +220,19 @@ def save_laptop_row(row, source, category):
     existing = MarketListing.objects.filter(source=source, listing_url=url).first()
     if not existing:
         listing = MarketListing.objects.create(source=source, **defaults)
+        # Save extracted spec values
+        if extracted_specs and product_model and product_model.product_type:
+            from market.services.catalog import upsert_listing_specs_from_dict
+            upsert_listing_specs_from_dict(listing, extracted_specs, confidence=spec_confidence)
         return "created", listing
     else:
         for field, new_value in defaults.items():
             setattr(existing, field, new_value)
         existing.save(update_fields=list(defaults.keys()))
+        # Save extracted spec values on update
+        if extracted_specs and product_model and product_model.product_type:
+            from market.services.catalog import upsert_listing_specs_from_dict
+            upsert_listing_specs_from_dict(existing, extracted_specs, confidence=spec_confidence)
         return "updated", existing
 
 

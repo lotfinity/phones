@@ -1,5 +1,36 @@
 # Changelog
 
+## 2026-07-07
+
+- Added generic typed catalog/spec system for multi-device support: `ProductType`, `SpecDefinition`, `SpecOption`, `ProductVariantSpecValue`, `MarketListingSpecValue` models with admin registration and inlines.
+- Added nullable `product_type` FK to `ProductModel` for linking models to device types.
+- Added `market.services.catalog` module with helpers: `get_or_create_product_type`, `get_spec_definition`, `normalize_spec_value`, `upsert_variant_spec_value`, `upsert_listing_spec_value`, `build_variant_identity_from_specs`, batch upsert helpers, and spec value readers.
+- Added `seed_product_types_and_specs` idempotent management command seeding phone, laptop, tablet, console, vr_headset, and camera product types with their spec definitions and common option values.
+- Added `inspect_catalog_specs` management command to inspect catalog spec system state.
+- Added 8 tests covering product type creation, spec definition creation, idempotent seeding, listing/variant spec value saving, laptop identity key building, existing phone variant behavior, opportunity analysis compatibility, and laptop listing storage without laptop-specific columns.
+- Updated `docs/DATA_MODEL.md` and `docs/PIPELINE.md` with catalog spec system documentation.
+
+### Phase 2: Pipeline Integration
+
+- Added `market.services.spec_extraction` module with `detect_product_type()`, `extract_laptop_specs()`, `extract_phone_specs()`, `extract_specs_from_text()`, and `extract_specs_from_listing()` returning `ParsedListing`.
+- Added `market.services.listing_matching` module with progressive matching, `MatchResult`, `match_listing_to_catalog()`, and `apply_match_to_listing()`.
+- Hooked spec extraction into all collectors: `ouedkniss_cdp.py`, `sahibinden_cdp.py`, `import_sahibinden_laptops_from_cdp.py`, `process_ocr_queue.py`, and `listing_suggestions.py`.
+- Added `backfill_product_types` management command to set `product_type` on existing models from category/name heuristic.
+- Added `parse_listing_text` management command for manual extraction testing.
+- Added 27 new tests covering product type detection, laptop spec extraction (RAM/SSD/GPU/CPU/refresh rate), MacBook M-series, incomplete listing confidence, listing matching (exact/high/low), conflicting specs blocking, phone backward compatibility, backfill idempotency, opportunity analysis compatibility, and spec extraction integration.
+
+### Phase 3: Match Quality and Confidence Gates
+
+- Added `match_level`, `match_confidence`, and `match_reason` fields to `MarketListing` for tracking match quality.
+- Added confidence gate constants: `OPPORTUNITY_ELIGIBLE_MATCH_LEVELS`, `MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY`, `ALLOW_MODEL_ONLY_OPPORTUNITIES`.
+- Updated `apply_match_to_listing()` to persist match level, confidence, and reason on each listing.
+- Updated `run_analysis()` to filter listings by match level — phones always eligible, laptops must have eligible match level and sufficient confidence.
+- Added `inspect_listing_matches` management command for reviewing match quality distribution and opportunity eligibility.
+- Added `recompute_listing_matches` management command with `--dry-run` support for safe recomputation.
+- Updated `MarketListingAdmin` with new columns (match level badge, eligibility badge, product type) and filters (match level, product type).
+- Added 16 new tests covering match level fields, confidence gates, opportunity filtering (phone included, unmatched/exact/conflict/model-only laptop excluded), apply_match persistence, laptop title fixtures, recompute dry-run, and inspect output.
+- Updated `docs/DATA_MODEL.md`, `docs/PIPELINE.md`, and `README.md` with Phase 3 documentation.
+
 ## 2026-07-05
 
 - Added `match_instagram_manual_links_from_markdown` and used it to replace exact suffix-matched manual Instagram image links with real post/reel URLs from the Markdown profile export.

@@ -27,6 +27,13 @@ python manage.py run_opportunity_analysis
 python manage.py inspect_recent_data
 python manage.py import_sahibinden_from_cdp --cdp http://127.0.0.1:9222 --max-rows 300
 python manage.py import_ouedkniss_from_cdp --cdp http://127.0.0.1:9222 --limit 50
+python manage.py import_sahibinden_laptops_from_cdp --cdp http://127.0.0.1:9222 --max-rows 300
+python manage.py backfill_product_types
+python manage.py seed_product_types_and_specs
+python manage.py parse_listing_text --text "RTX 4060 16GB 512GB SSD 165Hz" --product-type laptop
+python manage.py inspect_listing_matches --product-type laptop --limit 50
+python manage.py recompute_listing_matches --product-type laptop --limit 500
+python manage.py recompute_listing_matches --product-type laptop --limit 100 --dry-run
 ```
 
 Instagram collection uses Instaloader for public profiles. It does not bypass login challenges. If a session is needed, set `INSTAGRAM_SESSION_PATH` for an Instaloader session file or `INSTAGRAM_COOKIE_FILE` for a Netscape-format browser cookie export containing Instagram cookies.

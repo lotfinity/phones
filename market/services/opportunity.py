@@ -4,7 +4,17 @@ from decimal import Decimal
 from django.db import transaction
 from django.db.models import Avg, Min, Q
 
-from market.models import Country, MarketListing, OpportunitySnapshot, ProductModel, SourceType, SupplierPrice
+from market.models import (
+    ALLOW_MODEL_ONLY_OPPORTUNITIES,
+    OPPORTUNITY_ELIGIBLE_MATCH_LEVELS,
+    MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
+    Country,
+    MarketListing,
+    OpportunitySnapshot,
+    ProductModel,
+    SourceType,
+    SupplierPrice,
+)
 from market.services.matching import SUPPORTED_STORAGE_GB
 
 
@@ -28,18 +38,86 @@ def confidence_for(algeria_count, sahibinden_count, supplier_count, exact_varian
     return min(score, 100)
 
 
+def _listing_eligible_for_opportunity(listing: MarketListing) -> bool:
+    """Check if a listing is eligible for automatic opportunity analysis.
+
+    Rules:
+    - Phones and unknown product types are always eligible (backward compatible).
+    - Laptops with eligible match_level and sufficient match_confidence are eligible.
+    - model_only is eligible only if ALLOW_MODEL_ONLY_OPPORTUNITIES is True.
+    """
+    # Backward compatible: phones and unknown types always eligible
+    if not listing.product_model or not listing.product_model.product_type:
+        return True
+    if listing.product_model.product_type.slug == "phone":
+        return True
+
+    # Laptop and other typed listings: check match_level
+    level = listing.match_level or MarketListing.MatchLevel.UNMATCHED
+    if level == MarketListing.MatchLevel.UNMATCHED:
+        return False
+    if level == MarketListing.MatchLevel.CONFLICT:
+        return False
+    if level == MarketListing.MatchLevel.MODEL_ONLY and not ALLOW_MODEL_ONLY_OPPORTUNITIES:
+        return False
+    if level not in OPPORTUNITY_ELIGIBLE_MATCH_LEVELS:
+        return False
+    # Check match_confidence threshold
+    if listing.match_confidence < MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY:
+        return False
+    return True
+
+
 def run_analysis(include_insufficient=False):
     with transaction.atomic():
         OpportunitySnapshot.objects.all().delete()
         created = 0
+
+        # Base Q for eligible review status + price (applied to MarketListing)
+        eligible_review = Q(
+            review_status__in=[
+                MarketListing.ReviewStatus.AUTO,
+                MarketListing.ReviewStatus.APPROVED,
+            ],
+            price_eur__isnull=False,
+        )
+        # Match-level gate: include phones/unknown always, typed listings need eligible match_level
+        match_gate = Q(
+            product_model__isnull=True
+        ) | Q(
+            product_model__product_type__isnull=True
+        ) | Q(
+            product_model__product_type__slug="phone"
+        ) | Q(
+            match_level__in=list(OPPORTUNITY_ELIGIBLE_MATCH_LEVELS),
+            match_confidence__gte=MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
+        )
+
+        # Combined filter for MarketListing queries
+        base_filter = eligible_review & match_gate
+
+        # For ProductModel queries, use __ prefix to traverse relations
+        pm_eligible_review = Q(
+            marketlisting__review_status__in=[
+                MarketListing.ReviewStatus.AUTO,
+                MarketListing.ReviewStatus.APPROVED,
+            ],
+            marketlisting__price_eur__isnull=False,
+        )
+        pm_match_gate = Q(
+            marketlisting__product_model__isnull=True
+        ) | Q(
+            marketlisting__product_model__product_type__isnull=True
+        ) | Q(
+            marketlisting__product_model__product_type__slug="phone"
+        ) | Q(
+            marketlisting__match_level__in=list(OPPORTUNITY_ELIGIBLE_MATCH_LEVELS),
+            marketlisting__match_confidence__gte=MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
+        )
+        pm_base_filter = pm_eligible_review & pm_match_gate
+
         product_models = (
-            ProductModel.objects.filter(
-                marketlisting__review_status__in=[
-                    MarketListing.ReviewStatus.AUTO,
-                    MarketListing.ReviewStatus.APPROVED,
-                ],
-                marketlisting__price_eur__isnull=False,
-            )
+            ProductModel.objects.filter(pm_base_filter)
             .distinct()
             .order_by("canonical_name")
         )
@@ -47,14 +125,10 @@ def run_analysis(include_insufficient=False):
             spec_values = list(
                 MarketListing.objects.filter(
                     product_model=product_model,
-                    price_eur__isnull=False,
-                    review_status__in=[
-                        MarketListing.ReviewStatus.AUTO,
-                        MarketListing.ReviewStatus.APPROVED,
-                    ],
                     storage_gb__isnull=False,
                     storage_gb__in=SUPPORTED_STORAGE_GB,
                 )
+                .filter(base_filter)
                 .filter(Q(country=Country.ALGERIA) | Q(country=Country.TURKIYE, source_type=SourceType.SAHIBINDEN))
                 .order_by("storage_gb")
                 .values_list("storage_gb", flat=True)
@@ -67,16 +141,12 @@ def run_analysis(include_insufficient=False):
                 listings = MarketListing.objects.filter(
                     country=Country.ALGERIA,
                     product_model=product_model,
-                    price_eur__isnull=False,
-                    review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
-                )
+                ).filter(base_filter)
                 sahibinden = MarketListing.objects.filter(
                     country=Country.TURKIYE,
                     source_type=SourceType.SAHIBINDEN,
                     product_model=product_model,
-                    price_eur__isnull=False,
-                    review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
-                )
+                ).filter(base_filter)
                 suppliers = SupplierPrice.objects.filter(
                     product_model=product_model,
                     active=True,
@@ -91,13 +161,7 @@ def run_analysis(include_insufficient=False):
                         .annotate(
                             listing_count=Avg(
                                 "marketlisting__price_eur",
-                                filter=Q(
-                                    marketlisting__review_status__in=[
-                                        MarketListing.ReviewStatus.AUTO,
-                                        MarketListing.ReviewStatus.APPROVED,
-                                    ],
-                                    marketlisting__price_eur__isnull=False,
-                                ),
+                                filter=eligible_review,
                             )
                         )
                         .order_by("id")
@@ -170,19 +234,17 @@ def run_analysis(include_insufficient=False):
 
         # Second pass: models in both countries with no matching storage
         algeria_models = set(
-            MarketListing.objects.filter(
-                country=Country.ALGERIA,
-                review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
-                price_eur__isnull=False,
-            ).values_list("product_model_id", flat=True)
+            MarketListing.objects.filter(country=Country.ALGERIA)
+            .filter(base_filter)
+            .values_list("product_model_id", flat=True)
         )
         turkiye_models = set(
             MarketListing.objects.filter(
                 country=Country.TURKIYE,
                 source_type=SourceType.SAHIBINDEN,
-                review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
-                price_eur__isnull=False,
-            ).values_list("product_model_id", flat=True)
+            )
+            .filter(base_filter)
+            .values_list("product_model_id", flat=True)
         )
         already_done = set(
             OpportunitySnapshot.objects.values_list("product_model_id", flat=True)
@@ -194,16 +256,12 @@ def run_analysis(include_insufficient=False):
             listings = MarketListing.objects.filter(
                 country=Country.ALGERIA,
                 product_model=product_model,
-                price_eur__isnull=False,
-                review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
-            )
+            ).filter(base_filter)
             sahibinden = MarketListing.objects.filter(
                 country=Country.TURKIYE,
                 source_type=SourceType.SAHIBINDEN,
                 product_model=product_model,
-                price_eur__isnull=False,
-                review_status__in=[MarketListing.ReviewStatus.AUTO, MarketListing.ReviewStatus.APPROVED],
-            )
+            ).filter(base_filter)
             suppliers = SupplierPrice.objects.filter(
                 product_model=product_model,
                 active=True,

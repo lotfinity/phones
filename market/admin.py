@@ -10,13 +10,18 @@ from market.models import (
     InstagramPost,
     MarketListing,
     MarketListingReviewQueue,
+    MarketListingSpecValue,
     MarketListingSuggestion,
     OCRResult,
     OpportunitySnapshot,
     ProductAsset,
     ProductModel,
+    ProductType,
     Source,
+    SpecDefinition,
+    SpecOption,
     SupplierPrice,
+    ProductVariantSpecValue,
 )
 
 
@@ -33,6 +38,30 @@ def review_reason(obj):
     if not reasons and obj.review_status == MarketListing.ReviewStatus.NEEDS_REVIEW:
         reasons.append("manual review")
     return ", ".join(reasons) or "ok"
+
+
+# ---------------------------------------------------------------------------
+# Inline classes for spec system (must precede admin classes that reference them)
+# ---------------------------------------------------------------------------
+
+class SpecOptionInline(admin.TabularInline):
+    model = SpecOption
+    extra = 0
+    fields = ("value", "normalized_value", "aliases")
+
+
+class ProductVariantSpecValueInline(admin.TabularInline):
+    model = ProductVariantSpecValue
+    extra = 0
+    fields = ("spec", "option", "value_text", "value_integer", "value_decimal", "value_boolean", "raw_value")
+    autocomplete_fields = ("spec", "option")
+
+
+class MarketListingSpecValueInline(admin.TabularInline):
+    model = MarketListingSpecValue
+    extra = 0
+    fields = ("spec", "option", "value_text", "value_integer", "value_decimal", "value_boolean", "raw_value", "confidence")
+    autocomplete_fields = ("spec", "option")
 
 
 class ReviewStatusFilter(admin.SimpleListFilter):
@@ -155,6 +184,7 @@ class DeviceVariantAdmin(admin.ModelAdmin):
     readonly_fields = ("identity_key",)
     autocomplete_fields = ("product_model",)
     list_select_related = ("product_model",)
+    inlines = [ProductVariantSpecValueInline]
 
     def get_queryset(self, request):
         return (
@@ -234,19 +264,18 @@ class MarketListingAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "short_title",
-        "source",
         "source_type",
         "country",
+        "detected_product_type",
         "product_model",
         "variant",
-        "storage_gb",
-        "sim_config",
-        "price_original",
-        "currency_original",
+        "match_level_badge",
+        "match_confidence",
         "condition",
         "review_status",
         "reason",
         "parsed_confidence",
+        "eligible_badge",
         "open_listing",
     )
     list_display_links = ("id", "short_title")
@@ -262,23 +291,67 @@ class MarketListingAdmin(admin.ModelAdmin):
         "review_status",
         "source_type",
         "country",
+        "match_level",
         "condition",
         "storage_gb",
         "currency_original",
+        ("product_model__product_type", admin.RelatedOnlyFieldListFilter),
         ("product_model", admin.RelatedOnlyFieldListFilter),
         ("variant", admin.RelatedOnlyFieldListFilter),
         "source",
     )
     list_editable = ("review_status", "condition")
-    list_select_related = ("source", "product_model", "variant")
+    list_select_related = ("source", "product_model", "variant", "product_model__product_type")
     autocomplete_fields = ("source", "product_model", "variant")
-    readonly_fields = ("observed_at", "parsed_confidence")
+    readonly_fields = ("observed_at", "parsed_confidence", "match_level", "match_confidence", "match_reason")
     list_per_page = 50
     actions = ("mark_auto", "mark_needs_review", "mark_approved")
+    inlines = [MarketListingSpecValueInline]
 
     @admin.display(description="Title")
     def short_title(self, obj):
         return (obj.title_raw[:90] + "...") if len(obj.title_raw) > 90 else obj.title_raw
+
+    @admin.display(description="Type")
+    def detected_product_type(self, obj):
+        if obj.product_model and obj.product_model.product_type:
+            return obj.product_model.product_type.slug
+        return "-"
+
+    @admin.display(description="Match")
+    def match_level_badge(self, obj):
+        level = obj.match_level or "unmatched"
+        colors = {
+            "exact_variant": "green",
+            "strong_candidate": "blue",
+            "model_only": "orange",
+            "unmatched": "gray",
+            "conflict": "red",
+        }
+        color = colors.get(level, "gray")
+        return format_html('<span style="color:{};font-weight:bold">{}</span>', color, level)
+
+    @admin.display(description="Eligible")
+    def eligible_badge(self, obj):
+        from market.models import (
+            ALLOW_MODEL_ONLY_OPPORTUNITIES,
+            MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
+            OPPORTUNITY_ELIGIBLE_MATCH_LEVELS,
+        )
+        if not obj.product_model or not obj.product_model.product_type:
+            return format_html('<span style="color:green">YES</span>')
+        if obj.product_model.product_type.slug == "phone":
+            return format_html('<span style="color:green">YES</span>')
+        level = obj.match_level or "unmatched"
+        if level in ("unmatched", "conflict"):
+            return format_html('<span style="color:red">NO</span>')
+        if level == "model_only" and not ALLOW_MODEL_ONLY_OPPORTUNITIES:
+            return format_html('<span style="color:red">NO</span>')
+        if level not in OPPORTUNITY_ELIGIBLE_MATCH_LEVELS:
+            return format_html('<span style="color:red">NO</span>')
+        if obj.match_confidence < MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY:
+            return format_html('<span style="color:orange">LOW CONF</span>')
+        return format_html('<span style="color:green">YES</span>')
 
     @admin.display(description="Reason")
     def reason(self, obj):
@@ -409,3 +482,62 @@ class ProductAssetAdmin(admin.ModelAdmin):
     )
     list_filter = ("asset_type", "source", "match_status", "is_primary", "is_active")
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(ProductType)
+class ProductTypeAdmin(admin.ModelAdmin):
+    list_display = ("name", "slug", "spec_count", "description")
+    search_fields = ("name", "slug")
+    prepopulated_fields = {"slug": ("name",)}
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(_spec_count=Count("spec_definitions"))
+
+    @admin.display(ordering="_spec_count", description="Specs")
+    def spec_count(self, obj):
+        return obj._spec_count
+
+
+@admin.register(SpecDefinition)
+class SpecDefinitionAdmin(admin.ModelAdmin):
+    list_display = (
+        "label",
+        "key",
+        "product_type",
+        "value_type",
+        "unit",
+        "is_variant_identity",
+        "is_listing_level",
+        "is_filterable",
+        "is_comparable",
+        "sort_order",
+    )
+    list_filter = ("product_type", "value_type", "is_variant_identity", "is_listing_level")
+    search_fields = ("key", "label", "product_type__name")
+    list_editable = ("sort_order", "is_variant_identity", "is_listing_level", "is_filterable", "is_comparable")
+    inlines = [SpecOptionInline]
+
+
+@admin.register(SpecOption)
+class SpecOptionAdmin(admin.ModelAdmin):
+    list_display = ("value", "normalized_value", "spec", "aliases")
+    list_filter = ("spec__product_type", "spec")
+    search_fields = ("value", "normalized_value", "spec__key")
+
+
+@admin.register(ProductVariantSpecValue)
+class ProductVariantSpecValueAdmin(admin.ModelAdmin):
+    list_display = ("variant", "spec", "effective_value", "raw_value")
+    list_filter = ("spec__product_type", "spec")
+    search_fields = ("variant__canonical_label", "spec__key", "raw_value")
+    list_select_related = ("variant", "spec", "option")
+    autocomplete_fields = ("variant", "spec", "option")
+
+
+@admin.register(MarketListingSpecValue)
+class MarketListingSpecValueAdmin(admin.ModelAdmin):
+    list_display = ("listing", "spec", "effective_value", "confidence", "raw_value")
+    list_filter = ("spec__product_type", "spec")
+    search_fields = ("listing__title_raw", "spec__key", "raw_value")
+    list_select_related = ("listing", "spec", "option")
+    autocomplete_fields = ("listing", "spec", "option")

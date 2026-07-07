@@ -15,7 +15,7 @@ CPU_PATTERNS = [
     r"(?:Intel\s+)?Core\s+i(\d)\s+\d{1,2}(?:st|nd|rd|th)\s+Gen\s+(\d{4,5}[A-Z]*)",
     # Intel Pentium / Celeron
     r"(?:Intel\s+)?(Pentium|Celeron)\s+(\w+)",
-    # AMD Ryzen
+    # AMD Ryzen (must come before Apple to avoid false positives)
     r"(?:AMD\s+)?Ryzen\s+(\d)\s+(\d{4}[A-Z]*)",
     # Apple Silicon
     r"(?:Apple\s+)?M(\d)\s*(Pro|Max|Ultra)?",
@@ -76,7 +76,10 @@ def parse_cpu(text):
                 elif brand_line.isdigit() and int(brand_line) >= 1:
                     if "ultra" in pattern.lower():
                         return f"Intel Ultra {brand_line}-{sku}".strip()
-                    return f"Intel Core i{brand_line}-{sku}".strip()
+                    elif "ryzen" in pattern.lower():
+                        return f"AMD Ryzen {brand_line} {sku}".strip()
+                    else:
+                        return f"Intel Core i{brand_line}-{sku}".strip()
                 else:
                     return f"AMD Ryzen {brand_line} {sku}".strip()
             elif len(groups) == 1:
@@ -93,15 +96,20 @@ def parse_gpu(text):
                 model = groups[0] or ""
                 suffix = groups[1] or ""
                 if model.isdigit():
+                    if "gtx" in pattern.lower():
+                        return f"NVIDIA GTX {model} {suffix}".strip()
                     return f"NVIDIA RTX {model} {suffix}".strip()
-                elif "radeon" in pattern.lower():
-                    return f"AMD Radeon {model} {suffix}".strip()
-                elif "arc" in pattern.lower():
-                    return f"Intel Arc {model} {suffix}".strip()
                 else:
                     return f"{model} {suffix}".strip()
             elif len(groups) == 1:
-                return groups[0] or ""
+                val = groups[0] or ""
+                if val.isdigit():
+                    return f"NVIDIA RTX {val}".strip()
+                if "radeon" in pattern.lower() and "radeon" not in val.lower():
+                    return f"AMD Radeon {val}".strip()
+                if "arc" in pattern.lower() and "arc" not in val.lower():
+                    return f"Intel Arc {val}".strip()
+                return val
     return ""
 
 

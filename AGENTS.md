@@ -44,6 +44,8 @@ Useful commands:
 - `python manage.py inspect_recent_data`
 - `python manage.py sync_commons_assets --dry-run --model-id 1`
 - `python manage.py sync_commons_assets --brand Samsung --min-score 60`
+- `python manage.py seed_product_types_and_specs`
+- `python manage.py inspect_catalog_specs`
 - `python manage.py check`
 - `python manage.py test`
 

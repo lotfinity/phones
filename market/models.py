@@ -31,6 +31,18 @@ class Condition(models.TextChoices):
     UNKNOWN = "unknown", "Unknown"
 
 
+# ── Confidence gates for opportunity analysis ────────────────────────────────
+# Match levels eligible for automatic opportunity analysis.
+OPPORTUNITY_ELIGIBLE_MATCH_LEVELS = frozenset({
+    "exact_variant",
+    "strong_candidate",
+})
+# Minimum match_confidence for opportunity analysis (0.0–1.0).
+MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY = 0.70
+# Allow model_only matches in opportunity analysis (without variant).
+ALLOW_MODEL_ONLY_OPPORTUNITIES = False
+
+
 class Category(models.Model):
     name = models.CharField(max_length=120, unique=True)
     slug = models.SlugField(max_length=140, unique=True)
@@ -58,6 +70,7 @@ class Brand(models.Model):
 class ProductModel(models.Model):
     category = models.ForeignKey(Category, null=True, blank=True, on_delete=models.SET_NULL)
     brand = models.ForeignKey(Brand, null=True, blank=True, on_delete=models.SET_NULL)
+    product_type = models.ForeignKey("ProductType", null=True, blank=True, on_delete=models.SET_NULL)
     canonical_name = models.CharField(max_length=180)
     aliases = models.JSONField(default=list, blank=True)
     release_year = models.PositiveSmallIntegerField(null=True, blank=True)
@@ -279,6 +292,24 @@ class MarketListing(models.Model):
     observed_at = models.DateTimeField(default=timezone.now)
     parsed_confidence = models.FloatField(default=0)
     review_status = models.CharField(max_length=20, choices=ReviewStatus.choices, default=ReviewStatus.NEEDS_REVIEW)
+
+    # Phase 3: match quality tracking
+    class MatchLevel(models.TextChoices):
+        EXACT_VARIANT = "exact_variant", "Exact variant"
+        STRONG_CANDIDATE = "strong_candidate", "Strong candidate"
+        MODEL_ONLY = "model_only", "Model only"
+        UNMATCHED = "unmatched", "Unmatched"
+        CONFLICT = "conflict", "Conflict"
+
+    match_level = models.CharField(
+        max_length=20,
+        choices=MatchLevel.choices,
+        default=MatchLevel.UNMATCHED,
+        blank=True,
+        db_index=True,
+    )
+    match_confidence = models.FloatField(default=0)
+    match_reason = models.TextField(blank=True, default="")
 
     class Meta:
         ordering = ["-observed_at"]
@@ -693,3 +724,158 @@ class ProductAsset(models.Model):
         ):
             return self
         return None
+
+
+# ---------------------------------------------------------------------------
+# Generic typed spec system
+# ---------------------------------------------------------------------------
+
+
+class ProductType(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    slug = models.SlugField(max_length=140, unique=True)
+    description = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class SpecDefinition(models.Model):
+    class ValueType(models.TextChoices):
+        TEXT = "text", "Text"
+        INTEGER = "integer", "Integer"
+        DECIMAL = "decimal", "Decimal"
+        BOOLEAN = "boolean", "Boolean"
+        OPTION = "option", "Option"
+        MULTI_OPTION = "multi_option", "Multi option"
+
+    product_type = models.ForeignKey(
+        ProductType, related_name="spec_definitions", on_delete=models.CASCADE
+    )
+    key = models.SlugField(max_length=120)
+    label = models.CharField(max_length=160)
+    value_type = models.CharField(max_length=20, choices=ValueType.choices)
+    unit = models.CharField(max_length=40, blank=True)
+    is_variant_identity = models.BooleanField(default=False)
+    is_listing_level = models.BooleanField(default=False)
+    is_filterable = models.BooleanField(default=True)
+    is_comparable = models.BooleanField(default=True)
+    sort_order = models.PositiveIntegerField(default=0)
+    aliases = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ["product_type", "sort_order", "key"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["product_type", "key"],
+                name="unique_spec_key_per_product_type",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.product_type}: {self.label} ({self.key})"
+
+
+class SpecOption(models.Model):
+    spec = models.ForeignKey(
+        SpecDefinition, related_name="options", on_delete=models.CASCADE
+    )
+    value = models.CharField(max_length=160)
+    normalized_value = models.CharField(max_length=160, db_index=True)
+    aliases = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ["spec", "normalized_value"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["spec", "normalized_value"],
+                name="unique_spec_option_per_spec",
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.spec.key}: {self.value}"
+
+
+class ProductVariantSpecValue(models.Model):
+    variant = models.ForeignKey(
+        "DeviceVariant", related_name="spec_values", on_delete=models.CASCADE
+    )
+    spec = models.ForeignKey(SpecDefinition, on_delete=models.CASCADE)
+    option = models.ForeignKey(
+        SpecOption, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    value_text = models.TextField(blank=True)
+    value_integer = models.IntegerField(null=True, blank=True)
+    value_decimal = models.DecimalField(
+        max_digits=12, decimal_places=3, null=True, blank=True
+    )
+    value_boolean = models.BooleanField(null=True, blank=True)
+    raw_value = models.CharField(max_length=240, blank=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["variant", "spec"],
+                name="unique_variant_spec_value",
+            )
+        ]
+
+    def __str__(self):
+        return f"Variant {self.variant_id} {self.spec.key}={self.effective_value}"
+
+    @property
+    def effective_value(self):
+        if self.option:
+            return self.option.value
+        if self.value_boolean is not None:
+            return self.value_boolean
+        if self.value_integer is not None:
+            return self.value_integer
+        if self.value_decimal is not None:
+            return self.value_decimal
+        return self.value_text
+
+
+class MarketListingSpecValue(models.Model):
+    listing = models.ForeignKey(
+        "MarketListing", related_name="spec_values", on_delete=models.CASCADE
+    )
+    spec = models.ForeignKey(SpecDefinition, on_delete=models.CASCADE)
+    option = models.ForeignKey(
+        SpecOption, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    value_text = models.TextField(blank=True)
+    value_integer = models.IntegerField(null=True, blank=True)
+    value_decimal = models.DecimalField(
+        max_digits=12, decimal_places=3, null=True, blank=True
+    )
+    value_boolean = models.BooleanField(null=True, blank=True)
+    raw_value = models.CharField(max_length=240, blank=True)
+    confidence = models.FloatField(default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["listing", "spec"],
+                name="unique_listing_spec_value",
+            )
+        ]
+
+    def __str__(self):
+        return f"Listing {self.listing_id} {self.spec.key}={self.effective_value}"
+
+    @property
+    def effective_value(self):
+        if self.option:
+            return self.option.value
+        if self.value_boolean is not None:
+            return self.value_boolean
+        if self.value_integer is not None:
+            return self.value_integer
+        if self.value_decimal is not None:
+            return self.value_decimal
+        return self.value_text

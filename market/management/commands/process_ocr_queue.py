@@ -66,7 +66,7 @@ class Command(BaseCommand):
                     listing_url = post.post_url
                     if "manual_image=" in (post.post_url or ""):
                         listing_url = local_media_url(image_path) or post.post_url
-                    MarketListing.objects.update_or_create(
+                    listing, _ = MarketListing.objects.update_or_create(
                         source=post.source,
                         listing_url=listing_url,
                         defaults={
@@ -95,6 +95,16 @@ class Command(BaseCommand):
                             ),
                         },
                     )
+                    # Extract and save spec values for the listing
+                    from market.services.spec_extraction import extract_specs_from_listing
+                    extracted = extract_specs_from_listing(
+                        None,
+                        parsed.model_text or "",
+                        description=combined_text,
+                    )
+                    if extracted.specs and product_model and product_model.product_type:
+                        from market.services.catalog import upsert_listing_specs_from_dict
+                        upsert_listing_specs_from_dict(listing, extracted.specs, confidence=extracted.confidence)
                 post.ocr_processed = True
                 post.needs_ocr = False
                 post.save(update_fields=["ocr_processed", "needs_ocr"])

@@ -560,6 +560,21 @@ def save_row(row, source, category=None):
     title = row.get("title", "")
     price_dzd = parse_dzd_price(row.get("priceText")) or parse_dzd_price(raw_text)
 
+    # Detect product type
+    from market.services.spec_extraction import detect_product_type, extract_specs_from_listing
+    detected_type = detect_product_type(title, raw_text)
+    product_type_slug = category.slug if category else detected_type
+
+    # Extract specs using generic spec extraction
+    parsed = extract_specs_from_listing(
+        product_type_slug,
+        title,
+        description=raw_text,
+        raw_metadata=row,
+    )
+    extracted_specs = parsed.specs
+    spec_confidence = parsed.confidence
+
     # Laptop mode: parse laptop specs instead of phone specs
     if category and category.slug == "laptops":
         from market.services.laptop_parser import parse_laptop_title, laptop_review_status
@@ -650,6 +665,10 @@ def save_row(row, source, category=None):
     if not existing:
         listing = MarketListing.objects.create(source=source, **defaults)
         _save_card_image(product_model, variant, row, source)
+        # Save extracted spec values
+        if extracted_specs and product_model and product_model.product_type:
+            from market.services.catalog import upsert_listing_specs_from_dict
+            upsert_listing_specs_from_dict(listing, extracted_specs, confidence=spec_confidence)
         return OuedknissRowChange("created", listing.title_raw or "[blank title]", url, {})
 
     changed_fields = {}
@@ -667,6 +686,10 @@ def save_row(row, source, category=None):
     for field, new_value in defaults.items():
         setattr(existing, field, new_value)
     existing.save(update_fields=list(defaults.keys()))
+    # Save extracted spec values on update
+    if extracted_specs and product_model and product_model.product_type:
+        from market.services.catalog import upsert_listing_specs_from_dict
+        upsert_listing_specs_from_dict(existing, extracted_specs, confidence=spec_confidence)
 
     action = "updated" if changed_fields else "refreshed_unchanged"
     return OuedknissRowChange(action, existing.title_raw or "[blank title]", url, changed_fields)

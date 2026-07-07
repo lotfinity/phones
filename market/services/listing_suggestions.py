@@ -190,6 +190,20 @@ def apply_listing_suggestion(suggestion):
     )
     listing.parsed_confidence = max(listing.parsed_confidence or 0, suggestion.confidence)
     listing.save()
+
+    # Extract and save spec values for the listing
+    from market.services.spec_extraction import extract_specs_from_listing
+    text = f"{listing.title_raw or ''} {listing.description_raw or ''}".strip()
+    if text and listing.product_model and listing.product_model.product_type:
+        extracted = extract_specs_from_listing(
+            listing.product_model.product_type.slug,
+            listing.title_raw or "",
+            description=listing.description_raw or "",
+        )
+        if extracted.specs:
+            from market.services.catalog import upsert_listing_specs_from_dict
+            upsert_listing_specs_from_dict(listing, extracted.specs, confidence=extracted.confidence)
+
     suggestion.status = suggestion.Status.APPLIED
     suggestion.save(update_fields=["status", "updated_at"])
     return listing

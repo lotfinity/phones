@@ -13,7 +13,8 @@
 <style>
   .brand-pills {
     display: flex; gap: 0.375rem; overflow-x: auto;
-    padding: 0.5rem 0.75rem; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    padding: 0.5rem 1rem; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    scroll-padding-inline: 1rem;
   }
   .brand-pills::-webkit-scrollbar { display: none; }
   .brand-pill {
@@ -53,6 +54,12 @@
   }
   @media (min-width: 640px) {
     .swiper-deal .swiper-slide { border-radius: 1rem; }
+  }
+  .swiper-deal .swiper-slide:not(.swiper-slide-active) {
+    opacity: 0.45;
+  }
+  @media (min-width: 640px) {
+    .swiper-deal .swiper-slide:not(.swiper-slide-active) { opacity: 0.65; }
   }
 
   .deal-card {
@@ -94,11 +101,11 @@
     position: absolute; top: 0.5rem; right: 0.5rem;
     padding: 0.2rem 0.4rem; border-radius: 0.375rem;
     background: rgba(16, 185, 129, 0.9); color: white;
-    font-family: ui-monospace, monospace; font-size: 0.7rem; font-weight: 700;
+    font-family: ui-monospace, monospace; font-size: 0.75rem; font-weight: 700;
     backdrop-filter: blur(4px);
   }
   @media (min-width: 640px) {
-    .deal-margin-badge { top: 0.75rem; right: 0.75rem; padding: 0.3rem 0.5rem; font-size: 0.8rem; }
+    .deal-margin-badge { top: 0.75rem; right: 0.75rem; padding: 0.3rem 0.5rem; font-size: 0.85rem; }
   }
   .deal-margin-badge.watch { background: rgba(245, 158, 11, 0.9); }
   .deal-margin-badge.negative { background: rgba(148, 163, 184, 0.9); }
@@ -151,19 +158,19 @@
   }
   .dark .deal-price-col .label { color: rgb(148 163 184); }
   .deal-price-col .amount {
-    font-size: 0.7rem; font-weight: 700; color: rgb(2 6 23);
+    font-size: 0.8rem; font-weight: 700; color: rgb(2 6 23);
   }
   @media (min-width: 640px) {
-    .deal-price-col .amount { font-size: 0.8rem; }
+    .deal-price-col .amount { font-size: 0.9rem; }
   }
   .dark .deal-price-col .amount { color: white; }
   .deal-price-col .sub {
-    font-size: 0.5rem; color: rgb(100 116 139);
+    font-size: 0.45rem; color: rgb(148 163 184);
   }
   @media (min-width: 640px) {
-    .deal-price-col .sub { font-size: 0.55rem; }
+    .deal-price-col .sub { font-size: 0.5rem; }
   }
-  .dark .deal-price-col .sub { color: rgb(148 163 184); }
+  .dark .deal-price-col .sub { color: rgb(100 116 139); }
 
   .deal-sahibinden {
     padding: 0.375rem; border-radius: 0.375rem;
@@ -330,13 +337,17 @@
       function initSwiper(idx) {
         var el = document.getElementById("swiper-" + idx);
         if (!el) return;
+        var narrow = window.innerWidth < 430;
         var swiper = new Swiper(el, {
           effect: "cards",
           grabCursor: true,
           allowTouchMove: true,
           simulateTouch: true,
           touchRatio: 1,
-          cardsEffect: { perSlideRotate: 2, perSlideOffset: 8 },
+          cardsEffect: {
+            perSlideRotate: narrow ? 1 : 2,
+            perSlideOffset: narrow ? 4 : 8,
+          },
           on: {
             slideChange: function () {
               var counter = document.getElementById("counter-" + idx);

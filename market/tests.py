@@ -15,7 +15,17 @@ from market.collectors.ouedkniss_cdp import (
     parse_sim_config as parse_ouedkniss_sim_config,
     parse_storage_ram as parse_ouedkniss_storage_ram,
 )
-from market.models import Condition, OpportunitySnapshot
+from market.models import (
+    Brand,
+    Category,
+    Condition,
+    Country,
+    MarketListing,
+    OpportunitySnapshot,
+    ProductModel,
+    Source,
+    SourceType,
+)
 from market.services.matching import SUPPORTED_STORAGE_GB, get_or_create_model, get_or_create_variant
 from market.services.normalization import canonical_model_name, likely_brand
 from market.parsers.ocr_parser import parse_ocr_text
@@ -485,3 +495,962 @@ class DealsSwiperTests(TestCase):
         self.assertEqual(response.status_code, 200)
         data = response.json()
         self.assertTrue(data["ok"])
+
+
+class CatalogSpecSystemTests(TestCase):
+    """Tests for the generic typed spec system."""
+
+    def test_create_product_type(self):
+        from market.models import ProductType
+        pt = ProductType.objects.create(name="Phone", slug="phone", description="Smartphones")
+        self.assertEqual(pt.name, "Phone")
+        self.assertEqual(pt.slug, "phone")
+
+    def test_create_spec_definition(self):
+        from market.models import ProductType, SpecDefinition
+        pt = ProductType.objects.create(name="Phone", slug="phone")
+        spec = SpecDefinition.objects.create(
+            product_type=pt,
+            key="storage_gb",
+            label="Storage",
+            value_type=SpecDefinition.ValueType.INTEGER,
+            unit="GB",
+            is_variant_identity=True,
+            sort_order=10,
+        )
+        self.assertEqual(spec.key, "storage_gb")
+        self.assertTrue(spec.is_variant_identity)
+
+    def test_seed_laptop_specs_idempotent(self):
+        from django.core.management import call_command
+        call_command("seed_product_types_and_specs", stdout=self.out)
+        from market.models import ProductType, SpecDefinition
+        laptop = ProductType.objects.get(slug="laptop")
+        count_before = SpecDefinition.objects.filter(product_type=laptop).count()
+        call_command("seed_product_types_and_specs", stdout=self.out)
+        count_after = SpecDefinition.objects.filter(product_type=laptop).count()
+        self.assertEqual(count_before, count_after)
+
+    def test_save_listing_spec_value(self):
+        from market.models import (
+            Brand, Category, Country, DeviceVariant, MarketListing, MarketListingSpecValue,
+            ProductModel, ProductType, Source, SourceType, SpecDefinition,
+        )
+        from market.services.catalog import get_or_create_product_type, upsert_listing_spec_value
+
+        pt = get_or_create_product_type("laptop", name="Laptop")
+        SpecDefinition.objects.get_or_create(
+            product_type=pt, key="ram_gb",
+            defaults={"label": "RAM", "value_type": "integer", "unit": "GB", "sort_order": 10},
+        )
+        brand, _ = Brand.objects.get_or_create(name="Lenovo")
+        category, _ = Category.objects.get_or_create(slug="laptops", defaults={"name": "Laptops"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category, product_type=pt,
+            canonical_name="Legion 5 Pro",
+        )
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-sah",
+            defaults={"name": "Test Sahibinden"},
+        )
+        listing = MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Legion 5 Pro 16GB", price_original=45000,
+            currency_original="TRY", listing_url="https://example.com/1",
+        )
+        sv = upsert_listing_spec_value(listing, "ram_gb", 16)
+        self.assertIsNotNone(sv)
+        self.assertEqual(sv.value_integer, 16)
+        self.assertEqual(sv.effective_value, 16)
+
+    def test_save_variant_spec_value(self):
+        from market.models import (
+            Brand, Category, DeviceVariant, ProductModel, ProductType, SpecDefinition,
+        )
+        from market.services.catalog import get_or_create_product_type, upsert_variant_spec_value
+
+        pt = get_or_create_product_type("laptop", name="Laptop")
+        SpecDefinition.objects.get_or_create(
+            product_type=pt, key="cpu_model",
+            defaults={"label": "CPU Model", "value_type": "option", "sort_order": 10},
+        )
+        brand, _ = Brand.objects.get_or_create(name="Lenovo")
+        category, _ = Category.objects.get_or_create(slug="laptops", defaults={"name": "Laptops"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category, product_type=pt,
+            canonical_name="Legion 5 Pro",
+        )
+        variant = DeviceVariant.objects.create(
+            product_model=pm, canonical_label="Legion 5 Pro 16GB",
+            storage_gb=None, identity_key="|sim=|region=|color=",
+        )
+        sv = upsert_variant_spec_value(variant, "cpu_model", "Intel Core i7-13700H")
+        self.assertIsNotNone(sv)
+        self.assertEqual(sv.value_text, "Intel Core i7-13700H")
+
+    def test_build_laptop_identity_key(self):
+        from market.models import (
+            Brand, Category, DeviceVariant, ProductModel, ProductType, SpecDefinition,
+        )
+        from market.services.catalog import (
+            build_variant_identity_from_specs, get_or_create_product_type,
+            upsert_variant_spec_value,
+        )
+
+        pt = get_or_create_product_type("laptop", name="Laptop")
+        for key, label, sort_order in [
+            ("cpu_model", "CPU Model", 10),
+            ("gpu_model", "GPU Model", 20),
+            ("ram_gb", "RAM", 30),
+            ("ssd_gb", "SSD", 40),
+        ]:
+            SpecDefinition.objects.get_or_create(
+                product_type=pt, key=key,
+                defaults={"label": label, "value_type": "integer" if "gb" in key else "option",
+                          "is_variant_identity": True, "sort_order": sort_order},
+            )
+        brand, _ = Brand.objects.get_or_create(name="Lenovo")
+        category, _ = Category.objects.get_or_create(slug="laptops", defaults={"name": "Laptops"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category, product_type=pt,
+            canonical_name="Legion 5 Pro",
+        )
+        variant = DeviceVariant.objects.create(
+            product_model=pm, canonical_label="Legion 5 Pro",
+            storage_gb=None, identity_key="",
+        )
+        upsert_variant_spec_value(variant, "cpu_model", "Intel Core i7-13700H")
+        upsert_variant_spec_value(variant, "gpu_model", "NVIDIA RTX 4060")
+        upsert_variant_spec_value(variant, "ram_gb", 16)
+        upsert_variant_spec_value(variant, "ssd_gb", 512)
+
+        identity = build_variant_identity_from_specs(pt, {
+            "cpu_model": "Intel Core i7-13700H",
+            "gpu_model": "NVIDIA RTX 4060",
+            "ram_gb": 16,
+            "ssd_gb": 512,
+        })
+        self.assertIn("cpu_model=Intel Core i7-13700H", identity)
+        self.assertIn("gpu_model=NVIDIA RTX 4060", identity)
+        self.assertIn("ram_gb=16", identity)
+        self.assertIn("ssd_gb=512", identity)
+
+    def test_existing_phone_variant_behavior_unchanged(self):
+        """Ensure existing phone DeviceVariant identity key still works."""
+        product_model = get_or_create_model("Samsung Galaxy S25 Ultra")
+        variant = get_or_create_variant(product_model, storage_gb=256, sim_config="2Sim")
+        self.assertEqual(variant.identity_key, "storage=256|sim=2sim|region=|color=")
+
+    def test_opportunity_analysis_still_runs(self):
+        """Ensure run_analysis still works with the existing phone-based schema."""
+        from market.services.opportunity import run_analysis
+        created = run_analysis()
+        self.assertIsInstance(created, int)
+
+    def test_laptop_listing_can_be_stored_without_laptop_columns(self):
+        """Verify a laptop listing can be stored using spec values instead of new columns."""
+        from market.models import (
+            Brand, Category, Country, MarketListing, ProductModel, ProductType,
+            Source, SourceType, SpecDefinition,
+        )
+        from market.services.catalog import get_or_create_product_type, upsert_listing_spec_value
+
+        pt = get_or_create_product_type("laptop", name="Laptop")
+        for key, label, vt, sort_order in [
+            ("cpu_model", "CPU Model", "option", 10),
+            ("gpu_model", "GPU Model", "option", 20),
+            ("ram_gb", "RAM", "integer", 30),
+            ("ssd_gb", "SSD", "integer", 40),
+        ]:
+            SpecDefinition.objects.get_or_create(
+                product_type=pt, key=key,
+                defaults={"label": label, "value_type": vt, "sort_order": sort_order},
+            )
+        brand, _ = Brand.objects.get_or_create(name="Lenovo")
+        category, _ = Category.objects.get_or_create(slug="laptops", defaults={"name": "Laptops"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category, product_type=pt,
+            canonical_name="Legion 5 Pro 16IRX9",
+        )
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-sah-laptop",
+            defaults={"name": "Test Sahibinden Laptops"},
+        )
+        listing = MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Lenovo Legion 5 Pro 16IRX9 i7-13700H RTX 4060 16GB 512GB SSD",
+            price_original=55000, currency_original="TRY",
+            listing_url="https://sahibinden.com/laptop/1",
+        )
+        upsert_listing_spec_value(listing, "cpu_model", "Intel Core i7-13700H")
+        upsert_listing_spec_value(listing, "gpu_model", "NVIDIA RTX 4060")
+        upsert_listing_spec_value(listing, "ram_gb", 16)
+        upsert_listing_spec_value(listing, "ssd_gb", 512)
+
+        from market.models import MarketListingSpecValue
+        sv_count = MarketListingSpecValue.objects.filter(listing=listing).count()
+        self.assertEqual(sv_count, 4)
+
+        # Listing has no laptop-specific columns — it uses the generic schema
+        self.assertIsNone(listing.storage_gb)
+        self.assertEqual(listing.sim_config, "")
+
+    def setUp(self):
+        import io
+        self.out = io.StringIO()
+
+
+class ProductTypeDetectionTests(SimpleTestCase):
+    """Tests for product type detection from text."""
+
+    def test_detects_laptop_by_keyword(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertEqual(detect_product_type("Lenovo Legion 5 laptop"), "laptop")
+        self.assertEqual(detect_product_type("MacBook Pro M3"), "laptop")
+        self.assertEqual(detect_product_type("ASUS ROG Strix G16"), "laptop")
+        self.assertEqual(detect_product_type("HP Victus gaming notebook"), "laptop")
+        self.assertEqual(detect_product_type("ThinkPad X1 Carbon"), "laptop")
+
+    def test_detects_laptop_by_gpu_evidence(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertEqual(detect_product_type("RTX 4060 16GB 512GB SSD"), "laptop")
+        self.assertEqual(detect_product_type("GTX 1650 i5-12400F"), "laptop")
+        self.assertEqual(detect_product_type("Radeon RX 7600 8GB"), "laptop")
+
+    def test_detects_laptop_by_cpu_evidence(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertEqual(detect_product_type("i7-13700H 16GB RAM"), "laptop")
+        self.assertEqual(detect_product_type("Ryzen 7 7840HS RTX 4060"), "laptop")
+
+    def test_detects_phone_by_model_pattern(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertEqual(detect_product_type("iPhone 15 Pro Max 256GB"), "phone")
+        self.assertEqual(detect_product_type("Samsung Galaxy S24 Ultra"), "phone")
+        self.assertEqual(detect_product_type("Pixel 8 Pro 128GB"), "phone")
+        self.assertEqual(detect_product_type("Xiaomi 14 Pro"), "phone")
+
+    def test_detects_phone_by_brand_keyword(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertEqual(detect_product_type("Samsung Galaxy A54"), "phone")
+        self.assertEqual(detect_product_type("Huawei Pura 70"), "phone")
+
+    def test_detects_tablet(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertEqual(detect_product_type("iPad Pro M2 128GB"), "tablet")
+        self.assertEqual(detect_product_type("Samsung Galaxy Tab S9"), "tablet")
+
+    def test_detects_console(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertEqual(detect_product_type("PlayStation 5 Digital"), "console")
+        self.assertEqual(detect_product_type("Xbox Series X"), "console")
+        self.assertEqual(detect_product_type("Nintendo Switch OLED"), "console")
+
+    def test_detects_vr_headset(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertEqual(detect_product_type("Meta Quest 3 128GB"), "vr_headset")
+        self.assertEqual(detect_product_type("HTC Vive Pro 2"), "vr_headset")
+
+    def test_returns_none_for_unknown(self):
+        from market.services.spec_extraction import detect_product_type
+        self.assertIsNone(detect_product_type("Some random text"))
+        self.assertIsNone(detect_product_type(""))
+
+
+class LaptopSpecExtractionTests(SimpleTestCase):
+    """Tests for laptop spec extraction from text."""
+
+    def test_extracts_ram_gb(self):
+        from market.services.laptop_parser import parse_ram_gb
+        self.assertEqual(parse_ram_gb("16GB RAM"), 16)
+        self.assertEqual(parse_ram_gb("32 Go RAM"), 32)
+        self.assertEqual(parse_ram_gb("8GB"), 8)
+        self.assertEqual(parse_ram_gb("Lenovo Legion 16GB DDR5"), 16)
+
+    def test_extracts_ssd_gb(self):
+        from market.services.laptop_parser import parse_storage_gb
+        self.assertEqual(parse_storage_gb("512GB SSD"), 512)
+        self.assertEqual(parse_storage_gb("1TB SSD"), 1024)
+        self.assertEqual(parse_storage_gb("256GB NVMe"), 256)
+        self.assertEqual(parse_storage_gb("1 To SSD"), 1024)
+
+    def test_extracts_gpu(self):
+        from market.services.laptop_parser import parse_gpu
+        self.assertIn("RTX 4060", parse_gpu("NVIDIA RTX 4060 8GB"))
+        self.assertIn("RTX 4070", parse_gpu("RTX 4070 Ti"))
+        self.assertIn("GTX 1650", parse_gpu("GTX 1650 4GB"))
+        self.assertIn("Radeon", parse_gpu("AMD Radeon RX 7600"))
+
+    def test_extracts_cpu(self):
+        from market.services.laptop_parser import parse_cpu
+        self.assertIn("i7-13700H", parse_cpu("Intel Core i7-13700H"))
+        self.assertIn("Ryzen 7", parse_cpu("AMD Ryzen 7 7840HS"))
+        self.assertIn("M3 Pro", parse_cpu("Apple M3 Pro"))
+
+    def test_extracts_refresh_rate(self):
+        from market.services.spec_extraction import _extract_refresh_rate
+        self.assertEqual(_extract_refresh_rate("165Hz display"), 165)
+        self.assertEqual(_extract_refresh_rate("144 Hz refresh rate"), 144)
+        self.assertEqual(_extract_refresh_rate("60Hz"), 60)
+
+    def test_extracts_screen_size(self):
+        from market.services.laptop_parser import parse_screen_size
+        self.assertAlmostEqual(parse_screen_size('15.6" display'), 15.6)
+        self.assertAlmostEqual(parse_screen_size('16" screen'), 16.0)
+
+    def test_extracts_touchscreen(self):
+        from market.services.spec_extraction import _extract_touchscreen
+        self.assertTrue(_extract_touchscreen("15.6 inch touchscreen"))
+        self.assertTrue(_extract_touchscreen("14 inch ekran dokunmatik"))
+        self.assertIsNone(_extract_touchscreen("15.6 inch IPS display"))
+
+    def test_macbook_m_series(self):
+        from market.services.laptop_parser import parse_cpu
+        cpu = parse_cpu("MacBook Pro M3 Pro 18GB")
+        self.assertIn("M3", cpu)
+        self.assertIn("Pro", cpu)
+
+    def test_incomplete_laptop_extracts_fewer_specs(self):
+        from market.services.spec_extraction import extract_specs_from_text
+        specs = extract_specs_from_text("laptop", "Lenovo Legion 5 RTX 4060")
+        self.assertIn("gpu_model", specs)
+        self.assertNotIn("ram_gb", specs)
+        self.assertNotIn("ssd_gb", specs)
+
+    def test_full_laptop_listing_extracts_many_specs(self):
+        from market.services.spec_extraction import extract_specs_from_text
+        specs = extract_specs_from_text(
+            "laptop",
+            "Lenovo Legion 5 RTX 4060 16GB 512GB SSD 165Hz i7-13700H"
+        )
+        self.assertIn("gpu_model", specs)
+        self.assertIn("ram_gb", specs)
+        self.assertIn("ssd_gb", specs)
+        self.assertIn("refresh_hz", specs)
+        self.assertIn("cpu_model", specs)
+
+
+class PhoneSpecExtractionTests(SimpleTestCase):
+    """Tests for phone spec extraction (wrapping existing logic)."""
+
+    def test_extracts_storage(self):
+        from market.services.spec_extraction import extract_phone_specs
+        specs = extract_phone_specs("iPhone 15 Pro Max 256GB")
+        self.assertEqual(specs.get("storage_gb"), 256)
+
+    def test_extracts_ram(self):
+        from market.services.spec_extraction import extract_phone_specs
+        specs = extract_phone_specs("Samsung S24 Ultra 12/256")
+        self.assertEqual(specs.get("ram_gb"), 12)
+
+    def test_extracts_sim_config(self):
+        from market.services.spec_extraction import extract_phone_specs
+        specs = extract_phone_specs("iPhone 15 128GB Dual SIM")
+        self.assertEqual(specs.get("sim_config"), "2sim")
+
+
+class ListingMatchingTests(TestCase):
+    """Tests for progressive matching logic."""
+
+    def test_exact_laptop_match(self):
+        from market.models import Brand, Category, ProductType, SpecDefinition
+        from market.services.catalog import get_or_create_product_type
+        from market.services.listing_matching import match_listing_to_catalog
+
+        pt = get_or_create_product_type("laptop", name="Laptop")
+        for key, label, vt in [
+            ("cpu_brand", "CPU Brand", "option"),
+            ("cpu_model", "CPU Model", "option"),
+            ("gpu_brand", "GPU Brand", "option"),
+            ("gpu_model", "GPU Model", "option"),
+            ("ram_gb", "RAM", "integer"),
+            ("ssd_gb", "SSD", "integer"),
+        ]:
+            SpecDefinition.objects.get_or_create(
+                product_type=pt, key=key,
+                defaults={"label": label, "value_type": vt, "is_variant_identity": True},
+            )
+
+        brand, _ = Brand.objects.get_or_create(name="Lenovo")
+        category, _ = Category.objects.get_or_create(
+            slug="laptops", defaults={"name": "Laptops"}
+        )
+        from market.models import ProductModel
+        pm = ProductModel.objects.create(
+            brand=brand,
+            category=category,
+            product_type=pt,
+            canonical_name="Lenovo Legion 5",
+        )
+
+        result = match_listing_to_catalog(
+            title="Lenovo Legion 5 RTX 4060 16GB 512GB SSD 165Hz",
+            product_type_slug="laptop",
+            brand_name="Lenovo",
+            model_text="Lenovo Legion 5",
+            specs={"gpu_model": "NVIDIA RTX 4060", "ram_gb": 16, "ssd_gb": 512},
+        )
+
+        self.assertEqual(result.product_model, pm)
+        self.assertIn(result.confidence, ["exact", "high"])
+
+    def test_low_confidence_missing_model(self):
+        from market.services.listing_matching import match_listing_to_catalog
+        result = match_listing_to_catalog(
+            title="Some random laptop without brand",
+            product_type_slug="laptop",
+        )
+        self.assertEqual(result.confidence, "low")
+
+    def test_dirty_model_name_blocks_match(self):
+        from market.services.listing_matching import match_listing_to_catalog
+        result = match_listing_to_catalog(
+            title="Samsung Galaxy Store GSM",
+            product_type_slug="phone",
+            model_text="Samsung Galaxy Store GSM",
+        )
+        self.assertEqual(result.confidence, "low")
+
+
+class BackfillProductTypesTests(TestCase):
+    """Tests for backfill_product_types command."""
+
+    def test_backfill_sets_phone_type(self):
+        from django.core.management import call_command
+        import io
+        from market.models import Brand, Category, ProductType, ProductModel
+        from market.services.catalog import get_or_create_product_type
+
+        # Ensure phone type exists
+        get_or_create_product_type("phone", name="Phone")
+
+        brand, _ = Brand.objects.get_or_create(name="Samsung")
+        category, _ = Category.objects.get_or_create(
+            slug="phones", defaults={"name": "Phones"}
+        )
+        pm = ProductModel.objects.create(
+            brand=brand,
+            category=category,
+            canonical_name="Galaxy S24 Ultra",
+        )
+        self.assertIsNone(pm.product_type)
+
+        out = io.StringIO()
+        call_command("backfill_product_types", stdout=out)
+
+        pm.refresh_from_db()
+        self.assertIsNotNone(pm.product_type)
+        self.assertEqual(pm.product_type.slug, "phone")
+
+    def test_backfill_is_idempotent(self):
+        from django.core.management import call_command
+        import io
+        from market.models import Brand, Category, ProductModel
+        from market.services.catalog import get_or_create_product_type
+
+        get_or_create_product_type("phone", name="Phone")
+        brand, _ = Brand.objects.get_or_create(name="Apple")
+        category, _ = Category.objects.get_or_create(
+            slug="phones", defaults={"name": "Phones"}
+        )
+        pm = ProductModel.objects.create(
+            brand=brand,
+            category=category,
+            product_type=get_or_create_product_type("phone"),
+            canonical_name="iPhone 15 Pro",
+        )
+
+        out1 = io.StringIO()
+        call_command("backfill_product_types", stdout=out1)
+        pm.refresh_from_db()
+        first_type_id = pm.product_type_id
+
+        out2 = io.StringIO()
+        call_command("backfill_product_types", stdout=out2)
+        pm.refresh_from_db()
+        self.assertEqual(pm.product_type_id, first_type_id)
+
+
+class SpecExtractionIntegrationTests(TestCase):
+    """Integration tests for spec extraction on listing creation."""
+
+    def test_laptop_listing_gets_spec_values(self):
+        from market.models import (
+            Brand, Category, Country, MarketListing, ProductType,
+            Source, SourceType, SpecDefinition,
+        )
+        from market.services.catalog import (
+            get_or_create_product_type,
+            upsert_listing_specs_from_dict,
+        )
+
+        pt = get_or_create_product_type("laptop", name="Laptop")
+        for key, label, vt in [
+            ("gpu_model", "GPU Model", "option"),
+            ("ram_gb", "RAM", "integer"),
+            ("ssd_gb", "SSD", "integer"),
+        ]:
+            SpecDefinition.objects.get_or_create(
+                product_type=pt, key=key,
+                defaults={"label": label, "value_type": vt},
+            )
+
+        brand, _ = Brand.objects.get_or_create(name="Lenovo")
+        category, _ = Category.objects.get_or_create(
+            slug="laptops", defaults={"name": "Laptops"}
+        )
+        from market.models import ProductModel
+        pm = ProductModel.objects.create(
+            brand=brand, category=category, product_type=pt,
+            canonical_name="Legion 5",
+        )
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-sah",
+            defaults={"name": "Test"},
+        )
+        listing = MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Lenovo Legion 5 RTX 4060 16GB 512GB SSD",
+            price_original=55000, currency_original="TRY",
+            listing_url="https://example.com/1",
+        )
+
+        from market.services.spec_extraction import extract_specs_from_text
+        specs = extract_specs_from_text("laptop", listing.title_raw)
+        saved = upsert_listing_specs_from_dict(listing, specs, confidence=0.85)
+
+        self.assertGreater(len(saved), 0)
+
+        from market.models import MarketListingSpecValue
+        sv_count = MarketListingSpecValue.objects.filter(listing=listing).count()
+        self.assertGreater(sv_count, 0)
+
+    def test_phone_listing_backward_compatible(self):
+        """Ensure phone listings still work with existing logic."""
+        from market.services.spec_extraction import extract_phone_specs
+        specs = extract_phone_specs("iPhone 15 Pro 256GB 2sim")
+        self.assertEqual(specs.get("storage_gb"), 256)
+        self.assertEqual(specs.get("sim_config"), "2sim")
+
+
+class OpportunityAnalysisStillRunsTests(TestCase):
+    """Ensure opportunity analysis still runs after Phase 2 changes."""
+
+    def test_run_analysis_returns_int(self):
+        from market.services.opportunity import run_analysis
+        result = run_analysis()
+        self.assertIsInstance(result, int)
+
+
+# ── Phase 3: Match level and confidence gate tests ──────────────────────────
+
+
+class MatchLevelFieldTests(TestCase):
+    """Tests for the new match_level and match_confidence fields on MarketListing."""
+
+    def test_new_listing_has_default_match_level(self):
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test",
+            defaults={"name": "Test"},
+        )
+        listing = MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE,
+            title_raw="Test listing",
+            listing_url="https://example.com/test1",
+        )
+        self.assertEqual(listing.match_level, MarketListing.MatchLevel.UNMATCHED)
+        self.assertEqual(listing.match_confidence, 0)
+        self.assertEqual(listing.match_reason, "")
+
+    def test_match_level_choices(self):
+        choices = [c[0] for c in MarketListing.MatchLevel.choices]
+        self.assertIn("exact_variant", choices)
+        self.assertIn("strong_candidate", choices)
+        self.assertIn("model_only", choices)
+        self.assertIn("unmatched", choices)
+        self.assertIn("conflict", choices)
+
+
+class ConfidenceGateTests(TestCase):
+    """Tests for confidence gate constants and eligibility logic."""
+
+    def test_eligible_levels_include_exact_and_strong(self):
+        from market.models import OPPORTUNITY_ELIGIBLE_MATCH_LEVELS
+        self.assertIn("exact_variant", OPPORTUNITY_ELIGIBLE_MATCH_LEVELS)
+        self.assertIn("strong_candidate", OPPORTUNITY_ELIGIBLE_MATCH_LEVELS)
+        self.assertNotIn("unmatched", OPPORTUNITY_ELIGIBLE_MATCH_LEVELS)
+        self.assertNotIn("conflict", OPPORTUNITY_ELIGIBLE_MATCH_LEVELS)
+
+    def test_model_only_excluded_by_default(self):
+        from market.models import ALLOW_MODEL_ONLY_OPPORTUNITIES
+        self.assertFalse(ALLOW_MODEL_ONLY_OPPORTUNITIES)
+
+    def test_min_confidence_threshold(self):
+        from market.models import MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY
+        self.assertEqual(MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY, 0.70)
+
+
+class OpportunityAnalysisMatchLevelTests(TestCase):
+    """Tests for opportunity analysis filtering by match_level."""
+
+    def _make_phone_listing(self, price_eur=100, review_status="auto"):
+        brand, _ = Brand.objects.get_or_create(name="Samsung")
+        category, _ = Category.objects.get_or_create(slug="phones", defaults={"name": "Phones"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category,
+            canonical_name="Galaxy S25",
+        )
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-phone",
+            defaults={"name": "Test Phone"},
+        )
+        return MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.ALGERIA, product_model=pm,
+            title_raw="Samsung Galaxy S25 256GB",
+            price_original=800, currency_original="DZD",
+            price_eur=price_eur,
+            review_status=review_status,
+            listing_url="https://example.com/phone1",
+        )
+
+    def _make_laptop_listing(self, match_level="unmatched", match_confidence=0, price_eur=500, review_status="auto"):
+        from market.services.catalog import get_or_create_product_type
+        pt = get_or_create_product_type("laptop", name="Laptop")
+        brand, _ = Brand.objects.get_or_create(name="Lenovo")
+        category, _ = Category.objects.get_or_create(slug="laptops", defaults={"name": "Laptops"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category, product_type=pt,
+            canonical_name="Legion 5",
+        )
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-laptop",
+            defaults={"name": "Test Laptop"},
+        )
+        return MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.ALGERIA, product_model=pm,
+            title_raw="Lenovo Legion 5 RTX 4060 16GB",
+            price_original=55000, currency_original="TRY",
+            price_eur=price_eur,
+            review_status=review_status,
+            match_level=match_level,
+            match_confidence=match_confidence,
+            listing_url="https://example.com/laptop1",
+        )
+
+    def test_phone_listing_included_in_opportunity(self):
+        """Phone listings are always eligible regardless of match_level."""
+        self._make_phone_listing(price_eur=100, review_status="auto")
+        # Need a Turkiye listing for the analysis to create a snapshot
+        brand = Brand.objects.get(name="Samsung")
+        pm = ProductModel.objects.get(brand=brand, canonical_name="Galaxy S25")
+        source = Source.objects.get(username="test-phone")
+        MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Samsung Galaxy S25 256GB TR",
+            price_original=30000, currency_original="TRY",
+            price_eur=600,
+            review_status="auto",
+            listing_url="https://sahibinden.com/phone1",
+        )
+        from market.services.opportunity import run_analysis
+        created = run_analysis()
+        self.assertGreaterEqual(created, 1)
+
+    def test_unmatched_laptop_excluded_from_opportunity(self):
+        """Laptop with match_level=unmatched is excluded."""
+        self._make_laptop_listing(match_level="unmatched", match_confidence=0.3, price_eur=500)
+        # Turkiye listing
+        brand = Brand.objects.get(name="Lenovo")
+        pm = ProductModel.objects.get(brand=brand, canonical_name="Legion 5")
+        source = Source.objects.get(username="test-laptop")
+        MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Lenovo Legion 5 TR",
+            price_original=55000, currency_original="TRY",
+            price_eur=1000,
+            review_status="auto",
+            listing_url="https://sahibinden.com/laptop1",
+        )
+        from market.services.opportunity import run_analysis
+        created = run_analysis()
+        # Should not create snapshot for unmatched laptop
+        self.assertEqual(created, 0)
+
+    def test_exact_variant_laptop_included_in_opportunity(self):
+        """Laptop with match_level=exact_variant and high confidence is included."""
+        self._make_laptop_listing(match_level="exact_variant", match_confidence=0.95, price_eur=500)
+        brand = Brand.objects.get(name="Lenovo")
+        pm = ProductModel.objects.get(brand=brand, canonical_name="Legion 5")
+        source = Source.objects.get(username="test-laptop")
+        MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Lenovo Legion 5 TR",
+            price_original=55000, currency_original="TRY",
+            price_eur=1000,
+            review_status="auto",
+            match_level="exact_variant",
+            match_confidence=0.95,
+            listing_url="https://sahibinden.com/laptop2",
+        )
+        from market.services.opportunity import run_analysis
+        created = run_analysis()
+        self.assertGreaterEqual(created, 1)
+
+    def test_conflict_laptop_excluded_from_opportunity(self):
+        """Laptop with match_level=conflict is excluded."""
+        self._make_laptop_listing(match_level="conflict", match_confidence=0.5, price_eur=500)
+        brand = Brand.objects.get(name="Lenovo")
+        pm = ProductModel.objects.get(brand=brand, canonical_name="Legion 5")
+        source = Source.objects.get(username="test-laptop")
+        MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Lenovo Legion 5 TR",
+            price_original=55000, currency_original="TRY",
+            price_eur=1000,
+            review_status="auto",
+            match_level="exact_variant",
+            match_confidence=0.95,
+            listing_url="https://sahibinden.com/laptop3",
+        )
+        from market.services.opportunity import run_analysis
+        created = run_analysis()
+        self.assertEqual(created, 0)
+
+    def test_model_only_laptop_excluded_by_default(self):
+        """Laptop with match_level=model_only is excluded when ALLOW_MODEL_ONLY_OPPORTUNITIES=False."""
+        self._make_laptop_listing(match_level="model_only", match_confidence=0.8, price_eur=500)
+        brand = Brand.objects.get(name="Lenovo")
+        pm = ProductModel.objects.get(brand=brand, canonical_name="Legion 5")
+        source = Source.objects.get(username="test-laptop")
+        MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Lenovo Legion 5 TR",
+            price_original=55000, currency_original="TRY",
+            price_eur=1000,
+            review_status="auto",
+            match_level="exact_variant",
+            match_confidence=0.95,
+            listing_url="https://sahibinden.com/laptop4",
+        )
+        from market.services.opportunity import run_analysis
+        created = run_analysis()
+        self.assertEqual(created, 0)
+
+    def test_medium_confidence_laptop_flagged_but_usable(self):
+        """Laptop with match_level=strong_candidate and sufficient confidence is included."""
+        self._make_laptop_listing(match_level="strong_candidate", match_confidence=0.75, price_eur=500)
+        brand = Brand.objects.get(name="Lenovo")
+        pm = ProductModel.objects.get(brand=brand, canonical_name="Legion 5")
+        source = Source.objects.get(username="test-laptop")
+        MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Lenovo Legion 5 TR",
+            price_original=55000, currency_original="TRY",
+            price_eur=1000,
+            review_status="auto",
+            match_level="exact_variant",
+            match_confidence=0.95,
+            listing_url="https://sahibinden.com/laptop5",
+        )
+        from market.services.opportunity import run_analysis
+        created = run_analysis()
+        self.assertGreaterEqual(created, 1)
+
+
+class ApplyMatchToListingTests(TestCase):
+    """Tests for apply_match_to_listing persisting match_level and match_confidence."""
+
+    def test_apply_exact_match_persists_fields(self):
+        from market.services.listing_matching import MatchResult, apply_match_to_listing
+
+        brand, _ = Brand.objects.get_or_create(name="TestBrand")
+        category, _ = Category.objects.get_or_create(slug="phones", defaults={"name": "Phones"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category,
+            canonical_name="TestModel",
+        )
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-apply",
+            defaults={"name": "Test"},
+        )
+        listing = MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Test phone 256GB",
+            listing_url="https://example.com/apply1",
+        )
+        match = MatchResult(
+            product_model=pm,
+            variant=None,
+            confidence="exact",
+            confidence_score=0.95,
+            reasons=["Found model", "Matched variant"],
+        )
+        apply_match_to_listing(listing, match, specs={"storage_gb": 256})
+        listing.save()
+        listing.refresh_from_db()
+
+        self.assertEqual(listing.match_level, MarketListing.MatchLevel.EXACT_VARIANT)
+        self.assertAlmostEqual(listing.match_confidence, 0.95)
+        self.assertIn("Found model", listing.match_reason)
+
+    def test_apply_conflict_match_persists_conflict(self):
+        from market.services.listing_matching import MatchResult, apply_match_to_listing
+
+        brand, _ = Brand.objects.get_or_create(name="TestBrand2")
+        category, _ = Category.objects.get_or_create(slug="phones", defaults={"name": "Phones"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category,
+            canonical_name="TestModel2",
+        )
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-apply2",
+            defaults={"name": "Test2"},
+        )
+        listing = MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Test phone 128GB",
+            listing_url="https://example.com/apply2",
+        )
+        match = MatchResult(
+            product_model=pm,
+            variant=None,
+            confidence="medium",
+            confidence_score=0.5,
+            reasons=["Conflicting specs with existing variant"],
+        )
+        apply_match_to_listing(listing, match, specs={})
+        listing.save()
+        listing.refresh_from_db()
+
+        self.assertEqual(listing.match_level, MarketListing.MatchLevel.CONFLICT)
+
+
+class LaptopTitleFixtureTests(TestCase):
+    """Tests with realistic messy laptop titles."""
+
+    TITLES = [
+        "Lenovo Legion 5 RTX 4060 16GB 512GB SSD 165Hz",
+        "Legion 5 Pro Ryzen 7 RTX4060 16/1TB",
+        "ASUS ROG Strix G16 i7 13650HX RTX 4060 16GB RAM 1TB SSD",
+        "HP Victus RTX4050 Ryzen 5 16GB 512 SSD",
+        "MacBook Pro M3 Pro 18GB 512GB",
+        "Gaming laptop Lenovo clean",
+        "RTX4070 laptop 16gb",
+    ]
+
+    def test_product_type_detection_on_all_titles(self):
+        from market.services.spec_extraction import detect_product_type
+        for title in self.TITLES:
+            ptype = detect_product_type(title)
+            # All should be detected as laptop (or at least not None for most)
+            if title in ("Gaming laptop Lenovo clean",):
+                # This one has "laptop" keyword, should be detected
+                self.assertEqual(ptype, "laptop", f"Failed for: {title}")
+            elif "RTX" in title or "MacBook" in title or "ROG" in title or "Legion" in title or "Victus" in title:
+                self.assertEqual(ptype, "laptop", f"Failed for: {title}")
+
+    def test_spec_extraction_returns_specs_for大多数_titles(self):
+        from market.services.spec_extraction import extract_specs_from_text
+        for title in self.TITLES:
+            specs = extract_specs_from_text("laptop", title)
+            self.assertIsInstance(specs, dict, f"Failed for: {title}")
+            # Most titles should extract at least one spec
+            if title not in ("Gaming laptop Lenovo clean",):
+                self.assertGreater(len(specs), 0, f"No specs extracted for: {title}")
+
+
+class RecomputeCommandTests(TestCase):
+    """Tests for recompute_listing_matches command."""
+
+    def test_dry_run_does_not_mutate_data(self):
+        from django.core.management import call_command
+        import io
+
+        brand, _ = Brand.objects.get_or_create(name="RecomputeBrand")
+        category, _ = Category.objects.get_or_create(slug="phones", defaults={"name": "Phones"})
+        pm = ProductModel.objects.create(
+            brand=brand, category=category,
+            canonical_name="RecomputeModel",
+        )
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-recompute",
+            defaults={"name": "Test Recompute"},
+        )
+        listing = MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE, product_model=pm,
+            title_raw="Recompute test listing",
+            listing_url="https://example.com/recompute1",
+            match_level="unmatched",
+            match_confidence=0.0,
+        )
+
+        out = io.StringIO()
+        call_command("recompute_listing_matches", "--dry-run", "--limit=10", stdout=out)
+
+        listing.refresh_from_db()
+        # Dry run should NOT change the listing
+        self.assertEqual(listing.match_level, "unmatched")
+        self.assertEqual(listing.match_confidence, 0.0)
+
+
+class InspectCommandTests(TestCase):
+    """Tests for inspect_listing_matches command."""
+
+    def test_inspect_prints_output(self):
+        from django.core.management import call_command
+        import io
+
+        # Create a listing so there's something to inspect
+        source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN, username="test-inspect",
+            defaults={"name": "Test Inspect"},
+        )
+        MarketListing.objects.create(
+            source=source, source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE,
+            title_raw="Test inspect listing",
+            listing_url="https://example.com/inspect1",
+        )
+
+        out = io.StringIO()
+        call_command("inspect_listing_matches", "--limit=5", stdout=out)
+        output = out.getvalue()
+        # Should print the summary header
+        self.assertIn("MATCH QUALITY SUMMARY", output)
+
+
+class ListingMatchingTests(TestCase):
+    """Tests for listing matching with match_level."""
+
+    def test_match_listing_to_catalog_returns_match_result(self):
+        from market.services.listing_matching import match_listing_to_catalog
+        result = match_listing_to_catalog(
+            title="Samsung Galaxy S25 Ultra 256GB",
+            product_type_slug="phone",
+        )
+        self.assertIsNotNone(result)
+        self.assertIn(result.confidence, ["exact", "high", "medium", "low", "none"])
+
+    def test_laptop_match_returns_level(self):
+        from market.services.listing_matching import match_listing_to_catalog
+        result = match_listing_to_catalog(
+            title="Lenovo Legion 5 RTX 4060 16GB 512GB SSD",
+            product_type_slug="laptop",
+        )
+        self.assertIsNotNone(result)
+        # Should have a confidence level
+        self.assertIn(result.confidence, ["exact", "high", "medium", "low", "none"])
