@@ -59,7 +59,7 @@
       <p class="page-desc brand-name-line">
         <span class="brand-logo-wrap">
           {% if brand|brand_logo_url %}
-            <img class="brand-logo-img" src="{{ brand|brand_logo_url }}" alt="{{ brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+            <img class="brand-logo-img" src="{{ brand|brand_logo_url }}" alt="{{ brand }} logo" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
           {% endif %}
           <span class="brand-logo-fallback">{{ brand|brand_initial }}</span>
         </span>
@@ -130,7 +130,7 @@
   {% if is_cross_storage and can_view_internal_gain %}
   <div class="card mb-4 border-amber-200 bg-amber-50/70 dark:border-amber-900 dark:bg-amber-950/30">
     <div class="card-h">{% trans "Cross-storage comparison" %}</div>
-    <div class="text-sm text-slate-700 dark:text-slate-300">
+    <div class="text-sm" style="color: var(--pb-fg-2)">
       {% trans "This opportunity matches across different storage sizes." %}
       {% if all_algeria_storages %}
         {% trans "Algeria listings:" %} {% for s in all_algeria_storages %}{% if not forloop.first %}, {% endif %}{{ s }}GB{% endfor %}.
@@ -151,7 +151,7 @@
         <div class="price-calc-segment price-calc-margin" style="width: {% if gross_margin %}{{ gross_margin|cut:" "|cut:"EUR" }}{% else %}0{% endif %}px;"></div>
       </div>
     </div>
-    <div class="num text-xl font-semibold text-slate-950 dark:text-white mt-2">
+    <div class="num text-xl font-semibold mt-2" style="color: var(--pb-fg)">
       {{ turkiye_avg|default:"-" }} - {{ algeria_min|default:"-" }} = {{ gross_margin|default:"-" }}
     </div>
     <div class="hint">{{ opportunity.explanation }}</div>
@@ -233,7 +233,7 @@
               </div>
               <div class="price-conversions">
                 {% for price in row.converted_prices %}
-                  <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
+                  <span class="num" style="color: var(--pb-fg-2)">{{ price.value }}</span>
                 {% empty %}
                   <span class="num">-</span>
                 {% endfor %}
@@ -303,7 +303,7 @@
               </div>
               <div class="price-conversions">
                 {% for price in row.converted_prices %}
-                  <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
+                  <span class="num" style="color: var(--pb-fg-2)">{{ price.value }}</span>
                 {% empty %}
                   <span class="num">-</span>
                 {% endfor %}

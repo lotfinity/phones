@@ -28,8 +28,8 @@
           <div class="source-stat"><div class="k">{% trans "Usable" %}</div><div class="v text-emerald-700 dark:text-emerald-300">{{ row.usable }}</div></div>
           <div class="source-stat"><div class="k">{% trans "Review" %}</div><div class="v text-amber-700 dark:text-amber-300">{{ row.review }}</div></div>
         </div>
-        <div class="mt-4 flex items-center justify-between gap-3 border-t border-slate-100 pt-4 dark:border-slate-800">
-          <span class="text-sm text-slate-500 dark:text-slate-400">{% trans "Last seen:" %} {% if row.last_seen %}{{ row.last_seen|date:"M d H:i" }}{% else %}{% trans "never" %}{% endif %}</span>
+        <div class="mt-4 flex items-center justify-between gap-3 border-t pt-4" style="border-color: var(--pb-border)">
+          <span class="text-sm" style="color: var(--pb-muted)">{% trans "Last seen:" %} {% if row.last_seen %}{{ row.last_seen|date:"M d H:i" }}{% else %}{% trans "never" %}{% endif %}</span>
           <a class="btn btn-secondary btn-sm" href="/admin/market/source/{{ row.source.id }}/change/">{% trans "Manage" %}</a>
         </div>
       </div>

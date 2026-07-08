@@ -8,6 +8,21 @@
 {% endblock %}
 
 {% block content %}
+<div class="page-loader" style="position: fixed; inset: 0; background: var(--pb-bg); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s;">
+  <div style="width: 40px; height: 40px; border: 3px solid var(--pb-border-light); border-top-color: var(--pb-accent); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+</div>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<script>
+(function () {
+  var loader = document.querySelector(".page-loader");
+  if (!loader) return;
+  function hide() { loader.style.opacity = "0"; setTimeout(function () { loader.style.display = "none"; }, 200); }
+  if (document.readyState === "complete") hide();
+  else window.addEventListener("load", hide);
+})();
+</script>
 <div class="page-header">
   <div>
     <h1 class="page-title">{% trans "Opportunities" %}</h1>
@@ -15,442 +30,144 @@
   </div>
 </div>
 
-<form class="opp-filters" method="get">
-  <div class="opp-tab-row" data-od-id="opportunity-category-tabs">
-    {% for key, label in cat_tabs.items %}
-      <a class="opp-tab cat-tab {% if active_cat == key %}active{% endif %}"
-         href="?src={{ active_src }}&amp;cat={{ key }}&amp;brand={{ active_brand }}&amp;q={{ search_query }}">
-        {% if key == 'laptops' %}
-          <span class="cat-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M2 19h20"/></svg>
-          </span>
-        {% elif key == 'phones' %}
-          <span class="cat-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2H7a2 2 0 0 1 2 1.72c.12.78.33 1.53.63 2.24a2 2 0 0 1-.45 2L8.82 8.82a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2-.45c.71.3 1.46.51 2.24.63A2 2 0 0 1 22 16.92z"/></svg>
-          </span>
-        {% elif key == 'non-phones' %}
-          <span class="cat-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8"/><path d="M8 14h8"/><path d="M8 19h4"/></svg>
-          </span>
-        {% endif %}
-        {{ label }}
-      </a>
-    {% endfor %}
-  </div>
-
-  <div class="opp-filter-row">
-    <div class="opp-filter-grid">
-      <div class="f-group f-group-wide">
-        <span class="f-label">{% trans "Search" %}</span>
-        <input class="f-input f-search" type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'Model name…' %}">
-      </div>
-      <div class="f-group">
-        <span class="f-label">{% trans "Brand" %}</span>
-        <select class="f-select" name="brand">
-          <option value="">{% trans "All brands" %}</option>
-          {% for b in brand_list %}
-            <option value="{{ b.name }}" {% if active_brand == b.name %}selected{% endif %}>{{ b.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <input type="hidden" name="src" value="{{ active_src }}">
-      <input type="hidden" name="cat" value="{{ active_cat }}">
-      <div class="f-actions">
-        <button class="btn btn-primary" type="submit">{% trans "Filter" %}</button>
-        <a class="btn btn-secondary" href="{% url 'opportunities' %}">{% trans "Reset" %}</a>
-      </div>
-    </div>
-  </div>
-</form>
-
-{% if signal_stats %}
-<section class="stat-row-6" data-od-id="opportunity-signal-stats">
-  {% for stat in signal_stats %}
-    <div class="stat-card {% if stat.color %}stat-{{ stat.color }}{% endif %}">
-      <div class="lbl">{{ stat.label }}</div>
-      <div class="num">{{ stat.value }}</div>
-      <span class="delta">{{ stat.delta }}</span>
-    </div>
+<div class="brand-tabs" id="brandTabs">
+  <button class="brand-tab active" type="button" data-brand="all">{% trans "All" %} <span class="tab-count">{{ rows|length }}</span></button>
+  {% for b in brand_list %}
+    <button class="brand-tab" type="button" data-brand="{{ b.name }}">
+      {% if b.name|brand_logo_url %}<img src="{{ b.name|brand_logo_url }}" alt="{{ b.name }}">{% endif %}
+      {{ b.name }}
+    </button>
   {% endfor %}
-</section>
-{% endif %}
+</div>
 
 {% if best_opportunity %}
-<div class="best-deal-banner" data-od-id="opportunity-best-deal">
-  <div class="best-deal-label">{% trans "Best opportunity" %}</div>
-  <div class="best-deal-content">
-    <span class="thumb thumb-md">
-      {% if best_opportunity.image_url %}
-        <img src="{{ best_opportunity.image_url }}" alt="{{ best_opportunity.item.product_model }}">
+<a class="deal-card deal-card-best" data-brand="{{ best_opportunity.brand }}" href="{% url 'opportunity_detail' best_opportunity.item.id %}" data-opportunity-modal>
+  <div class="deal-card-hero">
+    {% if best_opportunity.image_url %}<img src="{{ best_opportunity.image_url }}" alt="{{ best_opportunity.item.product_model }}">{% endif %}
+    <span class="margin-float strong">{{ best_opportunity.margin_percent }}</span>
+  </div>
+  <div class="deal-card-body">
+    <div class="deal-card-header">
+      <div>
+        <h3>
+          <span data-inline-field="canonical_name"
+                data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+                data-inline-id="{{ best_opportunity.item.product_model.id }}">{{ best_opportunity.item.product_model }}</span>
+        </h3>
+        <div class="card-meta-row mt-2">
+          <span class="brand-name-line">
+          <span class="brand-logo-wrap brand-logo-sm">
+            {% if best_opportunity.brand_logo_url %}
+              <img class="brand-logo-img" src="{{ best_opportunity.brand_logo_url }}" alt="{{ best_opportunity.brand }} logo">
+            {% endif %}
+            <span class="brand-logo-fallback">{{ best_opportunity.brand_initial }}</span>
+          </span>
+            <span>{{ best_opportunity.brand }}{% if best_opportunity.item.storage_gb %} / {{ best_opportunity.item.storage_gb }}GB{% endif %}</span>
+          </span>
+        </div>
+      </div>
+      <span class="meta">{% trans "Top pick" %}</span>
+    </div>
+    <div class="price-comparison">
+      <div class="price-block">
+        <span class="price-block-label">{% trans "Algeria Min" %}</span>
+        <span class="price-block-value">{{ best_opportunity.algeria_min|default:"-" }}</span>
+        <span class="price-block-sub">{{ best_opportunity.algeria_min_dzd }}</span>
+      </div>
+      <div class="price-block">
+        <span class="price-block-label">{% trans "Turkiye Median" %}</span>
+        <span class="price-block-value">{{ best_opportunity.turkiye_avg|default:"-" }}</span>
+        <span class="price-block-sub">{{ best_opportunity.turkiye_avg_try }}</span>
+      </div>
+      {% if can_view_internal_gain %}
+      <div class="price-block">
+        <span class="price-block-label">{% trans "Supplier" %}</span>
+        <span class="price-block-value">{{ best_opportunity.supplier|default:"-" }}</span>
+        <span class="price-block-sub">{{ best_opportunity.supplier_usd }}</span>
+      </div>
       {% endif %}
-    </span>
-    <div class="min-w-0 flex-1">
-      <a
-        href="{% url 'opportunity_detail' best_opportunity.item.id %}"
-        class="best-deal-name"
-        data-opportunity-modal
-      >{{ best_opportunity.item.product_model }}</a>
-      <div class="best-deal-meta brand-name-line">
-        <span class="brand-logo-wrap brand-logo-sm">
-          {% if best_opportunity.brand_logo_url %}
-            <img class="brand-logo-img" src="{{ best_opportunity.brand_logo_url }}" alt="{{ best_opportunity.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
-          {% endif %}
-          <span class="brand-logo-fallback">{{ best_opportunity.brand_initial }}</span>
-        </span>
-        <span>{{ best_opportunity.brand }}{% if best_opportunity.item.storage_gb %} / {{ best_opportunity.item.storage_gb }}GB{% endif %}</span>
+    </div>
+    <div class="deal-card-footer">
+      <div class="sahibinden-count">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <strong>{% trans "Best" %}</strong> {% trans "opportunity" %}
+      </div>
+      <div style="display:flex;gap:var(--pb-space-2);">
+        <span class="btn btn-secondary btn-sm">{% trans "Full detail" %}</span>
       </div>
     </div>
-    <div class="best-deal-numbers">
-      {% if can_view_internal_gain %}
-        <span class="best-deal-margin">{{ best_opportunity.margin_percent }}</span>
-        <span class="best-deal-gross">{{ best_opportunity.gross_margin }} gross</span>
-      {% else %}
-        <span class="best-deal-margin">{{ best_opportunity.buyer_gain_percent }}</span>
-        <span class="best-deal-gross">{{ best_opportunity.buyer_gain }} buyer gain</span>
-      {% endif %}
-    </div>
   </div>
-</div>
+</a>
 {% endif %}
 
-<section class="mobile-card-list" data-od-id="opportunity-mobile-list">
+<div class="deal-cards" id="dealCards">
   {% for row in rows %}
-    {% if row.is_source_row %}
-      <article class="mobile-record-card opp-source-row">
-    {% else %}
-      <a class="mobile-record-card opp-card" href="{% url 'opportunity_detail' row.item.id %}" data-opportunity-modal>
-    {% endif %}
-
-    {% if row.image_url or not row.is_source_row %}
-      <div class="flex gap-3">
-        <span class="thumb thumb-md">
-          {% if row.image_url %}
-            <img src="{{ row.image_url }}" alt="{{ row.item.product_model }}">
-          {% endif %}
-        </span>
-        <div class="min-w-0 flex-1">
-          <div class="flex flex-wrap items-start justify-between gap-2">
-            <div class="min-w-0">
-              <div class="text-base font-semibold text-slate-950 dark:text-white">
-                <span{% if not row.is_source_row %}
-                  data-inline-field="canonical_name"
-                  data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
-                  data-inline-id="{{ row.item.product_model.id }}"
-                {% endif %}>{{ row.item.product_model }}</span>
-              </div>
-              <div class="card-meta-row mt-1">
-                <span class="brand-chip brand-name-line">
-                  <span class="brand-logo-wrap brand-logo-sm">
-                    {% if row.brand_logo_url %}
-                      <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
-                    {% endif %}
-                    <span class="brand-logo-fallback">{{ row.brand_initial }}</span>
-                  </span>
-                  <span>{{ row.brand }}</span>
+    <a class="deal-card" data-brand="{{ row.brand }}" href="{% url 'opportunity_detail' row.item.id %}" data-opportunity-modal>
+      <div class="deal-card-hero">
+        {% if row.image_url %}<img src="{{ row.image_url }}" alt="{{ row.item.product_model }}">{% endif %}
+        <span class="margin-float {% if row.margin_class == 'good' %}strong{% elif row.margin_class == 'warn' %}medium{% else %}weak{% endif %}">{{ row.margin_percent }}</span>
+      </div>
+      <div class="deal-card-body">
+        <div class="deal-card-header">
+          <div>
+            <h3>
+              <span{% if not row.is_source_row %}
+                data-inline-field="canonical_name"
+                data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+                data-inline-id="{{ row.item.product_model.id }}"
+              {% endif %}>{{ row.item.product_model }}</span>
+            </h3>
+            <div class="card-meta-row mt-2">
+              {% for source in row.sources %}
+                <span class="badge {{ source.class }}">{{ source.code }} {{ source.count }}</span>
+              {% empty %}
+                <span class="badge">none</span>
+              {% endfor %}
+              <span class="cell-rec {{ row.recommendation_class }}">
+                <span class="rec-icon" aria-hidden="true">
+                  {% if row.recommendation_class == 'rec-buy' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
+                  {% elif row.recommendation_class == 'rec-watch' %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                  {% else %}<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>{% endif %}
                 </span>
-                {% if row.category_slug %}
-                  <span class="cat-chip cat-{{ row.category_slug }}">
-                    {% if row.category_slug == 'laptops' %}
-                      <span class="cat-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M2 19h20"/></svg>
-                      </span>
-                    {% elif row.category_slug == 'phones' %}
-                      <span class="cat-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.86 19.86 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2H7a2 2 0 0 1 2 1.72c.12.78.33 1.53.63 2.24a2 2 0 0 1-.45 2L8.82 8.82a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2-.45c.71.3 1.46.51 2.24.63A2 2 0 0 1 22 16.92z"/></svg>
-                      </span>
-                    {% elif row.category_slug == 'non-phones' %}
-                      <span class="cat-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8"/><path d="M8 14h8"/><path d="M8 19h4"/></svg>
-                      </span>
-                    {% endif %}
-                    {{ row.category_name }}
-                  </span>
-                {% endif %}
-                {% if row.item.storage_gb %}
-                  <span class="spec-chip">{{ row.item.storage_gb }}GB{% if row.item.sim_config %} / {{ row.item.sim_config }}{% endif %}</span>
-                {% endif %}
-              </div>
-            </div>
-            <span class="cell-rec {{ row.recommendation_class }}">
-              <span class="rec-icon" aria-hidden="true">
-                {% if row.recommendation_class == 'rec-buy' %}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
-                {% elif row.recommendation_class == 'rec-watch' %}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                {% else %}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>
-                {% endif %}
+                {{ row.item.get_recommendation_display }}
               </span>
-              {{ row.item.get_recommendation_display }}
-            </span>
+            </div>
           </div>
-
-          <div class="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-            {% if can_view_internal_gain %}
-            <div>
-              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Margin" %}</div>
-              <div class="num text-base {% if row.margin_class == 'good' %}text-emerald-700 dark:text-emerald-300{% elif row.margin_class == 'warn' %}text-amber-700 dark:text-amber-300{% endif %}">{{ row.margin_percent|default:"-" }}</div>
-            </div>
-            <div>
-              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Gross" %}</div>
-              <div class="num text-base">{{ row.gross_margin|default:"-" }}</div>
-            </div>
-            <div>
-              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Capital ROI" %}</div>
-              <div class="num text-base">{{ row.capital_roi|default:"-" }}</div>
-            </div>
-            {% if row.gain_split %}
-              <div>
-                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "My Gain" %}</div>
-                <div class="num text-base">{{ row.my_gain|default:"-" }}</div>
-              </div>
-              <div>
-                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Buyer Price" %}</div>
-                <div class="num text-base">{{ row.buyer_price|default:"-" }}</div>
-              </div>
-              <div>
-                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Buyer Gain" %}</div>
-                <div class="num text-base">{{ row.buyer_gain|default:"-" }}</div>
-              </div>
-            {% endif %}
-            <div>
-              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Algeria min" %}</div>
-              <div class="num text-base">{{ row.algeria_min|default:"-" }}</div>
-            </div>
-            {% if active_src == 'supplier' %}
-              <div>
-                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Supplier" %}</div>
-                <div class="num text-base">{{ row.supplier|default:"-" }}</div>
-              </div>
-            {% else %}
-              <div>
-                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Turkey avg" %}</div>
-                <div class="num text-base">{{ row.turkiye_avg|default:"-" }}</div>
-              </div>
-            {% endif %}
-            {% else %}
-              <div>
-                <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Turkey avg" %}</div>
-                <div class="num text-base">{{ row.turkiye_avg|default:"-" }}</div>
-              </div>
-              {% if row.gain_split %}
-                <div>
-                  <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Buyer Price" %}</div>
-                  <div class="num text-base">{{ row.buyer_price|default:"-" }}</div>
-                </div>
-                <div>
-                  <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Buyer Gain" %}</div>
-                  <div class="num text-base">{{ row.buyer_gain|default:"-" }}</div>
-                  {% if row.buyer_gain_percent %}
-                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.buyer_gain_percent }}</div>
-                  {% endif %}
-                </div>
-                <div>
-                  <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Deal Quality" %}</div>
-                  <div class="num text-base">{{ row.gain_split.deal_quality|title }}</div>
-                </div>
-              {% endif %}
-            {% endif %}
+          <span class="meta">{% trans "Confidence" %} {{ row.item.confidence_score }}%</span>
+        </div>
+        <div class="price-comparison">
+          <div class="price-block">
+            <span class="price-block-label">{% trans "Algeria Min" %}</span>
+            <span class="price-block-value">{{ row.algeria_min }}</span>
+            <span class="price-block-sub">{{ row.algeria_min_dzd }}</span>
           </div>
-
-          {% if row.supplier_margin and active_src != 'supplier' and can_view_internal_gain %}
-            <div class="mt-3 text-xs text-slate-500 dark:text-slate-400">
-              {% trans "vs Supplier" %}: <span class="font-semibold">{{ row.supplier_margin }}</span>
-              ({% if row.supplier %}{{ row.supplier }}{% else %}-{% endif %})
-            </div>
+          <div class="price-block">
+            <span class="price-block-label">{% trans "Turkiye Median" %}</span>
+            <span class="price-block-value">{{ row.turkiye_avg }}</span>
+            <span class="price-block-sub">{{ row.turkiye_avg_try }}</span>
+          </div>
+          {% if can_view_internal_gain %}
+          <div class="price-block">
+            <span class="price-block-label">{% trans "Supplier" %}</span>
+            <span class="price-block-value">{{ row.supplier|default:"-" }}</span>
+            <span class="price-block-sub">{{ row.supplier_usd }}</span>
+          </div>
           {% endif %}
-
-          <div class="mt-3 flex items-center gap-2">
-            <div class="conf-track">
-              <div class="conf-fill conf-{% if row.item.confidence_score >= 70 %}high{% elif row.item.confidence_score >= 40 %}med{% else %}low{% endif %}"
-                   style="width: {{ row.item.confidence_score }}%"></div>
-            </div>
-            <span class="conf-num">{{ row.item.confidence_score }}</span>
+        </div>
+        <div class="deal-card-footer">
+          <div class="sahibinden-count">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <strong>{{ row.sources|length }}</strong> {% trans "sources" %}
           </div>
-
-          <div class="badge-row mt-3">
-            {% for source in row.sources %}
-              <span class="badge {{ source.class }}">{{ source.code }} {{ source.count }}</span>
-            {% empty %}
-              <span class="badge">none</span>
-            {% endfor %}
+          <div style="display:flex;gap:var(--pb-space-2);">
+            <span class="btn btn-secondary btn-sm">{% trans "Full detail" %}</span>
           </div>
         </div>
       </div>
-    {% endif %}
-    {% if row.is_source_row %}
-      </article>
-    {% else %}
-      </a>
-    {% endif %}
+    </a>
   {% empty %}
-    <div class="mobile-record-card">{% trans "No deals match those filters. Try broadening your search." %}</div>
+    <div class="empty-state">{% trans "No deals match those filters. Try broadening your search." %}</div>
   {% endfor %}
-</section>
-
-<div class="desktop-table" data-od-id="opportunity-desktop-table">
-  <div class="table-wrap">
-    <div class="table-scroll">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>{% trans "Rec" %}</th>
-            <th>{% trans "Product" %}</th>
-            <th>{% trans "Category" %}</th>
-            <th>{% trans "Variant" %}</th>
-            {% if can_view_internal_gain %}
-              <th class="num-r">{% trans "Algeria min" %}</th>
-              <th class="num-r">{% trans "Algeria avg" %}</th>
-              {% if active_src == 'supplier' %}
-                <th class="num-r">{% trans "Supplier" %}</th>
-              {% else %}
-                <th class="num-r">{% trans "Turkey avg" %}</th>
-              {% endif %}
-              <th class="num-r">{% trans "Spread" %}</th>
-              <th class="num-r">{% trans "My Gain" %}</th>
-              <th class="num-r">{% trans "Buyer Price" %}</th>
-              <th class="num-r">{% trans "Buyer Gain" %}</th>
-              <th class="num-r">{% trans "Margin" %}</th>
-              <th class="num-r">{% trans "Capital ROI" %}</th>
-            {% else %}
-              <th class="num-r">{% trans "Turkey avg" %}</th>
-              <th class="num-r">{% trans "Buyer Price" %}</th>
-              <th class="num-r">{% trans "Buyer Gain" %}</th>
-              <th>{% trans "Deal Quality" %}</th>
-            {% endif %}
-            <th>{% trans "Confidence" %}</th>
-            <th>{% trans "Coverage" %}</th>
-            <th>{% trans "Updated" %}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for row in rows %}
-            <tr
-              class="{% if not row.is_source_row %}click-row{% endif %}"
-              {% if not row.is_source_row %}data-opportunity-modal data-modal-url="{% url 'opportunity_detail' row.item.id %}" tabindex="0"{% endif %}
-            >
-              <td><span class="cell-rec {{ row.recommendation_class }}">
-                  <span class="rec-icon" aria-hidden="true">
-                    {% if row.recommendation_class == 'rec-buy' %}
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>
-                    {% elif row.recommendation_class == 'rec-watch' %}
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                    {% else %}
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6"/><path d="M15 9l-6 6"/></svg>
-                    {% endif %}
-                  </span>
-                  {{ row.item.get_recommendation_display }}
-                </span></td>
-              <td>
-                <div class="flex items-center gap-3">
-                  <span class="thumb thumb-sm">
-                    {% if row.image_url %}
-                      <img src="{{ row.image_url }}" alt="{{ row.item.product_model }}">
-                    {% endif %}
-                  </span>
-                  <span class="min-w-0">
-                    {% if row.is_source_row %}
-                      <span class="font-semibold text-slate-950 dark:text-white">{{ row.item.product_model }}</span>
-                    {% else %}
-                      <a href="{% url 'opportunity_detail' row.item.id %}" class="font-semibold text-slate-950 no-underline hover:underline dark:text-white" data-opportunity-modal>
-                        <span
-                          data-inline-field="canonical_name"
-                          data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
-                          data-inline-id="{{ row.item.product_model.id }}"
-                        >{{ row.item.product_model }}</span>
-                      </a>
-                    {% endif %}
-                    <div class="text-xs text-slate-500 dark:text-slate-400 brand-name-line">
-                      <span class="brand-logo-wrap brand-logo-sm">
-                        {% if row.brand_logo_url %}
-                          <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
-                        {% endif %}
-                        <span class="brand-logo-fallback">{{ row.brand_initial }}</span>
-                      </span>
-                      <span>{{ row.brand }}</span>
-                    </div>
-                  </span>
-                </div>
-              </td>
-              <td>
-                {% if row.category_slug %}
-                  <span class="cat-chip cat-{{ row.category_slug }}">{{ row.category_name }}</span>
-                {% else %}
-                  <span class="text-slate-400">-</span>
-                {% endif %}
-              </td>
-              <td>
-                {% if row.item.storage_gb %}
-                  {{ row.item.storage_gb }}GB{% if row.item.sim_config %} / {{ row.item.sim_config }}{% endif %}
-                {% else %}
-                  <span class="text-slate-400">-</span>
-                {% endif %}
-              </td>
-              {% if can_view_internal_gain %}
-                <td class="num-r">{{ row.algeria_min|default:"-" }}</td>
-                <td class="num-r">{{ row.algeria_avg|default:"-" }}</td>
-                {% if active_src == 'supplier' %}
-                  <td class="num-r">{{ row.supplier|default:"-" }}</td>
-                {% else %}
-                  <td class="num-r">{{ row.turkiye_avg|default:"-" }}</td>
-                {% endif %}
-                <td class="num-r">{{ row.gross_margin|default:"-" }}</td>
-                <td class="num-r">{{ row.my_gain|default:"-" }}</td>
-                <td class="num-r">{{ row.buyer_price|default:"-" }}</td>
-                <td class="num-r">
-                  {{ row.buyer_gain|default:"-" }}
-                  {% if row.buyer_gain_percent %}
-                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.buyer_gain_percent }}</div>
-                  {% endif %}
-                </td>
-                <td class="num-r"><span class="cell-margin {{ row.margin_class }}">{{ row.margin_percent|default:"-" }}</span></td>
-                <td class="num-r">{{ row.capital_roi|default:"-" }}</td>
-              {% else %}
-                <td class="num-r">{{ row.turkiye_avg|default:"-" }}</td>
-                <td class="num-r">{{ row.buyer_price|default:"-" }}</td>
-                <td class="num-r">
-                  {{ row.buyer_gain|default:"-" }}
-                  {% if row.buyer_gain_percent %}
-                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.buyer_gain_percent }}</div>
-                  {% endif %}
-                </td>
-                <td>{{ row.gain_split.deal_quality|title|default:"-" }}</td>
-              {% endif %}
-              <td>
-                <div class="flex items-center gap-2">
-                  <div class="conf-track" style="min-width: 4rem;">
-                    <div class="conf-fill {% if row.item.confidence_score >= 70 %}conf-high{% elif row.item.confidence_score >= 40 %}conf-med{% else %}conf-low{% endif %}"
-                         style="width: {{ row.item.confidence_score }}%"></div>
-                  </div>
-                  <span class="conf-num">{{ row.item.confidence_score }}</span>
-                </div>
-              </td>
-              <td>
-                <div class="badge-row">
-                  {% for source in row.sources %}
-                    <span class="badge {{ source.class }}">{{ source.code }} {{ source.count }}</span>
-                  {% empty %}
-                    <span class="badge">none</span>
-                  {% endfor %}
-                </div>
-              </td>
-              <td class="num">
-                {% if row.item.created_at %}
-                  {{ row.item.created_at|date:"M d H:i" }}
-                {% else %}
-                  <span class="text-slate-400">live</span>
-                {% endif %}
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="12">{% trans "No opportunities match the current filters." %}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
 
 <div class="hidden fixed inset-0 z-50" data-opportunity-modal-shell aria-hidden="true">
@@ -551,6 +268,23 @@
       if (!trigger || trigger.tagName === "A") return;
       event.preventDefault();
       loadDetail(trigger);
+    });
+  })();
+</script>
+
+<script>
+  (function () {
+    var tabs = document.querySelectorAll("#brandTabs .brand-tab");
+    var cards = document.querySelectorAll("#dealCards .deal-card");
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        tabs.forEach(function (t) { t.classList.remove("active"); });
+        tab.classList.add("active");
+        var brand = tab.dataset.brand;
+        cards.forEach(function (card) {
+          card.style.display = (brand === "all" || card.dataset.brand === brand) ? "" : "none";
+        });
+      });
     });
   })();
 </script>

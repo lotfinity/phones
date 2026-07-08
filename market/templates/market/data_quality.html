@@ -13,49 +13,49 @@
     </div>
   </div>
 
-  <section class="grid-4">
-    <div class="metric-card">
-      <div class="lbl">{% trans "Instagram posts" %}</div>
-      <div class="num">{{ metrics.instagram_posts }}</div>
-      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Collected media rows" %}</div>
+  <section class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">{% trans "Instagram posts" %}</div>
+      <div class="kpi-value">{{ metrics.instagram_posts }}</div>
+      <div class="mt-2 text-sm" style="color: var(--pb-muted)">{% trans "Collected media rows" %}</div>
     </div>
-    <div class="metric-card">
-      <div class="lbl">{% trans "Supplier prices" %}</div>
-      <div class="num">{{ metrics.supplier_prices }}</div>
-      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Reference rows" %}</div>
+    <div class="kpi-card">
+      <div class="kpi-label">{% trans "Supplier prices" %}</div>
+      <div class="kpi-value">{{ metrics.supplier_prices }}</div>
+      <div class="mt-2 text-sm" style="color: var(--pb-muted)">{% trans "Reference rows" %}</div>
     </div>
-    <div class="metric-card">
-      <div class="lbl">{% trans "Opportunity rows" %}</div>
-      <div class="num">{{ metrics.snapshots }}</div>
-      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Latest batch only" %}</div>
+    <div class="kpi-card">
+      <div class="kpi-label">{% trans "Opportunity rows" %}</div>
+      <div class="kpi-value">{{ metrics.snapshots }}</div>
+      <div class="mt-2 text-sm" style="color: var(--pb-muted)">{% trans "Latest batch only" %}</div>
     </div>
-    <div class="metric-card">
-      <div class="lbl">{% trans "Duplicate variants" %}</div>
-      <div class="num">{{ metrics.duplicate_variant_groups }}</div>
-      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Identity groups" %}</div>
+    <div class="kpi-card">
+      <div class="kpi-label">{% trans "Duplicate variants" %}</div>
+      <div class="kpi-value">{{ metrics.duplicate_variant_groups }}</div>
+      <div class="mt-2 text-sm" style="color: var(--pb-muted)">{% trans "Identity groups" %}</div>
     </div>
   </section>
 
-  <section class="grid-3 mt-4">
-    <div class="metric-card">
-      <div class="lbl">{% trans "OCR pending" %}</div>
-      <div class="num">{{ metrics.ocr_pending }}</div>
-      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Queued OCR rows" %}</div>
+  <section class="kpi-grid mt-4">
+    <div class="kpi-card">
+      <div class="kpi-label">{% trans "OCR pending" %}</div>
+      <div class="kpi-value">{{ metrics.ocr_pending }}</div>
+      <div class="mt-2 text-sm" style="color: var(--pb-muted)">{% trans "Queued OCR rows" %}</div>
     </div>
-    <div class="metric-card">
-      <div class="lbl">{% trans "Unmatched listings" %}</div>
-      <div class="num">{{ metrics.unmatched }}</div>
-      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Missing product model" %}</div>
+    <div class="kpi-card">
+      <div class="kpi-label">{% trans "Unmatched listings" %}</div>
+      <div class="kpi-value">{{ metrics.unmatched }}</div>
+      <div class="mt-2 text-sm" style="color: var(--pb-muted)">{% trans "Missing product model" %}</div>
     </div>
-    <div class="metric-card">
-      <div class="lbl">{% trans "Missing storage" %}</div>
-      <div class="num">{{ metrics.missing_variant }}</div>
-      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Has model, no storage bucket" %}</div>
+    <div class="kpi-card">
+      <div class="kpi-label">{% trans "Missing storage" %}</div>
+      <div class="kpi-value">{{ metrics.missing_variant }}</div>
+      <div class="mt-2 text-sm" style="color: var(--pb-muted)">{% trans "Has model, no storage bucket" %}</div>
     </div>
-    <div class="metric-card">
-      <div class="lbl">{% trans "Pending suggestions" %}</div>
-      <div class="num">{{ metrics.pending_suggestions }}</div>
-      <div class="mt-2 text-sm text-slate-500 dark:text-slate-400">{% trans "Ready for staff review" %}</div>
+    <div class="kpi-card">
+      <div class="kpi-label">{% trans "Pending suggestions" %}</div>
+      <div class="kpi-value">{{ metrics.pending_suggestions }}</div>
+      <div class="mt-2 text-sm" style="color: var(--pb-muted)">{% trans "Ready for staff review" %}</div>
     </div>
   </section>
 
@@ -63,19 +63,19 @@
     <div class="card">
       <div class="card-h">{% trans "Structural issues" %}</div>
       <div class="grid gap-3 lg:hidden">
-        <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+        <div class="rounded-lg border p-3" style="border-color: var(--pb-border)">
           <div class="flex items-center justify-between gap-3"><span>{% trans "Models without variants" %}</span><span class="badge badge-warn">{% trans "review" %}</span></div>
           <div class="num mt-2 text-xl">{{ metrics.models_without_variants }}</div>
         </div>
-        <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+        <div class="rounded-lg border p-3" style="border-color: var(--pb-border)">
           <div class="flex items-center justify-between gap-3"><span>{% trans "Listings missing product model" %}</span><span class="badge badge-warn">{% trans "review" %}</span></div>
           <div class="num mt-2 text-xl">{{ metrics.unmatched }}</div>
         </div>
-        <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+        <div class="rounded-lg border p-3" style="border-color: var(--pb-border)">
           <div class="flex items-center justify-between gap-3"><span>{% trans "Listings missing storage" %}</span><span class="badge badge-warn">{% trans "review" %}</span></div>
           <div class="num mt-2 text-xl">{{ metrics.missing_variant }}</div>
         </div>
-        <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+        <div class="rounded-lg border p-3" style="border-color: var(--pb-border)">
           <div class="flex items-center justify-between gap-3"><span>{% trans "Duplicate variant groups" %}</span><span class="badge badge-ok">{% trans "clean" %}</span></div>
           <div class="num mt-2 text-xl">{{ metrics.duplicate_variant_groups }}</div>
         </div>
@@ -97,21 +97,21 @@
       <div class="card-h">{% trans "Source quality" %}</div>
       <div class="grid gap-3 lg:hidden">
         {% for row in source_quality %}
-          <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">
+          <div class="rounded-lg border p-3" style="border-color: var(--pb-border)">
             <div class="flex items-start justify-between gap-3">
               <div>
-                <div class="font-semibold text-slate-950 dark:text-white">{{ row.source_type }}</div>
-                <div class="text-sm text-slate-500 dark:text-slate-400">{{ row.country }}</div>
+                <div class="font-semibold" style="color: var(--pb-fg)">{{ row.source_type }}</div>
+                <div class="text-sm" style="color: var(--pb-muted)">{{ row.country }}</div>
               </div>
               <span class="badge">{{ row.total }} {% trans "total" %}</span>
             </div>
             <div class="mt-3 grid grid-cols-2 gap-3 text-sm">
-              <div><div class="font-mono text-xs uppercase text-slate-500">{% trans "Usable" %}</div><div class="num text-emerald-700 dark:text-emerald-300">{{ row.usable }}</div></div>
-              <div><div class="font-mono text-xs uppercase text-slate-500">{% trans "Review" %}</div><div class="num text-amber-700 dark:text-amber-300">{{ row.review }}</div></div>
+              <div><div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Usable" %}</div><div class="num" style="color: var(--pb-success)">{{ row.usable }}</div></div>
+              <div><div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Review" %}</div><div class="num" style="color: var(--pb-warn)">{{ row.review }}</div></div>
             </div>
           </div>
         {% empty %}
-          <div class="rounded-lg border border-slate-200 p-3 dark:border-slate-800">{% trans "No listing sources yet." %}</div>
+          <div class="rounded-lg border p-3" style="border-color: var(--pb-border)">{% trans "No listing sources yet." %}</div>
         {% endfor %}
       </div>
       <div class="desktop-table table-wrap shadow-none">
@@ -123,8 +123,8 @@
                 <td>{{ row.source_type }}</td>
                 <td>{{ row.country }}</td>
                 <td class="num num-r">{{ row.total }}</td>
-                <td class="num num-r text-emerald-700 dark:text-emerald-300">{{ row.usable }}</td>
-                <td class="num num-r text-amber-700 dark:text-amber-300">{{ row.review }}</td>
+                <td class="num num-r" style="color: var(--pb-success)">{{ row.usable }}</td>
+                <td class="num num-r" style="color: var(--pb-warn)">{{ row.review }}</td>
               </tr>
             {% empty %}
               <tr><td colspan="5">{% trans "No listing sources yet." %}</td></tr>
@@ -171,11 +171,11 @@
     </form>
 
     {% if request.user.is_authenticated and request.user.is_staff %}
-      <details class="mb-4 rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950/40" open data-bulk-panel>
-        <summary class="cursor-pointer text-sm font-semibold text-slate-950 dark:text-white">{% trans "Bulk storage actions" %}</summary>
+      <details class="mb-4 rounded-xl border p-3" style="border-color: var(--pb-border); background: var(--pb-bg-subtle)" open data-bulk-panel>
+        <summary class="cursor-pointer text-sm font-semibold" style="color: var(--pb-fg)">{% trans "Bulk storage actions" %}</summary>
         <div class="mt-3 grid grid-cols-1 gap-3 lg:grid-cols-[minmax(180px,220px)_1fr_auto_auto] lg:items-end">
           <div>
-            <label class="font-mono text-xs uppercase text-slate-500" for="bulk-storage">{% trans "Storage bucket" %}</label>
+            <label class="font-mono text-xs uppercase" style="color: var(--pb-muted)" for="bulk-storage">{% trans "Storage bucket" %}</label>
             <select class="f-select mt-1" id="bulk-storage" data-bulk-storage>
               <option value="">{% trans "Clear storage" %}</option>
               {% for value, label in storage_choices %}
@@ -184,7 +184,7 @@
             </select>
           </div>
           <div>
-            <div class="font-mono text-xs uppercase text-slate-500">{% trans "Quick pick" %}</div>
+            <div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Quick pick" %}</div>
             <div class="mt-1 flex flex-wrap gap-2">
               {% for value, label in storage_choices %}
                 <button class="btn btn-secondary btn-sm" type="button" data-storage-pick="{{ value }}">{{ label }}</button>
@@ -194,7 +194,7 @@
           <button class="btn btn-primary" type="button" data-bulk-assign-storage>{% trans "Assign selected" %}</button>
           <button class="btn btn-danger" type="button" data-bulk-delete>{% trans "Delete selected" %}</button>
         </div>
-        <div class="mt-3 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+        <div class="mt-3 flex flex-wrap items-center gap-2 text-sm" style="color: var(--pb-muted)">
           <button class="btn btn-primary btn-sm" type="button" data-bulk-apply-suggestions>{% trans "Apply suggestions" %}</button>
           <button class="btn btn-secondary btn-sm" type="button" data-bulk-reject-suggestions>{% trans "Reject suggestions" %}</button>
           <button class="btn btn-secondary btn-sm" type="button" data-select-visible>{% trans "Select visible" %}</button>
@@ -209,8 +209,8 @@
       {% for row in review_rows %}
         <article class="mobile-record-card" data-listing-row>
           {% if request.user.is_authenticated and request.user.is_staff %}
-            <label class="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-600 dark:text-slate-300">
-              <input class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox" value="{{ row.item.id }}" data-review-select>
+            <label class="mb-3 flex items-center gap-2 text-sm font-semibold" style="color: var(--pb-fg-2)">
+              <input class="h-5 w-5 rounded text-blue-600 focus:ring-blue-500" style="border-color: var(--pb-border-light)" type="checkbox" value="{{ row.item.id }}" data-review-select>
               {% trans "Select" %}
             </label>
           {% endif %}
@@ -222,7 +222,7 @@
             </span>
             <div class="min-w-0 flex-1">
               <div
-                class="break-words text-base font-semibold leading-5 text-slate-950 dark:text-white"
+                class="break-words text-base font-semibold leading-5" style="color: var(--pb-fg)"
                 data-inline-field="title_raw"
                 data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
                 data-inline-id="{{ row.item.id }}"
@@ -241,17 +241,17 @@
                     <span class="badge {{ row.suggestion.confidence_class }}">{{ row.suggestion.confidence_percent }}%</span>
                   </div>
                   <div class="mt-2 grid grid-cols-2 gap-2">
-                    <div><span class="font-mono text-xs uppercase text-slate-500">{% trans "Model" %}</span><div class="break-words">{{ row.suggestion.product_label }}</div></div>
-                    <div><span class="font-mono text-xs uppercase text-slate-500">{% trans "Storage" %}</span><div class="num">{{ row.suggestion.storage_label }}</div></div>
-                    <div><span class="font-mono text-xs uppercase text-slate-500">{% trans "SIM" %}</span><div>{{ row.suggestion.sim_label }}</div></div>
-                    <div><span class="font-mono text-xs uppercase text-slate-500">{% trans "Condition" %}</span><div>{{ row.suggestion.condition_label }}</div></div>
+                    <div><span class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Model" %}</span><div class="break-words">{{ row.suggestion.product_label }}</div></div>
+                    <div><span class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Storage" %}</span><div class="num">{{ row.suggestion.storage_label }}</div></div>
+                    <div><span class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "SIM" %}</span><div>{{ row.suggestion.sim_label }}</div></div>
+                    <div><span class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Condition" %}</span><div>{{ row.suggestion.condition_label }}</div></div>
                   </div>
-                  <p class="mt-2 text-slate-600 dark:text-slate-300">{{ row.suggestion.reason }}</p>
+                  <p class="mt-2" style="color: var(--pb-fg-2)">{{ row.suggestion.reason }}</p>
                 </div>
               {% endif %}
               <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <div>
-                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "Product" %}</div>
+                  <div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Product" %}</div>
                   <div class="break-words">
                     {% if row.item.product_model %}
                       <span
@@ -265,7 +265,7 @@
                   </div>
                 </div>
                 <div>
-                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "Storage" %}</div>
+                  <div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Storage" %}</div>
                   <div class="num">
                     <span
                       data-inline-field="storage_gb"
@@ -276,7 +276,7 @@
                   </div>
                 </div>
                 <div>
-                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "SIM" %}</div>
+                  <div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "SIM" %}</div>
                   <div>
                     <span
                       data-inline-field="sim_config"
@@ -286,7 +286,7 @@
                   </div>
                 </div>
                 <div>
-                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "Legacy variant" %}</div>
+                  <div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Legacy variant" %}</div>
                   <div class="break-words">
                     {% if row.item.variant %}
                       <span
@@ -300,7 +300,7 @@
                   </div>
                 </div>
                 <div>
-                  <div class="font-mono text-xs uppercase text-slate-500">{% trans "Price" %}</div>
+                  <div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">{% trans "Price" %}</div>
                   <div class="num">
                     <span
                       data-inline-field="price_original"
@@ -312,7 +312,7 @@
                   </div>
                 </div>
                 <div>
-                  <div class="font-mono text-xs uppercase text-slate-500">EUR</div>
+                  <div class="font-mono text-xs uppercase" style="color: var(--pb-muted)">EUR</div>
                   <div class="num">{{ row.eur|default:"-" }}</div>
                 </div>
               </div>
@@ -355,7 +355,7 @@
                     data-inline-label="{{ row.title|default:'listing'|truncatechars:48 }}"
                   >{% trans "Delete" %}</button>
                 {% endif %}
-                <span class="ml-auto font-mono text-xs text-slate-500">{{ row.observed_at|date:"M d H:i" }}</span>
+                <span class="ml-auto font-mono text-xs" style="color: var(--pb-muted)">{{ row.observed_at|date:"M d H:i" }}</span>
               </div>
             </div>
           </div>
@@ -391,7 +391,7 @@
               <tr data-listing-row>
                 {% if request.user.is_authenticated and request.user.is_staff %}
                   <td>
-                    <input class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox" value="{{ row.item.id }}" data-review-select>
+                    <input class="h-5 w-5 rounded text-blue-600 focus:ring-blue-500" style="border-color: var(--pb-border-light)" type="checkbox" value="{{ row.item.id }}" data-review-select>
                   </td>
                 {% endif %}
                 <td class="max-w-sm whitespace-normal">
@@ -408,7 +408,7 @@
                         data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
                         data-inline-id="{{ row.item.id }}"
                       >{{ row.title }}</div>
-                      <div class="mt-1 text-xs text-slate-500 dark:text-slate-400">{{ row.source_name }} / {{ row.country_label }}</div>
+                      <div class="mt-1 text-xs" style="color: var(--pb-muted)">{{ row.source_name }} / {{ row.country_label }}</div>
                     </div>
                   </div>
                 </td>
@@ -453,12 +453,12 @@
                         <span class="font-semibold text-blue-950 dark:text-blue-100">{% trans "Suggested" %}</span>
                         <span class="badge {{ row.suggestion.confidence_class }}">{{ row.suggestion.confidence_percent }}%</span>
                       </div>
-                      <div class="space-y-1 text-slate-700 dark:text-slate-200">
-                        <div><span class="text-slate-500">{% trans "Model:" %}</span> {{ row.suggestion.product_label }}</div>
-                        <div><span class="text-slate-500">{% trans "Storage:" %}</span> {{ row.suggestion.storage_label }} / {{ row.suggestion.sim_label }}</div>
-                        <div><span class="text-slate-500">{% trans "Condition:" %}</span> {{ row.suggestion.condition_label }}</div>
+                      <div class="space-y-1" style="color: var(--pb-fg-2)">
+                        <div><span style="color: var(--pb-muted)">{% trans "Model:" %}</span> {{ row.suggestion.product_label }}</div>
+                        <div><span style="color: var(--pb-muted)">{% trans "Storage:" %}</span> {{ row.suggestion.storage_label }} / {{ row.suggestion.sim_label }}</div>
+                        <div><span style="color: var(--pb-muted)">{% trans "Condition:" %}</span> {{ row.suggestion.condition_label }}</div>
                       </div>
-                      <div class="mt-1 text-slate-500 dark:text-slate-400">{{ row.suggestion.reason|truncatechars:140 }}</div>
+                      <div class="mt-1" style="color: var(--pb-muted)">{{ row.suggestion.reason|truncatechars:140 }}</div>
                     </div>
                   {% else %}
                     <span class="text-slate-400">-</span>
@@ -483,7 +483,7 @@
                     data-inline-type="decimal"
                   >{{ row.original_price|default:"" }}</span>
                   {{ row.original_currency }}
-                  <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.eur|default:"-" }}</div>
+                  <div class="text-xs" style="color: var(--pb-muted)">{{ row.eur|default:"-" }}</div>
                 </td>
                 <td>
                   {% if request.user.is_authenticated and request.user.is_staff %}

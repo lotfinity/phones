@@ -69,8 +69,8 @@
 </form>
 
 {% if request.user.is_authenticated and request.user.is_staff %}
-<details class="mb-5 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/40" open data-bulk-panel>
-  <summary class="cursor-pointer text-sm font-semibold text-slate-950 dark:text-white">{% trans "Bulk actions" %}</summary>
+<details class="mb-5 rounded-xl border p-4" style="border-color: var(--pb-border); background: var(--pb-bg-subtle)" open data-bulk-panel>
+  <summary class="cursor-pointer text-sm font-semibold" style="color: var(--pb-fg)">{% trans "Bulk actions" %}</summary>
   <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-[minmax(180px,220px)_1fr_auto_auto] sm:items-end">
     <div>
       <label class="f-label" for="bulk-storage">{% trans "Storage bucket" %}</label>
@@ -92,7 +92,7 @@
     <button class="btn btn-primary" type="button" data-bulk-assign-storage>{% trans "Assign storage" %}</button>
     <button class="btn btn-danger" type="button" data-bulk-delete>{% trans "Delete selected" %}</button>
   </div>
-  <div class="mt-4 flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+  <div class="mt-4 flex flex-wrap items-center gap-2 text-sm" style="color: var(--pb-muted)">
     <button class="btn btn-primary btn-sm" type="button" data-bulk-apply-suggestions>{% trans "Apply suggestions" %}</button>
     <button class="btn btn-secondary btn-sm" type="button" data-bulk-reject-suggestions>{% trans "Reject suggestions" %}</button>
     <button class="btn btn-secondary btn-sm" type="button" data-select-visible>{% trans "Select visible" %}</button>
@@ -107,8 +107,8 @@
   {% for row in listing_rows %}
     <article class="mobile-record-card" data-listing-row data-sort-eur="{{ row.eur_raw|default:'-999999' }}">
       {% if request.user.is_authenticated and request.user.is_staff %}
-        <label class="mb-3 flex items-center gap-2 text-sm font-medium text-slate-600 dark:text-slate-300">
-          <input class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox" value="{{ row.item.id }}" data-review-select>
+        <label class="mb-3 flex items-center gap-2 text-sm font-medium" style="color: var(--pb-fg-2)">
+          <input class="h-5 w-5 rounded text-blue-600 focus:ring-blue-500" style="border-color: var(--pb-border-light)" type="checkbox" value="{{ row.item.id }}" data-review-select>
           {% trans "Select" %}
         </label>
       {% endif %}
@@ -125,7 +125,7 @@
             data-inline-api="{% url 'inline_edit_api' 'market-listings' %}"
             data-inline-id="{{ row.item.id }}"
           {% endif %}
-          class="text-base font-semibold leading-5 text-slate-950 dark:text-white">
+          class="text-base font-semibold leading-5" style="color: var(--pb-fg)">
             {{ row.title }}
           </div>
 
@@ -153,12 +153,12 @@
 
           <div class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <div>
-              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Product" %}</div>
+              <div class="font-mono text-[11px] uppercase" style="color: var(--pb-muted)">{% trans "Product" %}</div>
               <div class="break-words brand-name-line">
                 {% if row.item.product_model %}
                   <span class="brand-logo-wrap brand-logo-sm">
                     {% if row.brand_logo_url %}
-                      <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+<img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo">
                     {% endif %}
                     <span class="brand-logo-fallback">{{ row.brand_initial }}</span>
                   </span>
@@ -173,7 +173,7 @@
               </div>
             </div>
             <div>
-              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Storage / SIM" %}</div>
+              <div class="font-mono text-[11px] uppercase" style="color: var(--pb-muted)">{% trans "Storage / SIM" %}</div>
               <div class="break-words">
                 {% if row.is_supplier %}
                   {% if row.storage_gb %}{{ row.storage_gb }}GB{% else %}-{% endif %}{% if row.sim_config %} / {{ row.sim_config }}{% endif %}
@@ -195,7 +195,7 @@
               </div>
             </div>
             <div>
-              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Original" %}</div>
+              <div class="font-mono text-[11px] uppercase" style="color: var(--pb-muted)">{% trans "Original" %}</div>
               <div class="num">
                 {% if row.is_supplier %}
                   {{ row.original_price|default:"" }} {{ row.original_currency }}
@@ -211,7 +211,7 @@
               </div>
             </div>
             <div class="col-span-2">
-              <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Converted" %}</div>
+              <div class="font-mono text-[11px] uppercase" style="color: var(--pb-muted)">{% trans "Converted" %}</div>
               <div class="mt-1">
                 {% for price in row.converted_prices %}
                   <span class="num">{{ price.value }}</span>
@@ -235,7 +235,7 @@
                 data-inline-label="{{ row.item.title_raw|default:'listing'|truncatechars:48 }}"
               >{% trans "Delete" %}</button>
             {% endif %}
-            <span class="ml-auto font-mono text-xs text-slate-500">{{ row.observed_at|date:"M d H:i" }}</span>
+            <span class="ml-auto font-mono text-xs" style="color: var(--pb-muted)">{{ row.observed_at|date:"M d H:i" }}</span>
           </div>
         </div>
       </div>
@@ -253,7 +253,7 @@
           <tr>
             {% if request.user.is_authenticated and request.user.is_staff %}
               <th style="width: 2rem;">
-                <input class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox" data-select-visible-all aria-label="{% trans 'Select all' %}">
+                <input class="h-5 w-5 rounded text-blue-600 focus:ring-blue-500" style="border-color: var(--pb-border-light)" type="checkbox" data-select-visible-all aria-label="{% trans 'Select all' %}">
               </th>
             {% endif %}
             <th>{% trans "Image" %}</th>
@@ -281,7 +281,7 @@
         <tr data-listing-row data-sort-eur="{{ row.eur_raw|default:'-999999' }}">
           {% if request.user.is_authenticated and request.user.is_staff %}
             <td>
-              <input class="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" type="checkbox" value="{{ row.item.id }}" data-review-select>
+              <input class="h-5 w-5 rounded text-blue-600 focus:ring-blue-500" style="border-color: var(--pb-border-light)" type="checkbox" value="{{ row.item.id }}" data-review-select>
             </td>
           {% endif %}
           <td>
@@ -293,7 +293,7 @@
           </td>
           <td>
             <span class="badge {{ row.source_code|lower }}">{{ row.source_code }}</span>
-            <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.source_name }}</div>
+            <div class="text-xs" style="color: var(--pb-muted)">{{ row.source_name }}</div>
           </td>
           <td>{{ row.country_label }}</td>
           <td class="max-w-xs whitespace-normal">
@@ -311,7 +311,7 @@
             <div class="brand-name-line">
               <span class="brand-logo-wrap brand-logo-sm">
                 {% if row.brand_logo_url %}
-                  <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+                  <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
                 {% endif %}
                 <span class="brand-logo-fallback">{{ row.brand_initial }}</span>
               </span>
@@ -361,7 +361,7 @@
           <td>
             <div class="grid min-w-44 grid-cols-2 gap-x-3 gap-y-1 text-xs">
               {% for price in row.converted_prices %}
-                <span class="num text-slate-600 dark:text-slate-300">{{ price.value }}</span>
+                <span class="num" style="color: var(--pb-fg-2)">{{ price.value }}</span>
               {% empty %}
                 <span class="num">-</span>
               {% endfor %}
@@ -410,13 +410,13 @@
             {% if row.item.listing_url %}
               <a class="btn btn-ghost btn-sm" href="{{ row.item.listing_url }}" target="_blank" rel="noreferrer">{% trans "Open" %}</a>
             {% else %}
-              <span class="text-slate-400">-</span>
+              <span style="color: var(--pb-muted)">-</span>
             {% endif %}
           </td>
           {% if request.user.is_authenticated and request.user.is_staff %}
             <td>
               {% if row.is_supplier %}
-                <span class="text-slate-400">-</span>
+                <span style="color: var(--pb-muted)">-</span>
               {% else %}
                 <button
                   class="btn btn-danger btn-sm"

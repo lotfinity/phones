@@ -7,9 +7,6 @@
 
 {% block head_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-{% endblock %}
-
-{% block header_actions %}
 <style>
   .brand-pills {
     display: flex; gap: 0.375rem; overflow-x: auto;
@@ -19,28 +16,26 @@
   .brand-pills::-webkit-scrollbar { display: none; }
   .brand-pill {
     flex-shrink: 0; display: inline-flex; align-items: center; gap: 0.25rem;
-    padding: 0.3rem 0.625rem; border-radius: 9999px;
-    border: 1px solid rgb(226 232 240); background: white;
-    font-size: 0.65rem; font-weight: 600; color: rgb(71 85 105);
+    padding: 0.3rem 0.625rem; border-radius: var(--pb-radius-pill);
+    border: 1px solid var(--pb-border); background: var(--pb-surface);
+    font-size: 0.65rem; font-weight: 600; color: var(--pb-fg-2);
     cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
   @media (min-width: 640px) {
     .brand-pill { padding: 0.375rem 0.75rem; font-size: 0.7rem; }
   }
-  .dark .brand-pill { border-color: rgb(51 65 85); background: rgb(30 41 59); color: rgb(203 213 225); }
-  .brand-pill:hover { border-color: rgb(148 163 184); }
-  .dark .brand-pill:hover { border-color: rgb(71 85 105); }
+  .brand-pill:hover { border-color: var(--pb-muted); }
   .brand-pill.active {
-    background: rgb(37 99 235); border-color: rgb(37 99 235); color: white;
+    background: var(--pb-accent); border-color: var(--pb-accent); color: var(--pb-accent-on);
   }
   .brand-pill .pill-count {
     font-family: ui-monospace, monospace; font-size: 9px; opacity: 0.7;
   }
   .brand-pill .pill-margin {
     font-family: ui-monospace, monospace; font-size: 9px;
-    color: rgb(16 185 129);
+    color: var(--pb-success);
   }
-  .brand-pill.active .pill-margin { color: rgb(110 231 183); }
+  .brand-pill.active .pill-margin { color: rgba(110, 231, 183, 0.9); }
 
   .swiper-deal {
     width: 100%; max-width: 22rem; margin: 0 auto;
@@ -50,10 +45,10 @@
     .swiper-deal { max-width: 24rem; }
   }
   .swiper-deal .swiper-slide {
-    border-radius: 0.75rem; overflow: hidden; height: auto;
+    border-radius: var(--pb-radius-lg); overflow: hidden; height: auto;
   }
   @media (min-width: 640px) {
-    .swiper-deal .swiper-slide { border-radius: 1rem; }
+    .swiper-deal .swiper-slide { border-radius: var(--pb-radius-xl); }
   }
   .swiper-deal .swiper-slide:not(.swiper-slide-active) {
     opacity: 0.45;
@@ -63,25 +58,24 @@
   }
 
   .deal-card {
-    border-radius: 0.75rem; overflow: hidden;
-    border: 1px solid rgb(226 232 240); background: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-radius: var(--pb-radius-lg); overflow: hidden;
+    border: 1px solid var(--pb-border); background: var(--pb-surface);
+    box-shadow: var(--pb-shadow-sm);
     display: flex; flex-direction: column;
   }
   @media (min-width: 640px) {
-    .deal-card { border-radius: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .deal-card { border-radius: var(--pb-radius-xl); box-shadow: var(--pb-shadow-md); }
   }
-  .dark .deal-card { border-color: rgb(30 41 59); background: rgb(15 23 42); box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
 
   .deal-hero {
     position: relative; width: 100%; aspect-ratio: 16/10; overflow: hidden;
-    background: rgb(241 245 249); display: flex; align-items: center; justify-content: center;
+    background: var(--pb-bg-subtle); display: flex; align-items: center; justify-content: center;
   }
   @media (min-width: 640px) {
     .deal-hero { aspect-ratio: 4/3; }
   }
   .deal-hero img { width: 100%; height: 100%; object-fit: cover; }
-  .deal-hero .placeholder-icon { font-size: 1.75rem; color: rgb(148 163 184); }
+  .deal-hero .placeholder-icon { font-size: 1.75rem; color: var(--pb-muted); }
   @media (min-width: 640px) {
     .deal-hero .placeholder-icon { font-size: 2.25rem; }
   }
@@ -90,16 +84,16 @@
     display: flex; gap: 0.25rem;
   }
   .deal-badge .badge {
-    padding: 0.125rem 0.375rem; border-radius: 9999px;
+    padding: 0.125rem 0.375rem; border-radius: var(--pb-radius-pill);
     font-size: 8px; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.03em;
-    background: rgba(255,255,255,0.9); color: rgb(51 65 85);
+    background: var(--pb-glass-bg); color: var(--pb-fg-2);
+    backdrop-filter: blur(4px);
   }
-  .dark .deal-badge .badge { background: rgba(15 23 42, 0.8); color: rgb(203 213 225); }
 
   .deal-margin-badge {
     position: absolute; top: 0.5rem; right: 0.5rem;
-    padding: 0.2rem 0.4rem; border-radius: 0.375rem;
+    padding: 0.2rem 0.4rem; border-radius: var(--pb-radius-sm);
     background: rgba(16, 185, 129, 0.9); color: white;
     font-family: ui-monospace, monospace; font-size: 0.75rem; font-weight: 700;
     backdrop-filter: blur(4px);
@@ -119,7 +113,7 @@
 
   .deal-title {
     font-size: 0.8rem; font-weight: 700; line-height: 1.3;
-    color: rgb(2 6 23); overflow: hidden;
+    color: var(--pb-fg); overflow: hidden;
   }
   .deal-title-text {
     display: -webkit-box;
@@ -129,74 +123,63 @@
   @media (min-width: 640px) {
     .deal-title { font-size: 0.875rem; }
   }
-  .dark .deal-title { color: white; }
-  .dark .deal-title-text { color: white; }
 
   .deal-specs {
     display: flex; flex-wrap: wrap; gap: 0.25rem;
-    font-family: ui-monospace, monospace; font-size: 0.55rem; color: rgb(100 116 139);
+    font-family: ui-monospace, monospace; font-size: 0.55rem; color: var(--pb-muted);
   }
   @media (min-width: 640px) {
     .deal-specs { font-size: 0.6rem; gap: 0.375rem; }
   }
-  .dark .deal-specs { color: rgb(148 163 184); }
   .deal-specs span { white-space: nowrap; }
-  .deal-specs .sep { color: rgb(203 213 225); }
-  .dark .deal-specs .sep { color: rgb(51 65 85); }
+  .deal-specs .sep { color: var(--pb-border); }
 
   .deal-prices {
     display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem;
-    padding: 0.375rem; border-radius: 0.375rem;
-    background: rgb(248 250 252); font-family: ui-monospace, monospace;
+    padding: 0.375rem; border-radius: var(--pb-radius-sm);
+    background: var(--pb-bg-subtle); font-family: ui-monospace, monospace;
   }
   @media (min-width: 640px) {
-    .deal-prices { gap: 0.375rem; padding: 0.5rem; border-radius: 0.5rem; }
+    .deal-prices { gap: 0.375rem; padding: 0.5rem; border-radius: var(--pb-radius-md); }
   }
-  .dark .deal-prices { background: rgb(30 41 59); }
   .deal-price-col { display: flex; flex-direction: column; gap: 0.0625rem; }
   .deal-price-col .label {
     font-size: 0.45rem; text-transform: uppercase; letter-spacing: 0.05em;
-    color: rgb(100 116 139);
+    color: var(--pb-muted);
   }
   @media (min-width: 640px) {
     .deal-price-col .label { font-size: 0.5rem; }
   }
-  .dark .deal-price-col .label { color: rgb(148 163 184); }
   .deal-price-col .amount {
-    font-size: 0.8rem; font-weight: 700; color: rgb(2 6 23);
+    font-size: 0.8rem; font-weight: 700; color: var(--pb-fg);
   }
   @media (min-width: 640px) {
     .deal-price-col .amount { font-size: 0.9rem; }
   }
-  .dark .deal-price-col .amount { color: white; }
   .deal-price-col .sub {
-    font-size: 0.45rem; color: rgb(148 163 184);
+    font-size: 0.45rem; color: var(--pb-muted);
   }
   @media (min-width: 640px) {
     .deal-price-col .sub { font-size: 0.5rem; }
   }
-  .dark .deal-price-col .sub { color: rgb(100 116 139); }
 
   .deal-sahibinden {
-    padding: 0.375rem; border-radius: 0.375rem;
-    border: 1px solid rgb(226 232 240); font-size: 0.55rem;
+    padding: 0.375rem; border-radius: var(--pb-radius-sm);
+    border: 1px solid var(--pb-border); font-size: 0.55rem;
   }
   @media (min-width: 640px) {
-    .deal-sahibinden { padding: 0.5rem; border-radius: 0.5rem; font-size: 0.65rem; }
+    .deal-sahibinden { padding: 0.5rem; border-radius: var(--pb-radius-md); font-size: 0.65rem; }
   }
-  .dark .deal-sahibinden { border-color: rgb(51 65 85); }
   .deal-sah-header {
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.125rem;
   }
-  .deal-sah-header .title { font-weight: 600; color: rgb(51 65 85); }
-  .dark .deal-sah-header .title { color: rgb(203 213 225); }
-  .deal-sah-header .count { font-family: ui-monospace, monospace; font-size: 0.5rem; color: rgb(100 116 139); }
+  .deal-sah-header .title { font-weight: 600; color: var(--pb-fg-2); }
+  .deal-sah-header .count { font-family: ui-monospace, monospace; font-size: 0.5rem; color: var(--pb-muted); }
   .deal-sah-range {
     display: flex; justify-content: space-between;
     font-family: ui-monospace, monospace; font-size: 0.5rem;
   }
-  .deal-sah-range .val { font-weight: 600; color: rgb(2 6 23); }
-  .dark .deal-sah-range .val { color: rgb(241 245 249); }
+  .deal-sah-range .val { font-weight: 600; color: var(--pb-fg); }
 
   .deal-actions {
     display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: auto;
@@ -204,8 +187,8 @@
   .deal-actions a,
   .deal-actions button {
     flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 0.25rem;
-    padding: 0.375rem 0.5rem; border-radius: 0.375rem; border: 1px solid rgb(203 213 225);
-    background: white; font-size: 0.6rem; font-weight: 600; color: rgb(51 65 85);
+    padding: 0.375rem 0.5rem; border-radius: var(--pb-radius-sm); border: 1px solid var(--pb-border);
+    background: var(--pb-surface); font-size: 0.6rem; font-weight: 600; color: var(--pb-fg-2);
     text-decoration: none; transition: all 0.15s; overflow: hidden;
     text-overflow: ellipsis; white-space: nowrap; cursor: pointer;
   }
@@ -213,19 +196,15 @@
     .deal-actions a,
     .deal-actions button { padding: 0.5rem 0.75rem; font-size: 0.7rem; }
   }
-  .dark .deal-actions a,
-  .dark .deal-actions button { border-color: rgb(51 65 85); background: rgb(30 41 59); color: rgb(203 213 225); }
   .deal-actions a:hover,
-  .deal-actions button:hover { background: rgb(241 245 249); }
-  .dark .deal-actions a:hover,
-  .dark .deal-actions button:hover { background: rgb(51 65 85); }
+  .deal-actions button:hover { background: var(--pb-surface-hover); }
   .deal-actions .btn-sahibinden {
-    background: rgb(99 102 241); border-color: rgb(99 102 241); color: white;
+    background: #6366f1; border-color: #6366f1; color: white;
   }
-  .deal-actions .btn-sahibinden:hover { background: rgb(79 70 229); }
+  .deal-actions .btn-sahibinden:hover { background: #4f46e5; }
 
-  .supplier-block { padding: 0.375rem; background: rgb(239 246 255); border-radius: 0.375rem; }
-  .dark .supplier-block { background: rgb(30 58 94); }
+  .supplier-block { padding: 0.375rem; background: rgba(59, 130, 246, 0.06); border-radius: var(--pb-radius-sm); }
+  .dark .supplier-block { background: rgba(59, 130, 246, 0.12); }
 
   .sah-modal-overlay {
     display: none; position: fixed; inset: 0; z-index: 100;
@@ -235,49 +214,44 @@
   .sah-modal-overlay.open { display: flex; }
   .sah-modal {
     width: 100%; max-width: 28rem; max-height: 70vh;
-    background: white; border-radius: 1rem 1rem 0 0;
+    background: var(--pb-surface); border-radius: var(--pb-radius-xl) var(--pb-radius-xl) 0 0;
     overflow-y: auto; padding: 1.25rem;
   }
   @media (min-width: 640px) {
     .sah-modal { padding: 1.5rem; }
   }
-  .dark .sah-modal { background: rgb(15 23 42); }
-  .sah-modal h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.75rem; color: rgb(2 6 23); }
+  .sah-modal h3 { font-size: 0.875rem; font-weight: 700; margin-bottom: 0.75rem; color: var(--pb-fg); }
   @media (min-width: 640px) {
     .sah-modal h3 { font-size: 1rem; margin-bottom: 1rem; }
   }
-  .dark .sah-modal h3 { color: white; }
   .sah-link {
-    display: block; padding: 0.5rem 0; border-bottom: 1px solid rgb(241 245 249);
-    font-size: 0.7rem; color: rgb(37 99 235); text-decoration: none;
+    display: block; padding: 0.5rem 0; border-bottom: 1px solid var(--pb-border-light);
+    font-size: 0.7rem; color: var(--pb-accent); text-decoration: none;
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   @media (min-width: 640px) {
     .sah-link { padding: 0.625rem 0; font-size: 0.8rem; }
   }
-  .dark .sah-link { border-color: rgb(30 41 59); color: rgb(96 165 250); }
   .sah-link:hover { text-decoration: underline; }
   .sah-close {
     position: absolute; top: 0.75rem; right: 0.75rem;
     width: 1.75rem; height: 1.75rem; border-radius: 50%;
-    border: none; background: rgb(241 245 249); color: rgb(71 85 105);
+    border: none; background: var(--pb-surface-hover); color: var(--pb-fg-2);
     font-size: 0.875rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
   }
-  .dark .sah-close { background: rgb(30 41 59); color: rgb(203 213 225); }
 
   .deal-counter {
     text-align: center; padding: 0.375rem; font-family: ui-monospace, monospace;
-    font-size: 0.6rem; color: rgb(100 116 139);
+    font-size: 0.6rem; color: var(--pb-muted);
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
   }
   @media (min-width: 640px) {
     .deal-counter { padding: 0.5rem; font-size: 0.7rem; }
   }
-  .dark .deal-counter { color: rgb(148 163 184); }
 
   .deal-spinner {
     display: none; width: 0.875rem; height: 0.875rem;
-    border: 2px solid rgb(203 213 225); border-top-color: rgb(37 99 235);
+    border: 2px solid var(--pb-border); border-top-color: var(--pb-accent);
     border-radius: 50%; animation: spin 0.6s linear infinite;
   }
   .deal-spinner.active { display: inline-block; }
@@ -285,7 +259,7 @@
 
   .empty-state {
     text-align: center; padding: 2rem 1rem;
-    color: rgb(100 116 139); font-size: 0.8rem;
+    color: var(--pb-muted); font-size: 0.8rem;
   }
 
   .condition-pills {
@@ -294,23 +268,24 @@
   }
   .condition-pills::-webkit-scrollbar { display: none; }
   .condition-pill {
-    flex-shrink: 0; padding: 0.25rem 0.5rem; border-radius: 9999px;
-    border: 1px solid rgb(226 232 240); background: white;
-    font-size: 0.6rem; font-weight: 600; color: rgb(71 85 105);
+    flex-shrink: 0; padding: 0.25rem 0.5rem; border-radius: var(--pb-radius-pill);
+    border: 1px solid var(--pb-border); background: var(--pb-surface);
+    font-size: 0.6rem; font-weight: 600; color: var(--pb-fg-2);
     cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
-  .dark .condition-pill { border-color: rgb(51 65 85); background: rgb(30 41 59); color: rgb(203 213 225); }
   .condition-pill.active {
-    background: rgb(99 102 241); border-color: rgb(99 102 241); color: white;
+    background: #6366f1; border-color: #6366f1; color: white;
   }
 
   .condition-badge { font-size: 7px !important; }
-  .condition-sealed_new { background: rgb(16 185 129) !important; color: white !important; }
-  .condition-clean_used { background: rgb(59 130 246) !important; color: white !important; }
-  .condition-issue_used { background: rgb(239 68 68) !important; color: white !important; }
-  .condition-unknown { background: rgb(148 163 184) !important; color: white !important; }
+  .condition-sealed_new { background: var(--pb-success) !important; color: white !important; }
+  .condition-clean_used { background: #3b82f6 !important; color: white !important; }
+  .condition-issue_used { background: var(--pb-danger) !important; color: white !important; }
+  .condition-unknown { background: var(--pb-muted) !important; color: white !important; }
 </style>
 {% endblock %}
+
+
 
 {% block content %}
 {% if brand_summaries %}
@@ -324,7 +299,7 @@
           <span class="brand-logo-wrap brand-logo-sm" style="margin-right: 0;">
             {% with logo=bs.brand|brand_logo_url %}
               {% if logo %}
-                <img class="brand-logo-img" src="{{ logo }}" alt="{{ bs.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+                <img class="brand-logo-img" src="{{ logo }}" alt="{{ bs.brand }} logo" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
               {% endif %}
             {% endwith %}
             <span class="brand-logo-fallback">{{ bs.brand|brand_initial }}</span>

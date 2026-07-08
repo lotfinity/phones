@@ -3,7 +3,7 @@
   <div class="deal-card">
     <div class="deal-hero">
       {% if deal.image_url %}
-        <img src="{{ deal.image_url }}" alt="{{ deal.title }}" loading="lazy">
+        <img src="{{ deal.image_url }}" alt="{{ deal.title }}">
       {% else %}
         <div class="placeholder-icon">&#x1F4F1;</div>
       {% endif %}
@@ -25,7 +25,7 @@
       <div class="deal-title brand-name-line">
         <span class="brand-logo-wrap brand-logo-sm">
           {% if deal.brand_logo_url %}
-            <img class="brand-logo-img" src="{{ deal.brand_logo_url }}" alt="{{ deal.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+            <img class="brand-logo-img" src="{{ deal.brand_logo_url }}" alt="{{ deal.brand }} logo">
           {% endif %}
           <span class="brand-logo-fallback">{{ deal.brand_initial }}</span>
         </span>
@@ -73,8 +73,10 @@
       {% if can_view_supplier and deal.supplier_usd %}
       <div class="deal-specs supplier-block">
         <span>{% trans "Supplier" %}: ${{ deal.supplier_usd|floatformat:0 }} USD</span>
+        {% if deal.supplier_eur %}
         <span class="sep">&middot;</span>
         <span>EUR {{ deal.supplier_eur|floatformat:2 }}</span>
+        {% endif %}
       </div>
       {% endif %}
 
@@ -83,7 +85,7 @@
           <a href="{{ deal.listing_url }}" target="_blank" rel="noreferrer">{% trans "Algeria listing" %} &#8599;</a>
         {% endif %}
         {% if deal.sah_urls %}
-          <button class="btn-sahibinden" type="button" data-sah-urls="{{ deal.sah_urls_json|escapejs }}" data-sah-model="{{ deal.model }}">
+          <button class="btn-sahibinden" type="button" data-sah-urls="{{ deal.sah_urls_json }}" data-sah-model="{{ deal.model }}">
             {% trans "Sahibinden" %} ({{ deal.sah_count }}) &#9660;
           </button>
         {% endif %}

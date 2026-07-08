@@ -686,8 +686,11 @@ def build_opportunity_rows(opportunities, tab, selected_currency="EUR", show_int
                 "buyer_gain": money(gain_split["buyer_gain_eur"], selected_currency) if gain_split else "",
                 "buyer_gain_percent": pct(gain_split["buyer_gain_percent"]) if gain_split else "",
                 "supplier": money(item.supplier_eur),
+                "supplier_usd": f"{eur_to_usd(item.supplier_eur):,.0f} USD" if item.supplier_eur is not None else "",
                 "supplier_margin": pct(item.supplier_margin_percent),
                 "sahibinden_margin": pct(item.margin_percent),
+                "algeria_min_dzd": f"{eur_to_dzd(item.algeria_min_eur):,.0f} DZD" if item.algeria_min_eur is not None else "",
+                "turkiye_avg_try": f"{eur_to_try(item.sahibinden_avg_eur):,.0f} TRY" if item.sahibinden_avg_eur is not None else "",
                 "sources": coverage_counts(item.product_model, storage),
                 "gross_value": active_gross,
             }

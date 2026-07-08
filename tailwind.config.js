@@ -9,8 +9,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
-        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+        sans: ["Ubuntu", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["Ubuntu Mono", "ui-monospace", "Menlo", "Monaco", "Consolas", "monospace"],
       },
       boxShadow: {
         soft: "0 18px 45px -30px rgb(15 23 42 / 0.45)",

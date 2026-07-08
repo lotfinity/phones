@@ -13,7 +13,7 @@
       var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
       if (saved === "dark" || (!saved && prefersDark)) {
         document.documentElement.classList.add("dark");
-        document.body.classList.add("dark");
+        if (document.body) document.body.classList.add("dark");
       }
     })();
   </script>
@@ -21,14 +21,6 @@
   {% block head_css %}{% endblock %}
   <style>
     html, body { margin: 0; padding: 0; height: 100%; }
-    html.dark {
-      background-color: rgb(2 6 23) !important;
-      color: rgb(241 245 249) !important;
-    }
-    body.dark {
-      background-color: rgb(2 6 23) !important;
-      color: rgb(241 245 249) !important;
-    }
     body {
       padding-top: 3rem;
       padding-bottom: 3.5rem;
@@ -42,17 +34,15 @@
       height: 3rem;
       display: flex; align-items: center; gap: 0.5rem;
       padding: 0 0.75rem;
-      background: white; border-bottom: 1px solid rgb(226 232 240);
+      background: var(--pb-surface); border-bottom: 1px solid var(--pb-border);
     }
-    .dark .mobile-topbar { background: rgb(15 23 42); border-color: rgb(30 41 59); }
     .mobile-topbar .logo {
-      font-size: 0.875rem; font-weight: 800; color: rgb(2 6 23);
+      font-size: 0.875rem; font-weight: 800; color: var(--pb-fg);
       white-space: nowrap;
     }
-    .dark .mobile-topbar .logo { color: white; }
-    .mobile-topbar .logo .logo-dot { color: rgb(37 99 235); }
+    .mobile-topbar .logo .logo-dot { color: var(--pb-accent); }
     .mobile-topbar .tagline {
-      font-size: 0.6rem; color: rgb(148 163 184); font-weight: 500;
+      font-size: 0.6rem; color: var(--pb-muted); font-weight: 500;
       margin-left: 0.375rem;
       display: flex; align-items: center;
     }
@@ -61,33 +51,29 @@
       width: 2.5rem; height: 2.5rem; border-radius: 0.5rem;
       border: none; background: transparent; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      color: rgb(100 116 139); flex-shrink: 0;
+      color: var(--pb-muted); flex-shrink: 0;
     }
-    .dark .mobile-topbar .topbar-btn { color: rgb(148 163 184); }
-    .mobile-topbar .topbar-btn:hover { background: rgb(241 245 249); }
-    .dark .mobile-topbar .topbar-btn:hover { background: rgb(30 41 59); }
+    .mobile-topbar .topbar-btn:hover { background: var(--pb-surface-hover); color: var(--pb-fg); }
     .mobile-topbar .topbar-btn svg { width: 1.25rem; height: 1.25rem; }
 
     .mobile-bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
       height: 3.5rem;
-      display: flex; align-items: stretch;
-      background: white; border-top: 1px solid rgb(226 232 240);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      background: var(--pb-surface); border-top: 1px solid var(--pb-border);
       padding-bottom: env(safe-area-inset-bottom, 0);
     }
-    .dark .mobile-bottom-nav { background: rgb(15 23 42); border-color: rgb(30 41 59); }
     .mobile-bottom-nav a {
-      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
       gap: 0.125rem;
-      text-decoration: none; color: rgb(148 163 184);
+      text-decoration: none; color: var(--pb-muted);
       font-size: 0.55rem; font-weight: 600;
       transition: color 0.15s;
       min-height: 40px;
     }
     .mobile-bottom-nav a svg { width: 1.25rem; height: 1.25rem; }
-    .mobile-bottom-nav a.active { color: rgb(37 99 235); }
-    .dark .mobile-bottom-nav a { color: rgb(100 116 139); }
-    .dark .mobile-bottom-nav a.active { color: rgb(96 165 250); }
+    .mobile-bottom-nav a.active { color: var(--pb-accent); }
 
     .settings-overlay {
       display: none; position: fixed; inset: 0; z-index: 200;
@@ -97,58 +83,47 @@
     .settings-overlay.open { display: flex; }
     .settings-sheet {
       width: 100%; max-width: 28rem;
-      background: white; border-radius: 1rem 1rem 0 0;
+      background: var(--pb-surface); border-radius: 1rem 1rem 0 0;
       padding: 1.25rem; padding-bottom: calc(1.25rem + env(safe-area-inset-bottom, 0));
       max-height: 70vh; overflow-y: auto;
     }
-    .dark .settings-sheet { background: rgb(15 23 42); }
     .settings-sheet-handle {
       width: 2rem; height: 0.25rem; border-radius: 9999px;
-      background: rgb(203 213 225); margin: 0 auto 0.75rem;
+      background: var(--pb-border); margin: 0 auto 0.75rem;
     }
-    .dark .settings-sheet-handle { background: rgb(51 65 85); }
     .settings-sheet h3 {
       font-size: 0.875rem; font-weight: 700; margin: 0 0 0.75rem;
-      color: rgb(2 6 23);
+      color: var(--pb-fg);
     }
-    .dark .settings-sheet h3 { color: white; }
     .settings-row {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 0.5rem 0; border-bottom: 1px solid rgb(241 245 249);
+      padding: 0.5rem 0; border-bottom: 1px solid var(--pb-border-light);
     }
-    .dark .settings-row { border-color: rgb(30 41 59); }
     .settings-row:last-child { border-bottom: none; }
     .settings-row .label {
-      font-size: 0.75rem; font-weight: 500; color: rgb(71 85 105);
+      font-size: 0.75rem; font-weight: 500; color: var(--pb-fg-2);
     }
-    .dark .settings-row .label { color: rgb(203 213 225); }
     .settings-row select, .settings-row input[type="text"] {
       padding: 0.375rem 0.5rem; border-radius: 0.375rem;
-      border: 1px solid rgb(203 213 225);
-      font-size: 0.75rem; background: white; color: rgb(2 6 23);
-    }
-    .dark .settings-row select, .dark .settings-row input[type="text"] {
-      border-color: rgb(51 65 85); background: rgb(30 41 59); color: white;
+      border: 1px solid var(--pb-border);
+      font-size: 0.75rem; background: var(--pb-surface); color: var(--pb-fg);
     }
     .settings-fx {
       display: flex; flex-wrap: wrap; gap: 0.375rem; padding: 0.5rem 0;
     }
     .settings-fx span {
       font-size: 0.65rem; font-family: ui-monospace, monospace;
-      color: rgb(100 116 139);
+      color: var(--pb-muted);
     }
-    .dark .settings-fx span { color: rgb(148 163 184); }
-    .settings-fx strong { color: rgb(51 65 85); }
-    .dark .settings-fx strong { color: rgb(203 213 225); }
+    .settings-fx strong { color: var(--pb-fg-2); }
 
-    @media (min-width: 640px) {
+    @media (min-width: 1024px) {
       body { padding-top: 0; padding-bottom: 0; }
       .mobile-topbar { display: none; }
       .mobile-bottom-nav { display: none; }
     }
-    @media (max-width: 639px) {
-      .layout { min-height: 100dvh; background: white; }
-      .dark .layout { background: rgb(2 6 23); }
+    @media (max-width: 1023px) {
+      .layout { min-height: 100dvh; background: var(--pb-bg); grid-template-columns: 1fr; }
       .main { background: inherit; }
     }
   </style>
@@ -253,6 +228,10 @@
   </div>
 
   <nav class="mobile-bottom-nav" aria-label="{% trans 'Mobile navigation' %}">
+    <a href="{% url 'opportunities' %}" class="{% if active == 'opportunities' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span>{% trans "Opps" %}</span>
+    </a>
     <a href="{% url 'deals_swiper' %}" class="{% if active == 'deals_swiper' %}active{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2"/><path d="M16 3h-8l-2 4h12z"/></svg>
       <span>{% trans "Deals" %}</span>
