@@ -9,6 +9,7 @@ from market.models import (
     OPPORTUNITY_ELIGIBLE_MATCH_LEVELS,
     MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
     Country,
+    ListingConditionAudit,
     MarketListing,
     OpportunitySnapshot,
     ProductModel,
@@ -77,7 +78,18 @@ def _eligible_review_gate(prefix="") -> Q:
     )
 
 
-def run_analysis(include_insufficient=False, include_cross_storage=False):
+def _clean_condition_gate(prefix="") -> Q:
+    """Gate Algeria listings to sealed_new or clean_used condition audits."""
+    return Q(**{
+        f"{prefix}condition_audit__condition_class__in": [
+            ListingConditionAudit.ConditionClass.SEALED_NEW,
+            ListingConditionAudit.ConditionClass.CLEAN_USED,
+        ]
+    })
+
+
+def run_analysis(include_insufficient=False, include_cross_storage=False,
+                 require_clean_condition=False):
     with transaction.atomic():
         OpportunitySnapshot.objects.all().delete()
         created = 0
@@ -114,10 +126,13 @@ def run_analysis(include_insufficient=False, include_cross_storage=False):
                 continue
 
             for storage_gb in spec_values:
-                listings = MarketListing.objects.filter(
+                algeria_q = MarketListing.objects.filter(
                     country=Country.ALGERIA,
                     product_model=product_model,
                 ).filter(base_filter)
+                if require_clean_condition:
+                    algeria_q = algeria_q.filter(_clean_condition_gate())
+                listings = algeria_q
                 sahibinden = MarketListing.objects.filter(
                     country=Country.TURKIYE,
                     source_type=SourceType.SAHIBINDEN,
@@ -230,10 +245,13 @@ def run_analysis(include_insufficient=False, include_cross_storage=False):
             if not pm_id:
                 continue
             product_model = ProductModel.objects.get(id=pm_id)
-            listings = MarketListing.objects.filter(
+            algeria_q = MarketListing.objects.filter(
                 country=Country.ALGERIA,
                 product_model=product_model,
             ).filter(base_filter)
+            if require_clean_condition:
+                algeria_q = algeria_q.filter(_clean_condition_gate())
+            listings = algeria_q
             sahibinden = MarketListing.objects.filter(
                 country=Country.TURKIYE,
                 source_type=SourceType.SAHIBINDEN,

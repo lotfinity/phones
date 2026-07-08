@@ -8,6 +8,7 @@ from market.models import (
     CurrencyRate,
     DeviceVariant,
     InstagramPost,
+    ListingConditionAudit,
     MarketListing,
     MarketListingReviewQueue,
     MarketListingSpecValue,
@@ -541,3 +542,15 @@ class MarketListingSpecValueAdmin(admin.ModelAdmin):
     search_fields = ("listing__title_raw", "spec__key", "raw_value")
     list_select_related = ("listing", "spec", "option")
     autocomplete_fields = ("listing", "spec", "option")
+
+
+@admin.register(ListingConditionAudit)
+class ListingConditionAuditAdmin(admin.ModelAdmin):
+    list_display = (
+        "listing", "condition_class", "condition_label_tr", "verdict",
+        "confidence", "created_at",
+    )
+    list_filter = ("condition_class", "verdict")
+    search_fields = ("listing__title_raw",)
+    list_select_related = ("listing",)
+    readonly_fields = ("created_at", "updated_at")

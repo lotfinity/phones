@@ -9,6 +9,7 @@ from django.db import transaction
 from market.models import (
     Country,
     DealSnapshot,
+    ListingConditionAudit,
     MarketListing,
     MIN_MATCH_CONFIDENCE_FOR_OPPORTUNITY,
     OPPORTUNITY_ELIGIBLE_MATCH_LEVELS,
@@ -58,7 +59,7 @@ def _eligible_listing_filter():
     }
 
 
-def compute_deal_snapshots():
+def compute_deal_snapshots(require_clean_condition=False):
     """Compute all deals and return a list of DealSnapshot instances (not yet saved).
 
     Deal snapshots power the public/mobile deals UI, so they must use the same
@@ -69,15 +70,22 @@ def compute_deal_snapshots():
     listing because that is the actionable buy-side target for the buyer.
     """
     eligible_filter = _eligible_listing_filter()
-    algeria_listings = (
+    algeria_q = (
         MarketListing.objects.select_related("source", "product_model", "product_model__brand", "variant")
         .filter(
             country=Country.ALGERIA,
             storage_gb__isnull=False,
             **eligible_filter,
         )
-        .order_by("product_model_id", "storage_gb", "price_eur", "id")
     )
+    if require_clean_condition:
+        algeria_q = algeria_q.filter(
+            condition_audit__condition_class__in=[
+                ListingConditionAudit.ConditionClass.SEALED_NEW,
+                ListingConditionAudit.ConditionClass.CLEAN_USED,
+            ]
+        )
+    algeria_listings = algeria_q.order_by("product_model_id", "storage_gb", "price_eur", "id")
 
     snapshots = []
     seen_model_storage = set()
@@ -204,9 +212,17 @@ def compute_deal_snapshots():
 class Command(BaseCommand):
     help = "Recompute deal snapshots (cached deals for fast page loads)."
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--require-clean-condition",
+            action="store_true",
+            help="Only use Algeria listings with condition_audit in sealed_new/clean_used.",
+        )
+
     def handle(self, *args, **options):
+        require_clean = options["require_clean_condition"]
         self.stdout.write("Computing deal snapshots...")
-        snapshots = compute_deal_snapshots()
+        snapshots = compute_deal_snapshots(require_clean_condition=require_clean)
 
         with transaction.atomic():
             DealSnapshot.objects.all().delete()

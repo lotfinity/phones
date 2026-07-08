@@ -1493,6 +1493,8 @@ def _deal_to_json(d):
         "source_code": _val("source_code"),
         "source_name": _val("source_name"),
         "condition": _val("condition"),
+        "condition_class": _val("condition_class"),
+        "condition_label_tr": _val("condition_label_tr"),
         "image_url": _val("image_url"),
         "listing_url": _val("listing_url"),
         "observed_at": _val("observed_at").isoformat() if hasattr(_val("observed_at"), "isoformat") else _val("observed_at"),
@@ -1501,6 +1503,7 @@ def _deal_to_json(d):
 
 def _snapshot_to_dict(snap):
     """Convert a DealSnapshot instance to a template-friendly dict."""
+    audit = getattr(snap.listing, "condition_audit", None) if snap.listing_id else None
     return {
         "id": snap.id,
         "brand": snap.brand_name,
@@ -1514,6 +1517,8 @@ def _snapshot_to_dict(snap):
         "price_usd": snap.price_usd,
         "price_dzd": snap.price_dzd,
         "condition": snap.condition,
+        "condition_class": audit.condition_class if audit else "",
+        "condition_label_tr": audit.condition_label_tr if audit else "",
         "source_code": snap.source_code,
         "source_name": snap.source_name,
         "image_url": snap.image_url,
@@ -1555,6 +1560,7 @@ def deals_swiper(request):
     for bs in brand_stats:
         deals = list(
             DealSnapshot.objects
+            .select_related("listing__condition_audit")
             .filter(brand_name=bs["brand_name"])
             .order_by("-margin_pct")[:DEALS_PAGE_SIZE]
         )
@@ -1569,6 +1575,7 @@ def deals_swiper(request):
     # ALL tab
     all_deals = list(
         DealSnapshot.objects
+        .select_related("listing__condition_audit")
         .order_by("-margin_pct")[:DEALS_PAGE_SIZE]
     )
     all_margins = [d.margin_pct for d in all_deals if d.margin_pct is not None]
@@ -1622,9 +1629,9 @@ def deals_api(request):
     limit = int(request.GET.get("limit", DEALS_PAGE_SIZE))
 
     if brand == "ALL":
-        qs = DealSnapshot.objects.all()
+        qs = DealSnapshot.objects.select_related("listing__condition_audit").all()
     else:
-        qs = DealSnapshot.objects.filter(brand_name=brand)
+        qs = DealSnapshot.objects.select_related("listing__condition_audit").filter(brand_name=brand)
 
     total = qs.count()
     deals = list(qs.order_by("-margin_pct")[offset:offset + limit])
@@ -1667,9 +1674,9 @@ def deals_more(request):
     logger.info("[deals_more] brand=%s offset=%s limit=%s", brand, offset, limit)
 
     if brand == "ALL":
-        qs = DealSnapshot.objects.all()
+        qs = DealSnapshot.objects.select_related("listing__condition_audit").all()
     else:
-        qs = DealSnapshot.objects.filter(brand_name=brand)
+        qs = DealSnapshot.objects.select_related("listing__condition_audit").filter(brand_name=brand)
 
     total = qs.count()
     deals = list(qs.order_by("-margin_pct")[offset:offset + limit])

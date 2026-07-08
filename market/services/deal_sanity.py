@@ -716,3 +716,150 @@ def audit_deal(deal, image_bytes=None, mime_type=None,
             freeform_text=freeform_text,
         )
     return verdict
+
+
+# ── Condition classification ─────────────────────────────────────────────────
+
+# Red-flag patterns that force issue_used regardless of other signals.
+_ISSUE_PATTERNS = [
+    r"afficheur",
+    r"écran\s*inconnu",
+    r"écran\s+unknown",
+    r"pièces?\s+et\s+r[ée]paration",
+    r"repair\s+(information|status|history|screen|section)",
+    r"parts?\s+and\s+service",
+    r"parts?\s*[&a]\s*service",
+    r"screen\s+replaced",
+    r"display\s+changed",
+    r"repaired",
+    r"r[ée]paration",
+    r"non[- ]?original",
+    r"unknown\s+part",
+    r"unknown\s+part\s+detected",
+    r"demo\s+unit",
+    r"showcase",
+    r"vitrine",
+    r"broken\s+screen",
+    r"cracked\s+screen",
+    r"major\s+damage",
+    r"face\s*id\s+(issue|problem|not|missing)",
+    r"true\s+tone\s+(issue|problem|not|missing)",
+    r"repair/parts",
+    r"repair_info",
+    r"repair_info_section",
+]
+_ISSUE_RE = re.compile("|".join(_ISSUE_PATTERNS), re.IGNORECASE)
+
+# Sealed/new indicators.
+_SEALED_PATTERNS = [
+    r"\bsealed\b",
+    r"\bclosed\s+box\b",
+    r"\bboîte\s+scellée\b",
+    r"\bkapalı\s+kutu\b",
+    r"\bneuf\b",
+    r"\bnew\b",
+    r"\bunopened\b",
+    r"\bbrand\s+new\b",
+    r"condition.*sealed",
+    r"condition.*new",
+    r"condition.*boxed",
+]
+_SEALED_RE = re.compile("|".join(_SEALED_PATTERNS), re.IGNORECASE)
+
+# Used indicators (clean or issue).
+_USED_PATTERNS = [
+    r"\bused\b",
+    r"\bsecond\s*hand\b",
+    r"\btemiz\b",
+    r"مستعمل",
+    r"مستعم\s*ل",
+]
+_USED_RE = re.compile("|".join(_USED_PATTERNS), re.IGNORECASE)
+
+
+def classify_condition_class(verdict, red_flags, structured=None, freeform_text=None):
+    """Classify a listing into condition_class based on audit signals.
+
+    Returns one of: sealed_new, clean_used, issue_used, unknown.
+    """
+    reasons = verdict.get("reasons", [])
+    all_signals = " ".join(reasons) + " " + " ".join(red_flags)
+    if structured:
+        all_signals += " " + structured.get("all_visible_text", "")
+        all_signals += " " + " ".join(structured.get("visible_notes", []))
+    if freeform_text:
+        all_signals += " " + freeform_text
+
+    # 1. Check for issue indicators — highest priority
+    if _ISSUE_RE.search(all_signals):
+        return "issue_used"
+
+    # Also check red_flags list directly
+    issue_flag_words = {
+        "afficheur", "écran inconnu", "écran unknown", "pièces et réparation",
+        "pièce et réparation", "repair information section", "repair information",
+        "repair status", "repair history", "repair screen", "repair section",
+        "parts and service", "parts & service", "screen replaced", "display changed",
+        "repaired", "réparation", "non-original", "non original", "unknown part",
+        "unknown part detected", "demo", "showcase", "vitrine", "broken screen",
+        "cracked screen", "major damage", "face id issue", "face id problem",
+        "true tone issue", "true tone problem", "repair/parts", "repair_info",
+        "repair_info_section", "battery health", "cycles", "prix 189000",
+    }
+    for flag in red_flags:
+        if flag.lower() in issue_flag_words or flag.lower().startswith("repair"):
+            return "issue_used"
+
+    # 2. Check for sealed/new indicators
+    if _SEALED_RE.search(all_signals):
+        # But only if no issue flags exist (already checked above)
+        return "sealed_new"
+
+    # 3. Check for used indicators — clean if no issue flags
+    if _USED_RE.search(all_signals):
+        return "clean_used"
+
+    # 4. If vision saw damage
+    if structured:
+        screen = structured.get("screen_damage", "unknown")
+        body = structured.get("body_damage", "unknown")
+        back = structured.get("back_damage", "unknown")
+        camera = structured.get("camera_damage", "unknown")
+        scratches = structured.get("scratches_or_scuffs", "unknown")
+        major_count = sum(1 for s in (screen, body, back, camera) if s == "major")
+        minor_count = sum(1 for s in (screen, body, back, camera, scratches) if s in ("minor", "major"))
+        if major_count >= 1:
+            return "issue_used"
+        if minor_count >= 3:
+            return "issue_used"
+
+    # 5. Verdict-based fallback
+    if verdict.get("verdict") == "reject":
+        return "issue_used"
+
+    # 6. Unknown — no clear evidence
+    return "unknown"
+
+
+def save_condition_audit(deal, verdict, red_flags, structured=None, freeform_text=None,
+                         image_source="", model_used=""):
+    """Save or update a ListingConditionAudit for a deal's listing."""
+    from market.models import ListingConditionAudit
+
+    condition_class = classify_condition_class(verdict, red_flags, structured, freeform_text)
+
+    audit, created = ListingConditionAudit.objects.update_or_create(
+        listing=deal.listing,
+        defaults={
+            "condition_class": condition_class,
+            "verdict": verdict.get("verdict", "watch"),
+            "confidence": verdict.get("confidence", 0),
+            "red_flags": red_flags,
+            "reasons": verdict.get("reasons", []),
+            "structured_vision": structured,
+            "freeform_vision_text": freeform_text or "",
+            "image_source": image_source,
+            "model_used": model_used,
+        },
+    )
+    return audit, created

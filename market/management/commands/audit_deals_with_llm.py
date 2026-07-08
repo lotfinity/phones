@@ -20,6 +20,7 @@ from market.services.deal_sanity import (
     extract_red_flags,
     inspect_deal_image,
     inspect_deal_image_freeform,
+    save_condition_audit,
 )
 
 
@@ -59,6 +60,14 @@ class Command(BaseCommand):
             choices=["structured", "freeform", "both"],
             help="Which vision layers to use (default: both)",
         )
+        parser.add_argument(
+            "--write", action="store_true", default=False,
+            help="Save ListingConditionAudit to DB for each audited deal",
+        )
+        parser.add_argument(
+            "--condition-only", action="store_true", default=False,
+            help="Print only condition classification summary",
+        )
 
     def handle(self, *args, **options):
         limit = options["limit"]
@@ -70,6 +79,8 @@ class Command(BaseCommand):
         vision_mode = options["vision_mode"]
         deal_id = options["deal_id"]
         image_path_override = options["image_path"]
+        write = options["write"]
+        condition_only = options["condition_only"]
 
         has_nvidia_key = bool(settings.NVIDIA_API_KEY)
         if not no_image and not has_nvidia_key:
@@ -189,6 +200,17 @@ class Command(BaseCommand):
             for reason in result["reasons"]:
                 self.stdout.write(f"    - {reason}")
             self.stdout.write(f"    Action: {result['recommended_action']}")
+
+            if write and deal.listing:
+                model_used = settings.NVIDIA_VISION_MODEL if has_nvidia_key else "text-only"
+                audit, created = save_condition_audit(
+                    deal, result, red_flags,
+                    structured=structured, freeform_text=freeform_text,
+                    image_source=img_source, model_used=model_used,
+                )
+                status = "CREATED" if created else "UPDATED"
+                self.stdout.write(f"  [{status}] condition_class={audit.condition_class} "
+                                  f"label_tr={audit.condition_label_tr}")
             return
 
         # ── Bulk mode ──
@@ -282,6 +304,15 @@ class Command(BaseCommand):
                                 freeform_text=freeform_text)
             results.append((deal, result, structured, freeform_text or ""))
 
+            # Red-flag scan
+            all_text = ""
+            if structured:
+                all_text += " " + structured.get("all_visible_text", "")
+                all_text += " " + " ".join(structured.get("visible_notes", []))
+            if freeform_text:
+                all_text += " " + freeform_text
+            red_flags = extract_red_flags(all_text)
+
             verdict_style = {
                 "keep": self.style.SUCCESS,
                 "watch": self.style.WARNING,
@@ -295,6 +326,18 @@ class Command(BaseCommand):
                 self.stdout.write(f"    - {reason}")
             self.stdout.write(f"    Action: {result['recommended_action']}")
             self.stdout.write("")
+
+            if write and deal.listing:
+                model_used = settings.NVIDIA_VISION_MODEL if has_nvidia_key else "text-only"
+                img_src = deal.image_url or (deal.listing.image_path if deal.listing else "") or ""
+                audit, created = save_condition_audit(
+                    deal, result, red_flags,
+                    structured=structured, freeform_text=freeform_text,
+                    image_source=img_src, model_used=model_used,
+                )
+                status = "CREATED" if created else "UPDATED"
+                self.stdout.write(f"  [{status}] condition_class={audit.condition_class} "
+                                  f"label_tr={audit.condition_label_tr}")
 
             if i < len(deals):
                 time.sleep(1)

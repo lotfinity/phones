@@ -282,6 +282,28 @@
     text-align: center; padding: 2rem 1rem;
     color: rgb(100 116 139); font-size: 0.8rem;
   }
+
+  .condition-pills {
+    display: flex; gap: 0.375rem; overflow-x: auto;
+    padding: 0 1rem 0.5rem; scrollbar-width: none;
+  }
+  .condition-pills::-webkit-scrollbar { display: none; }
+  .condition-pill {
+    flex-shrink: 0; padding: 0.25rem 0.5rem; border-radius: 9999px;
+    border: 1px solid rgb(226 232 240); background: white;
+    font-size: 0.6rem; font-weight: 600; color: rgb(71 85 105);
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .dark .condition-pill { border-color: rgb(51 65 85); background: rgb(30 41 59); color: rgb(203 213 225); }
+  .condition-pill.active {
+    background: rgb(99 102 241); border-color: rgb(99 102 241); color: white;
+  }
+
+  .condition-badge { font-size: 7px !important; }
+  .condition-sealed_new { background: rgb(16 185 129) !important; color: white !important; }
+  .condition-clean_used { background: rgb(59 130 246) !important; color: white !important; }
+  .condition-issue_used { background: rgb(239 68 68) !important; color: white !important; }
+  .condition-unknown { background: rgb(148 163 184) !important; color: white !important; }
 </style>
 {% endblock %}
 
@@ -300,6 +322,14 @@
         {% endif %}
       </button>
     {% endfor %}
+  </div>
+
+  <div class="condition-pills" id="conditionTabs">
+    <button class="condition-pill active" type="button" data-condition="ALL" onclick="filterCondition('ALL')">Tümü</button>
+    <button class="condition-pill" type="button" data-condition="sealed_new" onclick="filterCondition('sealed_new')">Kapalı Kutu</button>
+    <button class="condition-pill" type="button" data-condition="clean_used" onclick="filterCondition('clean_used')">Temiz İkinci El</button>
+    <button class="condition-pill" type="button" data-condition="issue_used" onclick="filterCondition('issue_used')">Riskli İkinci El</button>
+    <button class="condition-pill" type="button" data-condition="unknown" onclick="filterCondition('unknown')">İncelenmemiş</button>
   </div>
 
   {% for bs in brand_summaries %}
@@ -434,6 +464,27 @@
       document.getElementById("sahModal").addEventListener("click", function (e) {
         if (e.target === this) closeSahModal();
       });
+
+      window.filterCondition = function (cond) {
+        document.querySelectorAll(".condition-pill").forEach(function (t) {
+          t.classList.toggle("active", t.dataset.condition === cond);
+        });
+        document.querySelectorAll(".swiper-slide").forEach(function (slide) {
+          if (cond === "ALL") {
+            slide.style.display = "";
+            return;
+          }
+          var card = slide.querySelector(".deal-card");
+          if (!card) { slide.style.display = ""; return; }
+          var badge = card.querySelector(".condition-badge");
+          var cc = badge ? (badge.className.match(/condition-(\w+)/) || [])[1] : "unknown";
+          slide.style.display = (cc === cond) ? "" : "none";
+        });
+        document.querySelectorAll(".swiper-deal").forEach(function (el) {
+          var idx = parseInt(el.id.replace("swiper-", ""), 10);
+          if (swipers[idx]) swipers[idx].update();
+        });
+      };
     })();
   </script>
 {% else %}

@@ -840,6 +840,65 @@ class ProductVariantSpecValue(models.Model):
         return self.value_text
 
 
+class ListingConditionAudit(models.Model):
+    class ConditionClass(models.TextChoices):
+        SEALED_NEW = "sealed_new", "Sealed / New"
+        CLEAN_USED = "clean_used", "Clean Used"
+        ISSUE_USED = "issue_used", "Issue Used"
+        UNKNOWN = "unknown", "Unknown / Unaudited"
+
+    class Verdict(models.TextChoices):
+        KEEP = "keep", "Keep"
+        WATCH = "watch", "Watch"
+        REJECT = "reject", "Reject"
+
+    TR_LABELS = {
+        ConditionClass.SEALED_NEW: "Kapalı Kutu",
+        ConditionClass.CLEAN_USED: "Temiz İkinci El",
+        ConditionClass.ISSUE_USED: "Riskli İkinci El",
+        ConditionClass.UNKNOWN: "İncelenmemiş",
+    }
+
+    listing = models.OneToOneField(
+        "MarketListing",
+        related_name="condition_audit",
+        on_delete=models.CASCADE,
+    )
+    condition_class = models.CharField(
+        max_length=20,
+        choices=ConditionClass.choices,
+        default=ConditionClass.UNKNOWN,
+        db_index=True,
+    )
+    verdict = models.CharField(max_length=10, choices=Verdict.choices, default=Verdict.WATCH)
+    confidence = models.PositiveSmallIntegerField(default=0)
+    red_flags = models.JSONField(default=list, blank=True)
+    reasons = models.JSONField(default=list, blank=True)
+    structured_vision = models.JSONField(null=True, blank=True)
+    freeform_vision_text = models.TextField(blank=True)
+    image_source = models.TextField(blank=True)
+    model_used = models.CharField(max_length=120, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"Listing {self.listing_id}: {self.condition_class} ({self.verdict})"
+
+    @property
+    def condition_label_tr(self):
+        return self.TR_LABELS.get(self.condition_class, "Bilinmeyen")
+
+    @property
+    def is_clean_for_comparison(self):
+        return self.condition_class in {
+            self.ConditionClass.SEALED_NEW,
+            self.ConditionClass.CLEAN_USED,
+        }
+
+
 class MarketListingSpecValue(models.Model):
     listing = models.ForeignKey(
         "MarketListing", related_name="spec_values", on_delete=models.CASCADE

@@ -10,6 +10,9 @@
       <div class="deal-badge">
         <span class="badge {{ deal.source_code|lower }}">{{ deal.source_code }}</span>
         <span class="badge">{{ deal.condition }}</span>
+        {% if deal.condition_label_tr %}
+          <span class="badge condition-badge condition-{{ deal.condition_class }}">{{ deal.condition_label_tr }}</span>
+        {% endif %}
       </div>
       {% if deal.margin_pct is not None %}
         <div class="deal-margin-badge {% if deal.margin_pct < 5 %}negative{% elif deal.margin_pct < 15 %}watch{% endif %}">
