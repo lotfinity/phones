@@ -137,8 +137,14 @@ def _extract_json(raw_text):
 
 # ── Single combined prompt ──────────────────────────────────────────────────
 
-def _build_inspect_prompt(deal):
-    """Build the single metadata + condition inspection prompt."""
+def _build_inspect_prompt(deal, product_type="phone"):
+    """Build the single metadata + condition inspection prompt.
+
+    product_type is "phone" or "laptop" — it only changes inspection cues,
+    not the condition classification logic.
+    """
+    is_laptop = product_type == "laptop"
+    device_word = "laptop" if is_laptop else "phone"
     meta_block = (
         f"Current metadata from our system:\n"
         f"- Brand: {deal.brand_name}\n"
@@ -148,8 +154,30 @@ def _build_inspect_prompt(deal):
         f"- Condition text: {deal.condition or 'unknown'}\n"
         f"- Source: {deal.source_name or deal.source_code or 'unknown'}\n"
     )
+    if is_laptop:
+        inspect_cues = (
+            "- Main product (laptop or sealed box in center)\n"
+            "- Black overlay text (white/red text on dark background)\n"
+            "- Screen: dead pixels, scratches, cracks, pressure marks, yellow tint\n"
+            "- Keyboard: missing/loose keys, sticky keys, backlight issues\n"
+            "- Hinges, trackpad, body: dents, cracks, wobble\n"
+            "- Charger / box inclusion (is the original charger or box shown?)\n"
+            "- Arabic text (مستعمل, etc.)\n"
+            "- French text (afficheur, écran inconnu, pièces et réparation, etc.)\n"
+            "- Repair / parts warnings, serial or config text\n"
+        )
+    else:
+        inspect_cues = (
+            "- Main product (phone or box in center)\n"
+            "- Black overlay text (white/red text on dark background)\n"
+            "- Circular/square inset images (iOS settings, battery, repair info)\n"
+            "- Arabic text (مستعمل, etc.)\n"
+            "- French text (afficheur, écran inconnu, pièces et réparation, etc.)\n"
+            "- iOS parts/repair screens\n"
+            "- Battery cycles, price text, SIM/storage text\n"
+        )
     return (
-        "You are inspecting a phone listing image and its metadata.\n"
+        f"You are inspecting a {device_word} listing image and its metadata.\n"
         "Your job is simple:\n"
         "1. Check if the current metadata matches what the image shows.\n"
         "2. Extract ALL visible text from the image.\n"
@@ -163,23 +191,16 @@ def _build_inspect_prompt(deal):
         "  mark model_correct = true. Do NOT question whether the model exists.\n"
         "- Do NOT use world knowledge about release dates or whether a model is real.\n"
         "- Only flag mismatch if the image text clearly shows a DIFFERENT model/storage/brand.\n\n"
-        "Inspect ALL parts of the image:\n"
-        "- Main product (phone or box in center)\n"
-        "- Black overlay text (white/red text on dark background)\n"
-        "- Circular/square inset images (iOS settings, battery, repair info)\n"
-        "- Arabic text (مستعمل, etc.)\n"
-        "- French text (afficheur, écran inconnu, pièces et réparation, etc.)\n"
-        "- iOS parts/repair screens\n"
-        "- Battery cycles, price text, SIM/storage text\n\n"
+        f"Inspect ALL parts of the image:\n{inspect_cues}\n"
         "HOW TO DETERMINE CONDITION_CLASS:\n"
         "A) If the image has overlay text / listing text / inset screenshots with repair info:\n"
         "   Use that text to classify. Look for: Afficheur, Écran inconnu, Pièces et réparation,\n"
         "   screen replaced, non-original, cracked, demo, مستعمل (used), sealed, new, etc.\n"
         "   BUT ALSO look at the actual device in the image — text alone is not enough.\n"
         "   If text says one thing but the device looks different, trust what you SEE.\n\n"
-        "B) If the image has NO overlay text (just a photo of a phone or box):\n"
+        f"B) If the image has NO overlay text (just a photo of a {device_word} or box):\n"
         "   - ONLY a box visible, NO device out of the box? = brand_new_closed_box. ALWAYS.\n"
-        "     A box with no device visible means the phone is still inside. This is sealed/new.\n"
+        f"     A box with no device visible means the {device_word} is still inside. This is sealed/new.\n"
         "   - Device out of box, looks clean? = used_clean\n"
         "   - Device with visible wear, scratches, cracks? = used_repaired_or_needs_repair\n"
         "   - Stock photo / product render where real condition cannot be determined? = unknown\n\n"
@@ -314,7 +335,7 @@ def _parse_inspect_result(raw_text):
 
 # ── Public entry point ──────────────────────────────────────────────────────
 
-def inspect_listing_metadata_and_condition(deal, image_bytes=None, mime_type=None):
+def inspect_listing_metadata_and_condition(deal, image_bytes=None, mime_type=None, product_type="phone"):
     """Inspect listing image + metadata. Returns (result_dict, error_string|None).
 
     The result_dict contains:
@@ -323,8 +344,10 @@ def inspect_listing_metadata_and_condition(deal, image_bytes=None, mime_type=Non
       - condition_class: one of brand_new_closed_box, used_clean, used_repaired_or_needs_repair, unknown
       - condition_note: short human-readable explanation
       - confidence: 0-100
+
+    product_type is "phone" or "laptop" and only adjusts inspection cues.
     """
-    prompt = _build_inspect_prompt(deal)
+    prompt = _build_inspect_prompt(deal, product_type=product_type)
     raw_text, error = _call_nvidia_vision(prompt, image_bytes, mime_type, max_tokens=4096)
     if error:
         return None, error
