@@ -1,4 +1,13 @@
 # Changelog
+## 2026-07-08
+
+- Added `ListingConditionAudit` model with condition_class, verdict, confidence, red_flags, vision fields, and admin registration.
+- Added `classify_condition_class()` and `save_condition_audit()` to deal_sanity for automated condition classification.
+- Added `--write` flag to audit_deals_with_llm to persist ListingConditionAudit records.
+- Added `--require-clean-condition` flag to run_opportunity_analysis and recompute_deal_snapshots.
+- Added condition badge (Turkish label) and filter pills to deals swiper UI.
+- Optimized deal queries with select_related for condition_audit.
+
 
 ## 2026-07-07
 
