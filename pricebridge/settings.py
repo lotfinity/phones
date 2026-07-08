@@ -173,7 +173,7 @@ NVIDIA_VISION_ENDPOINT = os.environ.get(
     "NVIDIA_VISION_ENDPOINT",
     "https://integrate.api.nvidia.com/v1/chat/completions",
 )
-NVIDIA_VISION_MODEL = os.environ.get("NVIDIA_VISION_MODEL", "meta/llama-3.2-11b-vision-instruct")
+NVIDIA_VISION_MODEL = os.environ.get("NVIDIA_VISION_MODEL", "nvidia/nemotron-nano-12b-v2-vl")
 CHROME_CDP_ENDPOINT = os.environ.get("CHROME_CDP_ENDPOINT", "http://127.0.0.1:9222")
 
 # Editable local defaults. Algeria calculations primarily use DZD -> EUR.
