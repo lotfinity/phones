@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Quality · PriceBridge</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    .issue-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--space-3); margin-bottom: var(--space-6); }
+    .issue-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      cursor: pointer;
+      transition: border-color var(--motion-fast) var(--ease-standard);
+    }
+    .issue-card:hover { border-color: var(--border-light); }
+    .issue-card.active { border-color: var(--accent); background: var(--accent-soft); }
+    .issue-card .issue-count {
+      font-family: var(--font-mono);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+    }
+    .issue-card .issue-label { font-size: var(--text-sm); color: var(--muted); }
+    .bulk-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-4);
+    }
+    .bulk-bar .selected-count { font-size: var(--text-sm); color: var(--muted); }
+    .review-row {
+      display: grid;
+      grid-template-columns: 40px 2fr 1fr 1fr 1fr 120px;
+      gap: var(--space-3);
+      align-items: center;
+      padding: var(--space-3) var(--space-4);
+      border-bottom: 1px solid var(--border);
+      font-size: var(--text-sm);
+    }
+    .review-row:hover { background: var(--surface-hover); }
+    .review-row:last-child { border-bottom: none; }
+    .suggestion-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      background: rgba(6, 182, 212, 0.06);
+      border: 1px solid rgba(6, 182, 212, 0.15);
+      border-radius: var(--radius-md);
+      margin-top: var(--space-2);
+    }
+    .suggestion-card .suggestion-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: var(--radius-sm);
+      background: var(--info-soft);
+      display: grid;
+      place-items: center;
+      color: var(--info);
+      flex-shrink: 0;
+    }
+    .suggestion-card .suggestion-text { font-size: var(--text-sm); flex: 1; }
+    .suggestion-card .suggestion-conf {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--info);
+      font-weight: 600;
+    }
+    .quality-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 60px;
+      padding: var(--space-4);
+    }
+    .quality-chart-bar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      transition: height 0.3s ease;
+    }
+    @media (max-width: 1024px) {
+      .issue-grid { grid-template-columns: repeat(3, 1fr); }
+      .review-row { grid-template-columns: 1fr; gap: var(--space-2); }
+      .review-row > :first-child { display: none; }
+    }
+    @media (max-width: 640px) {
+      .issue-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <span class="brand-text">PriceBridge</span>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Trading</div>
+        <a href="opportunities.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Opportunities
+        </a>
+        <a href="deals.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Deals by Brand
+        </a>
+        <a href="opportunity-detail.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Detail View
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Data</div>
+        <a href="listings.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          All Listings
+          <span class="nav-badge">24</span>
+        </a>
+        <a href="data-quality.html" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Data Quality
+          <span class="nav-badge">18</span>
+        </a>
+        <a href="sources.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Sources
+        </a>
+      </div>
+      <div class="sidebar-section" style="margin-top:auto;padding-top:var(--space-4);border-top:1px solid var(--border);">
+        <a href="index.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          All Screens
+        </a>
+      </div>
+    </aside>
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="mobile-brand">PriceBridge</span>
+        <div class="topbar-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" placeholder="Search listings..." />
+        </div>
+      </div>
+      <div class="topbar-right">
+        <select class="currency-select"><option>EUR</option><option>USD</option><option>TRY</option><option>DZD</option></select>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+        <div class="user-avatar">TR</div>
+      </div>
+    </header>
+
+    <main class="main-content" data-od-id="quality-page">
+      <div class="section-header">
+        <div>
+          <h1 class="h2">Data Quality</h1>
+          <p class="section-subtitle">Review queue · 18 items need attention</p>
+        </div>
+        <div style="display:flex;gap:var(--space-2);">
+          <button class="btn btn-primary btn-sm">Auto-fix all suggestions</button>
+          <button class="btn btn-secondary btn-sm">Export report</button>
+        </div>
+      </div>
+
+      <!-- Issue summary cards -->
+      <div class="issue-grid" data-od-id="issue-cards">
+        <div class="issue-card active" data-issue="needs-review">
+          <span class="issue-count" style="color:var(--warn)">18</span>
+          <span class="issue-label">Needs review</span>
+          <div class="confidence-bar"><div class="confidence-bar-fill medium" style="width:36%"></div></div>
+        </div>
+        <div class="issue-card" data-issue="missing-model">
+          <span class="issue-count" style="color:var(--danger)">6</span>
+          <span class="issue-label">Missing model</span>
+          <div class="confidence-bar"><div class="confidence-bar-fill low" style="width:12%"></div></div>
+        </div>
+        <div class="issue-card" data-issue="missing-storage">
+          <span class="issue-count" style="color:var(--danger)">4</span>
+          <span class="issue-label">Missing storage</span>
+          <div class="confidence-bar"><div class="confidence-bar-fill low" style="width:8%"></div></div>
+        </div>
+        <div class="issue-card" data-issue="missing-price">
+          <span class="issue-count" style="color:var(--danger)">5</span>
+          <span class="issue-label">Missing price</span>
+          <div class="confidence-bar"><div class="confidence-bar-fill low" style="width:10%"></div></div>
+        </div>
+        <div class="issue-card" data-issue="no-image">
+          <span class="issue-count" style="color:var(--muted)">3</span>
+          <span class="issue-label">No image</span>
+          <div class="confidence-bar"><div class="confidence-bar-fill low" style="width:6%"></div></div>
+        </div>
+      </div>
+
+      <!-- Quality trend chart -->
+      <div class="card" style="margin-bottom:var(--space-6);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-4);">
+          <div>
+            <div class="h5">Quality trend</div>
+            <div class="tiny">Issues per day over the last 14 days</div>
+          </div>
+          <div style="display:flex;gap:var(--space-4);">
+            <span class="tiny" style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--danger);display:inline-block;"></span> Critical</span>
+            <span class="tiny" style="display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:2px;background:var(--warn);display:inline-block;"></span> Warning</span>
+          </div>
+        </div>
+        <div class="quality-chart">
+          <div class="quality-chart-bar" style="height:45%;background:var(--warn);"></div>
+          <div class="quality-chart-bar" style="height:30%;background:var(--danger);"></div>
+          <div class="quality-chart-bar" style="height:55%;background:var(--warn);"></div>
+          <div class="quality-chart-bar" style="height:25%;background:var(--danger);"></div>
+          <div class="quality-chart-bar" style="height:40%;background:var(--warn);"></div>
+          <div class="quality-chart-bar" style="height:60%;background:var(--warn);"></div>
+          <div class="quality-chart-bar" style="height:35%;background:var(--danger);"></div>
+          <div class="quality-chart-bar" style="height:50%;background:var(--warn);"></div>
+          <div class="quality-chart-bar" style="height:20%;background:var(--danger);"></div>
+          <div class="quality-chart-bar" style="height:65%;background:var(--warn);"></div>
+          <div class="quality-chart-bar" style="height:45%;background:var(--danger);"></div>
+          <div class="quality-chart-bar" style="height:30%;background:var(--warn);"></div>
+          <div class="quality-chart-bar" style="height:55%;background:var(--warn);"></div>
+          <div class="quality-chart-bar" style="height:36%;background:var(--danger);"></div>
+        </div>
+      </div>
+
+      <!-- Bulk actions -->
+      <div class="bulk-bar" id="bulkBar" style="display:none;">
+        <input type="checkbox" id="selectAll" style="accent-color:var(--accent);" />
+        <span class="selected-count"><strong id="selectedCount">0</strong> selected</span>
+        <button class="btn btn-sm btn-secondary">Apply suggestions</button>
+        <button class="btn btn-sm btn-secondary">Assign storage</button>
+        <button class="btn btn-sm btn-danger">Reject</button>
+        <button class="btn btn-sm btn-danger">Delete</button>
+      </div>
+
+      <!-- Review table -->
+      <div class="table-wrap" data-od-id="review-table">
+        <table class="ds-table">
+          <thead>
+            <tr>
+              <th style="width:40px;"><input type="checkbox" id="tableSelectAll" style="accent-color:var(--accent);" /></th>
+              <th>Product</th>
+              <th>Source</th>
+              <th>Issue</th>
+              <th>Suggestion</th>
+              <th>Status</th>
+              <th style="width:100px;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" class="row-select" style="accent-color:var(--accent);" /></td>
+              <td>
+                <div style="font-weight:500;">iPhone 15 Pro Max 256GB</div>
+                <div class="tiny">IG · Posted 3h ago</div>
+              </td>
+              <td><span class="src-badge src-ig">IG</span></td>
+              <td><span class="badge badge-warn">Missing storage</span></td>
+              <td>
+                <div class="suggestion-card">
+                  <div class="suggestion-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  </div>
+                  <span class="suggestion-text">256GB</span>
+                  <span class="suggestion-conf">94%</span>
+                </div>
+              </td>
+              <td><span class="badge badge-warn">Needs review</span></td>
+              <td>
+                <button class="btn btn-sm btn-primary">Apply</button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="row-select" style="accent-color:var(--accent);" /></td>
+              <td>
+                <div style="font-weight:500;">Samsung Galaxy S24 FE</div>
+                <div class="tiny">OK · Posted 6h ago</div>
+              </td>
+              <td><span class="src-badge src-ok">OK</span></td>
+              <td><span class="badge badge-danger">Missing model</span></td>
+              <td>
+                <div class="suggestion-card">
+                  <div class="suggestion-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  </div>
+                  <span class="suggestion-text">Samsung Galaxy S24 FE 128GB</span>
+                  <span class="suggestion-conf">87%</span>
+                </div>
+              </td>
+              <td><span class="badge badge-warn">Needs review</span></td>
+              <td>
+                <button class="btn btn-sm btn-primary">Apply</button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="row-select" style="accent-color:var(--accent);" /></td>
+              <td>
+                <div style="font-weight:500;">Redmi Note 14 Pro</div>
+                <div class="tiny">IG · Posted 1d ago</div>
+              </td>
+              <td><span class="src-badge src-ig">IG</span></td>
+              <td><span class="badge badge-danger">Missing price</span></td>
+              <td>
+                <div class="suggestion-card">
+                  <div class="suggestion-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  </div>
+                  <span class="suggestion-text">~€185 (from similar listings)</span>
+                  <span class="suggestion-conf">72%</span>
+                </div>
+              </td>
+              <td><span class="badge badge-warn">Needs review</span></td>
+              <td>
+                <button class="btn btn-sm btn-primary">Apply</button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="row-select" style="accent-color:var(--accent);" /></td>
+              <td>
+                <div style="font-weight:500;">Xiaomi 17T Pro 512GB</div>
+                <div class="tiny">OK · Posted 2d ago</div>
+              </td>
+              <td><span class="src-badge src-ok">OK</span></td>
+              <td><span class="badge badge-neutral">No image</span></td>
+              <td>
+                <div class="suggestion-card">
+                  <div class="suggestion-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  </div>
+                  <span class="suggestion-text">Auto-fetch from listing URL</span>
+                  <span class="suggestion-conf">89%</span>
+                </div>
+              </td>
+              <td><span class="badge badge-warn">Needs review</span></td>
+              <td>
+                <button class="btn btn-sm btn-primary">Apply</button>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" class="row-select" style="accent-color:var(--accent);" /></td>
+              <td>
+                <div style="font-weight:500;">Poco F6 Pro 256GB</div>
+                <div class="tiny">IG · Posted 3d ago</div>
+              </td>
+              <td><span class="src-badge src-ig">IG</span></td>
+              <td><span class="badge badge-warn">Unknown condition</span></td>
+              <td>
+                <div class="suggestion-card">
+                  <div class="suggestion-icon">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 16v-4M12 8h.01"/></svg>
+                  </div>
+                  <span class="suggestion-text">New (from listing text)</span>
+                  <span class="suggestion-conf">91%</span>
+                </div>
+              </td>
+              <td><span class="badge badge-warn">Needs review</span></td>
+              <td>
+                <button class="btn btn-sm btn-primary">Apply</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <nav class="bottomnav">
+      <div class="bottomnav-inner">
+        <a href="opportunities.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Opps
+        </a>
+        <a href="deals.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Deals
+        </a>
+        <a href="listings.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Listings
+        </a>
+        <a href="data-quality.html" class="bottomnav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Quality
+        </a>
+        <a href="sources.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Sources
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.querySelector('.icon-sun').style.display = next === 'dark' ? 'block' : 'none';
+      document.querySelector('.icon-moon').style.display = next === 'light' ? 'block' : 'none';
+    }
+
+    // Issue card filtering
+    document.querySelectorAll('.issue-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.issue-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+      });
+    });
+
+    // Select all checkbox
+    const selectAll = document.getElementById('tableSelectAll');
+    const bulkBar = document.getElementById('bulkBar');
+    const selectedCount = document.getElementById('selectedCount');
+
+    selectAll.addEventListener('change', () => {
+      document.querySelectorAll('.row-select').forEach(cb => {
+        cb.checked = selectAll.checked;
+      });
+      updateBulkBar();
+    });
+
+    document.querySelectorAll('.row-select').forEach(cb => {
+      cb.addEventListener('change', updateBulkBar);
+    });
+
+    function updateBulkBar() {
+      const count = document.querySelectorAll('.row-select:checked').length;
+      selectedCount.textContent = count;
+      bulkBar.style.display = count > 0 ? 'flex' : 'none';
+    }
+  </script>
+</body>
+</html>

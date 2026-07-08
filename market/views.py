@@ -15,6 +15,9 @@ from django.utils import translation
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
 
+from market.services.brand_logos import brand_initial as _brand_initial
+from market.services.brand_logos import brand_logo_url as _brand_logo_url
+
 from market.models import (
     Brand,
     Condition,
@@ -536,6 +539,7 @@ def listing_display_rows(listings):
     rows = []
     for item in listings:
         category_slug = item.product_model.category.slug if item.product_model and item.product_model.category else ""
+        brand_name = item.product_model.brand.name if item.product_model and item.product_model.brand else ""
         rows.append(
             {
                 "item": item,
@@ -560,6 +564,9 @@ def listing_display_rows(listings):
                 "condition_label": item.get_condition_display(),
                 "observed_at": item.observed_at,
                 "image_url": listing_image_url(item),
+                "brand": brand_name or "Unknown",
+                "brand_logo_url": _brand_logo_url(brand_name),
+                "brand_initial": _brand_initial(brand_name or item.title_raw),
             }
         )
     return rows
@@ -568,6 +575,7 @@ def listing_display_rows(listings):
 def supplier_display_rows(supplier_prices):
     rows = []
     for item in supplier_prices:
+        brand_name = item.product_model.brand.name if item.product_model and item.product_model.brand else ""
         rows.append(
             {
                 "item": item,
@@ -591,6 +599,9 @@ def supplier_display_rows(supplier_prices):
                 "condition_label": item.get_condition_display(),
                 "observed_at": item.created_at,
                 "image_url": "",
+                "brand": brand_name or "Unknown",
+                "brand_logo_url": _brand_logo_url(brand_name),
+                "brand_initial": _brand_initial(brand_name or item.raw_text),
             }
         )
     return rows
@@ -647,10 +658,13 @@ def build_opportunity_rows(opportunities, tab, selected_currency="EUR", show_int
             active_margin = item.margin_percent
             active_gross = item.gross_margin_vs_sahibinden_eur
         cat_obj = getattr(item.product_model, 'category', None)
+        brand_name = item.product_model.brand.name if item.product_model.brand else "Unknown"
         rows.append(
             {
                 "item": item,
-                "brand": item.product_model.brand.name if item.product_model.brand else "Unknown",
+                "brand": brand_name,
+                "brand_logo_url": _brand_logo_url(brand_name),
+                "brand_initial": _brand_initial(brand_name),
                 "category_name": cat_obj.name if cat_obj else "",
                 "category_slug": cat_obj.slug if cat_obj else "",
                 "image_url": listing_image_url(
@@ -803,6 +817,8 @@ def _compute_source_rows(algeria_source_types, rec_filter, min_confidence, min_m
             "item": item,
             "is_source_row": True,
             "brand": pm.brand.name if pm.brand else "Unknown",
+            "brand_logo_url": _brand_logo_url(pm.brand.name if pm.brand else ""),
+            "brand_initial": _brand_initial(pm.brand.name if pm.brand else pm.canonical_name),
             "image_url": listing_image_url(
                 representative_listing(pm, storage_gb, country=Country.ALGERIA)
                 or representative_listing(pm, storage_gb, country=Country.TURKIYE)
@@ -1393,6 +1409,8 @@ def _compute_all_deals():
             "id": listing.id,
             "brand": brand,
             "model": pm.canonical_name,
+            "brand_logo_url": _brand_logo_url(brand),
+            "brand_initial": _brand_initial(brand),
             "storage_gb": storage,
             "title": listing.title_raw or f"{pm.canonical_name} {storage or ''}GB".strip(),
             "price_original": listing.price_original,
@@ -1477,6 +1495,9 @@ def _deal_to_json(d):
     return {
         "id": _val("id"),
         "model": _val("model_name") or _val("model"),
+        "brand": _val("brand_name") or _val("brand") or "",
+        "brand_logo_url": _brand_logo_url(_val("brand_name") or _val("brand") or ""),
+        "brand_initial": _brand_initial(_val("brand_name") or _val("brand") or _val("model_name") or _val("model") or ""),
         "storage_gb": _val("storage_gb"),
         "title": _val("title"),
         "price_original": _float("price_original"),
@@ -1508,6 +1529,8 @@ def _snapshot_to_dict(snap):
         "id": snap.id,
         "brand": snap.brand_name,
         "model": snap.model_name,
+        "brand_logo_url": _brand_logo_url(snap.brand_name),
+        "brand_initial": _brand_initial(snap.brand_name),
         "storage_gb": snap.storage_gb,
         "title": snap.title,
         "price_original": snap.price_original,

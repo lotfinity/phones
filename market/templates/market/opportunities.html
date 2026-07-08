@@ -1,5 +1,5 @@
 {% extends "market/base.html" %}
-{% load static i18n %}
+{% load static i18n brand_logos %}
 
 {% block title %}PriceBridge — {% trans "Opportunities" %}{% endblock %}
 {% block crumb %}{% trans "Opportunities" %}{% endblock %}
@@ -90,8 +90,14 @@
         class="best-deal-name"
         data-opportunity-modal
       >{{ best_opportunity.item.product_model }}</a>
-      <div class="best-deal-meta">
-        {{ best_opportunity.brand }}{% if best_opportunity.item.storage_gb %} / {{ best_opportunity.item.storage_gb }}GB{% endif %}
+      <div class="best-deal-meta brand-name-line">
+        <span class="brand-logo-wrap brand-logo-sm">
+          {% if best_opportunity.brand_logo_url %}
+            <img class="brand-logo-img" src="{{ best_opportunity.brand_logo_url }}" alt="{{ best_opportunity.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+          {% endif %}
+          <span class="brand-logo-fallback">{{ best_opportunity.brand_initial }}</span>
+        </span>
+        <span>{{ best_opportunity.brand }}{% if best_opportunity.item.storage_gb %} / {{ best_opportunity.item.storage_gb }}GB{% endif %}</span>
       </div>
     </div>
     <div class="best-deal-numbers">
@@ -133,7 +139,15 @@
                 {% endif %}>{{ row.item.product_model }}</span>
               </div>
               <div class="card-meta-row mt-1">
-                <span class="brand-chip">{{ row.brand }}</span>
+                <span class="brand-chip brand-name-line">
+                  <span class="brand-logo-wrap brand-logo-sm">
+                    {% if row.brand_logo_url %}
+                      <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+                    {% endif %}
+                    <span class="brand-logo-fallback">{{ row.brand_initial }}</span>
+                  </span>
+                  <span>{{ row.brand }}</span>
+                </span>
                 {% if row.category_slug %}
                   <span class="cat-chip cat-{{ row.category_slug }}">
                     {% if row.category_slug == 'laptops' %}
@@ -346,7 +360,15 @@
                         >{{ row.item.product_model }}</span>
                       </a>
                     {% endif %}
-                    <div class="text-xs text-slate-500 dark:text-slate-400">{{ row.brand }}</div>
+                    <div class="text-xs text-slate-500 dark:text-slate-400 brand-name-line">
+                      <span class="brand-logo-wrap brand-logo-sm">
+                        {% if row.brand_logo_url %}
+                          <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+                        {% endif %}
+                        <span class="brand-logo-fallback">{{ row.brand_initial }}</span>
+                      </span>
+                      <span>{{ row.brand }}</span>
+                    </div>
                   </span>
                 </div>
               </td>

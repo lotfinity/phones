@@ -1,5 +1,5 @@
 {% extends "market/base.html" %}
-{% load i18n %}
+{% load i18n brand_logos %}
 {% block title %}PriceBridge - {{ opportunity.product_model }}{% endblock %}
 {% block crumb %}{% trans "Opportunity Detail" %}{% endblock %}
 {% block header_actions %}
@@ -56,10 +56,18 @@
           data-inline-id="{{ opportunity.product_model.id }}"
         >{{ opportunity.product_model }}</span>
       </h1>
-      <p class="page-desc">
-        {{ brand }}
-        {% if storage %} / {{ spec_label }} {{ storage }}GB{% endif %}
-        {% if opportunity.sim_config %} / {{ opportunity.sim_config }}{% endif %}
+      <p class="page-desc brand-name-line">
+        <span class="brand-logo-wrap">
+          {% if brand|brand_logo_url %}
+            <img class="brand-logo-img" src="{{ brand|brand_logo_url }}" alt="{{ brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+          {% endif %}
+          <span class="brand-logo-fallback">{{ brand|brand_initial }}</span>
+        </span>
+        <span>
+          {{ brand }}
+          {% if storage %} / {{ spec_label }} {{ storage }}GB{% endif %}
+          {% if opportunity.sim_config %} / {{ opportunity.sim_config }}{% endif %}
+        </span>
       </p>
     </div>
   </section>

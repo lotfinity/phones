@@ -916,4 +916,41 @@
 .dark .opp-tab.active .cat-icon {
   @apply bg-white/15 text-white;
 }
+
+.brand-logo-wrap {
+  @apply inline-flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white text-[11px] font-bold uppercase text-slate-500 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300;
+}
+
+.brand-logo-img {
+  @apply h-4 w-4 object-contain;
+}
+
+.brand-logo-fallback {
+  @apply hidden;
+}
+
+.brand-logo-wrap:not(:has(img)) .brand-logo-fallback,
+.brand-logo-wrap.brand-logo-fallback-visible .brand-logo-fallback {
+  @apply inline-flex;
+}
+
+.brand-logo-sm {
+  @apply h-6 w-6 rounded-md;
+}
+
+.brand-logo-sm .brand-logo-img {
+  @apply h-3.5 w-3.5;
+}
+
+.brand-logo-lg {
+  @apply h-10 w-10 rounded-xl;
+}
+
+.brand-logo-lg .brand-logo-img {
+  @apply h-6 w-6;
+}
+
+.brand-name-line {
+  @apply inline-flex min-w-0 items-center gap-2;
+}
 }

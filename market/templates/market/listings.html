@@ -1,5 +1,5 @@
 {% extends "market/base.html" %}
-{% load static i18n %}
+{% load static i18n brand_logos %}
 
 {% block title %}PriceBridge — {% trans "Listings Review" %}{% endblock %}
 {% block crumb %}{% trans "Listings Review" %}{% endblock %}
@@ -154,8 +154,14 @@
           <div class="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
             <div>
               <div class="font-mono text-[11px] uppercase text-slate-500">{% trans "Product" %}</div>
-              <div class="break-words">
+              <div class="break-words brand-name-line">
                 {% if row.item.product_model %}
+                  <span class="brand-logo-wrap brand-logo-sm">
+                    {% if row.brand_logo_url %}
+                      <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+                    {% endif %}
+                    <span class="brand-logo-fallback">{{ row.brand_initial }}</span>
+                  </span>
                   <span
                     data-inline-field="canonical_name"
                     data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
@@ -302,15 +308,23 @@
             {% endif %}
           </td>
           <td class="max-w-52 whitespace-normal">
-            {% if row.item.product_model %}
-              <span
-                data-inline-field="canonical_name"
-                data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
-                data-inline-id="{{ row.item.product_model.id }}"
-              >{{ row.item.product_model }}</span>
-            {% else %}
-              {{ row.product_label }}
-            {% endif %}
+            <div class="brand-name-line">
+              <span class="brand-logo-wrap brand-logo-sm">
+                {% if row.brand_logo_url %}
+                  <img class="brand-logo-img" src="{{ row.brand_logo_url }}" alt="{{ row.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+                {% endif %}
+                <span class="brand-logo-fallback">{{ row.brand_initial }}</span>
+              </span>
+              {% if row.item.product_model %}
+                <span
+                  data-inline-field="canonical_name"
+                  data-inline-api="{% url 'inline_edit_api' 'product-models' %}"
+                  data-inline-id="{{ row.item.product_model.id }}"
+                >{{ row.item.product_model }}</span>
+              {% else %}
+                {{ row.product_label }}
+              {% endif %}
+            </div>
           </td>
           <td class="max-w-40 whitespace-normal">
             {% if row.is_supplier %}

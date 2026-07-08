@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Opportunities · PriceBridge</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    .filter-section { margin-bottom: var(--space-5); }
+    .opp-list { display: flex; flex-direction: column; gap: var(--space-4); }
+    .opp-card-right { display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2); min-width: 120px; }
+    .opp-card-right .margin-badge {
+      font-family: var(--font-mono);
+      font-size: var(--text-xl);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .opp-card-right .margin-badge.positive { color: var(--success); }
+    .opp-card-right .margin-badge.neutral { color: var(--warn); }
+    .opp-card-right .margin-badge.negative { color: var(--danger); }
+    .source-badges { display: flex; gap: 4px; flex-wrap: wrap; }
+    .review-strip {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-3) var(--space-4);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-5);
+      font-size: var(--text-sm);
+    }
+    .review-strip .stat-item { display: flex; align-items: center; gap: var(--space-2); }
+    .review-strip .stat-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .chart-mini {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 40px;
+    }
+    .chart-mini-bar {
+      width: 6px;
+      border-radius: 2px;
+      background: var(--accent-soft);
+      transition: height 0.3s ease;
+    }
+    .chart-mini-bar:nth-child(odd) { background: var(--accent); opacity: 0.6; }
+    .chart-mini-bar:nth-child(even) { background: var(--accent); opacity: 0.3; }
+    .brand-icon-sm {
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-xs);
+      display: inline-grid;
+      place-items: center;
+      background: var(--surface-hover);
+      overflow: hidden;
+    }
+    .brand-icon-sm img { width: 14px; height: 14px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <span class="brand-text">PriceBridge</span>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Trading</div>
+        <a href="opportunities.html" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Opportunities
+        </a>
+        <a href="deals.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Deals by Brand
+        </a>
+        <a href="opportunity-detail.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Detail View
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Data</div>
+        <a href="listings.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          All Listings
+          <span class="nav-badge">24</span>
+        </a>
+        <a href="data-quality.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Data Quality
+          <span class="nav-badge">18</span>
+        </a>
+        <a href="sources.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Sources
+        </a>
+      </div>
+      <div class="sidebar-section" style="margin-top:auto;padding-top:var(--space-4);border-top:1px solid var(--border);">
+        <a href="index.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          All Screens
+        </a>
+      </div>
+    </aside>
+
+    <!-- Topbar -->
+    <header class="topbar" data-od-id="topbar">
+      <div class="topbar-left">
+        <span class="mobile-brand">PriceBridge</span>
+        <div class="topbar-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" placeholder="Search models, brands..." />
+          <kbd>/</kbd>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="fx-strip">
+          <div class="fx-rate">
+            <span class="fx-label">EUR/USD</span>
+            <span class="fx-value">1.0842</span>
+          </div>
+          <div class="fx-rate">
+            <span class="fx-label">EUR/DZD</span>
+            <span class="fx-value">145.30</span>
+          </div>
+          <div class="fx-rate">
+            <span class="fx-label">EUR/TRY</span>
+            <span class="fx-value">38.15</span>
+          </div>
+        </div>
+        <select class="currency-select" id="currencySelect">
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+          <option value="TRY">TRY</option>
+          <option value="DZD">DZD</option>
+        </select>
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+        <div class="user-avatar">TR</div>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="main-content" data-od-id="main">
+      <!-- Review strip -->
+      <div class="review-strip">
+        <div class="stat-item">
+          <span class="stat-dot" style="background:var(--review-auto)"></span>
+          <span>Auto: <strong class="num">186</strong></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-dot" style="background:var(--review-approved)"></span>
+          <span>Approved: <strong class="num">32</strong></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-dot" style="background:var(--review-needs)"></span>
+          <span>Needs review: <strong class="num">24</strong></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-dot" style="background:var(--review-rejected)"></span>
+          <span>Rejected: <strong class="num">6</strong></span>
+        </div>
+      </div>
+
+      <!-- KPI Grid -->
+      <div class="kpi-grid" style="margin-bottom:var(--space-6);" data-od-id="kpis">
+        <div class="kpi-card">
+          <span class="kpi-label">Total Opportunities</span>
+          <span class="kpi-value">248</span>
+          <span class="kpi-change positive">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +12 this week
+          </span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Strong Deals</span>
+          <span class="kpi-value" style="color:var(--success)">41</span>
+          <span class="kpi-change positive">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+            +5 vs last week
+          </span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Avg Margin</span>
+          <span class="kpi-value num">18.4%</span>
+          <span class="kpi-change neutral">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            stable
+          </span>
+        </div>
+        <div class="kpi-card">
+          <span class="kpi-label">Needs Review</span>
+          <span class="kpi-value" style="color:var(--warn)">24</span>
+          <span class="kpi-change negative">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/></svg>
+            +3 new
+          </span>
+        </div>
+      </div>
+
+      <!-- Sparkline row -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--space-4);margin-bottom:var(--space-6);">
+        <div class="card" style="padding:var(--space-4);">
+          <div class="tiny" style="margin-bottom:var(--space-2);">7-day margin trend</div>
+          <div class="chart-mini">
+            <div class="chart-mini-bar" style="height:50%"></div>
+            <div class="chart-mini-bar" style="height:65%"></div>
+            <div class="chart-mini-bar" style="height:45%"></div>
+            <div class="chart-mini-bar" style="height:80%"></div>
+            <div class="chart-mini-bar" style="height:70%"></div>
+            <div class="chart-mini-bar" style="height:55%"></div>
+            <div class="chart-mini-bar" style="height:90%"></div>
+          </div>
+        </div>
+        <div class="card" style="padding:var(--space-4);">
+          <div class="tiny" style="margin-bottom:var(--space-2);">Algeria listings/day</div>
+          <div class="chart-mini">
+            <div class="chart-mini-bar" style="height:30%"></div>
+            <div class="chart-mini-bar" style="height:45%"></div>
+            <div class="chart-mini-bar" style="height:60%"></div>
+            <div class="chart-mini-bar" style="height:40%"></div>
+            <div class="chart-mini-bar" style="height:75%"></div>
+            <div class="chart-mini-bar" style="height:55%"></div>
+            <div class="chart-mini-bar" style="height:85%"></div>
+          </div>
+        </div>
+        <div class="card" style="padding:var(--space-4);">
+          <div class="tiny" style="margin-bottom:var(--space-2);">Strong deal ratio</div>
+          <div class="chart-mini">
+            <div class="chart-mini-bar" style="height:40%"></div>
+            <div class="chart-mini-bar" style="height:50%"></div>
+            <div class="chart-mini-bar" style="height:55%"></div>
+            <div class="chart-mini-bar" style="height:60%"></div>
+            <div class="chart-mini-bar" style="height:65%"></div>
+            <div class="chart-mini-bar" style="height:70%"></div>
+            <div class="chart-mini-bar" style="height:68%"></div>
+          </div>
+        </div>
+        <div class="card" style="padding:var(--space-4);">
+          <div class="tiny" style="margin-bottom:var(--space-2);">Data quality score</div>
+          <div class="chart-mini">
+            <div class="chart-mini-bar" style="height:70%"></div>
+            <div class="chart-mini-bar" style="height:75%"></div>
+            <div class="chart-mini-bar" style="height:80%"></div>
+            <div class="chart-mini-bar" style="height:78%"></div>
+            <div class="chart-mini-bar" style="height:85%"></div>
+            <div class="chart-mini-bar" style="height:82%"></div>
+            <div class="chart-mini-bar" style="height:88%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="filter-section" data-od-id="filters">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Opportunities</h2>
+            <p class="section-subtitle">Sorted by gross margin · 248 results</p>
+          </div>
+          <div class="chip-row">
+            <button class="chip active" data-filter="all">All</button>
+            <button class="chip" data-filter="strong">
+              <span class="quality-dot strong"></span> Strong
+            </button>
+            <button class="chip" data-filter="medium">
+              <span class="quality-dot medium"></span> Medium
+            </button>
+            <button class="chip" data-filter="weak">
+              <span class="quality-dot weak"></span> Weak
+            </button>
+          </div>
+        </div>
+        <div class="chip-row" style="margin-top:var(--space-3);">
+          <button class="chip" data-brand="Apple">
+            <span class="brand-icon-sm"><img src="https://cdn.simpleicons.org/apple/ffffff" alt="" /></span>
+            Apple
+          </button>
+          <button class="chip" data-brand="Samsung">
+            <span class="brand-icon-sm"><img src="https://cdn.simpleicons.org/samsung/ffffff" alt="" /></span>
+            Samsung
+          </button>
+          <button class="chip" data-brand="Xiaomi">
+            <span class="brand-icon-sm"><img src="https://cdn.simpleicons.org/xiaomi/ffffff" alt="" /></span>
+            Xiaomi
+          </button>
+          <button class="chip" data-brand="Lenovo">
+            <span class="brand-icon-sm"><img src="https://cdn.simpleicons.org/lenovo/ffffff" alt="" /></span>
+            Lenovo
+          </button>
+          <button class="chip" data-brand="Meta">
+            <span class="brand-icon-sm"><img src="https://cdn.simpleicons.org/meta/ffffff" alt="" /></span>
+            Meta
+          </button>
+          <button class="chip" data-brand="Canon">
+            <span class="brand-icon-sm"><img src="https://cdn.simpleicons.org/canon/ffffff" alt="" /></span>
+            Canon
+          </button>
+          <button class="chip" data-source="IG">
+            <span class="src-badge src-ig">IG</span>
+          </button>
+          <button class="chip" data-source="OK">
+            <span class="src-badge src-ok">OK</span>
+          </button>
+          <button class="chip" data-source="SH">
+            <span class="src-badge src-sh">SH</span>
+          </button>
+          <button class="chip" data-source="SL">
+            <span class="src-badge src-sl">SL</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Opportunity Cards -->
+      <div class="opp-list" data-od-id="opp-list">
+
+        <!-- Card 1: iPhone 17 Pro 256GB — Strong -->
+        <div class="opp-card" data-quality="strong" data-brand="Apple">
+          <div class="opp-card-image">
+            <img src="https://cdn.simpleicons.org/apple/ffffff" alt="Apple" />
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              iPhone 17 Pro 256GB
+              <span class="quality-dot strong" title="Strong deal"></span>
+              <span class="badge badge-success">Strong</span>
+            </div>
+            <div class="opp-card-meta">
+              <span class="src-badge src-ig">IG</span>
+              <span class="src-badge src-sh">SH</span>
+              <span class="src-badge src-sl">SL</span>
+              <span class="meta">Confidence: 92%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value">€689</span>
+                <span class="tiny">265,000 DZD</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Median</span>
+                <span class="opp-price-value">€892</span>
+                <span class="tiny">34,038 TRY</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Supplier</span>
+                <span class="opp-price-value">€745</span>
+                <span class="tiny">$808 USD</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="color:var(--success);font-size:var(--text-lg);">€147</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--info);font-size:var(--text-lg);">€203</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill high" style="width:92%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <a href="opportunity-detail.html" class="btn btn-primary btn-sm">Review deal</a>
+                <button class="btn btn-ghost btn-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Samsung S25 Ultra 256GB — Strong -->
+        <div class="opp-card" data-quality="strong" data-brand="Samsung">
+          <div class="opp-card-image">
+            <img src="https://cdn.simpleicons.org/samsung/ffffff" alt="Samsung" />
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              Samsung Galaxy S25 Ultra 256GB
+              <span class="quality-dot strong" title="Strong deal"></span>
+              <span class="badge badge-success">Strong</span>
+            </div>
+            <div class="opp-card-meta">
+              <span class="src-badge src-ok">OK</span>
+              <span class="src-badge src-sh">SH</span>
+              <span class="meta">Confidence: 88%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value">€612</span>
+                <span class="tiny">235,000 DZD</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Median</span>
+                <span class="opp-price-value">€798</span>
+                <span class="tiny">30,444 TRY</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Supplier</span>
+                <span class="opp-price-value">€680</span>
+                <span class="tiny">$737 USD</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="color:var(--success);font-size:var(--text-lg);">€118</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--info);font-size:var(--text-lg);">€186</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill high" style="width:88%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <a href="opportunity-detail.html" class="btn btn-primary btn-sm">Review deal</a>
+                <button class="btn btn-ghost btn-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3: Xiaomi 17 Ultra 512GB — Medium -->
+        <div class="opp-card" data-quality="medium" data-brand="Xiaomi">
+          <div class="opp-card-image">
+            <img src="https://cdn.simpleicons.org/xiaomi/ffffff" alt="Xiaomi" />
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              Xiaomi 17 Ultra 512GB
+              <span class="quality-dot medium" title="Medium deal"></span>
+              <span class="badge badge-warn">Medium</span>
+            </div>
+            <div class="opp-card-meta">
+              <span class="src-badge src-ig">IG</span>
+              <span class="src-badge src-sh">SH</span>
+              <span class="src-badge src-sl">SL</span>
+              <span class="meta">Confidence: 75%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value">€385</span>
+                <span class="tiny">148,000 DZD</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Median</span>
+                <span class="opp-price-value">€465</span>
+                <span class="tiny">17,740 TRY</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Supplier</span>
+                <span class="opp-price-value">€410</span>
+                <span class="tiny">$445 USD</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="color:var(--success);font-size:var(--text-lg);">€55</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--info);font-size:var(--text-lg);">€80</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill medium" style="width:75%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <a href="opportunity-detail.html" class="btn btn-primary btn-sm">Review deal</a>
+                <button class="btn btn-ghost btn-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 4: iPhone 16 128GB — Strong -->
+        <div class="opp-card" data-quality="strong" data-brand="Apple">
+          <div class="opp-card-image">
+            <img src="https://cdn.simpleicons.org/apple/ffffff" alt="Apple" />
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              iPhone 16 128GB
+              <span class="quality-dot strong" title="Strong deal"></span>
+              <span class="badge badge-success">Strong</span>
+            </div>
+            <div class="opp-card-meta">
+              <span class="src-badge src-ig">IG</span>
+              <span class="src-badge src-ok">OK</span>
+              <span class="src-badge src-sh">SH</span>
+              <span class="meta">Confidence: 90%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value">€498</span>
+                <span class="tiny">191,300 DZD</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Median</span>
+                <span class="opp-price-value">€645</span>
+                <span class="tiny">24,607 TRY</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Supplier</span>
+                <span class="opp-price-value">€540</span>
+                <span class="tiny">$585 USD</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="color:var(--success);font-size:var(--text-lg);">€105</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--info);font-size:var(--text-lg);">€147</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill high" style="width:90%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <a href="opportunity-detail.html" class="btn btn-primary btn-sm">Review deal</a>
+                <button class="btn btn-ghost btn-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 5: Lenovo Legion — Weak -->
+        <div class="opp-card" data-quality="weak" data-brand="Lenovo">
+          <div class="opp-card-image">
+            <img src="https://cdn.simpleicons.org/lenovo/ffffff" alt="Lenovo" />
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              Lenovo Legion Pro 5 16" RTX 4070
+              <span class="quality-dot weak" title="Weak deal"></span>
+              <span class="badge badge-neutral">Weak</span>
+            </div>
+            <div class="opp-card-meta">
+              <span class="src-badge src-ig">IG</span>
+              <span class="src-badge src-sh">SH</span>
+              <span class="meta">Confidence: 62%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value">€1,240</span>
+                <span class="tiny">476,000 DZD</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Median</span>
+                <span class="opp-price-value">€1,310</span>
+                <span class="tiny">49,976 TRY</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Supplier</span>
+                <span class="opp-price-value">—</span>
+                <span class="tiny">No data</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="color:var(--warn);font-size:var(--text-lg);">€70</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--info);font-size:var(--text-lg);">€70</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill low" style="width:62%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <a href="opportunity-detail.html" class="btn btn-secondary btn-sm">Review deal</a>
+                <button class="btn btn-ghost btn-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 6: Poco F8 Pro 512GB — Medium -->
+        <div class="opp-card" data-quality="medium" data-brand="Xiaomi">
+          <div class="opp-card-image">
+            <img src="https://cdn.simpleicons.org/xiaomi/ffffff" alt="Xiaomi" />
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              Poco F8 Pro 512GB
+              <span class="quality-dot medium" title="Medium deal"></span>
+              <span class="badge badge-warn">Medium</span>
+            </div>
+            <div class="opp-card-meta">
+              <span class="src-badge src-ok">OK</span>
+              <span class="src-badge src-sh">SH</span>
+              <span class="meta">Confidence: 71%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value">€265</span>
+                <span class="tiny">101,800 DZD</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Median</span>
+                <span class="opp-price-value">€318</span>
+                <span class="tiny">12,132 TRY</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Supplier</span>
+                <span class="opp-price-value">€280</span>
+                <span class="tiny">$304 USD</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="color:var(--success);font-size:var(--text-lg);">€38</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--info);font-size:var(--text-lg);">€53</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill medium" style="width:71%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <a href="opportunity-detail.html" class="btn btn-primary btn-sm">Review deal</a>
+                <button class="btn btn-ghost btn-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 7: Meta Quest 3 — Medium -->
+        <div class="opp-card" data-quality="medium" data-brand="Meta">
+          <div class="opp-card-image">
+            <img src="https://cdn.simpleicons.org/meta/ffffff" alt="Meta" />
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              Meta Quest 3 128GB
+              <span class="quality-dot medium" title="Medium deal"></span>
+              <span class="badge badge-warn">Medium</span>
+            </div>
+            <div class="opp-card-meta">
+              <span class="src-badge src-ig">IG</span>
+              <span class="src-badge src-sh">SH</span>
+              <span class="meta">Confidence: 68%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value">€340</span>
+                <span class="tiny">130,600 DZD</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Median</span>
+                <span class="opp-price-value">€410</span>
+                <span class="tiny">15,642 TRY</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Supplier</span>
+                <span class="opp-price-value">—</span>
+                <span class="tiny">No data</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="color:var(--success);font-size:var(--text-lg);">€70</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--info);font-size:var(--text-lg);">€70</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill medium" style="width:68%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <a href="opportunity-detail.html" class="btn btn-primary btn-sm">Review deal</a>
+                <button class="btn btn-ghost btn-sm">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 8: Canon EOS R6 Mark III — Ignore -->
+        <div class="opp-card" data-quality="ignore" data-brand="Canon">
+          <div class="opp-card-image">
+            <img src="https://cdn.simpleicons.org/canon/ffffff" alt="Canon" />
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              Canon EOS R6 Mark III Body
+              <span class="quality-dot ignore" title="Ignore"></span>
+              <span class="badge badge-danger">Ignore</span>
+            </div>
+            <div class="opp-card-meta">
+              <span class="src-badge src-mn">MN</span>
+              <span class="src-badge src-sh">SH</span>
+              <span class="warning-strip" style="padding:2px 8px;font-size:11px;display:inline-flex;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                Missing price
+              </span>
+              <span class="meta">Confidence: 45%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value" style="color:var(--danger)">—</span>
+                <span class="tiny">No listing</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Median</span>
+                <span class="opp-price-value">€2,180</span>
+                <span class="tiny">83,166 TRY</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Supplier</span>
+                <span class="opp-price-value">€2,350</span>
+                <span class="tiny">$2,548 USD</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;">
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="color:var(--danger);font-size:var(--text-lg);">−€170</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--danger);font-size:var(--text-lg);">—</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill low" style="width:45%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <button class="btn btn-secondary btn-sm" disabled>Not viable</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Bottom nav (mobile) -->
+    <nav class="bottomnav">
+      <div class="bottomnav-inner">
+        <a href="opportunities.html" class="bottomnav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Opps
+        </a>
+        <a href="deals.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Deals
+        </a>
+        <a href="listings.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Listings
+        </a>
+        <a href="data-quality.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Quality
+        </a>
+        <a href="sources.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Sources
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <script>
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.querySelector('.icon-sun').style.display = next === 'dark' ? 'block' : 'none';
+      document.querySelector('.icon-moon').style.display = next === 'light' ? 'block' : 'none';
+    }
+
+    // Filter chips
+    document.querySelectorAll('.chip[data-filter]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.chip[data-filter]').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const filter = chip.dataset.filter;
+        document.querySelectorAll('.opp-card').forEach(card => {
+          if (filter === 'all' || card.dataset.quality === filter) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Brand filter chips
+    document.querySelectorAll('.chip[data-brand]').forEach(chip => {
+      chip.addEventListener('click', () => {
+        chip.classList.toggle('active');
+        const activeBrands = [...document.querySelectorAll('.chip[data-brand].active')].map(c => c.dataset.brand);
+        document.querySelectorAll('.opp-card').forEach(card => {
+          if (activeBrands.length === 0 || activeBrands.includes(card.dataset.brand)) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

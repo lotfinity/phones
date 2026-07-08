@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load i18n brand_logos %}
 <div class="swiper-slide">
   <div class="deal-card">
     <div class="deal-hero">
@@ -22,7 +22,15 @@
     </div>
 
     <div class="deal-body">
-      <div class="deal-title">{{ deal.title }}</div>
+      <div class="deal-title brand-name-line">
+        <span class="brand-logo-wrap brand-logo-sm">
+          {% if deal.brand_logo_url %}
+            <img class="brand-logo-img" src="{{ deal.brand_logo_url }}" alt="{{ deal.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+          {% endif %}
+          <span class="brand-logo-fallback">{{ deal.brand_initial }}</span>
+        </span>
+        <span class="deal-title-text">{{ deal.title }}</span>
+      </div>
 
       <div class="deal-specs">
         <span>{{ deal.model }}</span>

@@ -1,5 +1,5 @@
 {% extends "market/base.html" %}
-{% load static i18n %}
+{% load static i18n brand_logos %}
 
 {% block title %}PriceBridge — {% trans "Deals" %}{% endblock %}
 {% block crumb %}{% trans "Deals" %}{% endblock %}
@@ -119,13 +119,18 @@
 
   .deal-title {
     font-size: 0.8rem; font-weight: 700; line-height: 1.3;
-    color: rgb(2 6 23); overflow: hidden; display: -webkit-box;
+    color: rgb(2 6 23); overflow: hidden;
+  }
+  .deal-title-text {
+    display: -webkit-box;
     -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    min-width: 0;
   }
   @media (min-width: 640px) {
     .deal-title { font-size: 0.875rem; }
   }
   .dark .deal-title { color: white; }
+  .dark .deal-title-text { color: white; }
 
   .deal-specs {
     display: flex; flex-wrap: wrap; gap: 0.25rem;
@@ -315,6 +320,16 @@
               type="button"
               data-brand-tab="{{ forloop.counter0 }}"
               onclick="switchBrand({{ forloop.counter0 }})">
+        {% if bs.brand != "ALL" %}
+          <span class="brand-logo-wrap brand-logo-sm" style="margin-right: 0;">
+            {% with logo=bs.brand|brand_logo_url %}
+              {% if logo %}
+                <img class="brand-logo-img" src="{{ logo }}" alt="{{ bs.brand }} logo" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove(); this.closest('.brand-logo-wrap').classList.add('brand-logo-fallback-visible');">
+              {% endif %}
+            {% endwith %}
+            <span class="brand-logo-fallback">{{ bs.brand|brand_initial }}</span>
+          </span>
+        {% endif %}
         <span>{{ bs.brand }}</span>
         <span class="pill-count">{{ bs.deal_count }}</span>
         {% if bs.avg_margin > 0 %}

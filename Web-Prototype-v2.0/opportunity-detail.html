@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>iPhone 17 Pro 256GB · PriceBridge</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <style>
+    .detail-hero {
+      display: grid;
+      grid-template-columns: 200px 1fr auto;
+      gap: var(--space-8);
+      align-items: start;
+      margin-bottom: var(--space-8);
+    }
+    .detail-hero-img {
+      width: 200px;
+      height: 200px;
+      border-radius: var(--radius-xl);
+      background: linear-gradient(135deg, var(--accent-soft), var(--surface-hover));
+      border: 1px solid var(--border);
+      display: grid;
+      place-items: center;
+    }
+    .detail-hero-img img { width: 80px; height: 80px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.7; }
+    .profit-breakdown {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    .profit-cell {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+    .profit-cell .label { font-size: var(--text-sm); color: var(--muted); }
+    .profit-cell .value { font-family: var(--font-mono); font-size: var(--text-2xl); font-weight: 700; font-variant-numeric: tabular-nums; }
+    .profit-cell .sub { font-size: var(--text-xs); color: var(--muted); font-family: var(--font-mono); }
+    .decision-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+    .decision-options {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    .decision-option {
+      padding: var(--space-4);
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--ease-standard);
+    }
+    .decision-option:hover { border-color: var(--fg-2); }
+    .decision-option.selected { border-color: var(--accent); background: var(--accent-soft); }
+    .decision-option .icon { font-size: 24px; margin-bottom: var(--space-2); }
+    .decision-option .label { font-weight: 600; font-size: var(--text-sm); }
+    .decision-option .reason { font-size: var(--text-xs); color: var(--muted); margin-top: var(--space-1); }
+    .comparison-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      margin-bottom: var(--space-6);
+    }
+    .comparison-header {
+      padding: var(--space-4) var(--space-5);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .listing-row {
+      display: grid;
+      grid-template-columns: 1fr 100px 100px 80px 100px;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--border);
+      font-size: var(--text-sm);
+      align-items: center;
+    }
+    .listing-row:last-child { border-bottom: none; }
+    .listing-row:hover { background: var(--surface-hover); }
+    .listing-row .price { font-family: var(--font-mono); font-weight: 600; font-variant-numeric: tabular-nums; }
+    @media (max-width: 1024px) {
+      .detail-hero { grid-template-columns: 1fr; }
+      .detail-hero-img { width: 100%; height: 160px; }
+      .profit-breakdown { grid-template-columns: 1fr 1fr; }
+      .decision-options { grid-template-columns: 1fr; }
+      .listing-row { grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <span class="brand-text">PriceBridge</span>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Trading</div>
+        <a href="opportunities.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Opportunities
+        </a>
+        <a href="deals.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Deals by Brand
+        </a>
+        <a href="opportunity-detail.html" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Detail View
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Data</div>
+        <a href="listings.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          All Listings
+        </a>
+        <a href="data-quality.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Data Quality
+        </a>
+        <a href="sources.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Sources
+        </a>
+      </div>
+      <div class="sidebar-section" style="margin-top:auto;padding-top:var(--space-4);border-top:1px solid var(--border);">
+        <a href="index.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          All Screens
+        </a>
+      </div>
+    </aside>
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="mobile-brand">PriceBridge</span>
+        <a href="opportunities.html" class="btn btn-ghost btn-sm" style="display:flex;align-items:center;gap:var(--space-2);">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to Opportunities
+        </a>
+      </div>
+      <div class="topbar-right">
+        <select class="currency-select"><option>EUR</option><option>USD</option><option>TRY</option><option>DZD</option></select>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+        <div class="user-avatar">TR</div>
+      </div>
+    </header>
+
+    <main class="main-content" data-od-id="detail-page">
+      <!-- Hero -->
+      <div class="detail-hero">
+        <div class="detail-hero-img">
+          <img src="https://cdn.simpleicons.org/apple/ffffff" alt="Apple" />
+        </div>
+        <div>
+          <div style="display:flex;gap:var(--space-2);margin-bottom:var(--space-3);flex-wrap:wrap;">
+            <span class="src-badge src-ig">IG</span>
+            <span class="src-badge src-sh">SH</span>
+            <span class="src-badge src-sl">SL</span>
+            <span class="badge badge-success">Strong</span>
+          </div>
+          <h1 class="h2" style="margin-bottom:var(--space-2);">iPhone 17 Pro 256GB</h1>
+          <p class="meta" style="margin-bottom:var(--space-4);">Apple · Smartphone · 256GB · Natural Titanium</p>
+          <div style="display:flex;gap:var(--space-6);flex-wrap:wrap;">
+            <div>
+              <div class="tiny">Confidence</div>
+              <div class="num" style="font-size:var(--text-xl);font-weight:700;color:var(--success);">92%</div>
+            </div>
+            <div>
+              <div class="tiny">Sahibinden comparables</div>
+              <div class="num" style="font-size:var(--text-xl);font-weight:700;">18</div>
+            </div>
+            <div>
+              <div class="tiny">Source coverage</div>
+              <div class="num" style="font-size:var(--text-xl);font-weight:700;">3/5</div>
+            </div>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <div class="tiny" style="margin-bottom:var(--space-1);">Internal Gain (Admin)</div>
+          <div class="num" style="font-size:var(--text-3xl);font-weight:700;color:var(--success);">€147</div>
+          <div class="tiny">margin vs supplier</div>
+        </div>
+      </div>
+
+      <!-- Profit breakdown -->
+      <div class="profit-breakdown">
+        <div class="profit-cell">
+          <span class="label">Algeria Min</span>
+          <span class="value">€689</span>
+          <span class="sub">265,000 DZD · IG source</span>
+        </div>
+        <div class="profit-cell">
+          <span class="label">Türkiye Median</span>
+          <span class="value">€892</span>
+          <span class="sub">34,038 TRY · 18 listings</span>
+        </div>
+        <div class="profit-cell">
+          <span class="label">Supplier Price</span>
+          <span class="value">€745</span>
+          <span class="sub">$808 USD · Wholesale</span>
+        </div>
+        <div class="profit-cell" style="border-color:var(--success);">
+          <span class="label">Gross Margin</span>
+          <span class="value" style="color:var(--success);">€147</span>
+          <span class="sub">19.7% vs supplier</span>
+        </div>
+      </div>
+
+      <!-- Buyer gain -->
+      <div class="card" style="margin-bottom:var(--space-6);display:flex;align-items:center;gap:var(--space-6);flex-wrap:wrap;">
+        <div>
+          <div class="tiny">Buyer Gain</div>
+          <div class="num" style="font-size:var(--text-2xl);font-weight:700;color:var(--info);">€203</div>
+          <div class="tiny">savings vs Türkiye market</div>
+        </div>
+        <div style="flex:1;min-width:200px;">
+          <div class="tiny" style="margin-bottom:var(--space-2);">Confidence breakdown</div>
+          <div style="display:flex;gap:var(--space-4);font-size:var(--text-sm);">
+            <span>Price reliability: <strong style="color:var(--success);">High</strong></span>
+            <span>Source freshness: <strong style="color:var(--success);">3h ago</strong></span>
+            <span>Listing count: <strong style="color:var(--success);">18</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decision panel -->
+      <div class="decision-panel">
+        <h3 style="margin-bottom:var(--space-2);">Decision</h3>
+        <p class="meta">Based on margin, confidence, and market data</p>
+        <div class="decision-options">
+          <div class="decision-option selected" onclick="selectDecision(this)">
+            <div class="icon" style="color:var(--success);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="label" style="color:var(--success);">Buy</div>
+            <div class="reason">19.7% margin, 92% confidence, strong source coverage</div>
+          </div>
+          <div class="decision-option" onclick="selectDecision(this)">
+            <div class="icon" style="color:var(--warn);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="label" style="color:var(--warn);">Watch</div>
+            <div class="reason">Wait for price drop or better supplier deal</div>
+          </div>
+          <div class="decision-option" onclick="selectDecision(this)">
+            <div class="icon" style="color:var(--danger);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+            <div class="label" style="color:var(--danger);">Ignore</div>
+            <div class="reason">Margin too thin, confidence too low, or data unreliable</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Algeria listings -->
+      <div class="comparison-section">
+        <div class="comparison-header">
+          <span class="src-badge src-ig">IG</span>
+          <span class="src-badge src-ok">OK</span>
+          Algeria Listings
+          <span class="meta" style="margin-left:auto;">4 listings</span>
+        </div>
+        <div class="listing-row" style="font-weight:600;color:var(--muted);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.04em;">
+          <span>Source</span>
+          <span>Price</span>
+          <span>Condition</span>
+          <span>Status</span>
+          <span>Link</span>
+        </div>
+        <div class="listing-row">
+          <div>
+            <span class="src-badge src-ig">IG</span>
+            <span class="meta" style="margin-left:var(--space-2);">iPhone shop Algiers</span>
+          </div>
+          <span class="price">€689</span>
+          <span><span class="badge badge-success">New</span></span>
+          <span><span class="badge badge-info">Auto</span></span>
+          <a href="#" class="btn btn-ghost btn-sm" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open
+          </a>
+        </div>
+        <div class="listing-row">
+          <div>
+            <span class="src-badge src-ig">IG</span>
+            <span class="meta" style="margin-left:var(--space-2);">PhoneHub Constantine</span>
+          </div>
+          <span class="price">€710</span>
+          <span><span class="badge badge-success">New</span></span>
+          <span><span class="badge badge-info">Auto</span></span>
+          <a href="#" class="btn btn-ghost btn-sm" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open
+          </a>
+        </div>
+        <div class="listing-row">
+          <div>
+            <span class="src-badge src-ok">OK</span>
+            <span class="meta" style="margin-left:var(--space-2);">Ouedkniss listing #88421</span>
+          </div>
+          <span class="price">€725</span>
+          <span><span class="badge badge-success">New</span></span>
+          <span><span class="badge badge-success">Approved</span></span>
+          <a href="#" class="btn btn-ghost btn-sm" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open
+          </a>
+        </div>
+        <div class="listing-row">
+          <div>
+            <span class="src-badge src-ig">IG</span>
+            <span class="meta" style="margin-left:var(--space-2);">TechStore Oran</span>
+          </div>
+          <span class="price">€740</span>
+          <span><span class="badge badge-neutral">Open box</span></span>
+          <span><span class="badge badge-info">Auto</span></span>
+          <a href="#" class="btn btn-ghost btn-sm" target="_blank">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Open
+          </a>
+        </div>
+      </div>
+
+      <!-- Sahibinden listings -->
+      <div class="comparison-section">
+        <div class="comparison-header">
+          <span class="src-badge src-sh">SH</span>
+          Sahibinden Comparables
+          <span class="meta" style="margin-left:auto;">18 listings · Median €892</span>
+          <button class="btn btn-sm btn-secondary" onclick="openModal('sh-modal')" style="margin-left:var(--space-2);">View all</button>
+        </div>
+        <div class="listing-row" style="font-weight:600;color:var(--muted);font-size:var(--text-xs);text-transform:uppercase;letter-spacing:0.04em;">
+          <span>Title</span>
+          <span>Price</span>
+          <span>City</span>
+          <span>Condition</span>
+          <span>Posted</span>
+        </div>
+        <div class="listing-row">
+          <span>iPhone 17 Pro 256GB · New</span>
+          <span class="price">€912</span>
+          <span>Istanbul</span>
+          <span><span class="badge badge-success">New</span></span>
+          <span class="meta">2h ago</span>
+        </div>
+        <div class="listing-row">
+          <span>iPhone 17 Pro 256GB · Second hand</span>
+          <span class="price">€845</span>
+          <span>Ankara</span>
+          <span><span class="badge badge-neutral">Used</span></span>
+          <span class="meta">5h ago</span>
+        </div>
+        <div class="listing-row">
+          <span>iPhone 17 Pro 256GB · New</span>
+          <span class="price">€895</span>
+          <span>Izmir</span>
+          <span><span class="badge badge-success">New</span></span>
+          <span class="meta">1d ago</span>
+        </div>
+      </div>
+
+      <!-- Confidence explanation -->
+      <div class="card">
+        <h3 style="margin-bottom:var(--space-4);">Confidence Score: 92%</h3>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-4);">
+          <div>
+            <div class="tiny" style="margin-bottom:var(--space-1);">Price Data Quality</div>
+            <div class="confidence-bar"><div class="confidence-bar-fill high" style="width:95%"></div></div>
+            <div class="tiny" style="margin-top:var(--space-1);">4 Algeria, 18 Türkiye listings</div>
+          </div>
+          <div>
+            <div class="tiny" style="margin-bottom:var(--space-1);">Source Freshness</div>
+            <div class="confidence-bar"><div class="confidence-bar-fill high" style="width:90%"></div></div>
+            <div class="tiny" style="margin-top:var(--space-1);">Latest: 3 hours ago</div>
+          </div>
+          <div>
+            <div class="tiny" style="margin-bottom:var(--space-1);">Supplier Availability</div>
+            <div class="confidence-bar"><div class="confidence-bar-fill high" style="width:88%"></div></div>
+            <div class="tiny" style="margin-top:var(--space-1);">Wholesale price confirmed</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <nav class="bottomnav">
+      <div class="bottomnav-inner">
+        <a href="opportunities.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Opps
+        </a>
+        <a href="deals.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Deals
+        </a>
+        <a href="listings.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Listings
+        </a>
+        <a href="data-quality.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Quality
+        </a>
+        <a href="sources.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Sources
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Sahibinden modal -->
+  <div class="modal-overlay" id="sh-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>All Sahibinden Comparables (18)</h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('sh-modal')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <a href="https://sahibinden.com" target="_blank" rel="noopener">
+          <div style="display:flex;justify-content:space-between;"><span>iPhone 17 Pro 256GB · New</span><span class="num" style="font-weight:600;">€912</span></div>
+          <div class="tiny">34,800 TRY · Istanbul · 2h ago</div>
+        </a>
+        <a href="https://sahibinden.com" target="_blank" rel="noopener">
+          <div style="display:flex;justify-content:space-between;"><span>iPhone 17 Pro 256GB · Used</span><span class="num" style="font-weight:600;">€845</span></div>
+          <div class="tiny">32,220 TRY · Ankara · 5h ago</div>
+        </a>
+        <a href="https://sahibinden.com" target="_blank" rel="noopener">
+          <div style="display:flex;justify-content:space-between;"><span>iPhone 17 Pro 256GB · New</span><span class="num" style="font-weight:600;">€895</span></div>
+          <div class="tiny">34,150 TRY · Izmir · 1d ago</div>
+        </a>
+        <a href="https://sahibinden.com" target="_blank" rel="noopener">
+          <div style="display:flex;justify-content:space-between;"><span>iPhone 17 Pro 256GB · Open box</span><span class="num" style="font-weight:600;">€870</span></div>
+          <div class="tiny">33,195 TRY · Bursa · 1d ago</div>
+        </a>
+        <a href="https://sahibinden.com" target="_blank" rel="noopener">
+          <div style="display:flex;justify-content:space-between;"><span>iPhone 17 Pro 256GB · New</span><span class="num" style="font-weight:600;">€920</span></div>
+          <div class="tiny">35,106 TRY · Antalya · 2d ago</div>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.querySelector('.icon-sun').style.display = next === 'dark' ? 'block' : 'none';
+      document.querySelector('.icon-moon').style.display = next === 'light' ? 'block' : 'none';
+    }
+    function selectDecision(el) {
+      document.querySelectorAll('.decision-option').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+    }
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    document.querySelectorAll('.modal-overlay').forEach(o => {
+      o.addEventListener('click', (e) => { if (e.target === o) o.classList.remove('open'); });
+    });
+  </script>
+</body>
+</html>
