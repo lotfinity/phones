@@ -43,7 +43,13 @@
 {% if best_opportunity %}
 <a class="deal-card deal-card-best" data-brand="{{ best_opportunity.brand }}" href="{% url 'opportunity_detail' best_opportunity.item.id %}" data-opportunity-modal>
   <div class="deal-card-hero">
-    {% if best_opportunity.image_url %}<img src="{{ best_opportunity.image_url }}" alt="{{ best_opportunity.item.product_model }}">{% endif %}
+    {% with logo_url=best_opportunity.brand|brand_logo_url %}
+      {% if logo_url %}
+        <img src="{{ logo_url }}" alt="{{ best_opportunity.brand }} logo">
+      {% else %}
+        <span class="brand-logo-wrap brand-logo-lg brand-logo-fallback-visible"><span class="brand-logo-fallback">{{ best_opportunity.brand|brand_initial }}</span></span>
+      {% endif %}
+    {% endwith %}
     <span class="margin-float strong">{{ best_opportunity.margin_percent }}</span>
   </div>
   <div class="deal-card-body">
@@ -104,7 +110,13 @@
   {% for row in rows %}
     <a class="deal-card" data-brand="{{ row.brand }}" href="{% url 'opportunity_detail' row.item.id %}" data-opportunity-modal>
       <div class="deal-card-hero">
-        {% if row.image_url %}<img src="{{ row.image_url }}" alt="{{ row.item.product_model }}">{% endif %}
+        {% with logo_url=row.brand|brand_logo_url %}
+          {% if logo_url %}
+            <img src="{{ logo_url }}" alt="{{ row.brand }} logo">
+          {% else %}
+            <span class="brand-logo-wrap brand-logo-lg brand-logo-fallback-visible"><span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span></span>
+          {% endif %}
+        {% endwith %}
         <span class="margin-float {% if row.margin_class == 'good' %}strong{% elif row.margin_class == 'warn' %}medium{% else %}weak{% endif %}">{{ row.margin_percent }}</span>
       </div>
       <div class="deal-card-body">
