@@ -3,38 +3,45 @@
 
 {% block title %}PriceBridge — {% trans "Opportunities" %}{% endblock %}
 {% block crumb %}{% trans "Opportunities" %}{% endblock %}
-{% block mobile_title %}{% trans "Opportunities" %}{% endblock %}
 {% block header_actions %}
 <a class="btn btn-primary btn-sm" href="{% url 'admin:market_opportunitysnapshot_changelist' %}">{% trans "Admin" %}</a>
 {% endblock %}
 
 {% block content %}
-<header class="section-header">
+<div class="page-loader" style="position: fixed; inset: 0; background: var(--pb-bg); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; transition: opacity 0.2s;">
+  <div style="width: 40px; height: 40px; border: 3px solid var(--pb-border-light); border-top-color: var(--pb-accent); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+</div>
+<style>
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+<script>
+(function () {
+  var loader = document.querySelector(".page-loader");
+  if (!loader) return;
+  function hide() { loader.style.opacity = "0"; setTimeout(function () { loader.style.display = "none"; }, 200); }
+  if (document.readyState === "complete") hide();
+  else window.addEventListener("load", hide);
+})();
+</script>
+<div class="page-header">
   <div>
-    <h1 class="section-title">{% trans "Opportunities" %}</h1>
-    <p class="section-subtitle">{% trans "Algeria-vs-Turkiye cross-market margins, ranked by actionable spread and data quality." %}</p>
+    <h1 class="page-title">{% trans "Opportunities" %}</h1>
+    <p class="page-desc">{% trans "Algeria-vs-Turkiye cross-market margins, ranked by actionable spread and data quality." %}</p>
   </div>
-</header>
+</div>
 
-<nav class="brand-tabs" id="brandTabs" aria-label="{% trans 'Filter opportunities by brand' %}">
-  <button class="brand-tab active" type="button" data-brand="all" aria-pressed="true">
-    {% trans "All" %} <span class="tab-count">{{ rows|length }}</span>
-  </button>
+<div class="brand-tabs" id="brandTabs">
+  <button class="brand-tab active" type="button" data-brand="all">{% trans "All" %} <span class="tab-count">{{ rows|length }}</span></button>
   {% for b in brand_list %}
-    <button class="brand-tab" type="button" data-brand="{{ b.name }}" aria-pressed="false">
+    <button class="brand-tab" type="button" data-brand="{{ b.name }}">
       {% if b.name|brand_logo_url %}<img src="{{ b.name|brand_logo_url }}" alt="{{ b.name }}">{% endif %}
-      <span>{{ b.name }}</span>
+      {{ b.name }}
     </button>
   {% endfor %}
-</nav>
+</div>
 
 {% if best_opportunity %}
-<a class="deal-card deal-card-best"
-   data-brand="{{ best_opportunity.brand }}"
-   data-opportunity-card
-   data-opportunity-modal
-   data-opportunity-title="{{ best_opportunity.item.product_model }}"
-   href="{% url 'opportunity_detail' best_opportunity.item.id %}">
+<a class="deal-card deal-card-best" data-brand="{{ best_opportunity.brand }}" href="{% url 'opportunity_detail' best_opportunity.item.id %}" data-opportunity-modal>
   <div class="deal-card-hero">
     {% if best_opportunity.image_url %}<img src="{{ best_opportunity.image_url }}" alt="{{ best_opportunity.item.product_model }}">{% endif %}
     <span class="margin-float strong">{{ best_opportunity.margin_percent }}</span>
@@ -49,19 +56,18 @@
         </h3>
         <div class="card-meta-row mt-2">
           <span class="brand-name-line">
-            <span class="brand-logo-wrap brand-logo-sm">
-              {% if best_opportunity.brand_logo_url %}
-                <img class="brand-logo-img" src="{{ best_opportunity.brand_logo_url }}" alt="{{ best_opportunity.brand }} logo">
-              {% endif %}
-              <span class="brand-logo-fallback">{{ best_opportunity.brand_initial }}</span>
-            </span>
+          <span class="brand-logo-wrap brand-logo-sm">
+            {% if best_opportunity.brand_logo_url %}
+              <img class="brand-logo-img" src="{{ best_opportunity.brand_logo_url }}" alt="{{ best_opportunity.brand }} logo">
+            {% endif %}
+            <span class="brand-logo-fallback">{{ best_opportunity.brand_initial }}</span>
+          </span>
             <span>{{ best_opportunity.brand }}{% if best_opportunity.item.storage_gb %} / {{ best_opportunity.item.storage_gb }}GB{% endif %}</span>
           </span>
         </div>
       </div>
-      <span class="badge badge-ok">{% trans "Top pick" %}</span>
+      <span class="meta">{% trans "Top pick" %}</span>
     </div>
-
     <div class="price-comparison">
       <div class="price-block">
         <span class="price-block-label">{% trans "Algeria Min" %}</span>
@@ -81,13 +87,12 @@
       </div>
       {% endif %}
     </div>
-
     <div class="deal-card-footer">
       <div class="sahibinden-count">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         <strong>{% trans "Best" %}</strong> {% trans "opportunity" %}
       </div>
-      <div class="opp-card-actions">
+      <div style="display:flex;gap:var(--pb-space-2);">
         <span class="btn btn-secondary btn-sm">{% trans "Full detail" %}</span>
       </div>
     </div>
@@ -97,12 +102,7 @@
 
 <div class="deal-cards" id="dealCards">
   {% for row in rows %}
-    <a class="deal-card"
-       data-brand="{{ row.brand }}"
-       data-opportunity-card
-       data-opportunity-modal
-       data-opportunity-title="{{ row.item.product_model }}"
-       href="{% url 'opportunity_detail' row.item.id %}">
+    <a class="deal-card" data-brand="{{ row.brand }}" href="{% url 'opportunity_detail' row.item.id %}" data-opportunity-modal>
       <div class="deal-card-hero">
         {% if row.image_url %}<img src="{{ row.image_url }}" alt="{{ row.item.product_model }}">{% endif %}
         <span class="margin-float {% if row.margin_class == 'good' %}strong{% elif row.margin_class == 'warn' %}medium{% else %}weak{% endif %}">{{ row.margin_percent }}</span>
@@ -135,7 +135,6 @@
           </div>
           <span class="meta">{% trans "Confidence" %} {{ row.item.confidence_score }}%</span>
         </div>
-
         <div class="price-comparison">
           <div class="price-block">
             <span class="price-block-label">{% trans "Algeria Min" %}</span>
@@ -155,13 +154,12 @@
           </div>
           {% endif %}
         </div>
-
         <div class="deal-card-footer">
           <div class="sahibinden-count">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
             <strong>{{ row.sources|length }}</strong> {% trans "sources" %}
           </div>
-          <div class="opp-card-actions">
+          <div style="display:flex;gap:var(--pb-space-2);">
             <span class="btn btn-secondary btn-sm">{% trans "Full detail" %}</span>
           </div>
         </div>
@@ -172,16 +170,17 @@
   {% endfor %}
 </div>
 
-<div class="modal-overlay" data-opportunity-modal-shell aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="opportunityModalTitle">
-  <section class="modal max-w-6xl" role="document">
-    <div class="modal-header">
+<div class="hidden fixed inset-0 z-50" data-opportunity-modal-shell aria-hidden="true">
+  <div class="absolute inset-0 bg-slate-950/60" data-opportunity-modal-close></div>
+  <section class="absolute inset-x-3 top-3 bottom-3 mx-auto flex max-w-6xl flex-col overflow-hidden rounded-xl border border-slate-200 bg-slate-50 shadow-2xl dark:border-slate-800 dark:bg-slate-950 sm:inset-x-6 sm:top-6 sm:bottom-6">
+    <div class="flex items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-900">
       <div class="min-w-0">
-        <div class="tiny mono uppercase">{% trans "Opportunity" %}</div>
-        <div class="h4" id="opportunityModalTitle" data-opportunity-modal-title>{% trans "Details" %}</div>
+        <div class="font-mono text-xs uppercase text-slate-500">{% trans "Opportunity" %}</div>
+        <div class="font-semibold text-slate-950 dark:text-white" data-opportunity-modal-title>{% trans "Details" %}</div>
       </div>
       <button class="btn btn-secondary btn-sm" type="button" data-opportunity-modal-close>{% trans "Close" %}</button>
     </div>
-    <div class="modal-body" data-opportunity-modal-body>
+    <div class="flex-1 overflow-y-auto p-4 sm:p-6" data-opportunity-modal-body>
       <div class="page-desc">{% trans "Loading..." %}</div>
     </div>
   </section>
@@ -198,7 +197,7 @@
 
     function openShell() {
       lastFocus = document.activeElement;
-      shell.classList.add("open");
+      shell.classList.remove("hidden");
       shell.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
       const closeButton = shell.querySelector("[data-opportunity-modal-close]");
@@ -206,10 +205,10 @@
     }
 
     function closeShell() {
-      shell.classList.remove("open");
+      shell.classList.add("hidden");
       shell.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
-      body.innerHTML = '<div class="page-desc">{% trans "Loading..." %}</div>';
+      body.innerHTML = "";
       if (lastFocus && lastFocus.focus) lastFocus.focus();
     }
 
@@ -222,7 +221,7 @@
       if (!url) return;
       openShell();
       body.innerHTML = '<div class="page-desc">{% trans "Loading..." %}</div>';
-      title.textContent = trigger.getAttribute("data-opportunity-title") || "{% trans 'Details' %}";
+      title.textContent = trigger.textContent.trim() || "{% trans 'Details' %}";
       try {
         const response = await fetch(url, {
           headers: {"X-Requested-With": "XMLHttpRequest"},
@@ -260,7 +259,7 @@
     });
 
     document.addEventListener("keydown", function (event) {
-      if (event.key === "Escape" && shell.classList.contains("open")) {
+      if (event.key === "Escape" && !shell.classList.contains("hidden")) {
         closeShell();
         return;
       }
@@ -276,15 +275,11 @@
 <script>
   (function () {
     var tabs = document.querySelectorAll("#brandTabs .brand-tab");
-    var cards = document.querySelectorAll("[data-opportunity-card]");
+    var cards = document.querySelectorAll("#dealCards .deal-card");
     tabs.forEach(function (tab) {
       tab.addEventListener("click", function () {
-        tabs.forEach(function (t) {
-          t.classList.remove("active");
-          t.setAttribute("aria-pressed", "false");
-        });
+        tabs.forEach(function (t) { t.classList.remove("active"); });
         tab.classList.add("active");
-        tab.setAttribute("aria-pressed", "true");
         var brand = tab.dataset.brand;
         cards.forEach(function (card) {
           card.style.display = (brand === "all" || card.dataset.brand === brand) ? "" : "none";
