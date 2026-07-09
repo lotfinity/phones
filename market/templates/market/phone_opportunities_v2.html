@@ -1,0 +1,162 @@
+{% extends "market/base.html" %}
+{% load i18n %}
+
+{% block title %}PriceBridge — {% trans "Clean Phone Opportunities" %}{% endblock %}
+{% block crumb %}{% trans "Clean Phone Opportunities" %}{% endblock %}
+{% block header_actions %}
+<a class="btn btn-secondary btn-sm" href="{% url 'opportunities' %}">{% trans "Legacy" %}</a>
+<a class="btn btn-primary btn-sm" href="/admin/market/phoneopportunitysnapshot/">{% trans "Admin" %}</a>
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1 class="page-title">{% trans "Clean Phone Opportunities" %}</h1>
+    <p class="page-desc">
+      {% trans "PhoneListing v2 snapshots saved from recompute_phone_opportunities_v2. This page reads DB snapshots, not JSON files." %}
+    </p>
+  </div>
+</div>
+
+<div class="stats-grid">
+  <div class="stat-card">
+    <span class="stat-label">{% trans "Snapshots" %}</span>
+    <strong class="stat-value">{{ visible_count }} / {{ snapshots_count }}</strong>
+    <span class="stat-delta">{% trans "visible / total" %}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">{% trans "Total gross" %}</span>
+    <strong class="stat-value">{{ total_gross }}</strong>
+    <span class="stat-delta">{% trans "all snapshots" %}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">{% trans "Visible gross" %}</span>
+    <strong class="stat-value">{{ visible_gross }}</strong>
+    <span class="stat-delta">{% trans "current filters" %}</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-label">{% trans "Average margin" %}</span>
+    <strong class="stat-value">{{ avg_margin }}</strong>
+    <span class="stat-delta">{% trans "snapshot mean" %}</span>
+  </div>
+</div>
+
+<div class="stats-grid mt-4">
+  <div class="stat-card"><span class="stat-label">{% trans "Raw listings" %}</span><strong class="stat-value">{{ source_counts.raw_total }}</strong></div>
+  <div class="stat-card"><span class="stat-label">{% trans "Clean phones" %}</span><strong class="stat-value">{{ source_counts.phone_total }}</strong></div>
+  <div class="stat-card"><span class="stat-label">{% trans "IG raw / clean" %}</span><strong class="stat-value">{{ source_counts.instagram_raw }} / {{ source_counts.instagram_phone }}</strong></div>
+  <div class="stat-card"><span class="stat-label">{% trans "Candidates review" %}</span><strong class="stat-value">{{ source_counts.needs_review }}</strong></div>
+</div>
+
+{% if latest_generated_at %}
+<p class="page-desc mt-3">{% trans "Last generated" %}: {{ latest_generated_at }}</p>
+{% else %}
+<div class="empty-state mt-4">
+  {% trans "No clean phone snapshots yet. Run:" %}
+  <code>python manage.py recompute_phone_opportunities_v2 --min-margin-eur 100 --write-snapshots</code>
+</div>
+{% endif %}
+
+<form class="filters-card mt-4" method="get">
+  <div class="filter-row">
+    <label>
+      <span>{% trans "Search" %}</span>
+      <input class="f-input" type="search" name="q" value="{{ search_query }}" placeholder="iPhone, Galaxy, Redmi...">
+    </label>
+    <label>
+      <span>{% trans "Brand" %}</span>
+      <select class="f-select" name="brand">
+        <option value="">{% trans "All brands" %}</option>
+        {% for brand in brands %}
+          <option value="{{ brand }}" {% if brand == active_brand %}selected{% endif %}>{{ brand }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>{% trans "Recommendation" %}</span>
+      <select class="f-select" name="rec">
+        <option value="">{% trans "All" %}</option>
+        {% for value, label in recommendations %}
+          <option value="{{ value }}" {% if value == active_rec %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <button class="btn btn-primary" type="submit">{% trans "Filter" %}</button>
+    <a class="btn btn-secondary" href="{% url 'phone_opportunities_v2' %}">{% trans "Reset" %}</a>
+  </div>
+</form>
+
+{% if best_snapshot %}
+<section class="deal-card deal-card-best mt-4">
+  <div class="deal-card-body">
+    <div class="deal-card-header">
+      <div>
+        <div class="meta">{% trans "Top clean snapshot" %}</div>
+        <h3>{{ best_snapshot.brand }} {{ best_snapshot.model }} {% if best_snapshot.item.storage_gb %}{{ best_snapshot.item.storage_gb }}GB{% endif %}</h3>
+      </div>
+      <span class="margin-float strong">{{ best_snapshot.margin_percent }}</span>
+    </div>
+    <div class="price-comparison">
+      <div class="price-block"><span class="price-block-label">{% trans "DZ min" %}</span><span class="price-block-value">{{ best_snapshot.algeria_min }}</span></div>
+      <div class="price-block"><span class="price-block-label">{% trans "TR avg" %}</span><span class="price-block-value">{{ best_snapshot.turkiye_avg }}</span></div>
+      <div class="price-block"><span class="price-block-label">{% trans "Gross" %}</span><span class="price-block-value">{{ best_snapshot.gross_margin }}</span></div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<div class="table-card mt-4">
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>{% trans "Model" %}</th>
+          <th>{% trans "Storage" %}</th>
+          <th>{% trans "DZ min" %}</th>
+          <th>{% trans "TR avg" %}</th>
+          <th>{% trans "Margin" %}</th>
+          <th>{% trans "Counts" %}</th>
+          <th>{% trans "Signal" %}</th>
+          <th>{% trans "Links" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td>
+              <strong>{{ row.brand }} {{ row.model }}</strong>
+              <div class="meta">{% trans "Confidence" %} {{ row.item.confidence_score }}%</div>
+            </td>
+            <td>{{ row.storage }}</td>
+            <td>{{ row.algeria_min }}</td>
+            <td>{{ row.turkiye_avg }}</td>
+            <td>
+              <strong>{{ row.gross_margin }}</strong>
+              <div class="cell-rec {{ row.recommendation_class }}">{{ row.margin_percent }}</div>
+            </td>
+            <td>{{ row.counts_label }}</td>
+            <td><span class="cell-rec {{ row.recommendation_class }}">{{ row.recommendation_label }}</span></td>
+            <td>
+              <details>
+                <summary>{% trans "Open" %}</summary>
+                <div class="mt-2">
+                  <strong>DZ</strong>
+                  {% for url in row.algeria_urls %}
+                    <div><a href="{{ url }}" target="_blank" rel="noopener">{{ forloop.counter }}. {% trans "Algeria listing" %}</a></div>
+                  {% empty %}<div class="meta">-</div>{% endfor %}
+                  <strong>TR</strong>
+                  {% for url in row.turkiye_urls %}
+                    <div><a href="{{ url }}" target="_blank" rel="noopener">{{ forloop.counter }}. {% trans "Türkiye listing" %}</a></div>
+                  {% empty %}<div class="meta">-</div>{% endfor %}
+                </div>
+              </details>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8"><div class="empty-state">{% trans "No clean phone opportunities match these filters." %}</div></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
