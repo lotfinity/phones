@@ -84,7 +84,7 @@ def segments_to_html(text, segments):
         parts.append(
             f'<span style="background-color:{color}33;border-bottom:2px solid {color};'
             f'padding:1px 2px;border-radius:2px" title="{seg["label"]} '
-            f'({seg["confidence"]:.0%})">{escape(text[start:seg["end"])}</span>'
+            f'({seg["confidence"]:.0%})">{escape(text[start:seg["end"]])}</span>'
         )
         pos = seg["end"]
     if pos < len(text):

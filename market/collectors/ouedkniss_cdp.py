@@ -11,7 +11,7 @@ from urllib.parse import urlparse
 from django.conf import settings
 from django.utils import timezone
 
-from market.models import Condition, Country, MarketListing, ProductAsset, Source, SourceType
+from market.models import Condition, Country, MarketListing, ProductAsset, RawImportRun, RawListing, Source, SourceType
 from market.parsers.supplier_parser import CAPACITY_RE, STORAGE_RE
 from market.services.currency import dzd_to_eur
 from market.services.listing_parser import (
@@ -693,6 +693,46 @@ def save_row(row, source, category=None):
 
     action = "updated" if changed_fields else "refreshed_unchanged"
     return OuedknissRowChange(action, existing.title_raw or "[blank title]", url, changed_fields)
+
+
+def save_raw_row(row, source, import_run=None, category_hint="phones"):
+    """Save a raw Ouedkniss CDP row into RawListing without creating MarketListing."""
+    title = row.get("title", "")
+    raw_text = row.get("text", "")
+    url = normalize_ouedkniss_url(row.get("href", ""))
+
+    price_text = row.get("priceText", "")
+    raw_payload = {
+        "title": title,
+        "text": raw_text,
+        "href": url,
+        "image": row.get("image", ""),
+        "store": row.get("store", ""),
+        "priceText": price_text,
+        "source": "ouedkniss_cdp",
+    }
+
+    existing = RawListing.objects.filter(
+        source_type=SourceType.OUEDKNISS, listing_url=url
+    ).first()
+    if existing:
+        return existing, False
+
+    raw = RawListing.objects.create(
+        import_run=import_run,
+        source=source,
+        source_type=SourceType.OUEDKNISS,
+        country=Country.ALGERIA,
+        category_hint=category_hint,
+        listing_url=url,
+        title_raw=title[:500],
+        description_raw=raw_text,
+        raw_text=f"{title} {raw_text}",
+        price_text_raw=price_text,
+        image_url=row.get("image", ""),
+        raw_payload=raw_payload,
+    )
+    return raw, True
 
 
 def _save_card_image(product_model, variant, row, source):

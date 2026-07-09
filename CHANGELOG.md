@@ -1,6 +1,22 @@
 # Changelog
 ## 2026-07-09
 
+### Phase 3: Raw import commands
+
+- Modified `import_sahibinden_from_cdp` to create `RawImportRun` and save rows to `RawListing` instead of `MarketListing`. Removed snapshot recomputation from the command. Added `--category` and `--query` options.
+- Modified `import_ouedkniss_from_cdp` to create `RawImportRun` and save rows to `RawListing` instead of `MarketListing`. Removed snapshot recomputation from the command. Added `--category` and `--query` options.
+- Added `save_raw_row()` functions to `sahibinden_cdp` and `ouedkniss_cdp` collectors for saving raw CDP rows into `RawListing` with full `raw_payload` preservation.
+- Sahibinden `save_raw_row` preserves table cell data (processor, RAM, screen size) in `raw_payload`.
+- Ouedkniss `save_raw_row` preserves card text, image, store, and price text in `raw_payload`.
+
+### Phase 6: Import Lab review UI
+
+- Added `/import-lab/` staff-only review page with raw listings table, parsed candidates table, import runs history, and filterable status/category/source dropdowns.
+- Added `import_lab` view in `market/views.py` with stats summary and query filters for raw status, category, source type, candidate status, and candidate category.
+- Added `/import-lab/candidate/<pk>/` detail page with highlighted segments, raw text, parsed fields, phone/laptop specs JSON, matched models info, and approve/reject/export buttons.
+- Added batch action buttons (approve/reject/export) on candidates table with checkbox selection and JavaScript confirmation.
+- Added `candidate_detail` view with segment color highlighting and raw payload inspection.
+
 ### Phase 1-2: Raw-first import pipeline and Phone/Laptop clean models
 
 - Added `RawImportRun` model to track import/scrape sessions with source type, country, category hint, status, counters, and CDP endpoint metadata.
@@ -19,6 +35,22 @@
 - Created `backfill_raw_from_market_listings` management command to migrate existing `MarketListing` rows into `RawListing` with legacy ID preservation and `--dry-run` support.
 - Added migration `0020_raw_pipeline_and_phone_laptop_models` with all new models, indexes, and constraints.
 - Old `MarketListing`, `ProductModel`, `DeviceVariant`, and opportunity logic untouched.
+
+### Phase 5: Migration from old data
+
+- Backfilled 2795 existing `MarketListing` rows into `RawListing` with legacy ID preservation in `raw_payload`.
+- Parsed 2611 backfilled rows into `ParsedListingCandidate` records; 1648 need review, 2 auto-qualified above 95% confidence.
+- Fixed `candidate_builder` brand matching to avoid unsupported JSON `contains` lookup on SQLite.
+- Fixed 61 oversized `price_original` values that exceeded `DecimalField(max_digits=12)` constraint.
+
+### Phase 7: Export to clean models
+
+- Exported 510 approved phone candidates into `PhoneListing` with automatic `PhoneModel`/`PhoneVariant` creation and FK traceability to `RawListing`.
+- Exported 139 approved laptop candidates into `LaptopListing` with automatic `LaptopModel`/`LaptopVariant` creation and FK traceability to `RawListing`.
+
+### Phase 1: Raw pipeline tests
+
+- Added 67 tests covering RawListing content-hash dedup, unique constraints, phone/laptop parsers, candidate builder, identity keys, parse/export/backfill management commands, and segment helpers.
 
 ## 2026-07-08
 

@@ -86,9 +86,10 @@ def build_candidate(raw_listing):
             name__iexact=brand_text
         ).first()
         if not matched_brand:
-            matched_brand = Brand.objects.filter(
-                aliases__contains=[brand_text]
-            ).first()
+            for b in Brand.objects.exclude(aliases=[]).iterator():
+                if brand_text.lower() in [a.lower() for a in (b.aliases or [])]:
+                    matched_brand = b
+                    break
 
     phone_specs = {}
     laptop_specs = {}

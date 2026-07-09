@@ -1,0 +1,230 @@
+{% extends "market/base.html" %}
+{% block title %}Import Lab{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <h1 class="text-xl font-bold mb-4">Import Lab</h1>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="p-3 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Import Runs</div>
+      <div class="text-lg font-bold">{{ stats.total_runs }}</div>
+    </div>
+    <div class="p-3 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Raw Listings</div>
+      <div class="text-lg font-bold">{{ stats.total_raw }}</div>
+    </div>
+    <div class="p-3 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Candidates</div>
+      <div class="text-lg font-bold">{{ stats.total_candidates }}</div>
+    </div>
+    <div class="p-3 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Needs Review</div>
+      <div class="text-lg font-bold text-amber-500">{{ stats.candidates_by_status.needs_review|default:0 }}</div>
+    </div>
+  </div>
+
+  <div class="mb-6">
+    <h2 class="text-sm font-semibold mb-2">Recent Import Runs</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs border-collapse">
+        <thead>
+          <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
+            <th class="text-left p-2">#</th>
+            <th class="text-left p-2">Source</th>
+            <th class="text-left p-2">Country</th>
+            <th class="text-left p-2">Category</th>
+            <th class="text-left p-2">Status</th>
+            <th class="text-left p-2">Created</th>
+            <th class="text-left p-2">Skipped</th>
+            <th class="text-left p-2">Started</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for run in runs %}
+          <tr class="border-b border-[var(--pb-border)] hover:bg-[var(--pb-surface-hover)]">
+            <td class="p-2 font-mono">{{ run.pk }}</td>
+            <td class="p-2">{{ run.source_type }}</td>
+            <td class="p-2">{{ run.country }}</td>
+            <td class="p-2">{{ run.category_hint }}</td>
+            <td class="p-2">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-medium
+                {% if run.status == 'completed' %}bg-green-900/40 text-green-400
+                {% elif run.status == 'running' %}bg-blue-900/40 text-blue-400
+                {% elif run.status == 'failed' %}bg-red-900/40 text-red-400
+                {% else %}bg-gray-900/40 text-gray-400{% endif %}">
+                {{ run.status }}
+              </span>
+            </td>
+            <td class="p-2">{{ run.created_count }}</td>
+            <td class="p-2">{{ run.skipped_count }}</td>
+            <td class="p-2">{{ run.started_at|date:"M d H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="8" class="p-2 text-[var(--pb-muted)]">No import runs yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mb-6">
+    <h2 class="text-sm font-semibold mb-2">Raw Listings</h2>
+    <form method="get" class="flex flex-wrap gap-2 mb-3 text-xs">
+      <select name="raw_status" class="border border-[var(--pb-border)] rounded px-2 py-1 bg-[var(--pb-surface)]">
+        <option value="">All statuses</option>
+        {% for val, label in raw_status_choices %}
+        <option value="{{ val }}" {% if filters.raw_status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="raw_category" class="border border-[var(--pb-border)] rounded px-2 py-1 bg-[var(--pb-surface)]">
+        <option value="">All categories</option>
+        {% for val, label in category_choices %}
+        <option value="{{ val }}" {% if filters.raw_category == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="raw_source" class="border border-[var(--pb-border)] rounded px-2 py-1 bg-[var(--pb-surface)]">
+        <option value="">All sources</option>
+        {% for val, label in source_type_choices %}
+        <option value="{{ val }}" {% if filters.raw_source == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="px-3 py-1 rounded bg-[var(--pb-accent)] text-white font-medium">Filter</button>
+    </form>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs border-collapse">
+        <thead>
+          <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
+            <th class="text-left p-2">ID</th>
+            <th class="text-left p-2">Source</th>
+            <th class="text-left p-2">Cat</th>
+            <th class="text-left p-2">Title</th>
+            <th class="text-left p-2">Price</th>
+            <th class="text-left p-2">Status</th>
+            <th class="text-left p-2">Observed</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for raw in raw_listings %}
+          <tr class="border-b border-[var(--pb-border)] hover:bg-[var(--pb-surface-hover)]">
+            <td class="p-2 font-mono">{{ raw.pk }}</td>
+            <td class="p-2">{{ raw.source_type }}</td>
+            <td class="p-2">{{ raw.category_hint }}</td>
+            <td class="p-2 max-w-[300px] truncate">{{ raw.title_raw|default:"-" }}</td>
+            <td class="p-2">{{ raw.price_text_raw|default:"-" }}</td>
+            <td class="p-2">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-medium
+                {% if raw.parse_status == 'exported' %}bg-green-900/40 text-green-400
+                {% elif raw.parse_status == 'parsed' %}bg-blue-900/40 text-blue-400
+                {% elif raw.parse_status == 'needs_review' %}bg-amber-900/40 text-amber-400
+                {% elif raw.parse_status == 'rejected' %}bg-red-900/40 text-red-400
+                {% else %}bg-gray-900/40 text-gray-400{% endif %}">
+                {{ raw.parse_status }}
+              </span>
+            </td>
+            <td class="p-2">{{ raw.observed_at|date:"M d H:i" }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="p-2 text-[var(--pb-muted)]">No raw listings found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mb-6">
+    <div class="flex items-center gap-3 mb-2">
+      <h2 class="text-sm font-semibold">Parsed Candidates</h2>
+      <div class="flex gap-1">
+        <button onclick="batchAction('approve')" class="px-2 py-0.5 rounded bg-green-600 text-white text-[10px] font-medium hover:bg-green-700">Approve Selected</button>
+        <button onclick="batchAction('reject')" class="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-medium hover:bg-red-700">Reject Selected</button>
+        <button onclick="batchAction('export')" class="px-2 py-0.5 rounded bg-blue-600 text-white text-[10px] font-medium hover:bg-blue-700">Export Selected</button>
+      </div>
+    </div>
+    <form method="get" class="flex flex-wrap gap-2 mb-3 text-xs">
+      <select name="candidate_status" class="border border-[var(--pb-border)] rounded px-2 py-1 bg-[var(--pb-surface)]">
+        <option value="">All statuses</option>
+        {% for val, label in candidate_status_choices %}
+        <option value="{{ val }}" {% if filters.candidate_status == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <select name="candidate_category" class="border border-[var(--pb-border)] rounded px-2 py-1 bg-[var(--pb-surface)]">
+        <option value="">All categories</option>
+        {% for val, label in candidate_category_choices %}
+        <option value="{{ val }}" {% if filters.candidate_category == val %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="px-3 py-1 rounded bg-[var(--pb-accent)] text-white font-medium">Filter</button>
+    </form>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs border-collapse" id="candidates-table">
+        <thead>
+          <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
+            <th class="text-left p-2"><input type="checkbox" id="select-all" onchange="toggleAll(this)"></th>
+            <th class="text-left p-2">ID</th>
+            <th class="text-left p-2">Raw</th>
+            <th class="text-left p-2">Category</th>
+            <th class="text-left p-2">Brand</th>
+            <th class="text-left p-2">Model</th>
+            <th class="text-left p-2">Price</th>
+            <th class="text-left p-2">Conf</th>
+            <th class="text-left p-2">Status</th>
+            <th class="text-left p-2"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in candidates %}
+          <tr class="border-b border-[var(--pb-border)] hover:bg-[var(--pb-surface-hover)]">
+            <td class="p-2"><input type="checkbox" class="candidate-cb" value="{{ c.pk }}"></td>
+            <td class="p-2 font-mono">{{ c.pk }}</td>
+            <td class="p-2 font-mono">{{ c.raw_listing_id }}</td>
+            <td class="p-2">{{ c.detected_category }}</td>
+            <td class="p-2">{{ c.brand_text|default:"-" }}</td>
+            <td class="p-2">{{ c.model_text|default:"-" }}</td>
+            <td class="p-2">{{ c.price_original|default:"-" }} {{ c.currency_original }}</td>
+            <td class="p-2">{{ c.confidence|floatformat:2 }}</td>
+            <td class="p-2">
+              <span class="px-1.5 py-0.5 rounded text-[10px] font-medium
+                {% if c.status == 'exported' %}bg-green-900/40 text-green-400
+                {% elif c.status == 'approved' %}bg-blue-900/40 text-blue-400
+                {% elif c.status == 'needs_review' %}bg-amber-900/40 text-amber-400
+                {% elif c.status == 'rejected' %}bg-red-900/40 text-red-400
+                {% else %}bg-gray-900/40 text-gray-400{% endif %}">
+                {{ c.status }}
+              </span>
+            </td>
+            <td class="p-2">
+              <a href="{% url 'candidate_detail' c.pk %}" class="text-[var(--pb-accent)] hover:underline">view</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="10" class="p-2 text-[var(--pb-muted)]">No candidates found.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function getSelectedIds() {
+  return Array.from(document.querySelectorAll('.candidate-cb:checked')).map(cb => cb.value);
+}
+function toggleAll(el) {
+  document.querySelectorAll('.candidate-cb').forEach(cb => cb.checked = el.checked);
+}
+function batchAction(action) {
+  var ids = getSelectedIds();
+  if (!ids.length) { alert('Select candidates first.'); return; }
+  if (!confirm(action.charAt(0).toUpperCase() + action.slice(1) + ' ' + ids.length + ' candidates?')) return;
+  var form = new FormData();
+  form.append('action', action);
+  form.append('ids', ids.join(','));
+  form.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+  fetch('{% url "import_lab" %}', {method: 'POST', body: form})
+    .then(r => r.json())
+    .then(d => { if (d.ok) location.reload(); else alert(d.error || 'Failed'); })
+    .catch(() => alert('Request failed'));
+}
+</script>
+{% endblock %}

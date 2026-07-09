@@ -11,7 +11,7 @@ from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 from django.conf import settings
 from django.utils import timezone
 
-from market.models import Condition, Country, MarketListing, Source, SourceType
+from market.models import Condition, Country, MarketListing, RawImportRun, RawListing, Source, SourceType
 from market.services.currency import try_to_eur
 from market.services.listing_parser import (
     extract_model_text,
@@ -401,6 +401,54 @@ def save_row(row, source, category=None):
         from market.services.catalog import upsert_listing_specs_from_dict
         upsert_listing_specs_from_dict(listing, extracted_specs, confidence=spec_confidence)
     return listing
+
+
+def save_raw_row(row, source, import_run=None, category_hint="phones"):
+    """Save a raw CDP row into RawListing without creating MarketListing."""
+    title = row.get("title", "")
+    listing_url = absolute_sahibinden_url(row.get("href", ""))
+
+    price_text = row.get("price", "")
+    raw_payload = {
+        "id": row.get("id", ""),
+        "title": title,
+        "model": row.get("model", ""),
+        "price": price_text,
+        "date": row.get("date", ""),
+        "place": row.get("place", ""),
+        "href": listing_url,
+        "thumb": row.get("thumb", ""),
+        "processor": row.get("processor", ""),
+        "ram": row.get("ram", ""),
+        "screenSize": row.get("screenSize", ""),
+        "source": "sahibinden_cdp",
+    }
+    raw_text = " ".join(filter(None, [row.get("model", ""), title]))
+
+    existing = RawListing.objects.filter(
+        source_type=SourceType.SAHIBINDEN, listing_url=listing_url
+    ).first()
+    if existing:
+        return existing, False
+
+    raw = RawListing.objects.create(
+        import_run=import_run,
+        source=source,
+        source_type=SourceType.SAHIBINDEN,
+        country=Country.TURKIYE,
+        category_hint=category_hint,
+        external_id=row.get("id", ""),
+        listing_url=listing_url,
+        title_raw=title[:500],
+        description_raw=title,
+        raw_text=raw_text,
+        price_text_raw=price_text,
+        location_raw=row.get("place", ""),
+        date_text_raw=row.get("date", ""),
+        image_url=row.get("thumb", ""),
+        raw_payload=raw_payload,
+    )
+    return raw, True
 
 
 def extract_detail(sock):

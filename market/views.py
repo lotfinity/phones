@@ -1,5 +1,6 @@
 import json
 import logging
+import sys
 import types
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
@@ -1728,3 +1729,207 @@ def deals_more(request):
         "count": len(deals),
         "html": html,
     })
+
+
+@staff_member_required
+@staff_member_required
+def import_lab(request):
+    from market.models import RawImportRun, RawListing, ParsedListingCandidate
+
+    if request.method == "POST":
+        return _import_lab_action(request)
+
+    runs = RawImportRun.objects.order_by("-started_at")[:20]
+
+    raw_status = request.GET.get("raw_status", "")
+    raw_category = request.GET.get("raw_category", "")
+    raw_source = request.GET.get("raw_source", "")
+
+    raw_qs = RawListing.objects.select_related("import_run", "source").order_by("-observed_at")
+    if raw_status:
+        raw_qs = raw_qs.filter(parse_status=raw_status)
+    if raw_category:
+        raw_qs = raw_qs.filter(category_hint=raw_category)
+    if raw_source:
+        raw_qs = raw_qs.filter(source_type=raw_source)
+    raw_listings = raw_qs[:100]
+
+    candidate_status = request.GET.get("candidate_status", "")
+    candidate_category = request.GET.get("candidate_category", "")
+
+    candidate_qs = ParsedListingCandidate.objects.select_related(
+        "raw_listing", "matched_brand",
+    ).order_by("-created_at")
+    if candidate_status:
+        candidate_qs = candidate_qs.filter(status=candidate_status)
+    if candidate_category:
+        candidate_qs = candidate_qs.filter(detected_category=candidate_category)
+    candidates = candidate_qs[:100]
+
+    stats = {
+        "total_raw": RawListing.objects.count(),
+        "raw_by_status": dict(
+            RawListing.objects.values_list("parse_status").annotate(c=Count("id")).values_list("parse_status", "c")
+        ),
+        "total_candidates": ParsedListingCandidate.objects.count(),
+        "candidates_by_status": dict(
+            ParsedListingCandidate.objects.values_list("status").annotate(c=Count("id")).values_list("status", "c")
+        ),
+        "total_runs": RawImportRun.objects.count(),
+    }
+
+    return render(
+        request,
+        "market/import_lab.html",
+        base_context(request, "import_lab")
+        | {
+            "runs": runs,
+            "raw_listings": raw_listings,
+            "candidates": candidates,
+            "stats": stats,
+            "filters": {
+                "raw_status": raw_status,
+                "raw_category": raw_category,
+                "raw_source": raw_source,
+                "candidate_status": candidate_status,
+                "candidate_category": candidate_category,
+            },
+            "raw_status_choices": RawListing.ParseStatus.choices,
+            "category_choices": RawListing.CategoryHint.choices,
+            "source_type_choices": SourceType.choices,
+            "candidate_status_choices": ParsedListingCandidate.Status.choices,
+            "candidate_category_choices": ParsedListingCandidate.DetectedCategory.choices,
+        },
+    )
+
+
+def _import_lab_action(request):
+    from market.models import ParsedListingCandidate, RawListing
+    from market.services.parsing.candidate_builder import build_candidate
+
+    action = request.POST.get("action", "")
+    ids_raw = request.POST.get("ids", "")
+    candidate_id = request.POST.get("candidate_id", "")
+
+    if not ids_raw and not candidate_id:
+        return JsonResponse({"ok": False, "error": "No items selected."}, status=400)
+
+    if candidate_id:
+        ids = [int(candidate_id)]
+    else:
+        try:
+            ids = [int(x) for x in ids_raw.split(",") if x.strip()]
+        except ValueError:
+            return JsonResponse({"ok": False, "error": "Invalid IDs."}, status=400)
+
+    if action == "approve":
+        count = ParsedListingCandidate.objects.filter(id__in=ids).update(
+            status=ParsedListingCandidate.Status.APPROVED
+        )
+        return JsonResponse({"ok": True, "action": "approved", "count": count})
+
+    if action == "reject":
+        count = ParsedListingCandidate.objects.filter(id__in=ids).update(
+            status=ParsedListingCandidate.Status.REJECTED
+        )
+        return JsonResponse({"ok": True, "action": "rejected", "count": count})
+
+    if action == "parse":
+        parsed = 0
+        errors = 0
+        for raw_id in ids:
+            try:
+                raw = RawListing.objects.get(pk=raw_id)
+                build_candidate(raw)
+                parsed += 1
+            except Exception:
+                errors += 1
+        return JsonResponse({"ok": True, "action": "parsed", "count": parsed, "errors": errors})
+
+    if action == "export":
+        from market.management.commands.export_candidates import Command as ExportCmd
+        cmd = ExportCmd()
+        cmd.stdout = sys.stdout
+        exported = 0
+        for cid in ids:
+            try:
+                candidate = ParsedListingCandidate.objects.get(pk=cid)
+                if candidate.detected_category == ParsedListingCandidate.DetectedCategory.PHONE:
+                    cmd._export_phone(candidate)
+                elif candidate.detected_category == ParsedListingCandidate.DetectedCategory.LAPTOP:
+                    cmd._export_laptop(candidate)
+                else:
+                    continue
+                candidate.status = ParsedListingCandidate.Status.EXPORTED
+                candidate.save(update_fields=["status"])
+                if candidate.raw_listing:
+                    candidate.raw_listing.parse_status = RawListing.ParseStatus.EXPORTED
+                    candidate.raw_listing.save(update_fields=["parse_status"])
+                exported += 1
+            except Exception:
+                pass
+        return JsonResponse({"ok": True, "action": "exported", "count": exported})
+
+    return JsonResponse({"ok": False, "error": f"Unknown action: {action}"}, status=400)
+
+
+@staff_member_required
+def candidate_detail(request, pk):
+    from market.models import ParsedListingCandidate
+    from market.services.parsing.segments import SEGMENT_COLORS
+
+    candidate = get_object_or_404(
+        ParsedListingCandidate.objects.select_related(
+            "raw_listing", "matched_brand", "matched_phone_model",
+            "matched_phone_variant", "matched_laptop_model", "matched_laptop_variant",
+        ),
+        pk=pk,
+    )
+
+    raw = candidate.raw_listing
+    segments = candidate.detected_segments_json or []
+    highlighted_text = ""
+    if raw:
+        text = raw.raw_text or raw.title_raw or ""
+        if segments:
+            parts = []
+            pos = 0
+            for seg in sorted(segments, key=lambda s: s.get("start", 0)):
+                start = max(seg.get("start", 0), pos)
+                if start > pos:
+                    from django.utils.html import escape
+                    parts.append(f'<span>{escape(text[pos:start])}</span>')
+                color = SEGMENT_COLORS.get(seg.get("label", ""), "#9ca3af")
+                from django.utils.html import escape
+                parts.append(
+                    f'<span style="background-color:{color}33;border-bottom:2px solid {color};'
+                    f'padding:1px 2px;border-radius:2px" title="{seg.get("label", "")} '
+                    f'({seg.get("confidence", 0):.0%})">{escape(text[start:seg.get("end", start)])}</span>'
+                )
+                pos = seg.get("end", start)
+            if pos < len(text):
+                from django.utils.html import escape
+                parts.append(f'<span>{escape(text[pos:])}</span>')
+            highlighted_text = "\n".join(parts)
+        else:
+            from django.utils.html import escape
+            highlighted_text = f"<pre>{escape(raw.raw_text or '')}</pre>"
+
+    enriched_segments = []
+    for seg in segments:
+        enriched_segments.append({
+            **seg,
+            "color": SEGMENT_COLORS.get(seg.get("label", ""), "#9ca3af"),
+        })
+
+    return render(
+        request,
+        "market/candidate_detail.html",
+        base_context(request, "import_lab")
+        | {
+            "candidate": candidate,
+            "raw": raw,
+            "segments": enriched_segments,
+            "highlighted_text": highlighted_text,
+        },
+    )

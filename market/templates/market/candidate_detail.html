@@ -1,0 +1,118 @@
+{% extends "market/base.html" %}
+{% block title %}Candidate #{{ candidate.pk }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-6">
+  <a href="{% url 'import_lab' %}" class="text-xs text-[var(--pb-accent)] hover:underline mb-4 inline-block">&larr; Back to Import Lab</a>
+
+  <div class="flex items-center gap-3 mb-4">
+    <h1 class="text-xl font-bold">Candidate #{{ candidate.pk }}</h1>
+    <span class="px-2 py-0.5 rounded text-xs font-medium
+      {% if candidate.status == 'exported' %}bg-green-900/40 text-green-400
+      {% elif candidate.status == 'approved' %}bg-blue-900/40 text-blue-400
+      {% elif candidate.status == 'needs_review' %}bg-amber-900/40 text-amber-400
+      {% elif candidate.status == 'rejected' %}bg-red-900/40 text-red-400
+      {% else %}bg-gray-900/40 text-gray-400{% endif %}">
+      {{ candidate.get_status_display }}
+    </span>
+    <span class="px-2 py-0.5 rounded text-xs font-medium bg-purple-900/40 text-purple-400">
+      {{ candidate.get_detected_category_display }}
+    </span>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="p-4 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <h2 class="text-sm font-semibold mb-2">Detected Info</h2>
+      <dl class="text-xs space-y-1">
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Brand</dt><dd>{{ candidate.brand_text|default:"-" }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Model</dt><dd>{{ candidate.model_text|default:"-" }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Variant</dt><dd>{{ candidate.variant_text|default:"-" }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Price</dt><dd>{{ candidate.price_original|default:"-" }} {{ candidate.currency_original }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Condition</dt><dd>{{ candidate.get_condition_display }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Confidence</dt><dd>{{ candidate.confidence|floatformat:2 }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Parser</dt><dd>{{ candidate.parser_version|default:"-" }}</dd></div>
+      </dl>
+    </div>
+
+    <div class="p-4 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <h2 class="text-sm font-semibold mb-2">Matched Models</h2>
+      <dl class="text-xs space-y-1">
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Brand</dt><dd>{{ candidate.matched_brand|default:"-" }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Phone Model</dt><dd>{{ candidate.matched_phone_model|default:"-" }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Phone Variant</dt><dd>{{ candidate.matched_phone_variant|default:"-" }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Laptop Model</dt><dd>{{ candidate.matched_laptop_model|default:"-" }}</dd></div>
+        <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Laptop Variant</dt><dd>{{ candidate.matched_laptop_variant|default:"-" }}</dd></div>
+      </dl>
+    </div>
+  </div>
+
+  {% if candidate.phone_specs_json %}
+  <div class="p-4 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)] mb-4">
+    <h2 class="text-sm font-semibold mb-2">Phone Specs</h2>
+    <pre class="text-xs bg-black/20 rounded p-2 overflow-x-auto">{{ candidate.phone_specs_json|pprint }}</pre>
+  </div>
+  {% endif %}
+
+  {% if candidate.laptop_specs_json %}
+  <div class="p-4 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)] mb-4">
+    <h2 class="text-sm font-semibold mb-2">Laptop Specs</h2>
+    <pre class="text-xs bg-black/20 rounded p-2 overflow-x-auto">{{ candidate.laptop_specs_json|pprint }}</pre>
+  </div>
+  {% endif %}
+
+  <div class="p-4 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)] mb-4">
+    <h2 class="text-sm font-semibold mb-2">Raw Text (Highlighted)</h2>
+    <div class="text-sm leading-relaxed bg-black/20 rounded p-3">{{ highlighted_text|safe }}</div>
+    {% if segments %}
+    <div class="mt-2 flex flex-wrap gap-2 text-[10px]">
+      {% for seg in segments %}
+      <span class="px-1.5 py-0.5 rounded" style="background-color:{{ seg.color|default:"#9ca3af" }}33;color:{{ seg.color|default:"#9ca3af" }}">
+        {{ seg.label }}: {{ seg.text }}
+      </span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+
+  {% if raw %}
+  <div class="p-4 rounded-lg border border-[var(--pb-border)] bg-[var(--pb-surface)] mb-4">
+    <h2 class="text-sm font-semibold mb-2">Raw Listing #{{ raw.pk }}</h2>
+    <dl class="text-xs space-y-1">
+      <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Source</dt><dd>{{ raw.source_type }}</dd></div>
+      <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Country</dt><dd>{{ raw.country }}</dd></div>
+      <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Category</dt><dd>{{ raw.category_hint }}</dd></div>
+      <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Parse Status</dt><dd>{{ raw.parse_status }}</dd></div>
+      <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">URL</dt><dd>{% if raw.listing_url %}<a href="{{ raw.listing_url }}" target="_blank" class="text-[var(--pb-accent)] hover:underline">open</a>{% else %}-{% endif %}</dd></div>
+      <div class="flex justify-between"><dt class="text-[var(--pb-muted)]">Observed</dt><dd>{{ raw.observed_at }}</dd></div>
+    </dl>
+    {% if raw.raw_payload %}
+    <details class="mt-2">
+      <summary class="text-xs cursor-pointer text-[var(--pb-muted)]">Raw Payload</summary>
+      <pre class="text-[10px] bg-black/20 rounded p-2 mt-1 overflow-x-auto max-h-60">{{ raw.raw_payload|pprint }}</pre>
+    </details>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="flex gap-2">
+    <form method="post" action="{% url 'import_lab' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="approve">
+      <input type="hidden" name="candidate_id" value="{{ candidate.pk }}">
+      <button type="submit" class="px-3 py-1.5 rounded bg-green-600 text-white text-xs font-medium hover:bg-green-700">Approve</button>
+    </form>
+    <form method="post" action="{% url 'import_lab' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="reject">
+      <input type="hidden" name="candidate_id" value="{{ candidate.pk }}">
+      <button type="submit" class="px-3 py-1.5 rounded bg-red-600 text-white text-xs font-medium hover:bg-red-700">Reject</button>
+    </form>
+    <form method="post" action="{% url 'import_lab' %}">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="export">
+      <input type="hidden" name="candidate_id" value="{{ candidate.pk }}">
+      <button type="submit" class="px-3 py-1.5 rounded bg-blue-600 text-white text-xs font-medium hover:bg-blue-700">Export Now</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
