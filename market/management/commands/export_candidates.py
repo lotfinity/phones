@@ -15,8 +15,8 @@ from market.models import (
     build_laptop_variant_identity,
     build_phone_variant_identity,
     normalize_sim_config,
-    normalize_variant_text,
 )
+from market.services.currency import convert_to_eur
 
 
 class Command(BaseCommand):
@@ -47,7 +47,14 @@ class Command(BaseCommand):
         else:
             qs = qs.filter(detected_category=ParsedListingCandidate.DetectedCategory.LAPTOP)
 
-        qs = qs.select_related("raw_listing", "matched_brand")[:limit]
+        qs = qs.select_related(
+            "raw_listing",
+            "matched_brand",
+            "matched_phone_model",
+            "matched_phone_variant",
+            "matched_laptop_model",
+            "matched_laptop_variant",
+        )[:limit]
 
         exported = 0
         for candidate in qs.iterator():
@@ -64,22 +71,32 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Exported {exported} {category} candidates."))
 
-    def _export_phone(self, candidate):
+    def _candidate_price_eur(self, candidate):
+        if candidate.price_eur is not None:
+            return candidate.price_eur
+        if candidate.price_original is not None and candidate.currency_original:
+            return convert_to_eur(candidate.price_original, candidate.currency_original)
+        return None
+
+    def _review_status_for_export(self, candidate, listing_model):
+        if candidate.status in {
+            ParsedListingCandidate.Status.APPROVED,
+            ParsedListingCandidate.Status.EXPORTED,
+        }:
+            return listing_model.ReviewStatus.APPROVED
+        return listing_model.ReviewStatus.NEEDS_REVIEW
+
+    def _get_or_create_brand(self, candidate):
         brand = candidate.matched_brand
-        if not brand and candidate.brand_text:
-            brand, _ = Brand.objects.get_or_create(
-                name__iexact=candidate.brand_text,
-                defaults={"name": candidate.brand_text},
-            )
+        if brand or not candidate.brand_text:
+            return brand
+        existing = Brand.objects.filter(name__iexact=candidate.brand_text).first()
+        if existing:
+            return existing
+        return Brand.objects.create(name=candidate.brand_text)
 
-        phone_model = None
-        if brand and candidate.model_text:
-            phone_model, _ = PhoneModel.objects.get_or_create(
-                brand=brand,
-                canonical_name=candidate.model_text,
-                defaults={"canonical_name": candidate.model_text},
-            )
-
+    def _export_phone(self, candidate):
+        brand = self._get_or_create_brand(candidate)
         specs = candidate.phone_specs_json or {}
         storage_gb = specs.get("storage_gb")
         ram_gb = specs.get("ram_gb")
@@ -87,16 +104,25 @@ class Command(BaseCommand):
         region = specs.get("region", "")
         color = specs.get("color", "")
 
-        variant = None
-        if phone_model:
-            label_parts = [candidate.model_text]
+        variant = candidate.matched_phone_variant
+        phone_model = candidate.matched_phone_model or (variant.phone_model if variant else None)
+
+        if not phone_model and brand and candidate.model_text:
+            phone_model, _ = PhoneModel.objects.get_or_create(
+                brand=brand,
+                canonical_name=candidate.model_text,
+                defaults={"canonical_name": candidate.model_text},
+            )
+
+        if phone_model and not variant:
+            label_parts = [candidate.model_text or phone_model.canonical_name]
             if storage_gb:
                 label_parts.append(f"{storage_gb}GB")
             if ram_gb:
                 label_parts.append(f"{ram_gb}GB RAM")
             if sim_config:
                 label_parts.append(sim_config)
-            canonical_label = " ".join(label_parts)
+            canonical_label = " ".join(part for part in label_parts if part)
 
             identity_key = build_phone_variant_identity(
                 storage_gb, ram_gb, sim_config, region, color
@@ -116,6 +142,9 @@ class Command(BaseCommand):
             )
 
         raw = candidate.raw_listing
+        title = " ".join(part for part in [candidate.brand_text, candidate.model_text] if part).strip()
+        if not title and raw:
+            title = raw.title_raw
         listing, _ = PhoneListing.objects.update_or_create(
             raw_listing=raw,
             defaults={
@@ -124,9 +153,10 @@ class Command(BaseCommand):
                 "country": raw.country if raw else "",
                 "phone_model": phone_model,
                 "variant": variant,
-                "title": candidate.brand_text + " " + candidate.model_text,
+                "title": title,
                 "price_original": candidate.price_original,
                 "currency_original": candidate.currency_original,
+                "price_eur": self._candidate_price_eur(candidate),
                 "condition": candidate.condition,
                 "storage_gb": storage_gb,
                 "ram_gb": ram_gb,
@@ -139,27 +169,13 @@ class Command(BaseCommand):
                 "listing_url": raw.listing_url if raw else "",
                 "image_url": raw.image_url if raw else "",
                 "parsed_confidence": candidate.confidence,
-                "review_status": PhoneListing.ReviewStatus.NEEDS_REVIEW,
+                "review_status": self._review_status_for_export(candidate, PhoneListing),
             },
         )
         return listing
 
     def _export_laptop(self, candidate):
-        brand = candidate.matched_brand
-        if not brand and candidate.brand_text:
-            brand, _ = Brand.objects.get_or_create(
-                name__iexact=candidate.brand_text,
-                defaults={"name": candidate.brand_text},
-            )
-
-        laptop_model = None
-        if brand and candidate.model_text:
-            laptop_model, _ = LaptopModel.objects.get_or_create(
-                brand=brand,
-                canonical_name=candidate.model_text,
-                defaults={"canonical_name": candidate.model_text},
-            )
-
+        brand = self._get_or_create_brand(candidate)
         specs = candidate.laptop_specs_json or {}
         cpu = specs.get("cpu", "")
         gpu = specs.get("gpu", "")
@@ -170,9 +186,18 @@ class Command(BaseCommand):
         refresh_rate_hz = specs.get("refresh_rate_hz")
         panel_type = specs.get("panel_type", "")
 
-        variant = None
-        if laptop_model:
-            label_parts = [candidate.model_text]
+        variant = candidate.matched_laptop_variant
+        laptop_model = candidate.matched_laptop_model or (variant.laptop_model if variant else None)
+
+        if not laptop_model and brand and candidate.model_text:
+            laptop_model, _ = LaptopModel.objects.get_or_create(
+                brand=brand,
+                canonical_name=candidate.model_text,
+                defaults={"canonical_name": candidate.model_text},
+            )
+
+        if laptop_model and not variant:
+            label_parts = [candidate.model_text or laptop_model.canonical_name]
             if cpu:
                 label_parts.append(cpu)
             if gpu:
@@ -181,7 +206,7 @@ class Command(BaseCommand):
                 label_parts.append(f"{ram_gb}GB")
             if storage_gb:
                 label_parts.append(f"{storage_gb}GB")
-            canonical_label = " ".join(label_parts)
+            canonical_label = " ".join(part for part in label_parts if part)
 
             identity_key = build_laptop_variant_identity(
                 cpu, gpu, ram_gb, storage_gb,
@@ -205,6 +230,9 @@ class Command(BaseCommand):
             )
 
         raw = candidate.raw_listing
+        title = " ".join(part for part in [candidate.brand_text, candidate.model_text] if part).strip()
+        if not title and raw:
+            title = raw.title_raw
         listing, _ = LaptopListing.objects.update_or_create(
             raw_listing=raw,
             defaults={
@@ -213,9 +241,10 @@ class Command(BaseCommand):
                 "country": raw.country if raw else "",
                 "laptop_model": laptop_model,
                 "variant": variant,
-                "title": candidate.brand_text + " " + candidate.model_text,
+                "title": title,
                 "price_original": candidate.price_original,
                 "currency_original": candidate.currency_original,
+                "price_eur": self._candidate_price_eur(candidate),
                 "condition": candidate.condition,
                 "cpu": cpu,
                 "gpu": gpu,
@@ -228,7 +257,7 @@ class Command(BaseCommand):
                 "listing_url": raw.listing_url if raw else "",
                 "image_url": raw.image_url if raw else "",
                 "parsed_confidence": candidate.confidence,
-                "review_status": LaptopListing.ReviewStatus.NEEDS_REVIEW,
+                "review_status": self._review_status_for_export(candidate, LaptopListing),
             },
         )
         return listing
