@@ -1,0 +1,73 @@
+[
+  {
+    "brand": "Lenovo",
+    "model": "Legion",
+    "laptop_model_id": 10,
+    "cpu": "",
+    "gpu": "",
+    "ram_gb": null,
+    "storage_gb": null,
+    "algeria_min_eur": 350.18,
+    "algeria_avg_eur": 350.18,
+    "turkiye_min_eur": 298.61,
+    "turkiye_avg_eur": 979.42,
+    "margin_eur": 629.24,
+    "margin_percent": 179.69,
+    "algeria_count": 1,
+    "turkiye_count": 27,
+    "confidence": 0.75,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-lenovo-legion-bab-ezzouar-alger-algeria-d56390368"
+    ],
+    "turkiye_urls": []
+  },
+  {
+    "brand": "Lenovo",
+    "model": "Legion Y540",
+    "laptop_model_id": 9,
+    "cpu": "Intel Core i7",
+    "gpu": "NVIDIA GTX 1660 Ti",
+    "ram_gb": null,
+    "storage_gb": null,
+    "algeria_min_eur": 433.21,
+    "algeria_avg_eur": 433.21,
+    "turkiye_min_eur": 707.33,
+    "turkiye_avg_eur": 707.33,
+    "margin_eur": 274.12,
+    "margin_percent": 63.28,
+    "algeria_count": 1,
+    "turkiye_count": 1,
+    "confidence": 0.9,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-gaming-lenovo-legion-y540-i7-9th-gtx-1660ti-ain-benian-alger-algeria-d56253703"
+    ],
+    "turkiye_urls": []
+  },
+  {
+    "brand": "Dell",
+    "model": "Latitude",
+    "laptop_model_id": 115,
+    "cpu": "Intel Core i5",
+    "gpu": "",
+    "ram_gb": 16,
+    "storage_gb": 256,
+    "algeria_min_eur": 389.89,
+    "algeria_avg_eur": 389.89,
+    "turkiye_min_eur": 513.23,
+    "turkiye_avg_eur": 513.23,
+    "margin_eur": 123.34,
+    "margin_percent": 31.63,
+    "algeria_count": 1,
+    "turkiye_count": 1,
+    "confidence": 0.8,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/store/12527/eternel-store/annonce/51496396"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-dell-latitude-3540-i5-1335u-16gb-ram-256gb-ssd-temiz-1326095165/detay"
+    ]
+  }
+]

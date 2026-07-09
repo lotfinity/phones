@@ -1,0 +1,352 @@
+[
+  {
+    "brand": "Samsung",
+    "model": "Galaxy Z Fold 7",
+    "phone_model_id": 33,
+    "storage_gb": 512,
+    "algeria_min_eur": 956.68,
+    "algeria_avg_eur": 965.71,
+    "turkiye_min_eur": 1437.03,
+    "turkiye_avg_eur": 1460.37,
+    "gross_margin_eur": 503.69,
+    "margin_percent": 52.65,
+    "algeria_count": 2,
+    "turkiye_count": 2,
+    "algeria_urls": [
+      "https://www.ouedkniss.com/store/6442/abdou-cabba-store/annonce/55347235",
+      "https://www.ouedkniss.com/store/6442/abdou-cabba-store/annonce/55424305"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-galaxy-z-fold-7-512gb-sifir-kapali-kutu,magazadan-takas-plustaksit-1315574883/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-z-fol7-sifir-kapali-kutu-512-gb-yd-1322800488/detay"
+    ],
+    "recommendation": "buy",
+    "confidence_score": 56
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 17 Pro",
+    "phone_model_id": 187,
+    "storage_gb": 256,
+    "algeria_min_eur": 682.31,
+    "algeria_avg_eur": 682.31,
+    "turkiye_min_eur": 895.8,
+    "turkiye_avg_eur": 1135.01,
+    "gross_margin_eur": 452.7,
+    "margin_percent": 66.35,
+    "algeria_count": 1,
+    "turkiye_count": 25,
+    "algeria_urls": [
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DYC3ptQIxYz/"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256gb-yurtdisi-1326342645/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256-gb-yd-cift-simli-pil-100-15-ay-acik-devir-10-1326098194/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-17-pro-256-gb-pil-100-hat-takilmamis-1326397279/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-cift-e-sim-bugune-ozel-1326138645/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-cift-e-sim-bugune-ozel-1326138117/detay"
+    ],
+    "recommendation": "buy",
+    "confidence_score": 75
+  },
+  {
+    "brand": "Samsung",
+    "model": "Galaxy Z Fold 7",
+    "phone_model_id": 33,
+    "storage_gb": 256,
+    "algeria_min_eur": 787.0,
+    "algeria_avg_eur": 817.69,
+    "turkiye_min_eur": 933.13,
+    "turkiye_avg_eur": 1130.85,
+    "gross_margin_eur": 343.85,
+    "margin_percent": 43.69,
+    "algeria_count": 2,
+    "turkiye_count": 6,
+    "algeria_urls": [
+      "https://www.ouedkniss.com/store/6442/abdou-cabba-store/annonce/55400608",
+      "https://www.ouedkniss.com/store/6442/abdou-cabba-store/annonce/53508815"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-semers-iletisim-samsung-z-fold-7-256-gb-hafiza-1324160213/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223472/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223933/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223534/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325222642/detay"
+    ],
+    "recommendation": "buy",
+    "confidence_score": 68
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 17",
+    "phone_model_id": 202,
+    "storage_gb": 256,
+    "algeria_min_eur": 501.81,
+    "algeria_avg_eur": 501.81,
+    "turkiye_min_eur": 690.53,
+    "turkiye_avg_eur": 751.8,
+    "gross_margin_eur": 249.99,
+    "margin_percent": 49.82,
+    "algeria_count": 1,
+    "turkiye_count": 31,
+    "algeria_urls": [
+      "/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_37_696255383_1387440690087164_8159481903068963318_n.jpg"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-dip-fiyat-kapali-kutu-17-256-gb-kilif%7Ekirilmaz-hediyeli-1326402325/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-oyuncu-kulakligi-hediyeli-takas-secenekli-iphone-17-1326401553/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-dev-kampanya-17-256-gb-kulaklik-hediye-1326399912/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-airpods-4-hediyeli-yesil-iphone-17-256-gb-kka-12-ay-taksit-1326400254/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-fiyati-oldurmedik-ama-firsat-bu-iphone-17-siyah-renk-256-gb-1326360097/detay"
+    ],
+    "recommendation": "buy",
+    "confidence_score": 75
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro",
+    "phone_model_id": 17,
+    "storage_gb": 128,
+    "algeria_min_eur": 357.4,
+    "algeria_avg_eur": 460.29,
+    "turkiye_min_eur": 522.54,
+    "turkiye_avg_eur": 590.17,
+    "gross_margin_eur": 232.77,
+    "margin_percent": 65.13,
+    "algeria_count": 3,
+    "turkiye_count": 4,
+    "algeria_urls": [
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DYH92LCI0Ir/",
+      "https://www.instagram.com/p/DaVfS09sHP2/",
+      "https://www.instagram.com/p/DaIaFm7sUVz/"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cinar-iletisim-den-iphone-15-pro-128gb-pil88-1325612401/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15pro-128-gb-orjinal-seri-gg-1326158985/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-varol-iletisim-den-15-pro-yd-hatasiz-yili-kurtariyor-1325996166/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-pro-128-gb-yd-cihazi-1326233160/detay"
+    ],
+    "recommendation": "buy",
+    "confidence_score": 72
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "phone_model_id": 8,
+    "storage_gb": 256,
+    "algeria_min_eur": 209.39,
+    "algeria_avg_eur": 282.79,
+    "turkiye_min_eur": 363.93,
+    "turkiye_avg_eur": 363.93,
+    "gross_margin_eur": 154.54,
+    "margin_percent": 73.8,
+    "algeria_count": 3,
+    "turkiye_count": 1,
+    "algeria_urls": [
+      "https://www.instagram.com/p/DaQOQCMMFJQ/",
+      "https://www.instagram.com/p/DZ-FC5qMNcJ/",
+      "https://www.instagram.com/p/DZ-FX01MhXO/"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14pm-sok-fiyat-1325963466/detay"
+    ],
+    "recommendation": "watch",
+    "confidence_score": 63
+  },
+  {
+    "brand": "Samsung",
+    "model": "Galaxy S26 Ultra",
+    "phone_model_id": 112,
+    "storage_gb": 256,
+    "algeria_min_eur": 750.9,
+    "algeria_avg_eur": 832.26,
+    "turkiye_min_eur": 802.51,
+    "turkiye_avg_eur": 890.33,
+    "gross_margin_eur": 139.43,
+    "margin_percent": 18.57,
+    "algeria_count": 14,
+    "turkiye_count": 143,
+    "algeria_urls": [
+      "https://www.ouedkniss.com/smartphones-samsung-galaxy-s26-ultra-5g-256gb-512gb-kouba-alger-algeria-d56264182",
+      "https://www.ouedkniss.com/smartphones-galaxy-s26-ultra-12gb-256gb-2sim-boite-dely-brahim-alger-algeria-d55895821",
+      "https://www.ouedkniss.com/smartphones-samsung-galaxy-s26-ultra-256gb512gb1tb-1sim2sim-el-biar-alger-algeria-d25234469",
+      "https://www.ouedkniss.com/smartphones-samsung-galaxy-s26-ultra-256gb12gb-bab-el-oued-alger-algeria-d54364457",
+      "https://www.ouedkniss.com/smartphones-samsung-galaxy-s26-ultra-256gb12ram-2sim-bouzareah-alger-algeria-d54387767"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1324638403/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-premium-seri-s26-ultra-diledigin-aksesuar-hediyesiyle-1324638965/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1324948149/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1324639751/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-siyah-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1324560609/detay"
+    ],
+    "recommendation": "watch",
+    "confidence_score": 90
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 16 Pro Max",
+    "phone_model_id": 179,
+    "storage_gb": 256,
+    "algeria_min_eur": 610.11,
+    "algeria_avg_eur": 821.9,
+    "turkiye_min_eur": 634.52,
+    "turkiye_avg_eur": 738.87,
+    "gross_margin_eur": 128.76,
+    "margin_percent": 21.1,
+    "algeria_count": 3,
+    "turkiye_count": 16,
+    "algeria_urls": [
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DaYigZPoF3S/",
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DYHpeFaozSu/",
+      "/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_42_686863962_1450580866369189_4654739430022062412_n.jpg"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256gb-yurtdisi-1325298410/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256-gb-col-titanium-temiz-1326419241/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-16-pro-max-256gb-pil96-3-ay-aktif-1326400519/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-max-256gb-pil-92-3-ay-kullanim-cift-sim-1326336352/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-max-256gb-pil-92-3-ay-kullanim-cift-sim-1326326595/detay"
+    ],
+    "recommendation": "watch",
+    "confidence_score": 95
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 13 Pro",
+    "phone_model_id": 5,
+    "storage_gb": 128,
+    "algeria_min_eur": 249.1,
+    "algeria_avg_eur": 317.69,
+    "turkiye_min_eur": 298.59,
+    "turkiye_avg_eur": 367.03,
+    "gross_margin_eur": 117.93,
+    "margin_percent": 47.34,
+    "algeria_count": 6,
+    "turkiye_count": 3,
+    "algeria_urls": [
+      "/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_18_702009360_1676431733606068_6173082116782847789_n.jpg",
+      "https://www.instagram.com/p/DaVdYLTs8OF/",
+      "https://www.instagram.com/p/instagram_image_02/",
+      "/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_19_687743425_959193966728203_5315308417298535271_n.jpg",
+      "https://www.instagram.com/p/DZ-Fg7eMyQM/"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-13-pro-128-gb-ekime-kadar-acik-1326418372/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-13-pro-128gb-4-ay-aktif-1326405479/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-pro-mavi-128gb-kapali-kutu-1326172299/detay"
+    ],
+    "recommendation": "watch",
+    "confidence_score": 74
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 14 Pro Max",
+    "phone_model_id": 14,
+    "storage_gb": 128,
+    "algeria_min_eur": 393.5,
+    "algeria_avg_eur": 450.36,
+    "turkiye_min_eur": 457.24,
+    "turkiye_avg_eur": 510.41,
+    "gross_margin_eur": 116.91,
+    "margin_percent": 29.71,
+    "algeria_count": 4,
+    "turkiye_count": 8,
+    "algeria_urls": [
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DYChfUJo3Hr/",
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/Daa1wlsIL6R/",
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DaaX-yYIUqP/",
+      "https://www.instagram.com/p/DZ-F822swdQ/"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14-promax-128-gb-pil-86-10-aya-kadar-kullanilabilir-1325140550/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-14-pro-max-128gb-5-ay-aktif-1326403141/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-y.disi-iphone-14-pro-max-128-gb-derin-mor-4-ay-kullanima-acik-1326361216/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-14-pro-max-128-gb-14-ay-aktif-1326403871/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14-promax-128-2-yd-pil76-orjinal-seri-hat-takilmamis-1326389159/detay"
+    ],
+    "recommendation": "watch",
+    "confidence_score": 89
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 12 Pro Max",
+    "phone_model_id": 244,
+    "storage_gb": 128,
+    "algeria_min_eur": 270.76,
+    "algeria_avg_eur": 277.98,
+    "turkiye_min_eur": 261.26,
+    "turkiye_avg_eur": 382.57,
+    "gross_margin_eur": 111.81,
+    "margin_percent": 41.29,
+    "algeria_count": 2,
+    "turkiye_count": 2,
+    "algeria_urls": [
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DYAWp86IDGV/",
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DX4YqsTodgx/"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-12-pro-max-128gb-pil-74-tertemiz-2ay-1326232523/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-12-pro-max-128gb-pil-85-tertemiz-hatasiz-1325295471/detay"
+    ],
+    "recommendation": "watch",
+    "confidence_score": 56
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 15 Pro Max",
+    "phone_model_id": 15,
+    "storage_gb": 256,
+    "algeria_min_eur": 537.91,
+    "algeria_avg_eur": 585.29,
+    "turkiye_min_eur": 410.58,
+    "turkiye_avg_eur": 647.07,
+    "gross_margin_eur": 109.16,
+    "margin_percent": 20.29,
+    "algeria_count": 4,
+    "turkiye_count": 21,
+    "algeria_urls": [
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DYCZeZEIn9O/",
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DYH73NUI5we/",
+      "https://www.instagram.com/p/DaQIlOVM0Rv/",
+      "https://www.instagram.com/p/DaIblbJM2Hn/"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-pro-max-256-gb-natural-titanium-renk-1326422248/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildiz-iletisimden-temiz-apple-iphone-15-pro-max-256gb-pil-86-1324170519/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-pro-max-256gb-full-orjinal-tertemiz-degisensiz-firsatt-1326288632/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-15-pro-max-256gb-pil-82-tertemiz-4-ay-kullanim-1325312059/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-7-24-adrese-teslim-iphone-15-promax-256gb-pil86-70gun-acik-1325955539/detay"
+    ],
+    "recommendation": "watch",
+    "confidence_score": 100
+  },
+  {
+    "brand": "Apple",
+    "model": "iPhone 13 Pro Max",
+    "phone_model_id": 3,
+    "storage_gb": 128,
+    "algeria_min_eur": 292.42,
+    "algeria_avg_eur": 356.14,
+    "turkiye_min_eur": 345.26,
+    "turkiye_avg_eur": 396.59,
+    "gross_margin_eur": 104.17,
+    "margin_percent": 35.62,
+    "algeria_count": 10,
+    "turkiye_count": 3,
+    "algeria_urls": [
+      "https://www.instagram.com/p/DaQN-SCMCND/",
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DYC2ktboQU_/",
+      "/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_22_701643897_1458658605535312_5808747699995723483_n.jpg",
+      "https://www.instagram.com/p/DaIZnJjsRv_/",
+      "https://www.instagram.com/deghoul_haroun_telecom/reel/DX9Wzj6ISy5/"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ikizler-gsm-iphone-13-pro-max-128gb-pil84-yd-1326063539/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-13-pro-max-128gb-pil77-4-ay-aktif-1326406554/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-13-pro-max-128-gb-koknar-yesili-14-ay-acik-1326072591/detay"
+    ],
+    "recommendation": "watch",
+    "confidence_score": 74
+  }
+]

@@ -1,5 +1,6 @@
 """Build ParsedListingCandidate from a RawListing using phone/laptop parsers."""
 
+import re
 from decimal import Decimal, InvalidOperation
 
 from market.models import (
@@ -11,7 +12,84 @@ from market.services.currency import convert_to_eur
 from market.services.parsing.phone_parser_v2 import parse_phone
 from market.services.parsing.laptop_parser_v2 import parse_laptop
 
-PARSER_VERSION = "v2.1"
+PARSER_VERSION = "v2.2"
+
+
+# ── URL / title-based category detection ────────────────────────────────────
+# Strong laptop URL signals (Ouedkniss slug patterns + Sahibinden Turkish paths).
+_LAPTOP_URL_PATTERNS = re.compile(
+    r"/laptop-|/macbooks-|/computer-|/dizustu-notebook-|/bilgisayar-dizustu-",
+    re.IGNORECASE,
+)
+
+# Accessory / reject URL patterns.
+_ACCESSORY_URL_PATTERNS = re.compile(
+    r"/keyboard-mouse-|/screens-|/headphones-|/school-bag|/pockets-cases|"
+    r"/charger|/chargers|/software|/consoles|/pens-|/accessories-|"
+    r"/shockproof-cases|/other-",
+    re.IGNORECASE,
+)
+
+# Strong laptop keywords in title/text.
+_LAPTOP_TITLE_KEYWORDS = re.compile(
+    r"\b(laptop|notebook|macbook|legion|thinkpad|ideapad|loq|"
+    r"asus\s*tuf|\brog\b|victus|elitebook|probook|dell\s*latitude|"
+    r"dell\s*xps|\bmsi\b|acer\s*nitro|predator|hp\s*omen)\b",
+    re.IGNORECASE,
+)
+
+# Laptop-only brands: these are NEVER phone brands, so their presence in title
+# strongly indicates a laptop listing even without other keywords.
+_LAPTOP_ONLY_BRANDS = re.compile(
+    r"\b(dell|msi|razer|gigabyte)\b",
+    re.IGNORECASE,
+)
+
+# Accessory / reject keywords in title/text.
+_ACCESSORY_TITLE_KEYWORDS = re.compile(
+    r"\b(souris|clavier|casque|chargeur|housse|pochette|coque|sac|"
+    r"cartable|\b(ecran|écran)\b|stylus|\bpen\b|office\s*365|"
+    r"software|console|gaming\s*mouse|keyboard)\b",
+    re.IGNORECASE,
+)
+
+# Laptop brand keywords that, combined with price/specs, indicate laptop.
+_LAPTOP_BRAND_KEYWORDS = re.compile(
+    r"\b(lenovo|asus|dell|hp|acer|msi|apple|razer|gigabyte|huawei|microsoft)\b",
+    re.IGNORECASE,
+)
+
+
+def detect_category_from_signals(url="", title=""):
+    """Detect category from URL and title signals.
+
+    Returns one of: 'laptop', 'accessory', or '' (no strong signal).
+    This is used to override category_hint when URL/title provide
+    strong evidence that contradicts the hint.
+    """
+    url_lower = (url or "").lower()
+    title_lower = (title or "").lower()
+
+    # 1. Strong URL signals override almost everything.
+    if _ACCESSORY_URL_PATTERNS.search(url_lower):
+        return "accessory"
+    if _LAPTOP_URL_PATTERNS.search(url_lower):
+        # Even if title has accessory words, URL /laptop- is definitive.
+        return "laptop"
+
+    # 2. Title-based accessory detection.
+    if _ACCESSORY_TITLE_KEYWORDS.search(title_lower):
+        return "accessory"
+
+    # 3. Title-based laptop detection.
+    if _LAPTOP_TITLE_KEYWORDS.search(title_lower):
+        return "laptop"
+
+    # 4. Laptop-only brands (Dell, MSI, Razer, Gigabyte) are never phone brands.
+    if _LAPTOP_ONLY_BRANDS.search(title_lower):
+        return "laptop"
+
+    return ""
 
 
 def _legacy_price(payload):
@@ -35,35 +113,71 @@ def build_candidate(raw_listing):
 
     hint = raw_listing.category_hint
 
-    if hint in (RawListing.CategoryHint.PHONES, RawListing.CategoryHint.UNKNOWN):
-        phone_result = parse_phone(raw_listing.raw_text, raw_listing.title_raw, payload)
+    # Signal-based override: URL/title can override category_hint.
+    url = raw_listing.listing_url or ""
+    title = raw_listing.title_raw or ""
+    signal_category = detect_category_from_signals(url, title)
 
-    if hint in (RawListing.CategoryHint.LAPTOPS, RawListing.CategoryHint.UNKNOWN):
+    if signal_category == "laptop":
+        # Force laptop parsing regardless of hint.
         laptop_result = parse_laptop(raw_listing.raw_text, raw_listing.title_raw, payload)
-
-    if hint == RawListing.CategoryHint.PHONES:
-        result = phone_result
-        detected_category = ParsedListingCandidate.DetectedCategory.PHONE
-    elif hint == RawListing.CategoryHint.LAPTOPS:
-        result = laptop_result
-        detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
-    else:
-        if phone_result and laptop_result:
-            if phone_result["confidence"] >= laptop_result["confidence"]:
-                result = phone_result
-                detected_category = ParsedListingCandidate.DetectedCategory.PHONE
-            else:
-                result = laptop_result
-                detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
-        elif phone_result:
+        # Also run phone parser so we can compare confidence if needed.
+        phone_result = parse_phone(raw_listing.raw_text, raw_listing.title_raw, payload)
+        # If laptop has any meaningful confidence, prefer it.
+        if laptop_result and laptop_result["confidence"] >= 0.3:
+            result = laptop_result
+            detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
+        elif phone_result and (not laptop_result or phone_result["confidence"] > laptop_result["confidence"]):
             result = phone_result
             detected_category = ParsedListingCandidate.DetectedCategory.PHONE
+        else:
+            result = laptop_result
+            detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
+    elif signal_category == "accessory":
+        # Run both parsers but mark as UNKNOWN (not phone, not laptop).
+        phone_result = parse_phone(raw_listing.raw_text, raw_listing.title_raw, payload)
+        laptop_result = parse_laptop(raw_listing.raw_text, raw_listing.title_raw, payload)
+        # Pick the higher confidence result for field extraction, but category stays UNKNOWN.
+        if phone_result and laptop_result:
+            result = phone_result if phone_result["confidence"] >= laptop_result["confidence"] else laptop_result
+        elif phone_result:
+            result = phone_result
         elif laptop_result:
+            result = laptop_result
+        else:
+            result = None
+        detected_category = ParsedListingCandidate.DetectedCategory.UNKNOWN
+    else:
+        # No strong signal — use original hint-based logic.
+        if hint in (RawListing.CategoryHint.PHONES, RawListing.CategoryHint.UNKNOWN):
+            phone_result = parse_phone(raw_listing.raw_text, raw_listing.title_raw, payload)
+
+        if hint in (RawListing.CategoryHint.LAPTOPS, RawListing.CategoryHint.UNKNOWN):
+            laptop_result = parse_laptop(raw_listing.raw_text, raw_listing.title_raw, payload)
+
+        if hint == RawListing.CategoryHint.PHONES:
+            result = phone_result
+            detected_category = ParsedListingCandidate.DetectedCategory.PHONE
+        elif hint == RawListing.CategoryHint.LAPTOPS:
             result = laptop_result
             detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
         else:
-            result = None
-            detected_category = ParsedListingCandidate.DetectedCategory.UNKNOWN
+            if phone_result and laptop_result:
+                if phone_result["confidence"] >= laptop_result["confidence"]:
+                    result = phone_result
+                    detected_category = ParsedListingCandidate.DetectedCategory.PHONE
+                else:
+                    result = laptop_result
+                    detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
+            elif phone_result:
+                result = phone_result
+                detected_category = ParsedListingCandidate.DetectedCategory.PHONE
+            elif laptop_result:
+                result = laptop_result
+                detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
+            else:
+                result = None
+                detected_category = ParsedListingCandidate.DetectedCategory.UNKNOWN
 
     if result is None:
         result = {
@@ -140,6 +254,7 @@ def build_candidate(raw_listing):
             "resolution": result.get("resolution", ""),
             "refresh_rate_hz": result.get("refresh_rate_hz"),
             "panel_type": result.get("panel_type", ""),
+            "series": result.get("series", ""),
         }
 
     candidate, created = ParsedListingCandidate.objects.update_or_create(

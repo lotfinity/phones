@@ -17,6 +17,7 @@ from market.models import (
     normalize_sim_config,
 )
 from market.services.currency import convert_to_eur
+from market.services.laptop_model_canonicalization import normalize_laptop_model_name
 from market.services.phone_model_canonicalization import canonical_phone_model_name
 
 
@@ -199,15 +200,31 @@ class Command(BaseCommand):
         variant = candidate.matched_laptop_variant
         laptop_model = candidate.matched_laptop_model or (variant.laptop_model if variant else None)
 
+        # Use canonicalization for readable model names
+        canonical_model_name = ""
+        series = ""
+        if brand and candidate.model_text:
+            canonical_model_name = normalize_laptop_model_name(brand.name, candidate.model_text)
+            series = candidate.laptop_specs_json.get("series", "") if hasattr(candidate, "laptop_specs_json") else ""
+
         if not laptop_model and brand and candidate.model_text:
             laptop_model, _ = LaptopModel.objects.get_or_create(
                 brand=brand,
-                canonical_name=candidate.model_text,
-                defaults={"canonical_name": candidate.model_text},
+                canonical_name=canonical_model_name or candidate.model_text,
+                defaults={
+                    "canonical_name": canonical_model_name or candidate.model_text,
+                    "series": series,
+                },
             )
+            # Track aliases
+            aliases = set(laptop_model.aliases or [])
+            if candidate.model_text and candidate.model_text != laptop_model.canonical_name:
+                aliases.add(candidate.model_text)
+                laptop_model.aliases = sorted(aliases)
+                laptop_model.save(update_fields=["aliases"])
 
         if laptop_model and not variant:
-            label_parts = [candidate.model_text or laptop_model.canonical_name]
+            label_parts = [canonical_model_name or candidate.model_text or laptop_model.canonical_name]
             if cpu:
                 label_parts.append(cpu)
             if gpu:

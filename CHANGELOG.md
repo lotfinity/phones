@@ -1,6 +1,20 @@
 # Changelog
 ## 2026-07-09
 
+### Fix: Ouedkniss Algeria laptop detection
+
+- Added URL/title-based category detection in `candidate_builder.py` (`detect_category_from_signals`).
+  - `/laptop-`, `/macbooks-`, `/computer-`, `/dizustu-notebook-`, `/bilgisayar-dizustu-` in URL force laptop classification.
+  - `/keyboard-mouse-`, `/consoles-`, `/headphones-`, etc. in URL classify as accessory (not phone).
+  - Title keywords (laptop, macbook, legion, thinkpad, etc.) override phone hint.
+  - Laptop-only brands (Dell, MSI, Razer, Gigabyte) in title force laptop classification.
+  - Title accessory keywords (souris, clavier, chargeur, etc.) classify as unknown.
+- Updated `build_candidate` to use signal-based overrides before hint-based logic.
+- Updated `parse_raw_listings` command: added `--country` filter, broadened `--reparse` to reclassify rows with wrong category hints, added diagnostic output (laptop created/updated, phone created/updated, accessory count, phone->laptop conversions).
+- Bumped parser version to v2.2.
+- Added 20 new tests for signal detection and candidate build overrides (all 192 tests pass).
+- Fixes both Algeria/Ouedkniss and Turkiye/Sahibinden items with wrong `category_hint=phones`.
+
 ### Phase 3: Raw import commands
 
 - Modified `import_sahibinden_from_cdp` to create `RawImportRun` and save rows to `RawListing` instead of `MarketListing`. Removed snapshot recomputation from the command. Added `--category` and `--query` options.

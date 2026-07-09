@@ -1,0 +1,127 @@
+[
+  {
+    "brand": "Lenovo",
+    "model": "16 Legion Pro 7I",
+    "laptop_model_id": 61,
+    "cpu": "Intel Core i9",
+    "gpu": "",
+    "ram_gb": 32,
+    "storage_gb": null,
+    "algeria_min_eur": 1440.43,
+    "algeria_avg_eur": 1440.43,
+    "turkiye_min_eur": 2986.07,
+    "turkiye_avg_eur": 2986.07,
+    "margin_eur": 1545.64,
+    "margin_percent": 107.3,
+    "algeria_count": 1,
+    "turkiye_count": 1,
+    "confidence": 0.8,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-lenovo-legion-pro-7i-16-gaming-wqxga-intel-14th-gen-core-i9-with-32gb-ram-nvidia-geforce-rtx-4080-12gb-1-tb-ssd-bab-ezzouar-alger-algeria-d54139301"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-lenovo-16-legion-pro-7i-gaming-laptop-1300776395/detay"
+    ]
+  },
+  {
+    "brand": "Lenovo",
+    "model": "Legion",
+    "laptop_model_id": 10,
+    "cpu": "",
+    "gpu": "",
+    "ram_gb": null,
+    "storage_gb": null,
+    "algeria_min_eur": 350.18,
+    "algeria_avg_eur": 350.18,
+    "turkiye_min_eur": 298.61,
+    "turkiye_avg_eur": 979.42,
+    "margin_eur": 629.24,
+    "margin_percent": 179.69,
+    "algeria_count": 1,
+    "turkiye_count": 27,
+    "confidence": 0.75,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-lenovo-legion-bab-ezzouar-alger-algeria-d56390368"
+    ],
+    "turkiye_urls": []
+  },
+  {
+    "brand": "ASUS",
+    "model": "TUF A15",
+    "laptop_model_id": 178,
+    "cpu": "AMD Ryzen 7 5800H",
+    "gpu": "NVIDIA RTX 3060",
+    "ram_gb": 16,
+    "storage_gb": 512,
+    "algeria_min_eur": 642.6,
+    "algeria_avg_eur": 642.6,
+    "turkiye_min_eur": 867.83,
+    "turkiye_avg_eur": 867.83,
+    "margin_eur": 225.23,
+    "margin_percent": 35.05,
+    "algeria_count": 1,
+    "turkiye_count": 1,
+    "confidence": 0.9,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/store/12527/eternel-store/annonce/56406733"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-temiz-ve-sorunsuz-asus-tuf-gaming-a15-16gb-ram-512gb-ssd-1326526375/detay"
+    ]
+  },
+  {
+    "brand": "Dell",
+    "model": "Latitude",
+    "laptop_model_id": 115,
+    "cpu": "Intel Core i5",
+    "gpu": "",
+    "ram_gb": 16,
+    "storage_gb": 256,
+    "algeria_min_eur": 389.89,
+    "algeria_avg_eur": 389.89,
+    "turkiye_min_eur": 513.23,
+    "turkiye_avg_eur": 513.23,
+    "margin_eur": 123.34,
+    "margin_percent": 31.63,
+    "algeria_count": 1,
+    "turkiye_count": 1,
+    "confidence": 0.8,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/store/12527/eternel-store/annonce/51496396"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-dell-latitude-3540-i5-1335u-16gb-ram-256gb-ssd-temiz-1326095165/detay"
+    ]
+  },
+  {
+    "brand": "Apple",
+    "model": "gpu ram gb storage gb",
+    "laptop_model_id": 48,
+    "cpu": "Apple M1",
+    "gpu": "Apple Integrated",
+    "ram_gb": null,
+    "storage_gb": null,
+    "algeria_min_eur": 140.79,
+    "algeria_avg_eur": 275.57,
+    "turkiye_min_eur": 261.28,
+    "turkiye_avg_eur": 261.28,
+    "margin_eur": 120.49,
+    "margin_percent": 85.58,
+    "algeria_count": 3,
+    "turkiye_count": 1,
+    "confidence": 0.95,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/macbooks-macbook-air-m1-2020-icloud-a2337-birkhadem-alger-algeria-d45677974",
+      "https://www.ouedkniss.com/macbooks-macbook-air-13-inch-m3-2024-icloud-constantine-algeria-d56173186",
+      "https://www.ouedkniss.com/macbooks-macbook-air-m2-mdm-damous-tipaza-algeria-d56341678",
+      "https://www.ouedkniss.com/macbooks-macbook-air-m1-chlef-algeria-d56348530",
+      "https://www.ouedkniss.com/macbooks-macbook-air-m1-133-bab-el-oued-alger-algeria-d53523899"
+    ],
+    "turkiye_urls": []
+  }
+]
