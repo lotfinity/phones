@@ -56,9 +56,9 @@ class PhoneOpportunitySnapshot(models.Model):
         app_label = "market"
         ordering = ["-gross_margin_eur", "-margin_percent"]
         indexes = [
-            models.Index(fields=["recommendation", "-gross_margin_eur"]),
-            models.Index(fields=["brand", "model", "storage_gb"]),
-            models.Index(fields=["-generated_at"]),
+            models.Index(fields=["recommendation", "-gross_margin_eur"], name="market_phon_recomme_33af8d_idx"),
+            models.Index(fields=["brand", "model", "storage_gb"], name="market_phon_brand_45d0d0_idx"),
+            models.Index(fields=["-generated_at"], name="market_phon_generat_427938_idx"),
         ]
         verbose_name = "clean phone opportunity"
         verbose_name_plural = "clean phone opportunities"
