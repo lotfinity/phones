@@ -1,5 +1,10 @@
 # Changelog
 
+## 2026-07-09
+
+- Added `fetch_exchange_rates`, a Django management command that saves fresh `CurrencyRate` rows for EUR/TRY, EUR/USD, derived USD/TRY, and a configured Algeria black-market EUR/DZD benchmark, with optional opportunity/deal snapshot recomputation.
+- Added `FX_RATE_ENDPOINT`, `FX_RATE_SOURCE`, and `FX_RATE_MAX_AGE_DAYS` settings plus tests covering DB-backed currency helper usage.
+
 ## 2026-07-05
 
 - Added `match_instagram_manual_links_from_markdown` and used it to replace exact suffix-matched manual Instagram image links with real post/reel URLs from the Markdown profile export.
