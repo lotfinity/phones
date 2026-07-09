@@ -60,7 +60,7 @@ if DEBUG and DEBUG_TOOLBAR_AVAILABLE:
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware,
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -188,6 +188,11 @@ CHROME_CDP_ENDPOINT = os.environ.get("CHROME_CDP_ENDPOINT", "http://127.0.0.1:92
 DZD_PER_EUR_BLACK = float(os.environ.get("DZD_PER_EUR_BLACK", "280"))
 EUR_TRY = float(os.environ.get("EUR_TRY", "45"))
 USD_TRY = float(os.environ.get("USD_TRY", "41.5"))
+
+# Live FX refresh command configuration.
+FX_RATE_ENDPOINT = os.environ.get("FX_RATE_ENDPOINT", "https://api.frankfurter.dev/v2/rates")
+FX_RATE_SOURCE = os.environ.get("FX_RATE_SOURCE", "frankfurter.dev")
+FX_RATE_MAX_AGE_DAYS = int(os.environ.get("FX_RATE_MAX_AGE_DAYS", "3"))
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
