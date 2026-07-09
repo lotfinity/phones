@@ -141,23 +141,47 @@ def detect_ram(text):
     return None
 
 
+def _normalize_money_token(raw):
+    """Normalize marketplace money text into Decimal-compatible form.
+
+    Turkish/Algerian marketplace prices often use dots as thousands separators:
+    `49.500 TL` should be 49500, not 49.500. Keep true decimal separators
+    only when the trailing group is not a thousands group.
+    """
+    cleaned = re.sub(r"[^\d.,]", "", raw or "").strip().replace(" ", "")
+    if not cleaned:
+        return ""
+
+    if "," in cleaned and "." in cleaned:
+        # Turkish style: 47.499,99 -> 47499.99
+        if cleaned.rfind(",") > cleaned.rfind("."):
+            return cleaned.replace(".", "").replace(",", ".")
+        # US style: 47,499.99 -> 47499.99
+        return cleaned.replace(",", "")
+
+    if "," in cleaned:
+        parts = cleaned.split(",")
+        if len(parts[-1]) == 3 and all(part.isdigit() for part in parts):
+            return "".join(parts)
+        return cleaned.replace(",", ".")
+
+    if "." in cleaned:
+        parts = cleaned.split(".")
+        if len(parts) > 1 and all(len(part) == 3 for part in parts[1:]) and all(part.isdigit() for part in parts):
+            return "".join(parts)
+        return cleaned
+
+    return cleaned
+
+
 def detect_price(text):
     for m in PRICE_PATTERN.finditer(text):
         raw = m.group(1) or m.group(2)
         if not raw:
             continue
-        cleaned = re.sub(r"[^\d.,]", "", raw).strip()
+        cleaned = _normalize_money_token(raw)
         if not cleaned:
             continue
-        cleaned = cleaned.replace(" ", "")
-        if "," in cleaned and "." in cleaned:
-            cleaned = cleaned.replace(",", "")
-        elif "," in cleaned:
-            parts = cleaned.split(",")
-            if len(parts[-1]) == 3:
-                cleaned = "".join(parts)
-            else:
-                cleaned = cleaned.replace(",", ".")
         try:
             return Decimal(cleaned)
         except InvalidOperation:
