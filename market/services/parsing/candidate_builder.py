@@ -1,21 +1,33 @@
 """Build ParsedListingCandidate from a RawListing using phone/laptop parsers."""
 
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 
 from market.models import (
     Brand,
     ParsedListingCandidate,
     RawListing,
 )
+from market.services.currency import convert_to_eur
 from market.services.parsing.phone_parser_v2 import parse_phone
 from market.services.parsing.laptop_parser_v2 import parse_laptop
 
 PARSER_VERSION = "v2.0"
 
 
+def _legacy_price(payload):
+    price = payload.get("legacy_price_original")
+    currency = payload.get("legacy_currency") or payload.get("legacy_currency_original") or ""
+    if price in (None, ""):
+        return None, currency, None
+    try:
+        amount = Decimal(str(price))
+    except (InvalidOperation, TypeError):
+        return None, currency, None
+    return amount, currency, convert_to_eur(amount, currency)
+
+
 def build_candidate(raw_listing):
     """Parse a RawListing and create/update a ParsedListingCandidate."""
-    text = raw_listing.raw_text or raw_listing.title_raw or ""
     payload = raw_listing.raw_payload or {}
 
     phone_result = None
@@ -60,14 +72,21 @@ def build_candidate(raw_listing):
             "condition": "unknown",
             "price_original": None,
             "currency_original": "",
+            "price_eur": None,
             "segments": [],
             "confidence": 0.0,
         }
 
+    legacy_price, legacy_currency, legacy_price_eur = _legacy_price(payload)
+    price_original = result.get("price_original") or legacy_price
+    currency_original = result.get("currency_original") or legacy_currency
+    price_eur = result.get("price_eur") or legacy_price_eur
+    if price_eur is None and price_original is not None and currency_original:
+        price_eur = convert_to_eur(price_original, currency_original)
+
     confidence = result.get("confidence", 0.0)
     brand_text = result.get("brand_text", "")
     model_text = result.get("model_text", "")
-    price_original = result.get("price_original")
 
     if confidence < 0.65:
         status = ParsedListingCandidate.Status.NEEDS_REVIEW
@@ -123,7 +142,8 @@ def build_candidate(raw_listing):
             "model_text": model_text,
             "variant_text": result.get("variant_text", ""),
             "price_original": price_original,
-            "currency_original": result.get("currency_original", ""),
+            "currency_original": currency_original,
+            "price_eur": price_eur,
             "condition": result.get("condition", "unknown"),
             "phone_specs_json": phone_specs,
             "laptop_specs_json": laptop_specs,
