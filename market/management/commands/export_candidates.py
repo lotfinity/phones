@@ -17,6 +17,7 @@ from market.models import (
     normalize_sim_config,
 )
 from market.services.currency import convert_to_eur
+from market.services.phone_model_canonicalization import canonical_phone_model_name
 
 
 class Command(BaseCommand):
@@ -107,15 +108,24 @@ class Command(BaseCommand):
         variant = candidate.matched_phone_variant
         phone_model = candidate.matched_phone_model or (variant.phone_model if variant else None)
 
+        canonical_model_name = ""
+        if brand and candidate.model_text:
+            canonical_model_name = canonical_phone_model_name(brand.name, candidate.model_text)
+
         if not phone_model and brand and candidate.model_text:
             phone_model, _ = PhoneModel.objects.get_or_create(
                 brand=brand,
-                canonical_name=candidate.model_text,
-                defaults={"canonical_name": candidate.model_text},
+                canonical_name=canonical_model_name or candidate.model_text,
+                defaults={"canonical_name": canonical_model_name or candidate.model_text},
             )
+            aliases = set(phone_model.aliases or [])
+            if candidate.model_text and candidate.model_text != phone_model.canonical_name:
+                aliases.add(candidate.model_text)
+                phone_model.aliases = sorted(aliases)
+                phone_model.save(update_fields=["aliases"])
 
         if phone_model and not variant:
-            label_parts = [candidate.model_text or phone_model.canonical_name]
+            label_parts = [canonical_model_name or candidate.model_text or phone_model.canonical_name]
             if storage_gb:
                 label_parts.append(f"{storage_gb}GB")
             if ram_gb:
