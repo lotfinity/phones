@@ -3,8 +3,11 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 from django.db.models import Avg, Count, Min
+from django.utils import timezone
 
+from market.clean_models import PhoneOpportunitySnapshot
 from market.models import (
     Country,
     DealSnapshot,
@@ -52,6 +55,35 @@ def _row_to_json(row):
         else:
             converted[key] = value
     return converted
+
+
+def _recommendation_for_row(row):
+    margin = row.get("gross_margin_eur") or Decimal("0")
+    percent = row.get("margin_percent") or Decimal("0")
+    algeria_count = int(row.get("algeria_count") or 0)
+    turkiye_count = int(row.get("turkiye_count") or 0)
+
+    if margin >= Decimal("150") and percent >= Decimal("20") and algeria_count >= 1 and turkiye_count >= 2:
+        return PhoneOpportunitySnapshot.Recommendation.BUY
+    if margin >= Decimal("50") and percent >= Decimal("10"):
+        return PhoneOpportunitySnapshot.Recommendation.WATCH
+    return PhoneOpportunitySnapshot.Recommendation.IGNORE
+
+
+def _confidence_for_row(row):
+    algeria_count = int(row.get("algeria_count") or 0)
+    turkiye_count = int(row.get("turkiye_count") or 0)
+    margin = row.get("gross_margin_eur") or Decimal("0")
+    percent = row.get("margin_percent") or Decimal("0")
+
+    score = min(algeria_count * 10, 35) + min(turkiye_count * 3, 35)
+    if margin >= Decimal("100"):
+        score += 10
+    if percent >= Decimal("20"):
+        score += 10
+    if row.get("storage_gb"):
+        score += 10
+    return max(0, min(score, 100))
 
 
 def compute_phone_opportunity_rows(
@@ -139,7 +171,7 @@ def compute_phone_opportunity_rows(
             .values_list("listing_url", flat=True)[:5]
         )
 
-        rows.append({
+        row = {
             "brand": sample.phone_model.brand.name if sample.phone_model.brand else "",
             "model": sample.phone_model.canonical_name,
             "phone_model_id": group["phone_model_id"],
@@ -154,14 +186,50 @@ def compute_phone_opportunity_rows(
             "turkiye_count": tr_stats["turkiye_count"],
             "algeria_urls": [url for url in algeria_urls if url],
             "turkiye_urls": [url for url in turkiye_urls if url],
-        })
+        }
+        row["recommendation"] = _recommendation_for_row(row)
+        row["confidence_score"] = _confidence_for_row(row)
+        rows.append(row)
 
     rows.sort(key=lambda item: (item["gross_margin_eur"], item["margin_percent"] or Decimal("0")), reverse=True)
     return rows[:limit]
 
 
+def write_phone_opportunity_snapshots(rows, *, source_label="phone_v2"):
+    generated_at = timezone.now()
+    snapshots = []
+    for row in rows:
+        snapshots.append(
+            PhoneOpportunitySnapshot(
+                phone_model_id=row.get("phone_model_id"),
+                brand=row.get("brand") or "",
+                model=row.get("model") or "",
+                storage_gb=row.get("storage_gb"),
+                algeria_min_eur=row.get("algeria_min_eur"),
+                algeria_avg_eur=row.get("algeria_avg_eur"),
+                turkiye_min_eur=row.get("turkiye_min_eur"),
+                turkiye_avg_eur=row.get("turkiye_avg_eur"),
+                gross_margin_eur=row.get("gross_margin_eur"),
+                margin_percent=row.get("margin_percent"),
+                algeria_count=row.get("algeria_count") or 0,
+                turkiye_count=row.get("turkiye_count") or 0,
+                algeria_urls=row.get("algeria_urls") or [],
+                turkiye_urls=row.get("turkiye_urls") or [],
+                recommendation=row.get("recommendation") or PhoneOpportunitySnapshot.Recommendation.WATCH,
+                confidence_score=row.get("confidence_score") or 0,
+                source_label=source_label,
+                generated_at=generated_at,
+            )
+        )
+
+    with transaction.atomic():
+        deleted, _ = PhoneOpportunitySnapshot.objects.all().delete()
+        PhoneOpportunitySnapshot.objects.bulk_create(snapshots, batch_size=500)
+    return deleted, len(snapshots)
+
+
 class Command(BaseCommand):
-    help = "Preview clean phone opportunities using PhoneListing only. Does not write opportunity snapshots."
+    help = "Compute clean phone opportunities using PhoneListing. Can preview, export JSON, or write DB snapshots."
 
     def add_arguments(self, parser):
         parser.add_argument("--min-margin-eur", default="0")
@@ -175,7 +243,12 @@ class Command(BaseCommand):
         parser.add_argument(
             "--clear-legacy-cache",
             action="store_true",
-            help="Delete old OpportunitySnapshot and DealSnapshot rows before previewing.",
+            help="Delete old OpportunitySnapshot and DealSnapshot rows before computing.",
+        )
+        parser.add_argument(
+            "--write-snapshots",
+            action="store_true",
+            help="Replace clean PhoneOpportunitySnapshot rows with the computed results.",
         )
         parser.add_argument(
             "--json",
@@ -212,6 +285,14 @@ class Command(BaseCommand):
             only_approved=options["only_approved"],
         )
 
+        if options["write_snapshots"]:
+            deleted, created = write_phone_opportunity_snapshots(rows)
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Wrote {created} clean phone opportunity snapshots; replaced {deleted} old rows."
+                )
+            )
+
         json_rows = [_row_to_json(row) for row in rows]
         if options["export_json"]:
             path = Path(options["export_json"])
@@ -225,19 +306,21 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Clean phone opportunity rows: {len(rows)}"))
         self.stdout.write(
-            "Brand | Model | Storage | DZ min € | TR avg € | Margin € | Margin % | Counts"
+            "Brand | Model | Storage | DZ min € | TR avg € | Margin € | Margin % | Counts | Rec | Conf"
         )
-        self.stdout.write("-" * 110)
+        self.stdout.write("-" * 130)
         for row in rows:
             self.stdout.write(
                 f"{row['brand']} | {row['model']} | {row['storage_gb']}GB | "
                 f"{row['algeria_min_eur']} | {row['turkiye_avg_eur']} | "
                 f"{row['gross_margin_eur']} | {row['margin_percent']}% | "
-                f"{row['algeria_count']}/{row['turkiye_count']}"
+                f"{row['algeria_count']}/{row['turkiye_count']} | "
+                f"{row['recommendation']} | {row['confidence_score']}"
             )
 
-        self.stdout.write(
-            self.style.WARNING(
-                "Preview only: this command uses PhoneListing and does not write OpportunitySnapshot/DealSnapshot."
+        if not options["write_snapshots"]:
+            self.stdout.write(
+                self.style.WARNING(
+                    "Preview only: add --write-snapshots to update the clean dashboard table."
+                )
             )
-        )
