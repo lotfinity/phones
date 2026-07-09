@@ -1,27 +1,23 @@
+import time
+
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 
 from market.collectors.ouedkniss_cdp import (
+    ChromeCdp,
+    CdpSocket,
     extract_rows,
     extract_rows_with_obsidian,
-    parse_cdp_endpoint,
-    parse_dzd_price,
     is_within_max_age,
     normalize_ouedkniss_url,
+    parse_cdp_endpoint,
+    parse_dzd_price,
     save_raw_row,
     target_ouedkniss_page,
     wait_for_ouedkniss_cards,
 )
-from market.models import RawImportRun, Source, SourceType, Country
-
-import time
-
-try:
-    from market.collectors.ouedkniss_cdp import ChromeCdp, CdpSocket
-except ImportError:
-    ChromeCdp = None
-    CdpSocket = None
+from market.models import Country, RawImportRun, Source, SourceType
 
 
 class Command(BaseCommand):
@@ -79,84 +75,95 @@ class Command(BaseCommand):
             query_text=options["query"],
             target_url=options["target_url"],
             cdp_endpoint=options["cdp"],
+            params_json={
+                "limit": options["limit"],
+                "scrolls": options["scrolls"],
+                "wait": options["wait"],
+                "load_timeout": options["load_timeout"],
+                "open_if_missing": options["open_if_missing"],
+                "extractor": options["extractor"],
+                "max_age_days": options["max_age_days"],
+            },
             status=RawImportRun.Status.RUNNING,
         )
 
-        host, port = parse_cdp_endpoint(options["cdp"])
-        cdp = ChromeCdp(host, port)
+        saved_rows = skipped_rows = skipped_old_rows = skipped_no_price_rows = 0
+        try:
+            host, port = parse_cdp_endpoint(options["cdp"])
+            cdp = ChromeCdp(host, port)
+            target = target_ouedkniss_page(
+                cdp,
+                target_url=options["target_url"],
+                open_if_missing=options["open_if_missing"],
+                load_timeout=options["load_timeout"],
+            )
+            source, _ = Source.objects.get_or_create(
+                source_type=SourceType.OUEDKNISS,
+                username="ouedkniss-cdp",
+                defaults={
+                    "name": "Ouedkniss CDP",
+                    "country": Country.ALGERIA,
+                    "profile_url": target.url,
+                    "notes": "Imported from a user-opened Ouedkniss tab via Chrome CDP.",
+                },
+            )
 
-        target = target_ouedkniss_page(
-            cdp,
-            target_url=options["target_url"],
-            open_if_missing=options["open_if_missing"],
-            load_timeout=options["load_timeout"],
-        )
-        source, _ = Source.objects.get_or_create(
-            source_type=SourceType.OUEDKNISS,
-            username="ouedkniss-cdp",
-            defaults={
-                "name": "Ouedkniss CDP",
-                "country": Country.ALGERIA,
-                "profile_url": target.url,
-                "notes": "Imported from a user-opened Ouedkniss tab via Chrome CDP.",
-            },
-        )
+            category_hint = options["category"]
+            max_age_days = options["max_age_days"]
 
-        category_hint = options["category"]
-        max_age_days = options["max_age_days"]
+            wait_for_ouedkniss_cards(target, timeout=options["load_timeout"])
 
-        wait_for_ouedkniss_cards(target, timeout=options["load_timeout"])
-
-        used_extractor = options["extractor"]
-        if used_extractor in {"obsidian", "auto"}:
-            try:
-                rows = extract_rows_with_obsidian(cdp, target, scrolls=options["scrolls"], wait=options["wait"])
-                used_extractor = "obsidian"
-            except RuntimeError:
-                if used_extractor == "obsidian":
-                    import_run.status = RawImportRun.Status.FAILED
-                    import_run.error_message = "Obsidian extraction failed"
-                    import_run.finished_at = timezone.now()
-                    import_run.save(update_fields=["status", "error_message", "finished_at"])
-                    raise
+            used_extractor = options["extractor"]
+            if used_extractor in {"obsidian", "auto"}:
+                try:
+                    rows = extract_rows_with_obsidian(cdp, target, scrolls=options["scrolls"], wait=options["wait"])
+                    used_extractor = "obsidian"
+                except RuntimeError:
+                    if used_extractor == "obsidian":
+                        raise
+                    used_extractor = "dom"
+                    sock = CdpSocket(target)
+                    try:
+                        rows = extract_rows(sock, scrolls=options["scrolls"], wait=options["wait"])
+                    finally:
+                        sock.close()
+            else:
                 used_extractor = "dom"
                 sock = CdpSocket(target)
                 try:
                     rows = extract_rows(sock, scrolls=options["scrolls"], wait=options["wait"])
+                    if not rows:
+                        time.sleep(options["wait"])
+                        wait_for_ouedkniss_cards(target, timeout=options["load_timeout"])
+                        rows = extract_rows(sock, scrolls=options["scrolls"], wait=options["wait"])
                 finally:
                     sock.close()
-        else:
-            used_extractor = "dom"
-            sock = CdpSocket(target)
-            try:
-                rows = extract_rows(sock, scrolls=options["scrolls"], wait=options["wait"])
-                if not rows:
-                    time.sleep(options["wait"])
-                    wait_for_ouedkniss_cards(target, timeout=options["load_timeout"])
-                    rows = extract_rows(sock, scrolls=options["scrolls"], wait=options["wait"])
-            finally:
-                sock.close()
 
-        saved_rows = skipped_rows = skipped_old_rows = skipped_no_price_rows = 0
-        seen_urls = set()
-        for row in rows[: options["limit"]]:
-            url = normalize_ouedkniss_url(row.get("href", ""))
-            row["href"] = url
-            if not parse_dzd_price(row.get("priceText")) and not parse_dzd_price(row.get("text", "")):
-                skipped_no_price_rows += 1
-                continue
-            if not url or url in seen_urls:
-                skipped_rows += 1
-                continue
-            if not is_within_max_age(row, max_age_days):
-                skipped_old_rows += 1
-                continue
-            seen_urls.add(url)
-            _, created = save_raw_row(row, source, import_run=import_run, category_hint=category_hint)
-            if created:
-                saved_rows += 1
-            else:
-                skipped_rows += 1
+            seen_urls = set()
+            for row in rows[: options["limit"]]:
+                url = normalize_ouedkniss_url(row.get("href", ""))
+                row["href"] = url
+                if not parse_dzd_price(row.get("priceText")) and not parse_dzd_price(row.get("text", "")):
+                    skipped_no_price_rows += 1
+                    continue
+                if not url or url in seen_urls:
+                    skipped_rows += 1
+                    continue
+                if not is_within_max_age(row, max_age_days):
+                    skipped_old_rows += 1
+                    continue
+                seen_urls.add(url)
+                _, created = save_raw_row(row, source, import_run=import_run, category_hint=category_hint)
+                if created:
+                    saved_rows += 1
+                else:
+                    skipped_rows += 1
+        except Exception as exc:
+            import_run.status = RawImportRun.Status.FAILED
+            import_run.error_message = str(exc)
+            import_run.finished_at = timezone.now()
+            import_run.save(update_fields=["status", "error_message", "finished_at"])
+            raise CommandError(str(exc)) from exc
 
         import_run.created_count = saved_rows
         import_run.skipped_count = skipped_rows
@@ -166,9 +173,7 @@ class Command(BaseCommand):
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Import run #{import_run.pk}: extracted {len(rows)} Ouedkniss cards, "
-                f"saved {saved_rows} raw, skipped {skipped_rows}, "
-                f"skipped old {skipped_old_rows}, skipped no price {skipped_no_price_rows}. "
-                f"Extractor {used_extractor}."
+                f"Import run #{import_run.pk}: saved {saved_rows} raw, skipped {skipped_rows}, "
+                f"skipped old {skipped_old_rows}, skipped no price {skipped_no_price_rows}."
             )
         )
