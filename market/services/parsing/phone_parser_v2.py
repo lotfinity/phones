@@ -38,6 +38,8 @@ PHONE_BRANDS = {
     "nothing": "Nothing",
 }
 
+VALID_PHONE_STORAGE_GB = {64, 128, 256, 512, 1024, 2048}
+
 MODEL_PATTERNS = [
     r"(?:Samsung\s+)?Galaxy\s+(?:S\d+\s*(?:Ultra|Plus|\+|FE|Pro)?)",
     r"(?:Samsung\s+)?Galaxy\s+(?:A\d+[a-z]*)",
@@ -57,8 +59,8 @@ MODEL_PATTERNS = [
 
 STORAGE_PATTERN = re.compile(
     r"(\d{2,4})\s*(?:GB|Go|Mo|gb|go)\b|"
-    r"(?:storage|kapasite|hafiza)\s*[:=]?\s*(\d{2,4})\s*(?:GB|Go)?\b|"
-    r"\b(\d{2,4})\s*/\s*\d{2,4}\b",
+    r"(?:storage|kapasite|hafiza|hafıza)\s*[:=]?\s*(\d{2,4})\s*(?:GB|Go)?\b|"
+    r"\b(\d{1,4})\s*/\s*(\d{2,4})\b",
     re.IGNORECASE,
 )
 
@@ -119,15 +121,35 @@ def detect_model(text, brand=""):
     return ""
 
 
+def _valid_storage(value):
+    try:
+        gb = int(value)
+    except (TypeError, ValueError):
+        return None
+    return gb if gb in VALID_PHONE_STORAGE_GB else None
+
+
 def detect_storage(text):
+    slash = re.search(r"\b(\d{1,4})\s*/\s*(\d{1,4})\b", text or "")
+    if slash:
+        first = int(slash.group(1))
+        second = int(slash.group(2))
+        if first <= 32:
+            value = _valid_storage(second)
+            if value:
+                return value
+        value = _valid_storage(first)
+        if value:
+            return value
+        value = _valid_storage(second)
+        if value:
+            return value
+
     for m in STORAGE_PATTERN.finditer(text):
-        val = m.group(1) or m.group(2) or m.group(3)
-        if val:
-            gb = int(val)
-            if gb in (64, 128, 256, 512, 1024, 2048):
-                return gb
-            if 16 <= gb <= 4096:
-                return gb
+        val = m.group(1) or m.group(2) or m.group(3) or m.group(4)
+        value = _valid_storage(val)
+        if value:
+            return value
     return None
 
 
