@@ -938,3 +938,567 @@ class MarketListingSpecValue(models.Model):
         if self.value_decimal is not None:
             return self.value_decimal
         return self.value_text
+
+
+# ===========================================================================
+# Raw-first import pipeline
+# ===========================================================================
+
+
+class RawImportRun(models.Model):
+    class Status(models.TextChoices):
+        RUNNING = "running", "Running"
+        COMPLETED = "completed", "Completed"
+        FAILED = "failed", "Failed"
+        PARTIAL = "partial", "Partial"
+
+    class CategoryHint(models.TextChoices):
+        PHONES = "phones", "Phones"
+        LAPTOPS = "laptops", "Laptops"
+        UNKNOWN = "unknown", "Unknown"
+
+    source_type = models.CharField(max_length=20, choices=SourceType.choices)
+    country = models.CharField(max_length=20, choices=Country.choices)
+    category_hint = models.CharField(
+        max_length=20, choices=CategoryHint.choices, default=CategoryHint.UNKNOWN
+    )
+
+    source = models.ForeignKey(Source, null=True, blank=True, on_delete=models.SET_NULL)
+
+    query_text = models.CharField(max_length=300, blank=True)
+    target_url = models.URLField(max_length=1000, blank=True)
+    cdp_endpoint = models.CharField(max_length=300, blank=True)
+
+    params_json = models.JSONField(default=dict, blank=True)
+
+    started_at = models.DateTimeField(default=timezone.now)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.RUNNING
+    )
+    error_message = models.TextField(blank=True)
+    notes = models.TextField(blank=True)
+
+    created_count = models.PositiveIntegerField(default=0)
+    updated_count = models.PositiveIntegerField(default=0)
+    skipped_count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+    def __str__(self):
+        return (
+            f"ImportRun {self.pk}: {self.source_type}/{self.country} "
+            f"[{self.status}] {self.query_text or self.target_url or ''}"
+        )
+
+
+class RawListing(models.Model):
+    class ParseStatus(models.TextChoices):
+        RAW = "raw", "Raw"
+        PARSED = "parsed", "Parsed"
+        NEEDS_REVIEW = "needs_review", "Needs review"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+        EXPORTED = "exported", "Exported"
+
+    class CategoryHint(models.TextChoices):
+        PHONES = "phones", "Phones"
+        LAPTOPS = "laptops", "Laptops"
+        ACCESSORIES = "accessories", "Accessories"
+        UNKNOWN = "unknown", "Unknown"
+
+    import_run = models.ForeignKey(
+        RawImportRun, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="raw_listings",
+    )
+    source = models.ForeignKey(Source, null=True, blank=True, on_delete=models.SET_NULL)
+
+    source_type = models.CharField(max_length=20, choices=SourceType.choices)
+    country = models.CharField(max_length=20, choices=Country.choices)
+    category_hint = models.CharField(
+        max_length=20, choices=CategoryHint.choices, default=CategoryHint.UNKNOWN
+    )
+
+    external_id = models.CharField(max_length=160, blank=True)
+    listing_url = models.URLField(max_length=1000, blank=True)
+
+    title_raw = models.CharField(max_length=500, blank=True)
+    description_raw = models.TextField(blank=True)
+    raw_text = models.TextField(blank=True)
+
+    price_text_raw = models.CharField(max_length=160, blank=True)
+    location_raw = models.CharField(max_length=300, blank=True)
+    date_text_raw = models.CharField(max_length=160, blank=True)
+
+    image_url = models.URLField(max_length=1000, blank=True)
+
+    raw_payload = models.JSONField(default=dict, blank=True)
+    content_hash = models.CharField(max_length=64, db_index=True)
+
+    observed_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    parse_status = models.CharField(
+        max_length=20, choices=ParseStatus.choices, default=ParseStatus.RAW
+    )
+
+    class Meta:
+        ordering = ["-observed_at"]
+        indexes = [
+            models.Index(fields=["source_type", "country", "category_hint"]),
+            models.Index(fields=["parse_status", "-observed_at"]),
+            models.Index(fields=["content_hash"]),
+            models.Index(fields=["listing_url"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_type", "listing_url"],
+                name="unique_raw_listing_source_url",
+                condition=~models.Q(listing_url=""),
+            )
+        ]
+
+    def __str__(self):
+        return self.title_raw or self.listing_url or f"RawListing {self.pk}"
+
+    def save(self, *args, **kwargs):
+        if not self.content_hash:
+            self.content_hash = self._compute_content_hash()
+        super().save(*args, **kwargs)
+
+    def _compute_content_hash(self):
+        import hashlib
+
+        stable = f"{self.source_type}|{self.listing_url}|{self.title_raw}|{self.price_text_raw}"
+        if self.listing_url:
+            stable = f"{self.source_type}|{self.listing_url}"
+        return hashlib.sha256(stable.encode()).hexdigest()[:64]
+
+
+class ParsedListingCandidate(models.Model):
+    class DetectedCategory(models.TextChoices):
+        PHONE = "phone", "Phone"
+        LAPTOP = "laptop", "Laptop"
+        ACCESSORY = "accessory", "Accessory"
+        UNKNOWN = "unknown", "Unknown"
+
+    class Status(models.TextChoices):
+        PENDING = "pending", "Pending"
+        NEEDS_REVIEW = "needs_review", "Needs review"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+        EXPORTED = "exported", "Exported"
+
+    raw_listing = models.OneToOneField(
+        RawListing, on_delete=models.CASCADE, related_name="candidate"
+    )
+
+    detected_category = models.CharField(
+        max_length=20, choices=DetectedCategory.choices,
+        default=DetectedCategory.UNKNOWN,
+    )
+
+    brand_text = models.CharField(max_length=160, blank=True)
+    model_text = models.CharField(max_length=240, blank=True)
+    variant_text = models.CharField(max_length=240, blank=True)
+
+    price_original = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    currency_original = models.CharField(max_length=8, blank=True)
+    price_eur = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+
+    condition = models.CharField(
+        max_length=20, choices=Condition.choices, default=Condition.UNKNOWN
+    )
+
+    phone_specs_json = models.JSONField(default=dict, blank=True)
+    laptop_specs_json = models.JSONField(default=dict, blank=True)
+
+    detected_segments_json = models.JSONField(default=list, blank=True)
+
+    confidence = models.FloatField(default=0)
+    parser_version = models.CharField(max_length=80, blank=True)
+
+    matched_brand = models.ForeignKey(
+        Brand, null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    matched_phone_model = models.ForeignKey(
+        "PhoneModel", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    matched_phone_variant = models.ForeignKey(
+        "PhoneVariant", null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    matched_laptop_model = models.ForeignKey(
+        "LaptopModel", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    matched_laptop_variant = models.ForeignKey(
+        "LaptopVariant", null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.PENDING
+    )
+
+    review_notes = models.TextField(blank=True)
+    ai_notes = models.TextField(blank=True)
+    raw_ai_response = models.JSONField(default=dict, blank=True)
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["status", "detected_category"]),
+            models.Index(fields=["confidence"]),
+            models.Index(fields=["matched_brand"]),
+        ]
+
+    def __str__(self):
+        return (
+            f"Candidate {self.pk}: {self.brand_text} {self.model_text} "
+            f"[{self.detected_category}] conf={self.confidence:.2f}"
+        )
+
+
+# ===========================================================================
+# Phone models
+# ===========================================================================
+
+
+class PhoneModel(models.Model):
+    brand = models.ForeignKey(
+        Brand, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    canonical_name = models.CharField(max_length=200)
+    aliases = models.JSONField(default=list, blank=True)
+    release_year = models.PositiveSmallIntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["brand__name", "canonical_name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["brand", "canonical_name"],
+                name="unique_phone_model_per_brand",
+            )
+        ]
+
+    def __str__(self):
+        return self.canonical_name
+
+
+def build_phone_variant_identity(storage_gb=None, ram_gb=None, sim_config="", region="", color=""):
+    return "|".join([
+        f"storage={storage_gb or ''}",
+        f"ram={ram_gb or ''}",
+        f"sim={normalize_sim_config(sim_config)}",
+        f"region={normalize_variant_text(region).lower()}",
+        f"color={normalize_variant_text(color).lower()}",
+    ])
+
+
+class PhoneVariant(models.Model):
+    phone_model = models.ForeignKey(
+        PhoneModel, on_delete=models.CASCADE, related_name="variants"
+    )
+
+    storage_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    ram_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    sim_config = models.CharField(max_length=80, blank=True)
+    region = models.CharField(max_length=80, blank=True)
+    color = models.CharField(max_length=80, blank=True)
+
+    canonical_label = models.CharField(max_length=240)
+    identity_key = models.CharField(max_length=200, db_index=True, editable=False)
+
+    aliases = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ["phone_model__canonical_name", "storage_gb", "ram_gb", "sim_config"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["phone_model", "identity_key"],
+                name="unique_phone_variant_identity",
+            )
+        ]
+
+    def __str__(self):
+        return self.canonical_label
+
+    def save(self, *args, **kwargs):
+        self.identity_key = build_phone_variant_identity(
+            self.storage_gb, self.ram_gb, self.sim_config, self.region, self.color
+        )
+        super().save(*args, **kwargs)
+
+
+class PhoneListing(models.Model):
+    class ReviewStatus(models.TextChoices):
+        AUTO = "auto", "Auto"
+        NEEDS_REVIEW = "needs_review", "Needs review"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
+    raw_listing = models.OneToOneField(
+        RawListing, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="phone_listing",
+    )
+
+    source = models.ForeignKey(Source, null=True, blank=True, on_delete=models.SET_NULL)
+    source_type = models.CharField(max_length=20, choices=SourceType.choices)
+    country = models.CharField(max_length=20, choices=Country.choices)
+
+    phone_model = models.ForeignKey(
+        PhoneModel, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    variant = models.ForeignKey(
+        PhoneVariant, null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    title = models.CharField(max_length=500, blank=True)
+
+    price_original = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    currency_original = models.CharField(max_length=8, blank=True)
+    price_eur = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+
+    condition = models.CharField(
+        max_length=20, choices=Condition.choices, default=Condition.UNKNOWN
+    )
+
+    storage_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    ram_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    sim_config = models.CharField(max_length=80, blank=True)
+
+    battery_health = models.PositiveSmallIntegerField(null=True, blank=True)
+    battery_cycles = models.PositiveIntegerField(null=True, blank=True)
+
+    box_status = models.CharField(max_length=120, blank=True)
+    region = models.CharField(max_length=80, blank=True)
+    color = models.CharField(max_length=80, blank=True)
+
+    listing_url = models.URLField(max_length=1000, blank=True)
+    image_url = models.URLField(max_length=1000, blank=True)
+
+    observed_at = models.DateTimeField(default=timezone.now)
+
+    parsed_confidence = models.FloatField(default=0)
+    review_status = models.CharField(
+        max_length=20, choices=ReviewStatus.choices,
+        default=ReviewStatus.NEEDS_REVIEW,
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-observed_at"]
+        indexes = [
+            models.Index(fields=["country", "source_type"]),
+            models.Index(fields=["phone_model", "storage_gb"]),
+            models.Index(fields=["price_eur"]),
+            models.Index(fields=["review_status"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_type", "listing_url"],
+                name="unique_phone_listing_source_url",
+                condition=~models.Q(listing_url=""),
+            )
+        ]
+
+    def __str__(self):
+        return self.title or f"PhoneListing {self.pk}"
+
+    def save(self, *args, **kwargs):
+        self.sim_config = normalize_sim_config(self.sim_config)
+        super().save(*args, **kwargs)
+
+
+# ===========================================================================
+# Laptop models
+# ===========================================================================
+
+
+class LaptopModel(models.Model):
+    brand = models.ForeignKey(
+        Brand, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    canonical_name = models.CharField(max_length=240)
+    series = models.CharField(max_length=160, blank=True)
+    aliases = models.JSONField(default=list, blank=True)
+    release_year = models.PositiveSmallIntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["brand__name", "canonical_name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["brand", "canonical_name"],
+                name="unique_laptop_model_per_brand",
+            )
+        ]
+
+    def __str__(self):
+        return self.canonical_name
+
+
+def build_laptop_variant_identity(
+    cpu="", gpu="", ram_gb=None, storage_gb=None,
+    screen_size=None, resolution="", refresh_rate_hz=None,
+):
+    def _norm(val):
+        return normalize_variant_text(str(val)).lower() if val else ""
+
+    parts = [
+        f"cpu={_norm(cpu)}",
+        f"gpu={_norm(gpu)}",
+        f"ram={ram_gb or ''}",
+        f"storage={storage_gb or ''}",
+        f"screen={screen_size or ''}",
+        f"resolution={_norm(resolution)}",
+        f"hz={refresh_rate_hz or ''}",
+    ]
+    return "|".join(parts)
+
+
+class LaptopVariant(models.Model):
+    laptop_model = models.ForeignKey(
+        LaptopModel, on_delete=models.CASCADE, related_name="variants"
+    )
+
+    cpu = models.CharField(max_length=160, blank=True)
+    gpu = models.CharField(max_length=160, blank=True)
+
+    ram_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    storage_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    screen_size = models.DecimalField(
+        max_digits=4, decimal_places=1, null=True, blank=True
+    )
+    resolution = models.CharField(max_length=80, blank=True)
+    refresh_rate_hz = models.PositiveSmallIntegerField(null=True, blank=True)
+    panel_type = models.CharField(max_length=80, blank=True)
+
+    canonical_label = models.CharField(max_length=300)
+    identity_key = models.CharField(max_length=300, db_index=True, editable=False)
+
+    aliases = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = [
+            "laptop_model__canonical_name", "gpu", "cpu", "ram_gb", "storage_gb"
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["laptop_model", "identity_key"],
+                name="unique_laptop_variant_identity",
+            )
+        ]
+
+    def __str__(self):
+        return self.canonical_label
+
+    def save(self, *args, **kwargs):
+        self.identity_key = build_laptop_variant_identity(
+            self.cpu, self.gpu, self.ram_gb, self.storage_gb,
+            self.screen_size, self.resolution, self.refresh_rate_hz,
+        )
+        super().save(*args, **kwargs)
+
+
+class LaptopListing(models.Model):
+    class ReviewStatus(models.TextChoices):
+        AUTO = "auto", "Auto"
+        NEEDS_REVIEW = "needs_review", "Needs review"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
+    raw_listing = models.OneToOneField(
+        RawListing, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="laptop_listing",
+    )
+
+    source = models.ForeignKey(Source, null=True, blank=True, on_delete=models.SET_NULL)
+    source_type = models.CharField(max_length=20, choices=SourceType.choices)
+    country = models.CharField(max_length=20, choices=Country.choices)
+
+    laptop_model = models.ForeignKey(
+        LaptopModel, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    variant = models.ForeignKey(
+        LaptopVariant, null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    title = models.CharField(max_length=500, blank=True)
+
+    price_original = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    currency_original = models.CharField(max_length=8, blank=True)
+    price_eur = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+
+    condition = models.CharField(
+        max_length=20, choices=Condition.choices, default=Condition.UNKNOWN
+    )
+
+    cpu = models.CharField(max_length=160, blank=True)
+    gpu = models.CharField(max_length=160, blank=True)
+    ram_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    storage_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    screen_size = models.DecimalField(
+        max_digits=4, decimal_places=1, null=True, blank=True
+    )
+    resolution = models.CharField(max_length=80, blank=True)
+    refresh_rate_hz = models.PositiveSmallIntegerField(null=True, blank=True)
+    panel_type = models.CharField(max_length=80, blank=True)
+
+    listing_url = models.URLField(max_length=1000, blank=True)
+    image_url = models.URLField(max_length=1000, blank=True)
+
+    observed_at = models.DateTimeField(default=timezone.now)
+
+    parsed_confidence = models.FloatField(default=0)
+    review_status = models.CharField(
+        max_length=20, choices=ReviewStatus.choices,
+        default=ReviewStatus.NEEDS_REVIEW,
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-observed_at"]
+        indexes = [
+            models.Index(fields=["country", "source_type"]),
+            models.Index(fields=["laptop_model", "gpu", "cpu"]),
+            models.Index(fields=["price_eur"]),
+            models.Index(fields=["review_status"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_type", "listing_url"],
+                name="unique_laptop_listing_source_url",
+                condition=~models.Q(listing_url=""),
+            )
+        ]
+
+    def __str__(self):
+        return self.title or f"LaptopListing {self.pk}"

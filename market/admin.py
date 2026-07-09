@@ -8,6 +8,9 @@ from market.models import (
     CurrencyRate,
     DeviceVariant,
     InstagramPost,
+    LaptopListing,
+    LaptopModel,
+    LaptopVariant,
     ListingConditionAudit,
     MarketListing,
     MarketListingReviewQueue,
@@ -15,9 +18,15 @@ from market.models import (
     MarketListingSuggestion,
     OCRResult,
     OpportunitySnapshot,
+    ParsedListingCandidate,
+    PhoneListing,
+    PhoneModel,
+    PhoneVariant,
     ProductAsset,
     ProductModel,
     ProductType,
+    RawImportRun,
+    RawListing,
     Source,
     SpecDefinition,
     SpecOption,
@@ -554,3 +563,260 @@ class ListingConditionAuditAdmin(admin.ModelAdmin):
     search_fields = ("listing__title_raw",)
     list_select_related = ("listing",)
     readonly_fields = ("created_at", "updated_at")
+
+
+# ===========================================================================
+# Raw-first import pipeline admin
+# ===========================================================================
+
+
+@admin.register(RawImportRun)
+class RawImportRunAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "source_type", "country", "category_hint", "status",
+        "query_text", "created_count", "updated_count", "skipped_count",
+        "started_at", "finished_at",
+    )
+    list_filter = ("source_type", "country", "category_hint", "status")
+    search_fields = ("query_text", "target_url", "error_message", "notes")
+    readonly_fields = ("started_at", "created_count", "updated_count", "skipped_count")
+    list_per_page = 50
+
+
+@admin.register(RawListing)
+class RawListingAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "short_title", "source_type", "country", "category_hint",
+        "price_text_raw", "parse_status", "candidate_confidence",
+        "candidate_category", "observed_at",
+    )
+    list_display_links = ("id", "short_title")
+    search_fields = (
+        "title_raw", "raw_text", "listing_url", "external_id", "content_hash",
+    )
+    list_filter = (
+        "source_type", "country", "category_hint", "parse_status",
+    )
+    list_select_related = ("source", "import_run")
+    readonly_fields = (
+        "content_hash", "created_at", "updated_at", "raw_payload",
+    )
+    list_per_page = 50
+    actions = ("mark_reparse",)
+
+    @admin.display(description="Title")
+    def short_title(self, obj):
+        title = obj.title_raw or ""
+        return (title[:80] + "...") if len(title) > 80 else title
+
+    @admin.display(description="Conf")
+    def candidate_confidence(self, obj):
+        try:
+            c = obj.candidate
+            return f"{c.confidence:.2f}" if c else "-"
+        except ParsedListingCandidate.DoesNotExist:
+            return "-"
+
+    @admin.display(description="Category")
+    def candidate_category(self, obj):
+        try:
+            c = obj.candidate
+            return c.detected_category if c else "-"
+        except ParsedListingCandidate.DoesNotExist:
+            return "-"
+
+    @admin.action(description="Mark selected for re-parsing")
+    def mark_reparse(self, request, queryset):
+        count = queryset.update(parse_status=RawListing.ParseStatus.RAW)
+        self.message_user(request, f"Marked {count} listings for re-parsing.")
+
+
+@admin.register(ParsedListingCandidate)
+class ParsedListingCandidateAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "raw_listing_id", "detected_category", "brand_text",
+        "model_text", "price_original", "currency_original", "confidence",
+        "status", "created_at",
+    )
+    search_fields = (
+        "brand_text", "model_text", "variant_text", "review_notes", "ai_notes",
+    )
+    list_filter = ("status", "detected_category", "condition", "parser_version")
+    list_select_related = ("raw_listing", "matched_brand")
+    readonly_fields = (
+        "raw_listing", "detected_segments_json", "raw_ai_response",
+        "created_at", "updated_at",
+    )
+    list_per_page = 50
+    actions = ("approve_selected", "reject_selected")
+
+    @admin.action(description="Approve selected candidates")
+    def approve_selected(self, request, queryset):
+        count = queryset.update(status=ParsedListingCandidate.Status.APPROVED)
+        self.message_user(request, f"Approved {count} candidates.")
+
+    @admin.action(description="Reject selected candidates")
+    def reject_selected(self, request, queryset):
+        count = queryset.update(status=ParsedListingCandidate.Status.REJECTED)
+        self.message_user(request, f"Rejected {count} candidates.")
+
+
+# ===========================================================================
+# Phone models admin
+# ===========================================================================
+
+
+@admin.register(PhoneModel)
+class PhoneModelAdmin(admin.ModelAdmin):
+    list_display = ("canonical_name", "brand", "release_year", "active", "variant_count")
+    search_fields = ("canonical_name", "aliases", "brand__name")
+    list_filter = ("brand", "active", "release_year")
+    list_select_related = ("brand",)
+    autocomplete_fields = ("brand",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(_variant_count=Count("variants"))
+
+    @admin.display(ordering="_variant_count", description="Variants")
+    def variant_count(self, obj):
+        return obj._variant_count
+
+
+@admin.register(PhoneVariant)
+class PhoneVariantAdmin(admin.ModelAdmin):
+    list_display = (
+        "canonical_label", "phone_model", "storage_gb", "ram_gb",
+        "sim_config", "region", "color", "identity_key",
+    )
+    search_fields = ("canonical_label", "identity_key", "phone_model__canonical_name")
+    list_filter = (
+        ("phone_model", admin.RelatedOnlyFieldListFilter),
+        "storage_gb", "ram_gb", "sim_config", "region",
+    )
+    list_select_related = ("phone_model",)
+    autocomplete_fields = ("phone_model",)
+    readonly_fields = ("identity_key",)
+
+
+@admin.register(PhoneListing)
+class PhoneListingAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "short_title", "source_type", "country", "phone_model",
+        "variant", "storage_gb", "ram_gb", "price_original",
+        "currency_original", "condition", "review_status",
+    )
+    list_display_links = ("id", "short_title")
+    search_fields = (
+        "title", "listing_url", "phone_model__canonical_name",
+        "variant__canonical_label",
+    )
+    list_filter = (
+        "review_status", "source_type", "country", "condition",
+        "storage_gb", "ram_gb", "currency_original",
+        ("phone_model", admin.RelatedOnlyFieldListFilter),
+        ("variant", admin.RelatedOnlyFieldListFilter),
+    )
+    list_select_related = ("source", "phone_model", "variant")
+    autocomplete_fields = ("source", "phone_model", "variant")
+    readonly_fields = ("observed_at", "parsed_confidence", "created_at", "updated_at")
+    list_per_page = 50
+    actions = ("mark_approved", "mark_needs_review")
+
+    @admin.display(description="Title")
+    def short_title(self, obj):
+        title = obj.title or ""
+        return (title[:80] + "...") if len(title) > 80 else title
+
+    @admin.action(description="Mark selected as APPROVED")
+    def mark_approved(self, request, queryset):
+        count = queryset.update(review_status=PhoneListing.ReviewStatus.APPROVED)
+        self.message_user(request, f"Approved {count} phone listings.")
+
+    @admin.action(description="Mark selected as NEEDS_REVIEW")
+    def mark_needs_review(self, request, queryset):
+        count = queryset.update(review_status=PhoneListing.ReviewStatus.NEEDS_REVIEW)
+        self.message_user(request, f"Marked {count} phone listings for review.")
+
+
+# ===========================================================================
+# Laptop models admin
+# ===========================================================================
+
+
+@admin.register(LaptopModel)
+class LaptopModelAdmin(admin.ModelAdmin):
+    list_display = (
+        "canonical_name", "brand", "series", "release_year", "active",
+        "variant_count",
+    )
+    search_fields = ("canonical_name", "series", "aliases", "brand__name")
+    list_filter = ("brand", "active", "release_year")
+    list_select_related = ("brand",)
+    autocomplete_fields = ("brand",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(_variant_count=Count("variants"))
+
+    @admin.display(ordering="_variant_count", description="Variants")
+    def variant_count(self, obj):
+        return obj._variant_count
+
+
+@admin.register(LaptopVariant)
+class LaptopVariantAdmin(admin.ModelAdmin):
+    list_display = (
+        "canonical_label", "laptop_model", "cpu", "gpu", "ram_gb",
+        "storage_gb", "screen_size", "resolution", "refresh_rate_hz",
+        "identity_key",
+    )
+    search_fields = (
+        "canonical_label", "identity_key", "laptop_model__canonical_name",
+        "cpu", "gpu",
+    )
+    list_filter = (
+        ("laptop_model", admin.RelatedOnlyFieldListFilter),
+        "ram_gb", "storage_gb", "refresh_rate_hz", "panel_type",
+    )
+    list_select_related = ("laptop_model",)
+    autocomplete_fields = ("laptop_model",)
+    readonly_fields = ("identity_key",)
+
+
+@admin.register(LaptopListing)
+class LaptopListingAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "short_title", "source_type", "country", "laptop_model",
+        "cpu", "gpu", "ram_gb", "storage_gb", "price_original",
+        "currency_original", "condition", "review_status",
+    )
+    list_display_links = ("id", "short_title")
+    search_fields = (
+        "title", "listing_url", "laptop_model__canonical_name",
+        "variant__canonical_label", "cpu", "gpu",
+    )
+    list_filter = (
+        "review_status", "source_type", "country", "condition",
+        "ram_gb", "storage_gb", "currency_original",
+        ("laptop_model", admin.RelatedOnlyFieldListFilter),
+        ("variant", admin.RelatedOnlyFieldListFilter),
+    )
+    list_select_related = ("source", "laptop_model", "variant")
+    autocomplete_fields = ("source", "laptop_model", "variant")
+    readonly_fields = ("observed_at", "parsed_confidence", "created_at", "updated_at")
+    list_per_page = 50
+    actions = ("mark_approved", "mark_needs_review")
+
+    @admin.display(description="Title")
+    def short_title(self, obj):
+        title = obj.title or ""
+        return (title[:80] + "...") if len(title) > 80 else title
+
+    @admin.action(description="Mark selected as APPROVED")
+    def mark_approved(self, request, queryset):
+        count = queryset.update(review_status=LaptopListing.ReviewStatus.APPROVED)
+        self.message_user(request, f"Approved {count} laptop listings.")
+
+    @admin.action(description="Mark selected as NEEDS_REVIEW")
+    def mark_needs_review(self, request, queryset):
+        count = queryset.update(review_status=LaptopListing.ReviewStatus.NEEDS_REVIEW)
+        self.message_user(request, f"Marked {count} laptop listings for review.")

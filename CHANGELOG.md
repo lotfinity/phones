@@ -1,4 +1,25 @@
 # Changelog
+## 2026-07-09
+
+### Phase 1-2: Raw-first import pipeline and Phone/Laptop clean models
+
+- Added `RawImportRun` model to track import/scrape sessions with source type, country, category hint, status, counters, and CDP endpoint metadata.
+- Added `RawListing` model as the central raw marketplace row storage with content-hash deduplication, parse status tracking, full JSON payload, and unique constraint on source+URL.
+- Added `ParsedListingCandidate` model for staging parsed data between raw imports and clean listings, with detected category, brand/model text, specs JSON, segments for UI highlighting, confidence scoring, and matched model/variant FKs.
+- Added `PhoneModel`, `PhoneVariant`, `PhoneListing` for clean phone-specific listings with storage, RAM, SIM config, battery health, condition, and box status fields.
+- Added `LaptopModel`, `LaptopVariant`, `LaptopListing` for clean laptop-specific listings with CPU, GPU, RAM, storage, screen size, resolution, refresh rate, and panel type fields.
+- Added identity key builders: `build_phone_variant_identity()` and `build_laptop_variant_identity()` for deduplication.
+- Registered all 9 new models in Django admin with list displays, filters, search, autocomplete, inline specs, and batch actions (approve/reject/reparse).
+- Created `market/services/parsing/` package with segment helpers (`segments.py`), phone parser v2 (`phone_parser_v2.py`), laptop parser v2 (`laptop_parser_v2.py`), and candidate builder (`candidate_builder.py`).
+- `phone_parser_v2` extracts brand, model, storage, RAM, SIM config, battery health, box status, condition, price, and currency from raw text with regex-based segment detection.
+- `laptop_parser_v2` extracts brand, CPU, GPU, RAM, storage, screen size, resolution, refresh rate, panel type, condition, price, and currency from raw text.
+- `candidate_builder` routes raw listings to the appropriate parser based on category hint, creates/updates `ParsedListingCandidate` with detected fields and confidence, and sets parse status.
+- Created `parse_raw_listings` management command for batch parsing of raw listings with category/source-type filters and auto-approve threshold.
+- Created `export_candidates` management command to export approved candidates into `PhoneListing` or `LaptopListing` with automatic model/variant creation and FK traceability back to `RawListing`.
+- Created `backfill_raw_from_market_listings` management command to migrate existing `MarketListing` rows into `RawListing` with legacy ID preservation and `--dry-run` support.
+- Added migration `0020_raw_pipeline_and_phone_laptop_models` with all new models, indexes, and constraints.
+- Old `MarketListing`, `ProductModel`, `DeviceVariant`, and opportunity logic untouched.
+
 ## 2026-07-08
 
 - Added `ListingConditionAudit` model with condition_class, verdict, confidence, red_flags, vision fields, and admin registration.
