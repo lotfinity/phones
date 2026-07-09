@@ -11,7 +11,7 @@ from market.services.currency import convert_to_eur
 from market.services.parsing.phone_parser_v2 import parse_phone
 from market.services.parsing.laptop_parser_v2 import parse_laptop
 
-PARSER_VERSION = "v2.0"
+PARSER_VERSION = "v2.1"
 
 
 def _legacy_price(payload):
@@ -78,9 +78,17 @@ def build_candidate(raw_listing):
         }
 
     legacy_price, legacy_currency, legacy_price_eur = _legacy_price(payload)
-    price_original = result.get("price_original") or legacy_price
-    currency_original = result.get("currency_original") or legacy_currency
-    price_eur = result.get("price_eur") or legacy_price_eur
+    if legacy_price is not None:
+        # Backfilled MarketListing rows already have trusted normalized prices.
+        # Prefer them over text parser guesses like `79.50 TRY` from `79.500 TL`.
+        price_original = legacy_price
+        currency_original = legacy_currency
+        price_eur = legacy_price_eur
+    else:
+        price_original = result.get("price_original")
+        currency_original = result.get("currency_original") or ""
+        price_eur = result.get("price_eur")
+
     if price_eur is None and price_original is not None and currency_original:
         price_eur = convert_to_eur(price_original, currency_original)
 
