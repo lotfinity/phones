@@ -29,12 +29,12 @@ def quantize_rate(value):
 
 
 def fetch_public_rates(endpoint, timeout):
-    response = requests.get(
-        endpoint,
-        params={"base": PUBLIC_BASE, "quotes": ",".join(PUBLIC_QUOTES)},
-        timeout=timeout,
-    )
     try:
+        response = requests.get(
+            endpoint,
+            params={"base": PUBLIC_BASE, "quotes": ",".join(PUBLIC_QUOTES)},
+            timeout=timeout,
+        )
         response.raise_for_status()
     except requests.RequestException as exc:
         raise CommandError(f"FX request failed: {exc}") from exc
