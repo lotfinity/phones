@@ -12,7 +12,7 @@ from market.services.currency import convert_to_eur
 from market.services.parsing.phone_parser_v2 import parse_phone
 from market.services.parsing.laptop_parser_v2 import parse_laptop
 
-PARSER_VERSION = "v2.2"
+PARSER_VERSION = "v2.3"
 
 
 # ── URL / title-based category detection ────────────────────────────────────
@@ -56,6 +56,30 @@ _ACCESSORY_TITLE_KEYWORDS = re.compile(
 # Laptop brand keywords that, combined with price/specs, indicate laptop.
 _LAPTOP_BRAND_KEYWORDS = re.compile(
     r"\b(lenovo|asus|dell|hp|acer|msi|apple|razer|gigabyte|huawei|microsoft)\b",
+    re.IGNORECASE,
+)
+
+_MODEL_GARBAGE_TOKENS = {
+    "gpu", "ram", "gb", "storage", "cell", "cell_ram", "cell_storage",
+    "price", "currency", "ssd", "hdd", "nvme", "laptop", "notebook",
+}
+_GENERIC_LAPTOP_MODELS = {
+    "legion", "thinkpad", "ideapad", "loq", "tuf", "rog", "vivobook",
+    "zenbook", "latitude", "inspiron", "precision", "xps", "victus",
+    "omen", "elitebook", "probook", "pavilion", "nitro", "predator",
+    "aspire", "swift", "macbook", "macbook air", "macbook pro",
+}
+
+
+# Detect MacBook family directly from raw URL/title text before noisy grid/table
+# metadata can leak tokens like `gpu ram gb storage gb` into model_text.
+_MACBOOK_MODEL_RE = re.compile(
+    r"\bmac\s*book|\bmacbook",
+    re.IGNORECASE,
+)
+_MACBOOK_FAMILY_RE = re.compile(
+    r"\bmac\s*book\s*(air|pro)?(?:\s*(?:13|14|15|16)(?:\s*(?:inch|in|\"))?)?"
+    r"(?:\s*(m[1-4])\s*(pro|max|ultra)?)?",
     re.IGNORECASE,
 )
 
@@ -104,6 +128,86 @@ def _legacy_price(payload):
     return amount, currency, convert_to_eur(amount, currency)
 
 
+def _clean_model_key(value):
+    return re.sub(r"[^a-z0-9]+", " ", (value or "").lower()).strip()
+
+
+def _looks_like_garbage_model(model_text):
+    cleaned = _clean_model_key(model_text)
+    if not cleaned:
+        return True
+    tokens = set(cleaned.split())
+    if tokens and tokens.issubset(_MODEL_GARBAGE_TOKENS):
+        return True
+    return len(cleaned) > 80
+
+
+def _extract_macbook_model_from_text(text):
+    if not _MACBOOK_MODEL_RE.search(text or ""):
+        return ""
+    match = _MACBOOK_FAMILY_RE.search(text or "")
+    if not match:
+        return "MacBook"
+    family = (match.group(1) or "").lower()
+    chip = (match.group(2) or "").upper()
+    chip_suffix = (match.group(3) or "").title()
+    bits = ["MacBook"]
+    if family:
+        bits.append(family.title())
+    if chip:
+        bits.append(chip)
+    if chip_suffix:
+        bits.append(chip_suffix)
+    return " ".join(bits).strip()
+
+
+def _repair_laptop_result(result, raw_listing):
+    """Repair obvious parser failures and lower confidence for weak laptop IDs."""
+    if not result:
+        return result
+
+    raw_text = "\n".join(
+        part for part in [
+            raw_listing.title_raw or "",
+            raw_listing.raw_text or "",
+            raw_listing.listing_url or "",
+        ]
+        if part
+    )
+    brand = result.get("brand_text", "")
+    model_text = result.get("model_text", "")
+    series = result.get("series", "")
+
+    if brand == "Apple":
+        macbook_model = _extract_macbook_model_from_text(raw_text)
+        if macbook_model:
+            model_text = macbook_model
+            result["model_text"] = macbook_model
+            # Apple Silicon is part of the commercial MacBook identity.
+            if not result.get("cpu"):
+                chip_match = re.search(r"\b(M[1-4])\s*(Pro|Max|Ultra)?\b", macbook_model, re.IGNORECASE)
+                if chip_match:
+                    suffix = f" {chip_match.group(2).title()}" if chip_match.group(2) else ""
+                    result["cpu"] = f"Apple {chip_match.group(1).upper()}{suffix}"
+
+    if _looks_like_garbage_model(model_text):
+        model_text = series or ""
+        result["model_text"] = model_text
+
+    cleaned_model = _clean_model_key(result.get("model_text", ""))
+    has_variant_specs = any(
+        result.get(field)
+        for field in ("cpu", "gpu", "ram_gb", "storage_gb")
+    )
+    if cleaned_model in _GENERIC_LAPTOP_MODELS and not has_variant_specs:
+        # Generic family-only rows are useful leads, not safe opportunity inputs.
+        result["confidence"] = min(result.get("confidence", 0.0), 0.55)
+    elif _looks_like_garbage_model(result.get("model_text", "")):
+        result["confidence"] = min(result.get("confidence", 0.0), 0.45)
+
+    return result
+
+
 def build_candidate(raw_listing):
     """Parse a RawListing and create/update a ParsedListingCandidate."""
     payload = raw_listing.raw_payload or {}
@@ -121,6 +225,7 @@ def build_candidate(raw_listing):
     if signal_category == "laptop":
         # Force laptop parsing regardless of hint.
         laptop_result = parse_laptop(raw_listing.raw_text, raw_listing.title_raw, payload)
+        laptop_result = _repair_laptop_result(laptop_result, raw_listing)
         # Also run phone parser so we can compare confidence if needed.
         phone_result = parse_phone(raw_listing.raw_text, raw_listing.title_raw, payload)
         # If laptop has any meaningful confidence, prefer it.
@@ -137,6 +242,7 @@ def build_candidate(raw_listing):
         # Run both parsers but mark as UNKNOWN (not phone, not laptop).
         phone_result = parse_phone(raw_listing.raw_text, raw_listing.title_raw, payload)
         laptop_result = parse_laptop(raw_listing.raw_text, raw_listing.title_raw, payload)
+        laptop_result = _repair_laptop_result(laptop_result, raw_listing)
         # Pick the higher confidence result for field extraction, but category stays UNKNOWN.
         if phone_result and laptop_result:
             result = phone_result if phone_result["confidence"] >= laptop_result["confidence"] else laptop_result
@@ -154,6 +260,7 @@ def build_candidate(raw_listing):
 
         if hint in (RawListing.CategoryHint.LAPTOPS, RawListing.CategoryHint.UNKNOWN):
             laptop_result = parse_laptop(raw_listing.raw_text, raw_listing.title_raw, payload)
+            laptop_result = _repair_laptop_result(laptop_result, raw_listing)
 
         if hint == RawListing.CategoryHint.PHONES:
             result = phone_result
