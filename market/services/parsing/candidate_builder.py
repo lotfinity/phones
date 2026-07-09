@@ -70,16 +70,12 @@ _GENERIC_LAPTOP_MODELS = {
     "aspire", "swift", "macbook", "macbook air", "macbook pro",
 }
 
-
 # Detect MacBook family directly from raw URL/title text before noisy grid/table
 # metadata can leak tokens like `gpu ram gb storage gb` into model_text.
-_MACBOOK_MODEL_RE = re.compile(
-    r"\bmac\s*book|\bmacbook",
-    re.IGNORECASE,
-)
+_MACBOOK_MODEL_RE = re.compile(r"\bmac\s*book\b|\bmacbook\b", re.IGNORECASE)
 _MACBOOK_FAMILY_RE = re.compile(
     r"\bmac\s*book\s*(air|pro)?(?:\s*(?:13|14|15|16)(?:\s*(?:inch|in|\"))?)?"
-    r"(?:\s*(m[1-4])\s*(pro|max|ultra)?)?",
+    r"(?:\s*(m[1-4])\s*(pro|max|ultra)?)?\b",
     re.IGNORECASE,
 )
 
@@ -143,11 +139,22 @@ def _looks_like_garbage_model(model_text):
 
 
 def _extract_macbook_model_from_text(text):
-    if not _MACBOOK_MODEL_RE.search(text or ""):
+    text = text or ""
+    normalized = re.sub(r"\bmacbooks[-_/\s]+", "", text, flags=re.IGNORECASE)
+    normalized = re.sub(r"[-_/]+", " ", normalized)
+    if not _MACBOOK_MODEL_RE.search(normalized):
         return ""
-    match = _MACBOOK_FAMILY_RE.search(text or "")
-    if not match:
+    matches = list(_MACBOOK_FAMILY_RE.finditer(normalized))
+    if not matches:
         return "MacBook"
+    match = max(
+        matches,
+        key=lambda m: (
+            bool(m.group(1)),
+            bool(m.group(2)),
+            len(m.group(0)),
+        ),
+    )
     family = (match.group(1) or "").lower()
     chip = (match.group(2) or "").upper()
     chip_suffix = (match.group(3) or "").title()
