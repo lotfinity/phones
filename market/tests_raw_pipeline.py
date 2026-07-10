@@ -12,6 +12,9 @@ from django.test import TestCase, SimpleTestCase
 from market.models import (
     Brand,
     Condition,
+    ConsoleListing,
+    ConsoleModel,
+    ConsoleVariant,
     Country,
     LaptopListing,
     LaptopModel,
@@ -163,6 +166,11 @@ class PhoneParserV2Tests(SimpleTestCase):
         from market.services.parsing.phone_parser_v2 import detect_price
         price = detect_price("No price here")
         self.assertIsNone(price)
+
+    def test_detect_price_ignores_multiline_barcode_noise(self):
+        from market.services.parsing.phone_parser_v2 import detect_price
+        text = "IPHONE 11 2677717722972\n000008-008271-22062026\n33000da"
+        self.assertEqual(detect_price(text), Decimal("33000"))
 
     def test_detect_storage_gb(self):
         from market.services.parsing.phone_parser_v2 import detect_storage
@@ -407,13 +415,28 @@ class ExportCandidatesCommandTests(TestCase):
         )
 
     def _make_approved_candidate(self, category="phone"):
+        if category == "laptop":
+            title = "Lenovo Legion 5 Ryzen 7 RTX 3060 16GB RAM 512GB SSD"
+            raw_text = f"{title} 180000 DA"
+        elif category == "console":
+            title = "Lenovo Legion Go Z1 Extreme 512GB"
+            raw_text = f"{title} 180000 DA"
+        else:
+            title = "Samsung Galaxy S25 256GB"
+            raw_text = "Samsung Galaxy S25 256GB 8GB RAM 180000 DA"
         raw = RawListing.objects.create(
             source=self.source,
             source_type=SourceType.OUEDKNISS,
             country=Country.ALGERIA,
-            category_hint="phones" if category == "phone" else "laptops",
-            title_raw="Samsung Galaxy S25 256GB",
-            raw_text="Samsung Galaxy S25 256GB 8GB RAM 180000 DA",
+            category_hint=(
+                "phones"
+                if category == "phone"
+                else "consoles"
+                if category == "console"
+                else "laptops"
+            ),
+            title_raw=title,
+            raw_text=raw_text,
             listing_url=f"https://example.com/{_uid()}",
             price_text_raw="180000 DA",
         )
@@ -464,6 +487,35 @@ class ExportCandidatesCommandTests(TestCase):
         call_command("export_candidates", "--category=laptops", "--limit=10", stdout=io.StringIO())
         listing = LaptopListing.objects.first()
         self.assertEqual(listing.raw_listing, candidate.raw_listing)
+
+    def test_export_console_creates_console_listing(self):
+        self._make_approved_candidate("console")
+        call_command("export_candidates", "--category=consoles", "--limit=10", stdout=io.StringIO())
+        self.assertEqual(ConsoleListing.objects.count(), 1)
+        self.assertEqual(ConsoleModel.objects.count(), 1)
+        self.assertEqual(ConsoleVariant.objects.count(), 1)
+
+    def test_export_laptop_blocks_unsafe_candidate(self):
+        raw = RawListing.objects.create(
+            source=self.source,
+            source_type=SourceType.OUEDKNISS,
+            country=Country.ALGERIA,
+            category_hint="laptops",
+            title_raw="Lenovo Legion",
+            raw_text="Lenovo Legion 180000 DA",
+            listing_url=f"https://example.com/{_uid()}",
+            price_text_raw="180000 DA",
+        )
+        from market.services.parsing.candidate_builder import build_candidate
+        candidate, _ = build_candidate(raw)
+        candidate.status = ParsedListingCandidate.Status.APPROVED
+        candidate.save(update_fields=["status"])
+
+        call_command("export_candidates", "--category=laptops", "--limit=10", stdout=io.StringIO())
+
+        self.assertEqual(LaptopListing.objects.count(), 0)
+        candidate.refresh_from_db()
+        self.assertEqual(candidate.status, ParsedListingCandidate.Status.NEEDS_REVIEW)
 
     def test_export_idempotent(self):
         self._make_approved_candidate("phone")
@@ -596,3 +648,118 @@ class SegmentTests(SimpleTestCase):
         from market.services.parsing.segments import segments_to_html
         html = segments_to_html("Hello", [])
         self.assertIn("Hello", html)
+
+
+class AgentReviewCandidatesTests(TestCase):
+    def _raw(self, title, category_hint=RawListing.CategoryHint.UNKNOWN):
+        return RawListing.objects.create(
+            source_type=SourceType.OUEDKNISS,
+            country=Country.ALGERIA,
+            category_hint=category_hint,
+            title_raw=title,
+            raw_text=title,
+            listing_url=f"https://example.com/{_uid()}",
+        )
+
+    def _candidate(self, title, detected_category, **overrides):
+        defaults = {
+            "raw_listing": self._raw(title),
+            "detected_category": detected_category,
+            "brand_text": "",
+            "model_text": "",
+            "confidence": 0.4,
+            "status": ParsedListingCandidate.Status.NEEDS_REVIEW,
+        }
+        defaults.update(overrides)
+        return ParsedListingCandidate.objects.create(**defaults)
+
+    def test_default_queryset_excludes_accessories_and_unknowns(self):
+        from market.management.commands.agent_review_candidates import candidate_queryset
+
+        phone = self._candidate(
+            "iPhone 15 Pro 256GB",
+            ParsedListingCandidate.DetectedCategory.PHONE,
+            brand_text="Apple",
+            model_text="iPhone 15 Pro",
+        )
+        laptop = self._candidate(
+            "MacBook Air M1 8GB 256GB",
+            ParsedListingCandidate.DetectedCategory.LAPTOP,
+            brand_text="Apple",
+            model_text="MacBook Air M1",
+        )
+        self._candidate(
+            "Lenovo laptop bag",
+            ParsedListingCandidate.DetectedCategory.UNKNOWN,
+            brand_text="Lenovo",
+            model_text="",
+        )
+
+        qs = candidate_queryset({
+            "candidate_id": None,
+            "flagged_only": False,
+            "status": ParsedListingCandidate.Status.NEEDS_REVIEW,
+            "categories": ("phone", "laptop"),
+            "bucket": "",
+        })
+
+        self.assertEqual(set(qs.values_list("id", flat=True)), {phone.id, laptop.id})
+
+    def test_laptop_ai_approval_downgrades_without_export_identity(self):
+        from market.management.commands.agent_review_candidates import validate_decision
+
+        candidate = self._candidate(
+            "Lenovo Legion",
+            ParsedListingCandidate.DetectedCategory.LAPTOP,
+            brand_text="Lenovo",
+            model_text="Legion",
+            confidence=0.9,
+            laptop_specs_json={},
+        )
+        decision = {
+            "candidate_id": candidate.id,
+            "detected_category": "laptop",
+            "brand_text": "Lenovo",
+            "model_text": "Legion",
+            "model_id": None,
+            "condition": Condition.UNKNOWN,
+            "status": ParsedListingCandidate.Status.APPROVED,
+            "confidence": 0.9,
+            "laptop_specs": {},
+            "reason": "Only generic family is visible.",
+            "evidence": "title",
+        }
+
+        validated = validate_decision(candidate, decision)
+
+        self.assertEqual(validated["status"], ParsedListingCandidate.Status.NEEDS_REVIEW)
+        self.assertIn("Export blocked", validated["reason"])
+
+    def test_laptop_ai_approval_kept_with_model_ram_storage(self):
+        from market.management.commands.agent_review_candidates import validate_decision
+
+        candidate = self._candidate(
+            "MacBook Air M1 8GB 256GB",
+            ParsedListingCandidate.DetectedCategory.LAPTOP,
+            brand_text="Apple",
+            model_text="MacBook Air M1",
+            confidence=0.9,
+            laptop_specs_json={"ram_gb": 8, "storage_gb": 256},
+        )
+        decision = {
+            "candidate_id": candidate.id,
+            "detected_category": "laptop",
+            "brand_text": "Apple",
+            "model_text": "MacBook Air M1",
+            "model_id": None,
+            "condition": Condition.UNKNOWN,
+            "status": ParsedListingCandidate.Status.APPROVED,
+            "confidence": 0.9,
+            "laptop_specs": {"ram_gb": 8, "storage_gb": 256},
+            "reason": "Model and storage/RAM are explicit.",
+            "evidence": "title",
+        }
+
+        validated = validate_decision(candidate, decision)
+
+        self.assertEqual(validated["status"], ParsedListingCandidate.Status.APPROVED)

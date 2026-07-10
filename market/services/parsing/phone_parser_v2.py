@@ -72,8 +72,8 @@ RAM_PATTERN = re.compile(
 )
 
 PRICE_PATTERN = re.compile(
-    r"([\d\s.,]+)\s*(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)\b|"
-    r"(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)\s*([\d\s.,]+)",
+    r"([\d \t.,]+)[ \t]*(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)\b|"
+    r"(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)[ \t]*([\d \t.,]+)",
     re.IGNORECASE,
 )
 
@@ -205,9 +205,12 @@ def detect_price(text):
         if not cleaned:
             continue
         try:
-            return Decimal(cleaned)
+            price = Decimal(cleaned)
         except InvalidOperation:
             continue
+        if price <= 0 or price > Decimal("1000000000"):
+            continue
+        return price
     return None
 
 

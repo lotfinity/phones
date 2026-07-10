@@ -1,9 +1,12 @@
-"""Export approved ParsedListingCandidates into PhoneListing or LaptopListing."""
+"""Export approved ParsedListingCandidates into clean final listing tables."""
 
 from django.core.management.base import BaseCommand
 
 from market.models import (
     Brand,
+    ConsoleListing,
+    ConsoleModel,
+    ConsoleVariant,
     LaptopListing,
     LaptopModel,
     LaptopVariant,
@@ -12,21 +15,26 @@ from market.models import (
     PhoneModel,
     PhoneVariant,
     RawListing,
+    build_console_variant_identity,
     build_laptop_variant_identity,
     build_phone_variant_identity,
     normalize_sim_config,
 )
 from market.services.currency import convert_to_eur
 from market.services.laptop_model_canonicalization import normalize_laptop_model_name
+from market.services.laptop_quality import (
+    candidate_has_laptop_export_identity,
+    is_garbage_laptop_model_name,
+)
 from market.services.phone_model_canonicalization import canonical_phone_model_name
 
 
 class Command(BaseCommand):
-    help = "Export approved ParsedListingCandidates into PhoneListing or LaptopListing."
+    help = "Export approved ParsedListingCandidates into PhoneListing, LaptopListing, or ConsoleListing."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--category", choices=["phones", "laptops"], required=True,
+            "--category", choices=["phones", "laptops", "consoles"], required=True,
         )
         parser.add_argument(
             "--status", default="approved",
@@ -46,8 +54,10 @@ class Command(BaseCommand):
 
         if category == "phones":
             qs = qs.filter(detected_category=ParsedListingCandidate.DetectedCategory.PHONE)
-        else:
+        elif category == "laptops":
             qs = qs.filter(detected_category=ParsedListingCandidate.DetectedCategory.LAPTOP)
+        else:
+            qs = qs.filter(detected_category=ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE)
 
         qs = qs.select_related(
             "raw_listing",
@@ -56,14 +66,35 @@ class Command(BaseCommand):
             "matched_phone_variant",
             "matched_laptop_model",
             "matched_laptop_variant",
+            "matched_console_model",
+            "matched_console_variant",
         )[:limit]
 
         exported = 0
+        skipped_review = 0
         for candidate in qs.iterator():
             if category == "phones":
                 self._export_phone(candidate)
-            else:
+            elif category == "laptops":
+                if not candidate_has_laptop_export_identity(candidate):
+                    candidate.status = ParsedListingCandidate.Status.NEEDS_REVIEW
+                    candidate.review_notes = (
+                        (candidate.review_notes + "\n") if candidate.review_notes else ""
+                    ) + "Export blocked: incomplete or unsafe laptop identity."
+                    candidate.save(update_fields=["status", "review_notes"])
+                    skipped_review += 1
+                    continue
                 self._export_laptop(candidate)
+            else:
+                if not self._candidate_has_console_export_identity(candidate):
+                    candidate.status = ParsedListingCandidate.Status.NEEDS_REVIEW
+                    candidate.review_notes = (
+                        (candidate.review_notes + "\n") if candidate.review_notes else ""
+                    ) + "Export blocked: incomplete portable console identity."
+                    candidate.save(update_fields=["status", "review_notes"])
+                    skipped_review += 1
+                    continue
+                self._export_console(candidate)
             candidate.status = ParsedListingCandidate.Status.EXPORTED
             candidate.save(update_fields=["status"])
             if candidate.raw_listing:
@@ -72,6 +103,8 @@ class Command(BaseCommand):
             exported += 1
 
         self.stdout.write(self.style.SUCCESS(f"Exported {exported} {category} candidates."))
+        if skipped_review:
+            self.stdout.write(self.style.WARNING(f"Skipped {skipped_review} unsafe candidates to needs_review."))
 
     def _candidate_price_eur(self, candidate):
         if candidate.price_eur is not None:
@@ -96,6 +129,15 @@ class Command(BaseCommand):
         if existing:
             return existing
         return Brand.objects.create(name=candidate.brand_text)
+
+    def _candidate_has_console_export_identity(self, candidate):
+        specs = candidate.console_specs_json or {}
+        has_model = bool((candidate.model_text or "").strip())
+        has_storage = bool(specs.get("storage_gb"))
+        has_chipset = bool(specs.get("chipset"))
+        has_ram = bool(specs.get("ram_gb"))
+        exact_variant = bool(candidate.matched_console_variant and candidate.confidence >= 0.9)
+        return bool(has_model and (has_storage or (has_chipset and has_ram) or exact_variant))
 
     def _export_phone(self, candidate):
         brand = self._get_or_create_brand(candidate)
@@ -203,11 +245,11 @@ class Command(BaseCommand):
         # Use canonicalization for readable model names
         canonical_model_name = ""
         series = ""
-        if brand and candidate.model_text:
+        if brand and candidate.model_text and not is_garbage_laptop_model_name(candidate.model_text):
             canonical_model_name = normalize_laptop_model_name(brand.name, candidate.model_text)
             series = candidate.laptop_specs_json.get("series", "") if hasattr(candidate, "laptop_specs_json") else ""
 
-        if not laptop_model and brand and candidate.model_text:
+        if not laptop_model and brand and candidate.model_text and canonical_model_name:
             laptop_model, _ = LaptopModel.objects.get_or_create(
                 brand=brand,
                 canonical_name=canonical_model_name or candidate.model_text,
@@ -285,6 +327,90 @@ class Command(BaseCommand):
                 "image_url": raw.image_url if raw else "",
                 "parsed_confidence": candidate.confidence,
                 "review_status": self._review_status_for_export(candidate, LaptopListing),
+            },
+        )
+        return listing
+
+    def _export_console(self, candidate):
+        brand = self._get_or_create_brand(candidate)
+        specs = candidate.console_specs_json or {}
+        chipset = specs.get("chipset", "")
+        ram_gb = specs.get("ram_gb")
+        storage_gb = specs.get("storage_gb")
+        screen_size = specs.get("screen_size")
+        refresh_rate_hz = specs.get("refresh_rate_hz")
+        connectivity = specs.get("connectivity", "")
+        color = specs.get("color", "")
+
+        variant = candidate.matched_console_variant
+        console_model = candidate.matched_console_model or (variant.console_model if variant else None)
+        if not console_model and brand and candidate.model_text:
+            console_model, _ = ConsoleModel.objects.get_or_create(
+                brand=brand,
+                canonical_name=candidate.model_text,
+                defaults={"canonical_name": candidate.model_text},
+            )
+            aliases = set(console_model.aliases or [])
+            if candidate.model_text and candidate.model_text != console_model.canonical_name:
+                aliases.add(candidate.model_text)
+                console_model.aliases = sorted(aliases)
+                console_model.save(update_fields=["aliases"])
+
+        if console_model and not variant:
+            label_parts = [candidate.model_text or console_model.canonical_name]
+            if chipset:
+                label_parts.append(chipset)
+            if ram_gb:
+                label_parts.append(f"{ram_gb}GB RAM")
+            if storage_gb:
+                label_parts.append(f"{storage_gb}GB")
+            canonical_label = " ".join(part for part in label_parts if part)
+            identity_key = build_console_variant_identity(
+                chipset, ram_gb, storage_gb, connectivity, color
+            )
+            variant, _ = ConsoleVariant.objects.get_or_create(
+                console_model=console_model,
+                identity_key=identity_key,
+                defaults={
+                    "chipset": chipset,
+                    "ram_gb": ram_gb,
+                    "storage_gb": storage_gb,
+                    "screen_size": screen_size,
+                    "refresh_rate_hz": refresh_rate_hz,
+                    "connectivity": connectivity,
+                    "color": color,
+                    "canonical_label": canonical_label,
+                },
+            )
+
+        raw = candidate.raw_listing
+        title = " ".join(part for part in [candidate.brand_text, candidate.model_text] if part).strip()
+        if not title and raw:
+            title = raw.title_raw
+        listing, _ = ConsoleListing.objects.update_or_create(
+            raw_listing=raw,
+            defaults={
+                "source": raw.source if raw else None,
+                "source_type": raw.source_type if raw else "",
+                "country": raw.country if raw else "",
+                "console_model": console_model,
+                "variant": variant,
+                "title": title,
+                "price_original": candidate.price_original,
+                "currency_original": candidate.currency_original,
+                "price_eur": self._candidate_price_eur(candidate),
+                "condition": candidate.condition,
+                "chipset": chipset,
+                "ram_gb": ram_gb,
+                "storage_gb": storage_gb,
+                "screen_size": screen_size,
+                "refresh_rate_hz": refresh_rate_hz,
+                "connectivity": connectivity,
+                "color": color,
+                "listing_url": raw.listing_url if raw else "",
+                "image_url": raw.image_url if raw else "",
+                "parsed_confidence": candidate.confidence,
+                "review_status": self._review_status_for_export(candidate, ConsoleListing),
             },
         )
         return listing

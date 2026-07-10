@@ -129,6 +129,8 @@ class CatalogTransitionCommandTests(TestCase):
             product_model=legacy_model,
             title_raw="Samsung Galaxy A55 256GB",
             listing_url="https://example.com/legacy-phone-row",
+            match_level=MarketListing.MatchLevel.EXACT_VARIANT,
+            match_confidence=0.95,
         )
 
         out = io.StringIO()

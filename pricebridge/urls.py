@@ -19,10 +19,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
 from market import views
+from market.views_clean import clean_opportunities
 from market.views_phone_opportunities import phone_opportunities_v2
 
 urlpatterns = [
-    path('', views.opportunities, name='opportunities'),
+    path('', clean_opportunities, name='opportunities'),
     path('phone-opportunities/', phone_opportunities_v2, name='phone_opportunities_v2'),
     path('opportunities/<int:pk>/', views.opportunity_detail, name='opportunity_detail'),
     path('listings/', views.listings, name='listings'),

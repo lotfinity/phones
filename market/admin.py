@@ -1,10 +1,14 @@
 from django.contrib import admin
 from django.db.models import Count, Q
+from django.utils import timezone
 from django.utils.html import format_html
 
 from market.models import (
     Brand,
     Category,
+    ConsoleListing,
+    ConsoleModel,
+    ConsoleVariant,
     CurrencyRate,
     DeviceVariant,
     InstagramPost,
@@ -32,6 +36,11 @@ from market.models import (
     SpecOption,
     SupplierPrice,
     ProductVariantSpecValue,
+)
+from market.services.laptop_quality import (
+    candidate_has_laptop_export_identity,
+    is_garbage_laptop_model_name,
+    is_generic_laptop_model_name,
 )
 
 
@@ -100,6 +109,78 @@ class ReviewStatusFilter(admin.SimpleListFilter):
             return queryset.filter(storage_gb__isnull=True)
         if value == "missing_price":
             return queryset.filter(price_original__isnull=True)
+        return queryset
+
+
+def candidate_review_labels(candidate):
+    labels = []
+    if candidate.status == ParsedListingCandidate.Status.NEEDS_REVIEW:
+        labels.append("needs_review")
+    if not (candidate.model_text or "").strip():
+        labels.append("missing_model")
+    if candidate.confidence < 0.7:
+        labels.append("weak_confidence")
+    if candidate.detected_category == ParsedListingCandidate.DetectedCategory.LAPTOP:
+        model_text = candidate.model_text or ""
+        if is_garbage_laptop_model_name(model_text):
+            labels.append("garbage_model")
+        if is_generic_laptop_model_name(model_text):
+            labels.append("generic_laptop")
+        if not candidate_has_laptop_export_identity(candidate):
+            labels.append("not_export_eligible")
+    elif candidate.detected_category not in {
+        ParsedListingCandidate.DetectedCategory.PHONE,
+        ParsedListingCandidate.DetectedCategory.LAPTOP,
+    }:
+        labels.append("non_phone_laptop")
+    return labels
+
+
+class CandidateAuditBucketFilter(admin.SimpleListFilter):
+    title = "AI audit bucket"
+    parameter_name = "audit_bucket"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("needs_review", "Needs review"),
+            ("missing_model", "Missing model"),
+            ("weak_confidence", "Weak confidence"),
+            ("garbage_model", "Laptop garbage model"),
+            ("generic_laptop", "Generic laptop family"),
+            ("not_export_eligible", "Laptop not export eligible"),
+            ("non_phone_laptop", "Not phone/laptop"),
+            ("ai_flagged", "Flagged for AI audit"),
+            ("ai_has_response", "Has AI response"),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == "needs_review":
+            return queryset.filter(status=ParsedListingCandidate.Status.NEEDS_REVIEW)
+        if value == "missing_model":
+            return queryset.filter(Q(model_text="") | Q(model_text__isnull=True))
+        if value == "weak_confidence":
+            return queryset.filter(confidence__lt=0.7)
+        if value == "non_phone_laptop":
+            return queryset.exclude(
+                detected_category__in=[
+                    ParsedListingCandidate.DetectedCategory.PHONE,
+                    ParsedListingCandidate.DetectedCategory.LAPTOP,
+                ]
+            )
+        if value == "ai_flagged":
+            return queryset.filter(ai_notes__icontains="[ai-audit]")
+        if value == "ai_has_response":
+            return queryset.exclude(raw_ai_response={})
+        if value in {"garbage_model", "generic_laptop", "not_export_eligible"}:
+            ids = []
+            for candidate in queryset.filter(
+                detected_category=ParsedListingCandidate.DetectedCategory.LAPTOP
+            ).only("id", "detected_category", "model_text", "laptop_specs_json", "matched_laptop_variant"):
+                labels = candidate_review_labels(candidate)
+                if value in labels:
+                    ids.append(candidate.id)
+            return queryset.filter(id__in=ids)
         return queryset
 
 
@@ -636,19 +717,73 @@ class ParsedListingCandidateAdmin(admin.ModelAdmin):
     list_display = (
         "id", "raw_listing_id", "detected_category", "brand_text",
         "model_text", "price_original", "currency_original", "confidence",
-        "status", "created_at",
+        "status", "audit_badges", "open_raw_url", "created_at",
     )
     search_fields = (
         "brand_text", "model_text", "variant_text", "review_notes", "ai_notes",
+        "raw_listing__title_raw", "raw_listing__raw_text", "raw_listing__listing_url",
     )
-    list_filter = ("status", "detected_category", "condition", "parser_version")
+    list_filter = (CandidateAuditBucketFilter, "status", "detected_category", "condition", "parser_version")
     list_select_related = ("raw_listing", "matched_brand")
     readonly_fields = (
-        "raw_listing", "detected_segments_json", "raw_ai_response",
+        "raw_listing", "raw_title", "raw_url", "detected_segments_json", "raw_ai_response",
         "created_at", "updated_at",
     )
     list_per_page = 50
-    actions = ("approve_selected", "reject_selected")
+    actions = ("flag_for_ai_audit", "approve_selected", "reject_selected")
+
+    @admin.display(description="Audit")
+    def audit_badges(self, obj):
+        labels = candidate_review_labels(obj)
+        if not labels:
+            return format_html('<span style="color:green">ok</span>')
+        rendered = []
+        colors = {
+            "garbage_model": "red",
+            "not_export_eligible": "red",
+            "generic_laptop": "orange",
+            "weak_confidence": "orange",
+            "missing_model": "red",
+            "non_phone_laptop": "purple",
+            "needs_review": "gray",
+        }
+        for label in labels[:4]:
+            rendered.append(
+                '<span style="display:inline-block;margin:1px;padding:1px 4px;'
+                f'border-radius:3px;background:{colors.get(label, "gray")};'
+                'color:white;font-size:11px">'
+                f"{label}</span>"
+            )
+        return format_html(" ".join(rendered))
+
+    @admin.display(description="URL")
+    def open_raw_url(self, obj):
+        url = obj.raw_listing.listing_url if obj.raw_listing_id else ""
+        if not url:
+            return "-"
+        return format_html('<a href="{}" target="_blank" rel="noopener">open</a>', url)
+
+    @admin.display(description="Raw title")
+    def raw_title(self, obj):
+        return obj.raw_listing.title_raw if obj.raw_listing_id else ""
+
+    @admin.display(description="Raw URL")
+    def raw_url(self, obj):
+        return obj.raw_listing.listing_url if obj.raw_listing_id else ""
+
+    @admin.action(description="Flag selected candidates for AI audit")
+    def flag_for_ai_audit(self, request, queryset):
+        timestamp = timezone.now().isoformat(timespec="seconds")
+        count = 0
+        for candidate in queryset.select_related("raw_listing"):
+            labels = candidate_review_labels(candidate)
+            note = f"[ai-audit] {timestamp} buckets={','.join(labels) or 'manual'}"
+            if note not in candidate.ai_notes:
+                candidate.ai_notes = f"{candidate.ai_notes}\n{note}".strip()
+            candidate.status = ParsedListingCandidate.Status.NEEDS_REVIEW
+            candidate.save(update_fields=["ai_notes", "status", "updated_at"])
+            count += 1
+        self.message_user(request, f"Flagged {count} candidates for AI audit.")
 
     @admin.action(description="Approve selected candidates")
     def approve_selected(self, request, queryset):
@@ -820,3 +955,72 @@ class LaptopListingAdmin(admin.ModelAdmin):
     def mark_needs_review(self, request, queryset):
         count = queryset.update(review_status=LaptopListing.ReviewStatus.NEEDS_REVIEW)
         self.message_user(request, f"Marked {count} laptop listings for review.")
+
+
+@admin.register(ConsoleModel)
+class ConsoleModelAdmin(admin.ModelAdmin):
+    list_display = ("canonical_name", "brand", "release_year", "active", "variant_count")
+    search_fields = ("canonical_name", "aliases", "brand__name")
+    list_filter = ("brand", "active", "release_year")
+    list_select_related = ("brand",)
+    autocomplete_fields = ("brand",)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).annotate(_variant_count=Count("variants"))
+
+    @admin.display(ordering="_variant_count", description="Variants")
+    def variant_count(self, obj):
+        return obj._variant_count
+
+
+@admin.register(ConsoleVariant)
+class ConsoleVariantAdmin(admin.ModelAdmin):
+    list_display = (
+        "canonical_label", "console_model", "chipset", "ram_gb",
+        "storage_gb", "screen_size", "refresh_rate_hz", "identity_key",
+    )
+    search_fields = ("canonical_label", "identity_key", "console_model__canonical_name", "chipset")
+    list_filter = (("console_model", admin.RelatedOnlyFieldListFilter), "ram_gb", "storage_gb")
+    list_select_related = ("console_model",)
+    autocomplete_fields = ("console_model",)
+    readonly_fields = ("identity_key",)
+
+
+@admin.register(ConsoleListing)
+class ConsoleListingAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "short_title", "source_type", "country", "console_model",
+        "chipset", "ram_gb", "storage_gb", "price_original",
+        "currency_original", "condition", "review_status",
+    )
+    list_display_links = ("id", "short_title")
+    search_fields = (
+        "title", "listing_url", "console_model__canonical_name",
+        "variant__canonical_label", "chipset",
+    )
+    list_filter = (
+        "review_status", "source_type", "country", "condition",
+        "ram_gb", "storage_gb", "currency_original",
+        ("console_model", admin.RelatedOnlyFieldListFilter),
+        ("variant", admin.RelatedOnlyFieldListFilter),
+    )
+    list_select_related = ("source", "console_model", "variant")
+    autocomplete_fields = ("source", "console_model", "variant")
+    readonly_fields = ("observed_at", "parsed_confidence", "created_at", "updated_at")
+    list_per_page = 50
+    actions = ("mark_approved", "mark_needs_review")
+
+    @admin.display(description="Title")
+    def short_title(self, obj):
+        title = obj.title or ""
+        return (title[:80] + "...") if len(title) > 80 else title
+
+    @admin.action(description="Mark selected as APPROVED")
+    def mark_approved(self, request, queryset):
+        count = queryset.update(review_status=ConsoleListing.ReviewStatus.APPROVED)
+        self.message_user(request, f"Approved {count} console listings.")
+
+    @admin.action(description="Mark selected as NEEDS_REVIEW")
+    def mark_needs_review(self, request, queryset):
+        count = queryset.update(review_status=ConsoleListing.ReviewStatus.NEEDS_REVIEW)
+        self.message_user(request, f"Marked {count} console listings for review.")

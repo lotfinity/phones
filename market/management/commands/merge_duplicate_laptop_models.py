@@ -1,4 +1,5 @@
 from collections import defaultdict
+import re
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
@@ -11,6 +12,7 @@ from market.models import (
     ParsedListingCandidate,
 )
 from market.services.laptop_model_canonicalization import (
+    ascii_fold,
     laptop_model_merge_key,
     normalize_laptop_model_name,
 )
@@ -43,6 +45,8 @@ class Command(BaseCommand):
         groups = defaultdict(list)
         for model in qs:
             brand_name = model.brand.name if model.brand else ""
+            if not self._is_safe_merge_member(brand_name, model.canonical_name):
+                continue
             key = laptop_model_merge_key(brand_name, model.canonical_name)
             groups[key].append(model)
 
@@ -101,6 +105,25 @@ class Command(BaseCommand):
         self.stdout.write(f"variants moved: {total_variants_moved}")
         self.stdout.write(f"variant conflicts merged: {total_variant_conflicts}")
         self.stdout.write(f"candidates moved: {total_candidates_moved}")
+
+    def _is_safe_merge_member(self, brand_name, model_name):
+        """Only merge rows whose model name normalizes without dropping extra identity text."""
+        normalized = normalize_laptop_model_name(brand_name, model_name)
+        original_key = self._merge_safety_key(brand_name, model_name)
+        normalized_key = self._merge_safety_key(brand_name, normalized)
+        return bool(original_key and original_key == normalized_key)
+
+    def _merge_safety_key(self, brand_name, model_name):
+        text = ascii_fold(model_name).lower()
+        text = text.replace("macbookpro", "macbook pro")
+        text = text.replace("legion5pro", "legion 5 pro")
+        text = text.replace("legion5", "legion 5")
+        text = text.replace("vivobook", "vivo book")
+        text = text.replace("zenbook", "zen book")
+        text = text.replace("ideapad", "idea pad")
+        tokens = re.findall(r"[a-z0-9]+", text)
+        brand_tokens = set(re.findall(r"[a-z0-9]+", ascii_fold(brand_name).lower()))
+        return " ".join(token for token in tokens if token not in brand_tokens)
 
     def _choose_target(self, models):
         """Choose the canonical survivor: most listings, then shortest name, then lowest id."""

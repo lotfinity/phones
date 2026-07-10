@@ -3,12 +3,20 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
 from django.db.models import Avg, Count, Min
+from django.utils import timezone
 
-from market.models import Country, LaptopListing, SourceType
+from market.clean_models import LaptopOpportunitySnapshot
+from market.models import Country, LaptopListing, LaptopModel, SourceType
 from market.services.laptop_model_canonicalization import (
     normalize_cpu_family,
     normalize_gpu_family,
+)
+from market.services.laptop_quality import (
+    is_garbage_laptop_model_name,
+    is_generic_laptop_model_name,
+    listing_has_laptop_export_identity,
 )
 
 VISIBLE_REVIEW_STATUSES = (
@@ -20,6 +28,7 @@ APPROVED_REVIEW_STATUSES = (
     LaptopListing.ReviewStatus.AUTO,
     LaptopListing.ReviewStatus.APPROVED,
 )
+VALID_LAPTOP_STORAGE_GB = {128, 256, 512, 1024, 2048, 4096, 8192}
 
 
 def _decimal_option(value):
@@ -91,6 +100,26 @@ def _recommendation(margin_percent, confidence):
     return "no_margin"
 
 
+def _snapshot_recommendation(value):
+    mapping = {
+        "strong_buy": LaptopOpportunitySnapshot.Recommendation.BUY,
+        "good_opportunity": LaptopOpportunitySnapshot.Recommendation.GOOD_OPPORTUNITY,
+        "marginal": LaptopOpportunitySnapshot.Recommendation.MARGINAL,
+        "low_confidence": LaptopOpportunitySnapshot.Recommendation.LOW_CONFIDENCE,
+        "no_margin": LaptopOpportunitySnapshot.Recommendation.NO_MARGIN,
+        "no_data": LaptopOpportunitySnapshot.Recommendation.IGNORE,
+    }
+    return mapping.get(value, LaptopOpportunitySnapshot.Recommendation.WATCH)
+
+
+def _eligible_laptop_queryset(qs):
+    eligible_ids = []
+    for listing in qs.select_related("laptop_model", "variant").iterator():
+        if listing_has_laptop_export_identity(listing):
+            eligible_ids.append(listing.pk)
+    return qs.filter(pk__in=eligible_ids)
+
+
 def compute_laptop_opportunity_rows(
     *,
     min_margin_eur=Decimal("0"),
@@ -105,6 +134,7 @@ def compute_laptop_opportunity_rows(
         laptop_model__isnull=False,
         review_status__in=review_statuses,
     )
+    base = _eligible_laptop_queryset(base)
 
     # Group Algeria listings by spec signature
     algeria_listings = base.filter(country=Country.ALGERIA)
@@ -134,9 +164,23 @@ def compute_laptop_opportunity_rows(
         gpu_raw = group["gpu"] or ""
         ram_gb = group["ram_gb"]
         storage_gb = group["storage_gb"]
+        sample_model = LaptopModel.objects.filter(pk=model_id).first()
+        model_name = sample_model.canonical_name if sample_model else ""
+
+        if is_garbage_laptop_model_name(model_name):
+            continue
 
         cpu_key = normalize_cpu_family(cpu_raw)
         gpu_key = normalize_gpu_family(gpu_raw)
+        has_ram_storage = bool(ram_gb and storage_gb)
+        has_cpu_gpu = bool(cpu_key and gpu_key)
+
+        if not (has_ram_storage or has_cpu_gpu):
+            continue
+        if storage_gb and storage_gb not in VALID_LAPTOP_STORAGE_GB:
+            continue
+        if is_generic_laptop_model_name(model_name) and not (has_ram_storage or has_cpu_gpu):
+            continue
 
         signature = (model_id, cpu_key, gpu_key, ram_gb, storage_gb)
 
@@ -155,8 +199,12 @@ def compute_laptop_opportunity_rows(
         if loose:
             # Loose matching: only match on model + RAM + storage (ignore CPU/GPU)
             tr_filter.pop("source_type", None)
+            if not has_ram_storage:
+                continue
         else:
             # Strict matching: require CPU + GPU match too
+            if not has_cpu_gpu:
+                continue
             if cpu_key:
                 tr_filter["cpu__icontains"] = cpu_raw.split("-")[0] if "-" in cpu_raw else cpu_raw
             if gpu_key:
@@ -258,6 +306,42 @@ def compute_laptop_opportunity_rows(
     return rows[:limit]
 
 
+def write_laptop_opportunity_snapshots(rows, *, source_label="laptop_v2"):
+    generated_at = timezone.now()
+    snapshots = []
+    for row in rows:
+        snapshots.append(
+            LaptopOpportunitySnapshot(
+                laptop_model_id=row.get("laptop_model_id"),
+                brand=row.get("brand") or "",
+                model=row.get("model") or "",
+                cpu=row.get("cpu") or "",
+                gpu=row.get("gpu") or "",
+                ram_gb=row.get("ram_gb"),
+                storage_gb=row.get("storage_gb"),
+                algeria_min_eur=row.get("algeria_min_eur"),
+                algeria_avg_eur=row.get("algeria_avg_eur"),
+                turkiye_min_eur=row.get("turkiye_min_eur"),
+                turkiye_avg_eur=row.get("turkiye_avg_eur"),
+                gross_margin_eur=row.get("margin_eur"),
+                margin_percent=row.get("margin_percent"),
+                algeria_count=row.get("algeria_count") or 0,
+                turkiye_count=row.get("turkiye_count") or 0,
+                algeria_urls=row.get("algeria_urls") or [],
+                turkiye_urls=row.get("turkiye_urls") or [],
+                recommendation=_snapshot_recommendation(row.get("recommendation")),
+                confidence_score=int(round(float(row.get("confidence") or 0) * 100)),
+                source_label=source_label,
+                generated_at=generated_at,
+            )
+        )
+
+    with transaction.atomic():
+        deleted, _ = LaptopOpportunitySnapshot.objects.all().delete()
+        LaptopOpportunitySnapshot.objects.bulk_create(snapshots, batch_size=500)
+    return deleted, len(snapshots)
+
+
 class Command(BaseCommand):
     help = "Preview clean laptop opportunities using LaptopListing only. Does not write opportunity snapshots."
 
@@ -284,6 +368,11 @@ class Command(BaseCommand):
             "--export-json",
             help="Optional path to save the computed rows as JSON.",
         )
+        parser.add_argument(
+            "--write-snapshots",
+            action="store_true",
+            help="Replace clean LaptopOpportunitySnapshot rows with the computed results.",
+        )
 
     def handle(self, *args, **options):
         min_margin_eur = _decimal_option(options["min_margin_eur"])
@@ -299,6 +388,14 @@ class Command(BaseCommand):
             only_approved=options["only_approved"],
             loose=options["loose"],
         )
+
+        if options["write_snapshots"]:
+            deleted, created = write_laptop_opportunity_snapshots(rows)
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Wrote {created} clean laptop opportunity snapshots; replaced {deleted} old rows."
+                )
+            )
 
         json_rows = [_row_to_json(row) for row in rows]
         if options["export_json"]:
@@ -327,8 +424,9 @@ class Command(BaseCommand):
                 f"{row['algeria_count']}/{row['turkiye_count']}"
             )
 
-        self.stdout.write(
-            self.style.WARNING(
-                "Preview only: this command uses LaptopListing and does not write OpportunitySnapshot/DealSnapshot."
+        if not options["write_snapshots"]:
+            self.stdout.write(
+                self.style.WARNING(
+                    "Preview only: add --write-snapshots to update the clean laptop dashboard table."
+                )
             )
-        )

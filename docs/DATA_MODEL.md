@@ -1,6 +1,26 @@
 # Data Model
 
-`Category`, `Brand`, `ProductModel`, and `DeviceVariant` describe electronics generically. Phones are the first target, but the same model supports laptops, tablets, watches, and other devices.
+`Category`, `Brand`, `ProductModel`, and `DeviceVariant` describe the legacy generic electronics catalog. They remain in the database for historical data and old dashboards.
+
+The canonical raw-first phone/laptop path now uses:
+
+- `RawListing` for source evidence.
+- `ParsedListingCandidate` for parser output and review state.
+- `PhoneModel` / `PhoneVariant` / `PhoneListing` for normalized phone rows.
+- `LaptopModel` / `LaptopVariant` / `LaptopListing` for normalized laptop rows.
+
+`MarketListing`, `OpportunitySnapshot`, and `DealSnapshot` are legacy for the v2 phone/laptop opportunity pipeline. Do not write new buyer-facing laptop exports from them.
+
+Laptop opportunity exports must only use specific identities: model + RAM + storage, model + CPU + GPU, or an explicit high-confidence variant match. Garbage/spec-fragment model names and generic family-only rows stay review data.
+
+Clean opportunity snapshots:
+
+- `PhoneOpportunitySnapshot` stores `PhoneListing`-based opportunity rows.
+- `LaptopOpportunitySnapshot` stores `LaptopListing`-based opportunity rows.
+- The root opportunities page reads these clean snapshots.
+- The deals swiper reads clean snapshots first and falls back to legacy `DealSnapshot` only when clean snapshots are empty.
+- Clean deal cards are buyer-facing and therefore filter snapshots to actionable
+  recommendations only: phone `buy`, laptop `buy` or `good_opportunity`.
 
 `ProductModel` has a nullable `product_type` FK linking it to a `ProductType` (phone, laptop, tablet, console, vr_headset, camera).
 

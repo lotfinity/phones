@@ -496,6 +496,85 @@ class DealsSwiperTests(TestCase):
         data = response.json()
         self.assertTrue(data["ok"])
 
+    def test_clean_phone_snapshot_feeds_deals_without_legacy_snapshot(self):
+        from market.clean_models import PhoneOpportunitySnapshot
+
+        PhoneOpportunitySnapshot.objects.create(
+            brand="Apple",
+            model="iPhone 15 Pro",
+            storage_gb=256,
+            algeria_min_eur=Decimal("500"),
+            turkiye_min_eur=Decimal("700"),
+            turkiye_avg_eur=Decimal("800"),
+            gross_margin_eur=Decimal("300"),
+            margin_percent=Decimal("60"),
+            algeria_count=1,
+            turkiye_count=2,
+            algeria_urls=["https://example.com/dz"],
+            turkiye_urls=["https://example.com/tr"],
+            recommendation=PhoneOpportunitySnapshot.Recommendation.BUY,
+            confidence_score=80,
+        )
+
+        response = self.client.get(reverse("deals_swiper"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "iPhone 15 Pro")
+        self.assertContains(response, "PhoneListing v2")
+
+    def test_clean_deals_exclude_non_actionable_snapshots(self):
+        from market.clean_models import LaptopOpportunitySnapshot, PhoneOpportunitySnapshot
+
+        PhoneOpportunitySnapshot.objects.create(
+            brand="Apple",
+            model="iPhone Watch Row",
+            storage_gb=256,
+            algeria_min_eur=Decimal("500"),
+            turkiye_avg_eur=Decimal("800"),
+            gross_margin_eur=Decimal("300"),
+            margin_percent=Decimal("60"),
+            algeria_count=1,
+            turkiye_count=1,
+            recommendation=PhoneOpportunitySnapshot.Recommendation.WATCH,
+            confidence_score=50,
+        )
+        LaptopOpportunitySnapshot.objects.create(
+            brand="Lenovo",
+            model="Legion Low Confidence",
+            cpu="Intel Core i7",
+            gpu="NVIDIA RTX 4060",
+            algeria_min_eur=Decimal("500"),
+            turkiye_avg_eur=Decimal("800"),
+            gross_margin_eur=Decimal("300"),
+            margin_percent=Decimal("60"),
+            algeria_count=1,
+            turkiye_count=1,
+            recommendation=LaptopOpportunitySnapshot.Recommendation.LOW_CONFIDENCE,
+            confidence_score=40,
+        )
+        LaptopOpportunitySnapshot.objects.create(
+            brand="Apple",
+            model="MacBook Pro M4 Pro",
+            cpu="Apple M4 Pro",
+            ram_gb=24,
+            storage_gb=512,
+            algeria_min_eur=Decimal("1800"),
+            turkiye_avg_eur=Decimal("2400"),
+            gross_margin_eur=Decimal("600"),
+            margin_percent=Decimal("33"),
+            algeria_count=2,
+            turkiye_count=2,
+            recommendation=LaptopOpportunitySnapshot.Recommendation.GOOD_OPPORTUNITY,
+            confidence_score=70,
+        )
+
+        response = self.client.get(reverse("deals_swiper"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "MacBook Pro M4 Pro")
+        self.assertNotContains(response, "iPhone Watch Row")
+        self.assertNotContains(response, "Legion Low Confidence")
+
 
 class CatalogSpecSystemTests(TestCase):
     """Tests for the generic typed spec system."""
@@ -1113,7 +1192,10 @@ class OpportunityAnalysisMatchLevelTests(TestCase):
             title_raw="Samsung Galaxy S25 256GB",
             price_original=800, currency_original="DZD",
             price_eur=price_eur,
+            storage_gb=256,
             review_status=review_status,
+            match_level="exact_variant",
+            match_confidence=0.95,
             listing_url="https://example.com/phone1",
         )
 
@@ -1136,6 +1218,7 @@ class OpportunityAnalysisMatchLevelTests(TestCase):
             title_raw="Lenovo Legion 5 RTX 4060 16GB",
             price_original=55000, currency_original="TRY",
             price_eur=price_eur,
+            storage_gb=512,
             review_status=review_status,
             match_level=match_level,
             match_confidence=match_confidence,
@@ -1155,7 +1238,10 @@ class OpportunityAnalysisMatchLevelTests(TestCase):
             title_raw="Samsung Galaxy S25 256GB TR",
             price_original=30000, currency_original="TRY",
             price_eur=600,
+            storage_gb=256,
             review_status="auto",
+            match_level="exact_variant",
+            match_confidence=0.95,
             listing_url="https://sahibinden.com/phone1",
         )
         from market.services.opportunity import run_analysis
@@ -1175,6 +1261,7 @@ class OpportunityAnalysisMatchLevelTests(TestCase):
             title_raw="Lenovo Legion 5 TR",
             price_original=55000, currency_original="TRY",
             price_eur=1000,
+            storage_gb=512,
             review_status="auto",
             listing_url="https://sahibinden.com/laptop1",
         )
@@ -1195,6 +1282,7 @@ class OpportunityAnalysisMatchLevelTests(TestCase):
             title_raw="Lenovo Legion 5 TR",
             price_original=55000, currency_original="TRY",
             price_eur=1000,
+            storage_gb=512,
             review_status="auto",
             match_level="exact_variant",
             match_confidence=0.95,
@@ -1216,6 +1304,7 @@ class OpportunityAnalysisMatchLevelTests(TestCase):
             title_raw="Lenovo Legion 5 TR",
             price_original=55000, currency_original="TRY",
             price_eur=1000,
+            storage_gb=512,
             review_status="auto",
             match_level="exact_variant",
             match_confidence=0.95,
@@ -1237,6 +1326,7 @@ class OpportunityAnalysisMatchLevelTests(TestCase):
             title_raw="Lenovo Legion 5 TR",
             price_original=55000, currency_original="TRY",
             price_eur=1000,
+            storage_gb=512,
             review_status="auto",
             match_level="exact_variant",
             match_confidence=0.95,
@@ -1258,6 +1348,7 @@ class OpportunityAnalysisMatchLevelTests(TestCase):
             title_raw="Lenovo Legion 5 TR",
             price_original=55000, currency_original="TRY",
             price_eur=1000,
+            storage_gb=512,
             review_status="auto",
             match_level="exact_variant",
             match_confidence=0.95,

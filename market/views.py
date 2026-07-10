@@ -1569,52 +1569,259 @@ def _snapshot_to_dict(snap):
     }
 
 
+def _clean_deal_dicts():
+    from market.clean_models import ConsoleOpportunitySnapshot, LaptopOpportunitySnapshot, PhoneOpportunitySnapshot
+
+    deals = []
+    phone_qs = PhoneOpportunitySnapshot.objects.filter(
+        recommendation=PhoneOpportunitySnapshot.Recommendation.BUY,
+    ).order_by("-gross_margin_eur", "-margin_percent")
+    for snap in phone_qs:
+        deals.append({
+            "id": f"phone-{snap.pk}",
+            "brand": snap.brand,
+            "model": snap.model,
+            "brand_logo_url": _brand_logo_url(snap.brand),
+            "brand_initial": _brand_initial(snap.brand or snap.model),
+            "storage_gb": snap.storage_gb,
+            "title": f"{snap.brand} {snap.model}".strip(),
+            "price_original": snap.algeria_min_eur,
+            "currency_original": "EUR",
+            "price_eur": snap.algeria_min_eur,
+            "price_try": None,
+            "price_usd": None,
+            "price_dzd": None,
+            "condition": "clean snapshot",
+            "condition_class": "",
+            "condition_label_tr": "",
+            "source_code": "PHONE",
+            "source_name": "PhoneListing v2",
+            "image_url": "",
+            "listing_url": (snap.algeria_urls or [""])[0],
+            "observed_at": snap.generated_at,
+            "sah_median": snap.turkiye_avg_eur,
+            "sah_median_eur": snap.turkiye_avg_eur,
+            "sah_median_usd": None,
+            "sah_median_dzd": None,
+            "sah_min": snap.turkiye_min_eur,
+            "sah_max": snap.turkiye_avg_eur,
+            "sah_count": snap.turkiye_count,
+            "sah_urls": snap.turkiye_urls or [],
+            "sah_urls_json": json.dumps(snap.turkiye_urls or []),
+            "margin_eur": snap.gross_margin_eur,
+            "margin_pct": snap.margin_percent,
+            "supplier_usd": None,
+            "supplier_eur": None,
+            "supplier_try": None,
+            "supplier_dzd": None,
+        })
+    laptop_qs = LaptopOpportunitySnapshot.objects.filter(
+        recommendation__in=[
+            LaptopOpportunitySnapshot.Recommendation.BUY,
+            LaptopOpportunitySnapshot.Recommendation.GOOD_OPPORTUNITY,
+        ],
+    ).order_by("-gross_margin_eur", "-margin_percent")
+    for snap in laptop_qs:
+        specs = " / ".join(
+            part for part in [
+                snap.cpu,
+                snap.gpu,
+                f"{snap.ram_gb}GB RAM" if snap.ram_gb else "",
+                f"{snap.storage_gb}GB" if snap.storage_gb else "",
+            ]
+            if part
+        )
+        title = f"{snap.brand} {snap.model}".strip()
+        if specs:
+            title = f"{title} {specs}"
+        deals.append({
+            "id": f"laptop-{snap.pk}",
+            "brand": snap.brand,
+            "model": snap.model,
+            "brand_logo_url": _brand_logo_url(snap.brand),
+            "brand_initial": _brand_initial(snap.brand or snap.model),
+            "storage_gb": snap.storage_gb,
+            "title": title,
+            "price_original": snap.algeria_min_eur,
+            "currency_original": "EUR",
+            "price_eur": snap.algeria_min_eur,
+            "price_try": None,
+            "price_usd": None,
+            "price_dzd": None,
+            "condition": "clean snapshot",
+            "condition_class": "",
+            "condition_label_tr": "",
+            "source_code": "LAP",
+            "source_name": "LaptopListing v2",
+            "image_url": "",
+            "listing_url": (snap.algeria_urls or [""])[0],
+            "observed_at": snap.generated_at,
+            "sah_median": snap.turkiye_avg_eur,
+            "sah_median_eur": snap.turkiye_avg_eur,
+            "sah_median_usd": None,
+            "sah_median_dzd": None,
+            "sah_min": snap.turkiye_min_eur,
+            "sah_max": snap.turkiye_avg_eur,
+            "sah_count": snap.turkiye_count,
+            "sah_urls": snap.turkiye_urls or [],
+            "sah_urls_json": json.dumps(snap.turkiye_urls or []),
+            "margin_eur": snap.gross_margin_eur,
+            "margin_pct": snap.margin_percent,
+            "supplier_usd": None,
+            "supplier_eur": None,
+            "supplier_try": None,
+            "supplier_dzd": None,
+        })
+    console_qs = ConsoleOpportunitySnapshot.objects.filter(
+        recommendation__in=[
+            ConsoleOpportunitySnapshot.Recommendation.BUY,
+            ConsoleOpportunitySnapshot.Recommendation.GOOD_OPPORTUNITY,
+        ],
+    ).order_by("-gross_margin_eur", "-margin_percent")
+    for snap in console_qs:
+        specs = " / ".join(
+            part for part in [
+                snap.chipset,
+                f"{snap.ram_gb}GB RAM" if snap.ram_gb else "",
+                f"{snap.storage_gb}GB" if snap.storage_gb else "",
+            ]
+            if part
+        )
+        title = f"{snap.brand} {snap.model}".strip()
+        if specs:
+            title = f"{title} {specs}"
+        deals.append({
+            "id": f"console-{snap.pk}",
+            "brand": snap.brand,
+            "model": snap.model,
+            "brand_logo_url": _brand_logo_url(snap.brand),
+            "brand_initial": _brand_initial(snap.brand or snap.model),
+            "storage_gb": snap.storage_gb,
+            "title": title,
+            "price_original": snap.algeria_min_eur,
+            "currency_original": "EUR",
+            "price_eur": snap.algeria_min_eur,
+            "price_try": None,
+            "price_usd": None,
+            "price_dzd": None,
+            "condition": "clean snapshot",
+            "condition_class": "",
+            "condition_label_tr": "",
+            "source_code": "CON",
+            "source_name": "ConsoleListing v1",
+            "image_url": "",
+            "listing_url": (snap.algeria_urls or [""])[0],
+            "observed_at": snap.generated_at,
+            "sah_median": snap.turkiye_avg_eur,
+            "sah_median_eur": snap.turkiye_avg_eur,
+            "sah_median_usd": None,
+            "sah_median_dzd": None,
+            "sah_min": snap.turkiye_min_eur,
+            "sah_max": snap.turkiye_avg_eur,
+            "sah_count": snap.turkiye_count,
+            "sah_urls": snap.turkiye_urls or [],
+            "sah_urls_json": json.dumps(snap.turkiye_urls or []),
+            "margin_eur": snap.gross_margin_eur,
+            "margin_pct": snap.margin_percent,
+            "supplier_usd": None,
+            "supplier_eur": None,
+            "supplier_try": None,
+            "supplier_dzd": None,
+        })
+    deals.sort(key=lambda item: (item["margin_eur"] or Decimal("0"), item["margin_pct"] or Decimal("0")), reverse=True)
+    return deals
+
+
+def _clean_deals_available():
+    from market.clean_models import ConsoleOpportunitySnapshot, LaptopOpportunitySnapshot, PhoneOpportunitySnapshot
+
+    return (
+        PhoneOpportunitySnapshot.objects.exists()
+        or LaptopOpportunitySnapshot.objects.exists()
+        or ConsoleOpportunitySnapshot.objects.exists()
+    )
+
+
+def _clean_brand_summaries():
+    deals = _clean_deal_dicts()
+    grouped = {}
+    for deal in deals:
+        grouped.setdefault(deal["brand"], []).append(deal)
+
+    brand_summaries = []
+    for brand, brand_deals in grouped.items():
+        margins = [d["margin_pct"] for d in brand_deals if d["margin_pct"] is not None]
+        avg_margin = sum(margins) / len(margins) if margins else Decimal("0")
+        brand_summaries.append({
+            "brand": brand,
+            "deal_count": len(brand_deals),
+            "avg_margin": avg_margin,
+            "deals": brand_deals[:DEALS_PAGE_SIZE],
+            "deal_count_total": len(brand_deals),
+        })
+    brand_summaries.sort(key=lambda item: item["avg_margin"] or Decimal("0"), reverse=True)
+
+    all_margins = [d["margin_pct"] for d in deals if d["margin_pct"] is not None]
+    all_avg = sum(all_margins) / len(all_margins) if all_margins else Decimal("0")
+    brand_summaries.insert(0, {
+        "brand": "ALL",
+        "deal_count": len(deals),
+        "avg_margin": all_avg,
+        "deals": deals[:DEALS_PAGE_SIZE],
+        "deal_count_total": len(deals),
+    })
+    return brand_summaries, deals
+
+
 def deals_swiper(request):
     from django.db.models import Avg, Count
     from market.models import DealSnapshot
 
     selected_currency = get_active_currency(request)
 
-    # Build brand summaries from cached snapshots
-    brand_stats = (
-        DealSnapshot.objects
-        .values("brand_name")
-        .annotate(deal_count=Count("id"), avg_margin=Avg("margin_pct"))
-        .order_by("-avg_margin")
-    )
+    if _clean_deals_available():
+        brand_summaries, _all_clean_deals = _clean_brand_summaries()
+    else:
+        # Build brand summaries from cached legacy snapshots
+        brand_stats = (
+            DealSnapshot.objects
+            .values("brand_name")
+            .annotate(deal_count=Count("id"), avg_margin=Avg("margin_pct"))
+            .order_by("-avg_margin")
+        )
 
-    brand_summaries = []
-    for bs in brand_stats:
-        deals = list(
+        brand_summaries = []
+        for bs in brand_stats:
+            deals = list(
+                DealSnapshot.objects
+                .select_related("listing__condition_audit")
+                .filter(brand_name=bs["brand_name"])
+                .order_by("-margin_pct")[:DEALS_PAGE_SIZE]
+            )
+            brand_summaries.append({
+                "brand": bs["brand_name"],
+                "deal_count": bs["deal_count"],
+                "avg_margin": bs["avg_margin"] or 0,
+                "deals": [_snapshot_to_dict(d) for d in deals],
+                "deal_count_total": bs["deal_count"],
+            })
+
+        # ALL tab
+        all_deals = list(
             DealSnapshot.objects
             .select_related("listing__condition_audit")
-            .filter(brand_name=bs["brand_name"])
             .order_by("-margin_pct")[:DEALS_PAGE_SIZE]
         )
-        brand_summaries.append({
-            "brand": bs["brand_name"],
-            "deal_count": bs["deal_count"],
-            "avg_margin": bs["avg_margin"] or 0,
-            "deals": [_snapshot_to_dict(d) for d in deals],
-            "deal_count_total": bs["deal_count"],
+        all_margins = [d.margin_pct for d in all_deals if d.margin_pct is not None]
+        all_avg = sum(all_margins) / len(all_margins) if all_margins else 0
+        all_count = DealSnapshot.objects.count()
+        brand_summaries.insert(0, {
+            "brand": "ALL",
+            "deal_count": all_count,
+            "avg_margin": all_avg,
+            "deals": [_snapshot_to_dict(d) for d in all_deals],
+            "deal_count_total": all_count,
         })
-
-    # ALL tab
-    all_deals = list(
-        DealSnapshot.objects
-        .select_related("listing__condition_audit")
-        .order_by("-margin_pct")[:DEALS_PAGE_SIZE]
-    )
-    all_margins = [d.margin_pct for d in all_deals if d.margin_pct is not None]
-    all_avg = sum(all_margins) / len(all_margins) if all_margins else 0
-    all_count = DealSnapshot.objects.count()
-    brand_summaries.insert(0, {
-        "brand": "ALL",
-        "deal_count": all_count,
-        "avg_margin": all_avg,
-        "deals": [_snapshot_to_dict(d) for d in all_deals],
-        "deal_count_total": all_count,
-    })
 
     can_view_supplier = request.user.is_authenticated and request.user.is_staff
 
@@ -1654,6 +1861,20 @@ def deals_api(request):
     brand = request.GET.get("brand", "")
     offset = int(request.GET.get("offset", 0))
     limit = int(request.GET.get("limit", DEALS_PAGE_SIZE))
+
+    if _clean_deals_available():
+        deals_all = _clean_deal_dicts()
+        if brand != "ALL":
+            deals_all = [deal for deal in deals_all if deal["brand"] == brand]
+        total = len(deals_all)
+        deals = deals_all[offset:offset + limit]
+        return JsonResponse({
+            "ok": True,
+            "brand": brand,
+            "offset": offset,
+            "total": total,
+            "deals": [_deal_to_json(d) for d in deals],
+        })
 
     if brand == "ALL":
         qs = DealSnapshot.objects.select_related("listing__condition_audit").all()
@@ -1700,13 +1921,20 @@ def deals_more(request):
 
     logger.info("[deals_more] brand=%s offset=%s limit=%s", brand, offset, limit)
 
-    if brand == "ALL":
+    if _clean_deals_available():
+        deals_all = _clean_deal_dicts()
+        if brand != "ALL":
+            deals_all = [deal for deal in deals_all if deal["brand"] == brand]
+        total = len(deals_all)
+        deals = deals_all[offset:offset + limit]
+    elif brand == "ALL":
         qs = DealSnapshot.objects.select_related("listing__condition_audit").all()
+        total = qs.count()
+        deals = list(qs.order_by("-margin_pct")[offset:offset + limit])
     else:
         qs = DealSnapshot.objects.select_related("listing__condition_audit").filter(brand_name=brand)
-
-    total = qs.count()
-    deals = list(qs.order_by("-margin_pct")[offset:offset + limit])
+        total = qs.count()
+        deals = list(qs.order_by("-margin_pct")[offset:offset + limit])
 
     logger.info("[deals_more] total=%s returned=%s", total, len(deals))
 
@@ -1715,7 +1943,7 @@ def deals_more(request):
     html = render_to_string(
         "market/partials/_deal_cards_fragment.html",
         {
-            "deals": [_snapshot_to_dict(d) for d in deals],
+            "deals": deals if _clean_deals_available() else [_snapshot_to_dict(d) for d in deals],
             "can_view_supplier": can_view_supplier,
         },
         request=request,

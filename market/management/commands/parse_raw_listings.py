@@ -1,6 +1,9 @@
 """Parse raw listings into ParsedListingCandidates."""
 
+from decimal import InvalidOperation
+
 from django.core.management.base import BaseCommand, CommandError
+from django.db import connection
 
 from market.models import ParsedListingCandidate, RawListing
 from market.services.parsing.candidate_builder import build_candidate
@@ -11,7 +14,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--category", choices=["phones", "laptops", "unknown"],
+            "--category", choices=["phones", "laptops", "consoles", "unknown"],
             help="Filter by category hint.",
         )
         parser.add_argument(
@@ -58,11 +61,25 @@ class Command(BaseCommand):
                 qs = qs.filter(category_hint=category)
             elif category and options["reparse"]:
                 if category == "laptops":
-                    # Include all non-laptop hints so signal detection can reclassify.
-                    qs = qs.exclude(category_hint=RawListing.CategoryHint.LAPTOPS)
+                    # Include laptop hints plus rows that may have been imported
+                    # with the wrong hint, so signal detection can reclassify.
+                    qs = qs.filter(category_hint__in=[
+                        RawListing.CategoryHint.LAPTOPS,
+                        RawListing.CategoryHint.PHONES,
+                        RawListing.CategoryHint.UNKNOWN,
+                    ])
                 elif category == "phones":
-                    # Include all non-phone hints.
-                    qs = qs.exclude(category_hint=RawListing.CategoryHint.PHONES)
+                    qs = qs.filter(category_hint__in=[
+                        RawListing.CategoryHint.PHONES,
+                        RawListing.CategoryHint.UNKNOWN,
+                    ])
+                elif category == "consoles":
+                    qs = qs.filter(category_hint__in=[
+                        RawListing.CategoryHint.CONSOLES,
+                        RawListing.CategoryHint.LAPTOPS,
+                        RawListing.CategoryHint.PHONES,
+                        RawListing.CategoryHint.UNKNOWN,
+                    ])
                 # "unknown" already matches everything.
 
         qs = qs.order_by("-observed_at")[: options["limit"]]
@@ -76,7 +93,10 @@ class Command(BaseCommand):
         phone_created = 0
         phone_updated = 0
         accessory_count = 0
+        console_created = 0
+        console_updated = 0
         converted_count = 0
+        repaired_corrupt_count = 0
         threshold = options["auto_approve_threshold"]
 
         for raw in qs.iterator():
@@ -88,8 +108,16 @@ class Command(BaseCommand):
                     old_category = old_candidate.detected_category
                 except ParsedListingCandidate.DoesNotExist:
                     pass
+                except InvalidOperation:
+                    self._repair_corrupt_candidate_decimals(raw.pk)
+                    repaired_corrupt_count += 1
 
-                candidate, created = build_candidate(raw)
+                try:
+                    candidate, created = build_candidate(raw)
+                except InvalidOperation:
+                    self._repair_corrupt_candidate_decimals(raw.pk)
+                    repaired_corrupt_count += 1
+                    candidate, created = build_candidate(raw)
                 parsed_count += 1
 
                 if candidate.detected_category == ParsedListingCandidate.DetectedCategory.LAPTOP:
@@ -104,6 +132,11 @@ class Command(BaseCommand):
                         phone_created += 1
                     else:
                         phone_updated += 1
+                elif candidate.detected_category == ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE:
+                    if created:
+                        console_created += 1
+                    else:
+                        console_updated += 1
                 else:
                     accessory_count += 1
 
@@ -123,6 +156,19 @@ class Command(BaseCommand):
         self.stdout.write(
             f"  Laptop: +{laptop_created} created, {laptop_updated} updated | "
             f"Phone: +{phone_created} created, {phone_updated} updated | "
+            f"Console: +{console_created} created, {console_updated} updated | "
             f"Accessory/unknown: {accessory_count} | "
-            f"Converted phone->laptop: {converted_count}"
+            f"Converted phone->laptop: {converted_count} | "
+            f"Repaired corrupt decimals: {repaired_corrupt_count}"
         )
+
+    def _repair_corrupt_candidate_decimals(self, raw_listing_id):
+        with connection.cursor() as cursor:
+            cursor.execute(
+                """
+                UPDATE market_parsedlistingcandidate
+                SET price_original = NULL, price_eur = NULL
+                WHERE raw_listing_id = %s
+                """,
+                [raw_listing_id],
+            )

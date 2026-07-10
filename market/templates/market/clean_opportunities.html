@@ -1,0 +1,76 @@
+{% extends "market/base.html" %}
+{% load i18n %}
+
+{% block content %}
+<section class="page-shell">
+  <div class="page-header">
+    <div>
+      <h1>{% trans "Opportunities" %}</h1>
+      <p class="muted">{% trans "Clean raw-first snapshots from PhoneListing and LaptopListing." %}</p>
+    </div>
+    <div class="toolbar">
+      <code>phone {{ device_counts.phone }}</code>
+      <code>laptop {{ device_counts.laptop }}</code>
+    </div>
+  </div>
+
+  <section class="metric-grid">
+    <div class="metric-card"><b>{{ snapshots_count }}</b><span>{% trans "Matching rows" %}</span></div>
+    <div class="metric-card"><b>{{ total_gross }}</b><span>{% trans "Visible gross spread" %}</span></div>
+    <div class="metric-card"><b>{{ avg_margin }}</b><span>{% trans "Average margin" %}</span></div>
+    <div class="metric-card"><b>{{ source_counts.needs_review }}</b><span>{% trans "Candidates needing review" %}</span></div>
+  </section>
+
+  <form class="filter-bar" method="get">
+    <select name="type">
+      <option value="">{% trans "All types" %}</option>
+      <option value="phone" {% if active_type == "phone" %}selected{% endif %}>{% trans "Phones" %}</option>
+      <option value="laptop" {% if active_type == "laptop" %}selected{% endif %}>{% trans "Laptops" %}</option>
+    </select>
+    <select name="brand">
+      <option value="">{% trans "All brands" %}</option>
+      {% for brand in brands %}
+        <option value="{{ brand }}" {% if active_brand == brand %}selected{% endif %}>{{ brand }}</option>
+      {% endfor %}
+    </select>
+    <input type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'Search model/spec' %}">
+    <button type="submit">{% trans "Filter" %}</button>
+  </form>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>{% trans "Type" %}</th>
+          <th>{% trans "Model" %}</th>
+          <th>{% trans "Spec" %}</th>
+          <th>{% trans "Algeria min" %}</th>
+          <th>{% trans "Türkiye avg" %}</th>
+          <th>{% trans "Margin" %}</th>
+          <th>{% trans "Confidence" %}</th>
+          <th>{% trans "Evidence" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in rows %}
+          <tr>
+            <td><span class="badge">{{ row.device_type }}</span></td>
+            <td><strong>{{ row.brand }} {{ row.model }}</strong><br><span class="muted">{{ row.recommendation }}</span></td>
+            <td>{{ row.spec }}</td>
+            <td>{{ row.algeria_min }}</td>
+            <td>{{ row.turkiye_avg }}</td>
+            <td><strong>{{ row.gross_margin }}</strong><br><span class="muted">{{ row.margin_percent_label }}</span></td>
+            <td>{{ row.confidence_score }}<br><span class="muted">{{ row.counts_label }}</span></td>
+            <td>
+              {% if row.algeria_urls.0 %}<a href="{{ row.algeria_urls.0 }}" target="_blank" rel="noreferrer">DZ</a>{% endif %}
+              {% if row.turkiye_urls.0 %}<a href="{{ row.turkiye_urls.0 }}" target="_blank" rel="noreferrer">TR</a>{% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8" class="empty-state">{% trans "No clean opportunities yet. Recompute v2 snapshots first." %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

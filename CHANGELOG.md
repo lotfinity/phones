@@ -1,4 +1,30 @@
 # Changelog
+## 2026-07-10
+
+### Raw-first laptop matching cleanup
+
+- Added shared laptop quality gates for garbage model names, generic family-only rows, and buyer-facing export identity requirements.
+- Hardened MacBook repair so URL/title evidence can recover Apple/MacBook identity when grid/table text is garbage, without promoting unsupported M5-style names as Apple Silicon.
+- Tightened laptop brand detection to avoid short-brand substring matches from payload noise.
+- Blocked unsafe approved laptop candidates from `export_candidates`; they are returned to `needs_review` instead of creating clean model/listing rows.
+- Tightened `recompute_laptop_opportunities_v2` so laptop opportunities require model + RAM + storage, model + CPU + GPU, or high-confidence exact variant identity.
+- Enhanced `export_data_review` with problem filters for missing model, weak confidence, generic model, garbage model, candidate/final mismatch, and not-export-eligible rows.
+- Fixed `parse_raw_listings --category laptops --reparse` so laptop-hinted rows are included along with possibly misclassified rows.
+- Updated pipeline/data-model docs to mark the raw-first path as canonical and `MarketListing`/snapshot paths as legacy for v2 exports.
+- Added regression tests for MacBook parsing repair, garbage model rejection, generic laptop review handling, duplicate merge behavior, laptop opportunity export gates, and phone pipeline continuity.
+- Added `cleanup_laptop_listings` for dry-run-first cleanup of unsafe final laptop rows, with sqlite backup on apply and candidate-based repairs that keep repaired rows in review.
+- Inspected non-phone/non-laptop rows and documented portable gaming consoles as a separate future final-listing path rather than laptop rows.
+- Added `LaptopOpportunitySnapshot` and `recompute_laptop_opportunities_v2 --write-snapshots`.
+- Ported the root opportunities page to clean phone/laptop snapshots.
+- Ported the deals swiper/API/lazy-load flow to clean phone/laptop snapshots with legacy `DealSnapshot` fallback.
+- Tightened clean deals so buyer-facing deal cards only use actionable clean snapshots: phone `buy`, laptop `buy`/`good_opportunity`; low-confidence/watch rows remain internal review/opportunity data.
+- Made `merge_duplicate_laptop_models` refuse merges where normalization would drop extra identity text, then safely merged Apple casing-only duplicate model rows.
+- Added raw-first `ParsedListingCandidate` admin audit buckets, raw URL links, and a bulk action to flag selected candidates for the existing AI audit workflow via `ai_notes`.
+- Added `agent_review_candidates` to run the OpenCode AI audit against raw-first candidates, defaulting to phone/laptop only so accessories and unknown rows are skipped unless explicitly requested.
+- Added a raw-first portable gaming console lane: `portable_console` candidates, `ConsoleModel`/`ConsoleVariant`/`ConsoleListing`, `ConsoleOpportunitySnapshot`, console parser/export support, and `recompute_console_opportunities_v1`.
+- Reclassified current portable console rows into the console lane and exported 11 identity-complete Algeria console listings; console opportunities are currently zero until Türkiye comparison rows are enriched.
+- Added `build_enrichment_queries` to generate prioritized Sahibinden search URLs for one-sided phone/laptop/console rows.
+
 ## 2026-07-09
 
 ### Fix: Ouedkniss Algeria laptop detection

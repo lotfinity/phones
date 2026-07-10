@@ -49,6 +49,9 @@ class LaptopParserBrandTests(SimpleTestCase):
     def test_detect_hp(self):
         self.assertEqual(detect_brand("HP Victus 15"), "HP")
 
+    def test_does_not_detect_hp_inside_payload_noise(self):
+        self.assertEqual(detect_brand('MacBook Air M3 image "https://example.com/a.webp"'), "Apple")
+
     def test_detect_apple(self):
         self.assertEqual(detect_brand("MacBook Air M1"), "Apple")
 
@@ -240,6 +243,18 @@ class LaptopParserFullTests(SimpleTestCase):
         self.assertEqual(result["ram_gb"], 16)
         self.assertEqual(result["storage_gb"], 512)
 
+    def test_serialized_cdp_payload_does_not_pollute_model(self):
+        raw = (
+            'MacBook Pro M4 - Pil Devri 111 '
+            '{"source": "sahibinden_cdp", "category": "laptops", '
+            '"cell_cpu": "Apple M4", "cell_ram": "16 GB"}'
+        )
+        result = parse_laptop(raw, "MacBook Pro M4 - Pil Devri 111", {})
+        self.assertEqual(result["brand_text"], "Apple")
+        self.assertNotIn("cell", result["model_text"].lower())
+        self.assertNotIn("source", result["model_text"].lower())
+        self.assertEqual(result["ram_gb"], 16)
+
 
 # ---------------------------------------------------------------------------
 # Canonicalization tests
@@ -257,6 +272,10 @@ class LaptopCanonicalizationTests(SimpleTestCase):
     def test_macbook_pro_m2(self):
         result = normalize_laptop_model_name("Apple", "MACBOOK PRO 13 M2")
         self.assertEqual(result, "MacBook Pro M2")
+
+    def test_macbook_pro_m4_pro(self):
+        result = normalize_laptop_model_name("Apple", "MacBook Pro M4 Pro")
+        self.assertEqual(result, "MacBook Pro M4 Pro")
 
     def test_lenovo_legion_5(self):
         result = normalize_laptop_model_name("Lenovo", "LENOVO LEGION 5")
@@ -302,6 +321,11 @@ class LaptopCanonicalizationTests(SimpleTestCase):
         air = normalize_laptop_model_name("Apple", "MacBook Air M1")
         pro = normalize_laptop_model_name("Apple", "MacBook Pro M1")
         self.assertNotEqual(air, pro)
+
+    def test_apple_merge_key_preserves_chip_generation(self):
+        key1 = laptop_model_merge_key("Apple", "MacBook Air")
+        key2 = laptop_model_merge_key("Apple", "MacBook Air M1")
+        self.assertNotEqual(key1, key2)
 
     def test_a15_vs_f15_not_merged(self):
         a15 = normalize_laptop_model_name("ASUS", "TUF A15")
@@ -476,6 +500,20 @@ class MergeDuplicateLaptopModelsTests(TestCase):
 
         self.assertEqual(LaptopModel.objects.filter(brand__name="Apple").count(), 1)
 
+    def test_apple_merge_skips_noisy_family_fragments(self):
+        apple = Brand.objects.create(name="Apple")
+        LaptopModel.objects.create(brand=apple, canonical_name="MacBook Pro")
+        LaptopModel.objects.create(brand=apple, canonical_name="Macbook Pro")
+        LaptopModel.objects.create(brand=apple, canonical_name="Macbook Pro 14 M5 cip")
+        LaptopModel.objects.create(brand=apple, canonical_name="Macbook Pro Max")
+        out = StringIO()
+
+        call_command("merge_duplicate_laptop_models", "--brand=Apple", "--apply", stdout=out)
+
+        self.assertEqual(LaptopModel.objects.filter(brand=apple).count(), 3)
+        self.assertTrue(LaptopModel.objects.filter(brand=apple, canonical_name="Macbook Pro 14 M5 cip").exists())
+        self.assertTrue(LaptopModel.objects.filter(brand=apple, canonical_name="Macbook Pro Max").exists())
+
     def test_no_duplicates_shows_zero(self):
         self._create_model("Legion 5")
         out = StringIO()
@@ -483,6 +521,57 @@ class MergeDuplicateLaptopModelsTests(TestCase):
         call_command("merge_duplicate_laptop_models", stdout=out)
 
         self.assertIn("Duplicate groups found: 0", out.getvalue())
+
+
+class CleanupLaptopListingsTests(TestCase):
+    def test_apply_repairs_garbage_model_from_clean_candidate(self):
+        brand = Brand.objects.create(name="Apple")
+        bad_model = LaptopModel.objects.create(
+            brand=brand,
+            canonical_name="gpu ram gb storage gb",
+        )
+        raw = RawListing.objects.create(
+            source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE,
+            category_hint=RawListing.CategoryHint.LAPTOPS,
+            title_raw="MacBook Air M2 8GB 256GB",
+            raw_text="MacBook Air M2 8GB 256GB",
+            listing_url="https://example.com/macbook-cleanup",
+        )
+        ParsedListingCandidate.objects.create(
+            raw_listing=raw,
+            detected_category=ParsedListingCandidate.DetectedCategory.LAPTOP,
+            brand_text="Apple",
+            model_text="MacBook Air M2",
+            laptop_specs_json={
+                "cpu": "Apple M2",
+                "gpu": "Apple Integrated",
+                "ram_gb": 8,
+                "storage_gb": 256,
+                "series": "Macbook Air",
+            },
+            confidence=0.85,
+            status=ParsedListingCandidate.Status.PENDING,
+            matched_brand=brand,
+        )
+        listing = LaptopListing.objects.create(
+            raw_listing=raw,
+            source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE,
+            laptop_model=bad_model,
+            title="gpu ram gb storage gb",
+            price_eur=Decimal("800"),
+            review_status=LaptopListing.ReviewStatus.NEEDS_REVIEW,
+        )
+
+        out = StringIO()
+        call_command("cleanup_laptop_listings", "--only-garbage", "--apply", "--no-backup", stdout=out)
+
+        listing.refresh_from_db()
+        self.assertEqual(listing.laptop_model.canonical_name, "MacBook Air M2")
+        self.assertEqual(listing.ram_gb, 8)
+        self.assertEqual(listing.storage_gb, 256)
+        self.assertEqual(listing.review_status, LaptopListing.ReviewStatus.NEEDS_REVIEW)
 
 
 # ---------------------------------------------------------------------------
@@ -781,6 +870,38 @@ class RecomputeLaptopOpportunitiesV2Tests(TestCase):
         self.assertEqual(len(data), 1)
         self.assertEqual(data[0]["model"], "Legion 5")
 
+    def test_write_snapshots(self):
+        from market.clean_models import LaptopOpportunitySnapshot
+
+        self.create_laptop(
+            country=Country.ALGERIA,
+            source_type=SourceType.OUEDKNISS,
+            model=self.legion5,
+            cpu="AMD Ryzen 7",
+            gpu="NVIDIA RTX 3060",
+            ram=16,
+            storage=512,
+            eur="600",
+        )
+        self.create_laptop(
+            country=Country.TURKIYE,
+            source_type=SourceType.SAHIBINDEN,
+            model=self.legion5,
+            cpu="AMD Ryzen 7",
+            gpu="NVIDIA RTX 3060",
+            ram=16,
+            storage=512,
+            eur="900",
+        )
+        out = StringIO()
+
+        call_command("recompute_laptop_opportunities_v2", "--write-snapshots", stdout=out)
+
+        self.assertEqual(LaptopOpportunitySnapshot.objects.count(), 1)
+        snapshot = LaptopOpportunitySnapshot.objects.first()
+        self.assertEqual(snapshot.model, "Legion 5")
+        self.assertEqual(snapshot.gross_margin_eur, Decimal("300.00"))
+
     def test_loose_matching(self):
         """Loose matching ignores CPU/GPU and only matches on model + RAM + storage."""
         self.create_laptop(
@@ -808,6 +929,91 @@ class RecomputeLaptopOpportunitiesV2Tests(TestCase):
         rows = compute_laptop_opportunity_rows(loose=True)
 
         self.assertEqual(len(rows), 1)
+
+    def test_model_and_ram_without_storage_is_not_exported(self):
+        self.create_laptop(
+            country=Country.ALGERIA,
+            source_type=SourceType.OUEDKNISS,
+            model=self.legion5,
+            cpu="",
+            gpu="",
+            ram=16,
+            storage=None,
+            eur="600",
+        )
+        self.create_laptop(
+            country=Country.TURKIYE,
+            source_type=SourceType.SAHIBINDEN,
+            model=self.legion5,
+            cpu="",
+            gpu="",
+            ram=16,
+            storage=None,
+            eur="900",
+        )
+
+        from market.management.commands.recompute_laptop_opportunities_v2 import compute_laptop_opportunity_rows
+        rows = compute_laptop_opportunity_rows(loose=True)
+
+        self.assertEqual(rows, [])
+
+    def test_garbage_model_name_is_not_exported(self):
+        bad_model = LaptopModel.objects.create(
+            brand=self.lenovo,
+            canonical_name="gpu ram gb storage gb",
+        )
+        self.create_laptop(
+            country=Country.ALGERIA,
+            source_type=SourceType.OUEDKNISS,
+            model=bad_model,
+            cpu="AMD Ryzen 7",
+            gpu="NVIDIA RTX 3060",
+            ram=16,
+            storage=512,
+            eur="600",
+        )
+        self.create_laptop(
+            country=Country.TURKIYE,
+            source_type=SourceType.SAHIBINDEN,
+            model=bad_model,
+            cpu="AMD Ryzen 7",
+            gpu="NVIDIA RTX 3060",
+            ram=16,
+            storage=512,
+            eur="900",
+        )
+
+        from market.management.commands.recompute_laptop_opportunities_v2 import compute_laptop_opportunity_rows
+        rows = compute_laptop_opportunity_rows()
+
+        self.assertEqual(rows, [])
+
+    def test_nonstandard_storage_bucket_is_not_exported(self):
+        self.create_laptop(
+            country=Country.ALGERIA,
+            source_type=SourceType.OUEDKNISS,
+            model=self.legion5,
+            cpu="Intel Core i7",
+            gpu="NVIDIA RTX 3060",
+            ram=16,
+            storage=750,
+            eur="600",
+        )
+        self.create_laptop(
+            country=Country.TURKIYE,
+            source_type=SourceType.SAHIBINDEN,
+            model=self.legion5,
+            cpu="Intel Core i7",
+            gpu="NVIDIA RTX 3060",
+            ram=16,
+            storage=750,
+            eur="900",
+        )
+
+        from market.management.commands.recompute_laptop_opportunities_v2 import compute_laptop_opportunity_rows
+        rows = compute_laptop_opportunity_rows()
+
+        self.assertEqual(rows, [])
 
 
 # ---------------------------------------------------------------------------
@@ -861,7 +1067,7 @@ class DetectCategoryFromSignalsTests(SimpleTestCase):
     def test_ouedkniss_consoles_url(self):
         from market.services.parsing.candidate_builder import detect_category_from_signals
         url = "https://www.ouedkniss.com/consoles-lenovo-legion-go-z1-extreme-512gb"
-        self.assertEqual(detect_category_from_signals(url=url), "accessory")
+        self.assertEqual(detect_category_from_signals(url=url), "portable_console")
 
     def test_ouedkniss_headphones_url(self):
         from market.services.parsing.candidate_builder import detect_category_from_signals
@@ -978,8 +1184,8 @@ class BuildCandidateSignalOverrideTests(TestCase):
         candidate, created = build_candidate(raw)
         self.assertEqual(candidate.detected_category, ParsedListingCandidate.DetectedCategory.UNKNOWN)
 
-    def test_ouedkniss_console_url_becomes_unknown(self):
-        """Console URL should not be classified as laptop."""
+    def test_ouedkniss_console_url_becomes_portable_console(self):
+        """Portable console URL should not be classified as laptop."""
         raw = self._make_raw(
             category_hint=RawListing.CategoryHint.PHONES,
             listing_url="https://www.ouedkniss.com/consoles-lenovo-legion-go-z1-extreme-512gb",
@@ -988,7 +1194,10 @@ class BuildCandidateSignalOverrideTests(TestCase):
         )
         from market.services.parsing.candidate_builder import build_candidate
         candidate, created = build_candidate(raw)
-        self.assertEqual(candidate.detected_category, ParsedListingCandidate.DetectedCategory.UNKNOWN)
+        self.assertEqual(candidate.detected_category, ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE)
+        self.assertEqual(candidate.brand_text, "Lenovo")
+        self.assertEqual(candidate.model_text, "Legion Go")
+        self.assertEqual(candidate.console_specs_json["storage_gb"], 512)
 
     def test_phone_hint_stays_phone_when_no_laptop_signal(self):
         """Normal phone listing with phone hint stays phone."""

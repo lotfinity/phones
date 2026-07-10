@@ -14,6 +14,12 @@ from django.core.management.base import BaseCommand
 from django.db.models import Q
 
 from market.models import ParsedListingCandidate, RawListing
+from market.services.laptop_quality import (
+    candidate_has_laptop_export_identity,
+    is_garbage_laptop_model_name,
+    is_generic_laptop_model_name,
+    listing_has_laptop_export_identity,
+)
 
 
 STYLE = """
@@ -87,12 +93,25 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--output", default="exports/data_review.html")
         parser.add_argument("--limit", type=int, default=500)
-        parser.add_argument("--category", choices=["phone", "laptop", "unknown", "accessory"])
+        parser.add_argument("--category", choices=["phone", "laptop", "portable_console", "unknown", "accessory"])
         parser.add_argument("--country")
         parser.add_argument("--source-type")
         parser.add_argument("--status", help="Candidate status filter: pending/needs_review/approved/rejected/exported")
         parser.add_argument("--q", help="Search title, URL, brand, model, and raw text")
         parser.add_argument("--only-problems", action="store_true", help="Show rows with weak confidence, missing model, or needs_review")
+        parser.add_argument(
+            "--problem",
+            action="append",
+            choices=[
+                "missing_model",
+                "weak_confidence",
+                "generic_model",
+                "garbage_model",
+                "candidate_final_mismatch",
+                "not_export_eligible",
+            ],
+            help="Filter to a specific problem type. Can be passed multiple times.",
+        )
 
     def handle(self, *args, **options):
         qs = ParsedListingCandidate.objects.select_related(
@@ -102,10 +121,14 @@ class Command(BaseCommand):
             "matched_phone_variant",
             "matched_laptop_model",
             "matched_laptop_variant",
+            "matched_console_model",
+            "matched_console_variant",
             "raw_listing__phone_listing__phone_model",
             "raw_listing__phone_listing__variant",
             "raw_listing__laptop_listing__laptop_model",
             "raw_listing__laptop_listing__variant",
+            "raw_listing__console_listing__console_model",
+            "raw_listing__console_listing__variant",
         ).order_by("-created_at")
 
         if options["category"]:
@@ -130,13 +153,25 @@ class Command(BaseCommand):
         if options["only_problems"]:
             qs = qs.filter(Q(confidence__lt=0.65) | Q(model_text="") | Q(status=ParsedListingCandidate.Status.NEEDS_REVIEW))
 
-        rows = list(qs[: options["limit"]])
+        requested_problems = set(options.get("problem") or [])
+        if requested_problems:
+            filtered = []
+            for candidate in qs[: max(options["limit"] * 5, options["limit"])]:
+                problems = self._problem_keys(candidate)
+                if requested_problems.intersection(problems):
+                    filtered.append(candidate)
+                if len(filtered) >= options["limit"]:
+                    break
+            rows = filtered
+        else:
+            rows = list(qs[: options["limit"]])
 
         counts = {
             "rows": len(rows),
             "needs_review": sum(1 for c in rows if c.status == ParsedListingCandidate.Status.NEEDS_REVIEW),
             "laptops": sum(1 for c in rows if c.detected_category == ParsedListingCandidate.DetectedCategory.LAPTOP),
             "phones": sum(1 for c in rows if c.detected_category == ParsedListingCandidate.DetectedCategory.PHONE),
+            "consoles": sum(1 for c in rows if c.detected_category == ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE),
             "missing_model": sum(1 for c in rows if not c.model_text),
         }
 
@@ -145,7 +180,8 @@ class Command(BaseCommand):
             raw = c.raw_listing
             phone = getattr(raw, "phone_listing", None)
             laptop = getattr(raw, "laptop_listing", None)
-            final_listing = laptop or phone
+            console = getattr(raw, "console_listing", None)
+            final_listing = laptop or phone or console
             final_model = ""
             final_specs = ""
             final_status = ""
@@ -172,18 +208,36 @@ class Command(BaseCommand):
                     if part
                 )
                 final_status = f"PhoneListing {phone.review_status} conf={phone.parsed_confidence:.2f}"
+            elif console:
+                final_model = console.console_model.canonical_name if console.console_model else ""
+                final_specs = " / ".join(
+                    part for part in [
+                        console.chipset,
+                        f"{console.ram_gb}GB RAM" if console.ram_gb else "",
+                        f"{console.storage_gb}GB" if console.storage_gb else "",
+                    ]
+                    if part
+                )
+                final_status = f"ConsoleListing {console.review_status} conf={console.parsed_confidence:.2f}"
 
             problem_bits = []
+            problem_keys = self._problem_keys(c)
             if c.status == ParsedListingCandidate.Status.NEEDS_REVIEW:
                 problem_bits.append(badge("needs review", "warn"))
-            if not c.model_text:
+            if "missing_model" in problem_keys:
                 problem_bits.append(badge("missing model", "bad"))
-            if c.confidence < 0.65:
+            if "weak_confidence" in problem_keys:
                 problem_bits.append(badge("weak candidate", "bad"))
+            if "generic_model" in problem_keys:
+                problem_bits.append(badge("generic model", "warn"))
+            if "garbage_model" in problem_keys:
+                problem_bits.append(badge("garbage model", "bad"))
             if c.detected_category == ParsedListingCandidate.DetectedCategory.LAPTOP and laptop and not any([laptop.cpu, laptop.gpu, laptop.ram_gb, laptop.storage_gb]):
                 problem_bits.append(badge("no laptop specs", "bad"))
-            if laptop and laptop.laptop_model and laptop.laptop_model.canonical_name.lower() != (c.model_text or "").lower():
+            if "candidate_final_mismatch" in problem_keys:
                 problem_bits.append(badge("candidate/final mismatch", "warn"))
+            if "not_export_eligible" in problem_keys:
+                problem_bits.append(badge("not export eligible", "bad"))
 
             url = raw.listing_url or ""
             link = f'<a href="{esc(url)}" target="_blank">open</a>' if url else ""
@@ -193,7 +247,7 @@ class Command(BaseCommand):
                 f"<td class='raw'><b>{esc(raw.title_raw)}</b><br>{link}<br><span class='small'>{esc(url)}</span></td>"
                 f"<td>{badge(c.detected_category)} {badge(c.status)}<br>{confidence_badge(c.confidence)}<br>{''.join(problem_bits)}</td>"
                 f"<td><b>{esc(c.brand_text)} {esc(c.model_text)}</b><br><span class='small'>{esc(c.variant_text)}</span></td>"
-                f"<td>{json_block(c.laptop_specs_json or c.phone_specs_json)}</td>"
+                f"<td>{json_block(c.laptop_specs_json or c.phone_specs_json or c.console_specs_json)}</td>"
                 f"<td><b>{esc(final_model)}</b><br><span class='small'>{esc(final_specs)}</span><br>{badge(final_status, 'ok' if final_listing and final_listing.review_status == 'auto' else 'warn' if final_listing else 'bad')}</td>"
                 f"<td>{money(c.price_original, c.currency_original)}<br><span class='small'>€ {esc(c.price_eur)}</span></td>"
                 f"<td class='raw'><pre>{esc((raw.raw_text or '')[:900])}</pre></td>"
@@ -217,7 +271,7 @@ class Command(BaseCommand):
   <section class="grid">
     <div class="card"><b>{counts['rows']}</b><span>Rows shown</span></div>
     <div class="card"><b>{counts['needs_review']}</b><span>Needs review</span></div>
-    <div class="card"><b>{counts['laptops']} / {counts['phones']}</b><span>Laptops / Phones</span></div>
+    <div class="card"><b>{counts['laptops']} / {counts['phones']} / {counts['consoles']}</b><span>Laptops / Phones / Consoles</span></div>
     <div class="card"><b>{counts['missing_model']}</b><span>Missing model</span></div>
   </section>
   <table>
@@ -236,3 +290,27 @@ class Command(BaseCommand):
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(html_doc, encoding="utf-8")
         self.stdout.write(self.style.SUCCESS(f"Exported {len(rows)} rows to {output}"))
+
+    def _problem_keys(self, candidate):
+        raw = candidate.raw_listing
+        laptop = getattr(raw, "laptop_listing", None)
+        model_text = candidate.model_text or ""
+        final_model = laptop.laptop_model.canonical_name if laptop and laptop.laptop_model else ""
+        problems = set()
+
+        if not model_text:
+            problems.add("missing_model")
+        if candidate.confidence < 0.65:
+            problems.add("weak_confidence")
+        if candidate.detected_category == ParsedListingCandidate.DetectedCategory.LAPTOP:
+            if is_generic_laptop_model_name(model_text) or is_generic_laptop_model_name(final_model):
+                problems.add("generic_model")
+            if is_garbage_laptop_model_name(model_text) or is_garbage_laptop_model_name(final_model):
+                problems.add("garbage_model")
+            if laptop and final_model.lower() != model_text.lower():
+                problems.add("candidate_final_mismatch")
+            candidate_ok = candidate_has_laptop_export_identity(candidate)
+            listing_ok = listing_has_laptop_export_identity(laptop) if laptop else False
+            if not (candidate_ok or listing_ok):
+                problems.add("not_export_eligible")
+        return problems

@@ -9,10 +9,17 @@ from market.models import (
     RawListing,
 )
 from market.services.currency import convert_to_eur
+from market.services.laptop_quality import (
+    clean_model_key,
+    is_garbage_laptop_model_name,
+    is_generic_laptop_model_name,
+    has_laptop_export_identity,
+)
 from market.services.parsing.phone_parser_v2 import parse_phone
 from market.services.parsing.laptop_parser_v2 import parse_laptop
+from market.services.parsing.console_parser_v2 import is_portable_console_text, parse_console
 
-PARSER_VERSION = "v2.3"
+PARSER_VERSION = "v2.4"
 
 
 # ── URL / title-based category detection ────────────────────────────────────
@@ -59,17 +66,6 @@ _LAPTOP_BRAND_KEYWORDS = re.compile(
     re.IGNORECASE,
 )
 
-_MODEL_GARBAGE_TOKENS = {
-    "gpu", "ram", "gb", "storage", "cell", "cell_ram", "cell_storage",
-    "price", "currency", "ssd", "hdd", "nvme", "laptop", "notebook",
-}
-_GENERIC_LAPTOP_MODELS = {
-    "legion", "thinkpad", "ideapad", "loq", "tuf", "rog", "vivobook",
-    "zenbook", "latitude", "inspiron", "precision", "xps", "victus",
-    "omen", "elitebook", "probook", "pavilion", "nitro", "predator",
-    "aspire", "swift", "macbook", "macbook air", "macbook pro",
-}
-
 # Detect MacBook family directly from raw URL/title text before noisy grid/table
 # metadata can leak tokens like `gpu ram gb storage gb` into model_text.
 _MACBOOK_MODEL_RE = re.compile(r"\bmac\s*book\b|\bmacbook\b", re.IGNORECASE)
@@ -83,14 +79,17 @@ _MACBOOK_FAMILY_RE = re.compile(
 def detect_category_from_signals(url="", title=""):
     """Detect category from URL and title signals.
 
-    Returns one of: 'laptop', 'accessory', or '' (no strong signal).
+    Returns one of: 'laptop', 'portable_console', 'accessory', or '' (no strong signal).
     This is used to override category_hint when URL/title provide
     strong evidence that contradicts the hint.
     """
     url_lower = (url or "").lower()
     title_lower = (title or "").lower()
+    combined = f"{url_lower} {title_lower}"
 
     # 1. Strong URL signals override almost everything.
+    if is_portable_console_text(combined):
+        return "portable_console"
     if _ACCESSORY_URL_PATTERNS.search(url_lower):
         return "accessory"
     if _LAPTOP_URL_PATTERNS.search(url_lower):
@@ -100,6 +99,9 @@ def detect_category_from_signals(url="", title=""):
     # 2. Title-based accessory detection.
     if _ACCESSORY_TITLE_KEYWORDS.search(title_lower):
         return "accessory"
+
+    if is_portable_console_text(title_lower):
+        return "portable_console"
 
     # 3. Title-based laptop detection.
     if _LAPTOP_TITLE_KEYWORDS.search(title_lower):
@@ -125,17 +127,11 @@ def _legacy_price(payload):
 
 
 def _clean_model_key(value):
-    return re.sub(r"[^a-z0-9]+", " ", (value or "").lower()).strip()
+    return clean_model_key(value)
 
 
 def _looks_like_garbage_model(model_text):
-    cleaned = _clean_model_key(model_text)
-    if not cleaned:
-        return True
-    tokens = set(cleaned.split())
-    if tokens and tokens.issubset(_MODEL_GARBAGE_TOKENS):
-        return True
-    return len(cleaned) > 80
+    return is_garbage_laptop_model_name(model_text)
 
 
 def _extract_macbook_model_from_text(text):
@@ -184,18 +180,19 @@ def _repair_laptop_result(result, raw_listing):
     brand = result.get("brand_text", "")
     model_text = result.get("model_text", "")
     series = result.get("series", "")
+    macbook_model = _extract_macbook_model_from_text(raw_text)
 
-    if brand == "Apple":
-        macbook_model = _extract_macbook_model_from_text(raw_text)
-        if macbook_model:
-            model_text = macbook_model
-            result["model_text"] = macbook_model
-            # Apple Silicon is part of the commercial MacBook identity.
-            if not result.get("cpu"):
-                chip_match = re.search(r"\b(M[1-4])\s*(Pro|Max|Ultra)?\b", macbook_model, re.IGNORECASE)
-                if chip_match:
-                    suffix = f" {chip_match.group(2).title()}" if chip_match.group(2) else ""
-                    result["cpu"] = f"Apple {chip_match.group(1).upper()}{suffix}"
+    if macbook_model:
+        brand = "Apple"
+        result["brand_text"] = "Apple"
+        model_text = macbook_model
+        result["model_text"] = macbook_model
+        # Apple Silicon is part of the commercial MacBook identity.
+        if not result.get("cpu"):
+            chip_match = re.search(r"\b(M[1-4])\s*(Pro|Max|Ultra)?\b", macbook_model, re.IGNORECASE)
+            if chip_match:
+                suffix = f" {chip_match.group(2).title()}" if chip_match.group(2) else ""
+                result["cpu"] = f"Apple {chip_match.group(1).upper()}{suffix}"
 
     if _looks_like_garbage_model(model_text):
         model_text = series or ""
@@ -206,7 +203,7 @@ def _repair_laptop_result(result, raw_listing):
         result.get(field)
         for field in ("cpu", "gpu", "ram_gb", "storage_gb")
     )
-    if cleaned_model in _GENERIC_LAPTOP_MODELS and not has_variant_specs:
+    if is_generic_laptop_model_name(cleaned_model) and not has_variant_specs:
         # Generic family-only rows are useful leads, not safe opportunity inputs.
         result["confidence"] = min(result.get("confidence", 0.0), 0.55)
     elif _looks_like_garbage_model(result.get("model_text", "")):
@@ -221,6 +218,7 @@ def build_candidate(raw_listing):
 
     phone_result = None
     laptop_result = None
+    console_result = None
 
     hint = raw_listing.category_hint
 
@@ -229,14 +227,22 @@ def build_candidate(raw_listing):
     title = raw_listing.title_raw or ""
     signal_category = detect_category_from_signals(url, title)
 
-    if signal_category == "laptop":
+    if signal_category == "portable_console":
+        console_result = parse_console(raw_listing.raw_text, raw_listing.title_raw, payload)
+        result = console_result
+        detected_category = ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE
+    elif signal_category == "laptop":
         # Force laptop parsing regardless of hint.
         laptop_result = parse_laptop(raw_listing.raw_text, raw_listing.title_raw, payload)
         laptop_result = _repair_laptop_result(laptop_result, raw_listing)
         # Also run phone parser so we can compare confidence if needed.
         phone_result = parse_phone(raw_listing.raw_text, raw_listing.title_raw, payload)
         # If laptop has any meaningful confidence, prefer it.
-        if laptop_result and laptop_result["confidence"] >= 0.3:
+        if laptop_result and (
+            laptop_result["confidence"] >= 0.3
+            or laptop_result.get("brand_text")
+            or laptop_result.get("model_text")
+        ):
             result = laptop_result
             detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
         elif phone_result and (not laptop_result or phone_result["confidence"] > laptop_result["confidence"]):
@@ -269,20 +275,38 @@ def build_candidate(raw_listing):
             laptop_result = parse_laptop(raw_listing.raw_text, raw_listing.title_raw, payload)
             laptop_result = _repair_laptop_result(laptop_result, raw_listing)
 
+        if hint in (
+            RawListing.CategoryHint.CONSOLES,
+            RawListing.CategoryHint.UNKNOWN,
+            RawListing.CategoryHint.LAPTOPS,
+        ):
+            maybe_console = parse_console(raw_listing.raw_text, raw_listing.title_raw, payload)
+            if maybe_console and (maybe_console.get("brand_text") or maybe_console.get("model_text")):
+                console_result = maybe_console
+
         if hint == RawListing.CategoryHint.PHONES:
             result = phone_result
             detected_category = ParsedListingCandidate.DetectedCategory.PHONE
         elif hint == RawListing.CategoryHint.LAPTOPS:
-            result = laptop_result
-            detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
+            if console_result and console_result.get("confidence", 0) >= 0.5:
+                result = console_result
+                detected_category = ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE
+            else:
+                result = laptop_result
+                detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
+        elif hint == RawListing.CategoryHint.CONSOLES:
+            result = console_result
+            detected_category = ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE
         else:
-            if phone_result and laptop_result:
-                if phone_result["confidence"] >= laptop_result["confidence"]:
-                    result = phone_result
-                    detected_category = ParsedListingCandidate.DetectedCategory.PHONE
-                else:
-                    result = laptop_result
-                    detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
+            choices = []
+            if phone_result:
+                choices.append((phone_result["confidence"], phone_result, ParsedListingCandidate.DetectedCategory.PHONE))
+            if laptop_result:
+                choices.append((laptop_result["confidence"], laptop_result, ParsedListingCandidate.DetectedCategory.LAPTOP))
+            if console_result:
+                choices.append((console_result["confidence"], console_result, ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE))
+            if choices:
+                _confidence, result, detected_category = max(choices, key=lambda item: item[0])
             elif phone_result:
                 result = phone_result
                 detected_category = ParsedListingCandidate.DetectedCategory.PHONE
@@ -324,7 +348,17 @@ def build_candidate(raw_listing):
     brand_text = result.get("brand_text", "")
     model_text = result.get("model_text", "")
 
-    if confidence < 0.65:
+    if detected_category == ParsedListingCandidate.DetectedCategory.LAPTOP and not has_laptop_export_identity(
+        model_name=model_text,
+        cpu=result.get("cpu", ""),
+        gpu=result.get("gpu", ""),
+        ram_gb=result.get("ram_gb"),
+        storage_gb=result.get("storage_gb"),
+        variant=None,
+        confidence=confidence,
+    ):
+        status = ParsedListingCandidate.Status.NEEDS_REVIEW
+    elif confidence < 0.65:
         status = ParsedListingCandidate.Status.NEEDS_REVIEW
     elif not brand_text or not model_text:
         status = ParsedListingCandidate.Status.NEEDS_REVIEW
@@ -348,6 +382,7 @@ def build_candidate(raw_listing):
 
     phone_specs = {}
     laptop_specs = {}
+    console_specs = {}
 
     if detected_category == ParsedListingCandidate.DetectedCategory.PHONE:
         phone_specs = {
@@ -370,6 +405,16 @@ def build_candidate(raw_listing):
             "panel_type": result.get("panel_type", ""),
             "series": result.get("series", ""),
         }
+    elif detected_category == ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE:
+        console_specs = {
+            "chipset": result.get("chipset", ""),
+            "ram_gb": result.get("ram_gb"),
+            "storage_gb": result.get("storage_gb"),
+            "screen_size": result.get("screen_size"),
+            "refresh_rate_hz": result.get("refresh_rate_hz"),
+            "connectivity": result.get("connectivity", ""),
+            "color": result.get("color", ""),
+        }
 
     candidate, created = ParsedListingCandidate.objects.update_or_create(
         raw_listing=raw_listing,
@@ -384,6 +429,7 @@ def build_candidate(raw_listing):
             "condition": result.get("condition", "unknown"),
             "phone_specs_json": phone_specs,
             "laptop_specs_json": laptop_specs,
+            "console_specs_json": console_specs,
             "detected_segments_json": result.get("segments", []),
             "confidence": confidence,
             "parser_version": PARSER_VERSION,

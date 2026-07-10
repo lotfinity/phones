@@ -1,55 +1,156 @@
-# Pipeline
+# PriceBridge Pipeline
 
-Supplier list:
-`import_supplier_list` reads rough WhatsApp-style rows, stores raw text, extracts model/storage/RAM/USD price, creates or matches product records, and writes `SupplierPrice`.
+PriceBridge is a market-intelligence and matching system. It is not an
+ecommerce store. The current migration target is a raw-first pipeline:
 
-Instagram:
-`crawl_instagram_profile` uses Instaloader against public profiles, stores `InstagramPost`, captions, metadata, and media paths, then marks posts with media as needing OCR.
+`RawListing -> ParsedListingCandidate -> PhoneListing/LaptopListing/ConsoleListing -> v2 exports`
 
-Browser fallback:
-`harvest_instagram_profile_page` attaches to Chrome CDP, reads visible profile-grid post/reel URLs from the actual profile page, stores them as `InstagramPost`, and can download the visible thumbnails. This preserves the relationship needed later: device evidence -> reel/post URL.
+## Canonical Raw-First Path
 
-Combined batch:
-`harvest_and_process_instagram_profile` wraps the CDP harvest and OCR queue for offset/limit batches, avoiding already-processed posts by relying on `needs_ocr` and `ocr_processed`.
+### 1. Raw Listing
 
-OCR:
-`process_ocr_queue` runs the configured OCR backend. The default dummy backend returns empty text so the app still runs without OCR dependencies. Parsed caption plus OCR text creates `OCRResult` and, when enough data exists, a reviewable `MarketListing`.
+`RawListing` stores the source truth from public/profile collection, user-opened
+Chrome CDP marketplace tabs, supplier imports, or legacy backfills. Keep raw
+title, URL, price text, source/country/category hint, and full `raw_payload`.
 
-Analysis:
-`run_opportunity_analysis` compares Algeria buy-side `MarketListing` prices with Türkiye Sahibinden sell-side prices and writes `OpportunitySnapshot` records. Instagram and Ouedkniss both feed Algeria listings but keep separate `source_type` values so later comparison views can include Instagram only, Ouedkniss only, or both. Confidence is a simple heuristic based on listing count, Sahibinden count, supplier count, and variant specificity.
+Do not overwrite raw evidence with parser guesses.
 
-Sahibinden:
-`import_sahibinden_from_cdp` attaches to a user-opened Chrome CDP session, reads Sahibinden search-result table rows, paginates by `pagingOffset`, and creates Türkiye `MarketListing` rows with model, title, TRY price, date/place metadata, thumbnail URL, and listing URL.
+### 2. Parsed Listing Candidate
 
-Ouedkniss:
-`import_ouedkniss_from_cdp` attaches to a user-opened Ouedkniss search page through Chrome CDP, reads visible listing cards, and creates Algeria `MarketListing` rows with `source_type=ouedkniss`, DZD price, title, store metadata, image URL, and listing URL.
+`ParsedListingCandidate` stores parser output and review state. It links one-to-one
+to `RawListing` and carries:
 
-## Catalog Spec System
+- detected category: phone, laptop, accessory, or unknown
+- parsed brand/model/variant text
+- normalized price fields
+- `phone_specs_json` or `laptop_specs_json`
+- parser confidence, status, review notes, and matched clean model/variant FKs
 
-`seed_product_types_and_specs` idempotently seeds product types (phone, laptop, tablet, console, vr_headset, camera) and their spec definitions (storage, RAM, CPU, GPU, screen size, etc.).
+Laptop candidates must stay `needs_review` when the identity is incomplete or
+unsafe. In particular, garbage model names such as `gpu ram gb storage gb`,
+`ram gb storage`, `cell ram`, and `price currency` are not export-safe.
 
-`inspect_catalog_specs` prints product types, spec counts, sample definitions, and listing/variant spec value counts.
+Generic laptop family names such as `Legion`, `ThinkPad`, `Latitude`, `TUF`,
+`ROG`, `MacBook Air`, or `MacBook Pro` are review-only unless the row has enough
+variant identity.
 
-`backfill_product_types` sets `product_type` on existing `ProductModel` rows using category/name heuristic.
+### 3. Clean Final Listings
 
-`parse_listing_text` manually tests extraction on arbitrary text.
+`PhoneListing`, `LaptopListing`, and `ConsoleListing` are the normalized final
+listing tables for the raw-first pipeline. They preserve source URL and raw FK
+traceability.
 
-Spec values are stored in `ProductVariantSpecValue` (canonical variant specs) and `MarketListingSpecValue` (observed listing specs). The `market.services.catalog` module provides helpers for normalizing, upserting, and querying spec values.
+`PhoneModel` / `PhoneVariant` are clean phone catalog rows.
+`LaptopModel` / `LaptopVariant` are clean laptop catalog rows.
+`ConsoleModel` / `ConsoleVariant` are clean portable gaming console catalog rows.
 
-## Pipeline Integration
+Laptop buyer-facing exports require one of:
 
-Spec extraction runs at listing creation in all collectors: `ouedkniss_cdp`, `sahibinden_cdp`, `import_sahibinden_laptops_from_cdp`, and `process_ocr_queue`. The flow is: raw text → `detect_product_type()` → `extract_specs_from_text()` → `upsert_listing_specs_from_dict()`.
+- model + RAM + storage
+- model + CPU + GPU
+- an explicit high-confidence exact variant match
 
-`listing_matching.py` matches listings to product models using progressive matching with identity weights: gpu_model(10) > cpu_model(8) > ram_gb(6) > ssd_gb(5) > screen_inches(4) > refresh_hz(3). Confidence gates: exact≥20, high≥12, medium≥5. Conflicting specs block matching.
+Loose model-only laptop matches should remain low-confidence review data and
+must not be promoted into buyer-facing opportunity exports.
 
-`apply_match_to_listing()` persists `match_level`, `match_confidence`, and `match_reason` on each listing.
+## Current Commands
 
-## Match Quality and Opportunity Filtering
+- `parse_raw_listings` parses `RawListing` into `ParsedListingCandidate`.
+- `export_candidates` exports approved safe candidates into `PhoneListing` or
+  `LaptopListing`.
+- `export_data_review` creates a local HTML review report for raw, candidate,
+  and final rows.
+- `merge_duplicate_phone_models` and `merge_duplicate_laptop_models` safely
+  merge obvious duplicate clean model rows, dry-run by default.
+- `recompute_phone_opportunities_v2` computes phone opportunities from
+  `PhoneListing`.
+- `recompute_laptop_opportunities_v2` computes laptop opportunities from
+  `LaptopListing`, applies strict laptop identity gates, and can write
+  `LaptopOpportunitySnapshot` with `--write-snapshots`.
+- `recompute_console_opportunities_v1` computes portable console opportunities
+  from `ConsoleListing`.
+- `build_enrichment_queries` prints targeted Sahibinden search URLs for
+  one-sided phone/laptop/console rows that need Türkiye comparison data.
+- The root opportunities page reads clean phone/laptop opportunity snapshots.
+- The deals swiper reads clean phone/laptop snapshots first and falls back to
+  legacy `DealSnapshot` only when no clean snapshots exist.
+- Buyer-facing deal cards are stricter than the internal opportunities table:
+  phone snapshots must be `buy`, and laptop snapshots must be `buy` or
+  `good_opportunity`. Low-confidence/watch/marginal rows stay internal.
 
-`run_opportunity_analysis` filters listings by match quality before creating snapshots:
+## Legacy / Deprecated Path
 
-1. **Phones and unknown types**: always eligible (backward compatible).
-2. **Laptops and typed listings**: must have `match_level` in `OPPORTUNITY_ELIGIBLE_MATCH_LEVELS` (`exact_variant`, `strong_candidate`) and `match_confidence ≥ 0.70`.
-3. **Excluded**: `unmatched`, `conflict`, and `model_only` (unless `ALLOW_MODEL_ONLY_OPPORTUNITIES=True`).
+`MarketListing`, `ProductModel`, `DeviceVariant`, `MarketListingSpecValue`,
+`OpportunitySnapshot`, and `DealSnapshot` are legacy/generic pipeline tables.
+They still contain useful historical data. `DealSnapshot` remains as a fallback
+for the deals swiper only when clean snapshots have not been generated, but it
+is not the canonical path for raw-first phone/laptop exports.
 
-Use `inspect_listing_matches` to review match quality distribution. Use `recompute_listing_matches --dry-run` to preview recomputation without writing.
+Treat these commands as deprecated for the v2 laptop pipeline unless explicitly
+doing old-data migration or historical analysis:
+
+- `run_opportunity_analysis`
+- `recompute_deal_snapshots`
+- `finalize_review_queue`
+- `recompute_listing_matches`
+- commands that write new rows directly to `MarketListing`
+
+Do not delete legacy data blindly. Retire usage by removing these tables from
+new exports first, then migrate or archive only after tests and usage search
+prove a path is unused.
+
+## Review Workflow
+
+Use `export_data_review` to inspect raw/candidate/final mismatches:
+
+```bash
+python manage.py export_data_review --category laptop --limit 500
+python manage.py export_data_review --q macbook --limit 300 --output exports/review_macbook.html
+python manage.py export_data_review --category laptop --problem garbage_model
+python manage.py export_data_review --category laptop --problem not_export_eligible
+```
+
+The report includes raw title, URL, raw text, candidate fields, extracted specs,
+final listing fields, mismatch badges, and source/country/category filters.
+
+Review-only rows should be triaged in Django admin, not deleted or ignored.
+`ParsedListingCandidate` admin now exposes AI audit buckets for missing model,
+weak confidence, generic laptop family, garbage model, not-export-eligible
+laptop rows, and non-phone/non-laptop rows. Use the bulk action to flag selected
+candidates for AI audit; the marker is stored in `ai_notes` and the raw evidence
+remains linked through `RawListing`.
+
+Run AI audit on the flagged raw-first queue with:
+
+```bash
+python manage.py agent_review_candidates --flagged-only --limit 20
+python manage.py agent_review_candidates --bucket not_export_eligible --categories laptop --limit 20
+python manage.py agent_review_candidates --bucket missing_model --categories phone,laptop --limit 20
+```
+
+By default `agent_review_candidates` only considers phone/laptop candidates.
+Accessories and unknown rows are skipped unless `--categories all` or
+`--bucket non_phone_laptop` is passed explicitly.
+
+## Portable Gaming Consoles
+
+Rows such as ASUS ROG Ally, Lenovo Legion Go, Steam Deck, MSI Claw, Nintendo
+Switch, Xbox Ally, and PlayStation Portal must not be forced into
+`LaptopListing`. They now use:
+
+`RawListing -> ParsedListingCandidate(portable_console) -> ConsoleListing -> ConsoleOpportunitySnapshot`
+
+Console exports require model plus storage, or model plus chipset/RAM, or an
+explicit high-confidence variant match. Accessories such as cases, chargers,
+docks, keyboards, mice, bags, and replacement screens stay out of opportunity
+exports unless a separate accessory resale workflow is explicitly added.
+
+Use enrichment queries to fill missing Türkiye comparisons:
+
+```bash
+python manage.py build_enrichment_queries --category consoles --limit 20
+python manage.py import_sahibinden_from_cdp --category consoles --query "ASUS ROG Ally X 24GB 1024GB"
+python manage.py parse_raw_listings --category consoles --country turkiye --reparse --limit 500
+python manage.py export_candidates --category consoles --status pending --limit 500
+python manage.py recompute_console_opportunities_v1 --write-snapshots
+```

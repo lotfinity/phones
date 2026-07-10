@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PriceBridge Data Review</title>
+<style>
+:root { color-scheme: dark light; }
+body { font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #0f172a; color: #e5e7eb; }
+header { position: sticky; top: 0; z-index: 5; background: #020617; border-bottom: 1px solid #334155; padding: 14px 18px; }
+h1 { margin: 0 0 6px; font-size: 20px; }
+.meta { color: #94a3b8; font-size: 13px; }
+main { padding: 16px; }
+.grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 16px; }
+.card { background: #111827; border: 1px solid #334155; border-radius: 12px; padding: 12px; }
+.card b { display: block; font-size: 22px; color: #f8fafc; }
+.card span { color: #94a3b8; font-size: 13px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { position: sticky; top: 62px; background: #111827; z-index: 4; text-align: left; color: #cbd5e1; border-bottom: 1px solid #475569; padding: 8px; }
+td { vertical-align: top; border-bottom: 1px solid #1f2937; padding: 8px; }
+tr:hover { background: #111827; }
+.badge { display: inline-block; border-radius: 999px; padding: 2px 8px; font-size: 12px; margin: 1px 2px 1px 0; border: 1px solid #475569; color: #cbd5e1; }
+.ok { border-color: #22c55e; color: #86efac; }
+.warn { border-color: #f59e0b; color: #fcd34d; }
+.bad { border-color: #ef4444; color: #fca5a5; }
+.muted { color: #94a3b8; }
+.small { font-size: 12px; color: #94a3b8; }
+.raw { max-width: 360px; white-space: normal; overflow-wrap: anywhere; }
+a { color: #93c5fd; text-decoration: none; }
+a:hover { text-decoration: underline; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; color: #cbd5e1; }
+@media (max-width: 1100px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } table { font-size: 12px; } th:nth-child(8), td:nth-child(8) { display:none; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>PriceBridge Data Review</h1>
+  <div class="meta">Filters: category=portable_console country=all source=all q=</div>
+</header>
+<main>
+  <section class="grid">
+    <div class="card"><b>18</b><span>Rows shown</span></div>
+    <div class="card"><b>1</b><span>Needs review</span></div>
+    <div class="card"><b>0 / 0 / 18</b><span>Laptops / Phones / Consoles</span></div>
+    <div class="card"><b>1</b><span>Missing model</span></div>
+  </section>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th><th>Raw Listing</th><th>Candidate State</th><th>Candidate Model</th><th>Extracted Specs</th><th>Final Listing</th><th>Price</th><th>Raw Text</th>
+      </tr>
+    </thead>
+    <tbody><tr><td>991<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>TP-Link UH700 Hub USB 3.0 - 7 Ports Multiprise USB - Sortie 5 V/1.5 A - Indicate...</b><br><a href="https://www.ouedkniss.com/cables-adapters-tp-link-uh700-hub-usb-30-7-ports-multiprise-sortie-5-v15-a-indicateur-led-switch-compatible-avec-macbook-pro-imac-surface-xps-pc-ordinateur-portable-cle-birkhadem-alger-algeria-d55760617" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/cables-adapters-tp-link-uh700-hub-usb-30-7-ports-multiprise-sortie-5-v15-a-indicateur-led-switch-compatible-avec-macbook-pro-imac-surface-xps-pc-ordinateur-portable-cle-birkhadem-alger-algeria-d55760617</span></td><td><span class="badge">portable_console</span> <span class="badge">needs_review</span><br><span class="badge bad">conf 0.00</span><br><span class="badge warn">needs review</span><span class="badge bad">missing model</span><span class="badge bad">weak candidate</span></td><td><b> </b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: null,
+  &quot;storage_gb&quot;: null,
+  &quot;screen_size&quot;: 7.0,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>14500.00 DZD<br><span class='small'>€ 52.47</span></td><td class='raw'><pre>TP-Link UH700 Hub USB 3.0 - 7 Ports Multiprise USB - Sortie 5 V/1.5 A - Indicate... TP-Link UH700 Hub USB 3.0 - 7 Ports Multiprise USB - Sortie 5 V/1.5 A - Indicate... 14 500 DA Payment on delivery Birkhadem, 16 22 hours
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn7.ouedkniss.com/640/medias/announcements/images/Y7pZM/xeGypeY89ydWY1xzy3bexdBxrlVXUC5YJeNDUn9F.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;, &quot;category&quot;: &quot;laptops&quot;, &quot;cpu&quot;: &quot;&quot;, &quot;gpu&quot;: &quot;&quot;, &quot;ram_gb&quot;: null, &quot;storage_gb&quot;: null, &quot;screen_size&quot;: null, &quot;resolution&quot;: &quot;&quot;}</pre></td></tr><tr><td>907<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>ROG ALLY X 1 TB</b><br><a href="https://www.ouedkniss.com/consoles-rog-ally-x-1-tb-tiaret-algeria-d56292232" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-rog-ally-x-1-tb-tiaret-algeria-d56292232</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.90</span><br></td><td><b>ASUS ROG Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: null,
+  &quot;storage_gb&quot;: 1024,
+  &quot;screen_size&quot;: 8.0,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>119000.00 DZD<br><span class='small'>€ 430.64</span></td><td class='raw'><pre>ROG ALLY X 1 TB ROG ALLY X 1 TB 119 000 DA Payment on delivery Tiaret, 14 8 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn7.ouedkniss.com/640/medias/announcements/images/k82JnJ/Vq2izomfGE4u0VbNZVRKYJujsi7jiZgLFc6xIYzK.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>906<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE -...</b><br><a href="https://www.ouedkniss.com/other-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-kouba-alger-algeria-d55068697" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/other-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-kouba-alger-algeria-d55068697</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.90</span><br></td><td><b>Microsoft Xbox Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: 24,
+  &quot;storage_gb&quot;: 1024,
+  &quot;screen_size&quot;: 7.0,
+  &quot;refresh_rate_hz&quot;: 120,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>195000.00 DZD<br><span class='small'>€ 705.68</span></td><td class='raw'><pre>ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE -... ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE -... 195 000 DA Payment on delivery Kouba, 16 2 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn9.ouedkniss.com/640/medias/announcements/images/M8LxoO/9JwMSLq3kLZm0ChEtJBZbXz0L4NzzIrYNIv1XJQU.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>905<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE -...</b><br><a href="https://www.ouedkniss.com/other-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-tipaza-algeria-d55393378" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/other-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-tipaza-algeria-d55393378</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.90</span><br></td><td><b>Microsoft Xbox Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: 24,
+  &quot;storage_gb&quot;: 1024,
+  &quot;screen_size&quot;: 7.0,
+  &quot;refresh_rate_hz&quot;: 120,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>192000.00 DZD<br><span class='small'>€ 694.82</span></td><td class='raw'><pre>ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE -... ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE -... 192 000 DA Payment on delivery Tipaza, 42 3 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn8.ouedkniss.com/640/medias/announcements/images/yrEjx7/EGLiKRzgSjc37aW7R1HwXE3O2ffstp05PvkI1X0e.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>904<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>Xbox rog ally</b><br><a href="https://www.ouedkniss.com/laptop-xbox-rog-ally-hussein-dey-alger-algeria-d55834843" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/laptop-xbox-rog-ally-hussein-dey-alger-algeria-d55834843</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.80</span><br></td><td><b>ASUS ROG Ally</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: null,
+  &quot;storage_gb&quot;: null,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br><span class="badge warn">LaptopListing needs_review conf=0.30</span></td><td>105000.00 DZD<br><span class='small'>€ 379.98</span></td><td class='raw'><pre>Xbox rog ally Xbox rog ally 105 000 DA Hussein dey, 16 14 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn7.ouedkniss.com/640/medias/announcements/images/mZ6v3/f2WnSQyWFpON2TivQyzBJZZkk1PgwgROXqDC04kW.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>903<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>Asus Rog Ally X</b><br><a href="https://www.ouedkniss.com/consoles-asus-rog-ally-x-zeralda-alger-algeria-d56125555" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-asus-rog-ally-x-zeralda-alger-algeria-d56125555</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.80</span><br></td><td><b>ASUS ROG Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: null,
+  &quot;storage_gb&quot;: null,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>210000.00 DZD<br><span class='small'>€ 759.96</span></td><td class='raw'><pre>Asus Rog Ally X Asus Rog Ally X 210 000 DA Zeralda, 16 17 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn9.ouedkniss.com/640/medias/announcements/images/wpAgmr/D1VOPA8j5PzIlLbL3B8CVjJcadruHU92zNVJ1yro.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>902<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>Asus Rog ally Z1 extrême</b><br><a href="https://www.ouedkniss.com/consoles-asus-rog-ally-z1-extreme-bab-ezzouar-alger-algeria-d55575283" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-asus-rog-ally-z1-extreme-bab-ezzouar-alger-algeria-d55575283</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.80</span><br></td><td><b>ASUS ROG Ally</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: null,
+  &quot;storage_gb&quot;: null,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>120000.00 DZD<br><span class='small'>€ 434.26</span></td><td class='raw'><pre>Asus Rog ally Z1 extrême Asus Rog ally Z1 extrême 120 000 DA Payment on delivery Bab ezzouar, 16 26 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn8.ouedkniss.com/640/medias/announcements/images/qk19G/xZUPn2Ip4WAmE6LWDrQhyYW8wo4KfU40fBxKCvWo.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>901<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE...</b><br><a href="https://www.ouedkniss.com/consoles-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-hussein-dey-alger-algeria-d55066459" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-hussein-dey-alger-algeria-d55066459</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.90</span><br></td><td><b>Microsoft Xbox Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: 24,
+  &quot;storage_gb&quot;: 1024,
+  &quot;screen_size&quot;: 7.0,
+  &quot;refresh_rate_hz&quot;: 120,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>195000.00 DZD<br><span class='small'>€ 705.68</span></td><td class='raw'><pre>ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE... ASUS ROG XBOX ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE... 195 000 DA Payment on delivery Hussein dey, 16 4 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn7.ouedkniss.com/640/medias/announcements/images/JjpK/mfstZnOTC4jxNGC7kSSyyAlYyPNbuKW7sDQ2VH3r.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>900<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>ROG ALLY X</b><br><a href="https://www.ouedkniss.com/consoles-rog-ally-x-relizane-algeria-d55943395" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-rog-ally-x-relizane-algeria-d55943395</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.80</span><br></td><td><b>ASUS ROG Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: null,
+  &quot;storage_gb&quot;: null,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>150000.00 DZD<br><span class='small'>€ 542.83</span></td><td class='raw'><pre>ROG ALLY X ROG ALLY X 150 000 DA Relizane, 48 27 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn9.ouedkniss.com/640/medias/announcements/images/73Vq4y/FbWe5AmmZdgQW3vjfChXJe0JXrtgv0c4tg6skRQo.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>899<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>Asus Rog Ally X 24gb 1tb</b><br><a href="https://www.ouedkniss.com/consoles-asus-rog-ally-x-24gb-1tb-oran-algeria-d50901751" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-asus-rog-ally-x-24gb-1tb-oran-algeria-d50901751</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge ok">conf 1.00</span><br></td><td><b>ASUS ROG Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: 24,
+  &quot;storage_gb&quot;: 1024,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>185000.00 DZD<br><span class='small'>€ 669.49</span></td><td class='raw'><pre>Asus Rog Ally X 24gb 1tb Asus Rog Ally X 24gb 1tb 185 000 DA Payment on delivery Oran, 31 6 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn7.ouedkniss.com/640/medias/announcements/images/N0P88/G9WYVpXG2FVeX6G9Ht66u8uM7ZO4DXGw06YwIIoT.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>898<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>Asus Rog Ally RC71L amd Z1 Extreme 16Go RAM 512Go SSD</b><br><a href="https://www.ouedkniss.com/consoles-asus-rog-ally-rc71l-amd-z1-extreme-16go-ram-512go-ssd-mostaganem-algeria-d56443156" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-asus-rog-ally-rc71l-amd-z1-extreme-16go-ram-512go-ssd-mostaganem-algeria-d56443156</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge ok">conf 1.00</span><br></td><td><b>ASUS ROG Ally</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;AMD Z1 Extreme&quot;,
+  &quot;ram_gb&quot;: 16,
+  &quot;storage_gb&quot;: 512,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>85000.00 DZD<br><span class='small'>€ 307.60</span></td><td class='raw'><pre>Asus Rog Ally RC71L amd Z1 Extreme 16Go RAM 512Go SSD Asus Rog Ally RC71L amd Z1 Extreme 16Go RAM 512Go SSD 85 000 DA Payment on delivery Mostaganem, 27 9 hours
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn9.ouedkniss.com/640/medias/announcements/images/rRPvp/xXHz9qcJSytuGGEEfO8jSxIEeJeJqSuDajU3oRgn.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>897<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>Asus rog ally x 1TB /24Gb avec système de refroidissement</b><br><a href="https://www.ouedkniss.com/consoles-asus-rog-ally-x-1tb-24gb-avec-systeme-de-refroidissement-bab-ezzouar-alger-algeria-d54319691" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-asus-rog-ally-x-1tb-24gb-avec-systeme-de-refroidissement-bab-ezzouar-alger-algeria-d54319691</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge ok">conf 1.00</span><br></td><td><b>ASUS ROG Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: 24,
+  &quot;storage_gb&quot;: 1024,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>169000.00 DZD<br><span class='small'>€ 611.59</span></td><td class='raw'><pre>Asus rog ally x 1TB /24Gb avec système de refroidissement Asus rog ally x 1TB /24Gb avec système de refroidissement 169 000 DA Payment on delivery Bab ezzouar, 16 18 hours
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn9.ouedkniss.com/640/medias/announcements/images/G4YA3/7XiLNPNfwz0X34atoa54yZPzIZa3XKsYemQnfivw.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>896<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>Rog ally z1 extreme (comme neuf)</b><br><a href="https://www.ouedkniss.com/consoles-rog-ally-z1-extreme-comme-neuf-bordj-el-kiffan-alger-algeria-d56236168" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-rog-ally-z1-extreme-comme-neuf-bordj-el-kiffan-alger-algeria-d56236168</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.90</span><br></td><td><b>ASUS ROG Ally</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;AMD Z1 Extreme&quot;,
+  &quot;ram_gb&quot;: null,
+  &quot;storage_gb&quot;: null,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>117000.00 DZD<br><span class='small'>€ 423.41</span></td><td class='raw'><pre>Rog ally z1 extreme (comme neuf) Rog ally z1 extreme (comme neuf) 117 000 DA Bordj el kiffan, 16 5 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn8.ouedkniss.com/640/medias/announcements/images/Jqgxrg/xdTQcnLdPwUcjZ8pNiJ7b2kZnA6wWqaRTXYGSpm1.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>895<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>Asus Rog ally x Black</b><br><a href="https://www.ouedkniss.com/consoles-asus-rog-ally-x-black-chetouane-tlemcen-algeria-d56298694" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-asus-rog-ally-x-black-chetouane-tlemcen-algeria-d56298694</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.80</span><br></td><td><b>ASUS ROG Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: null,
+  &quot;storage_gb&quot;: null,
+  &quot;screen_size&quot;: 7.0,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>148000.00 DZD<br><span class='small'>€ 535.59</span></td><td class='raw'><pre>Asus Rog ally x Black Asus Rog ally x Black 148 000 DA Chetouane, 13 7 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn8.ouedkniss.com/640/medias/announcements/images/jq7lMv/mmdVqjgUNC9GFaSRj4x01gg6pEPAiOQ9XpAgcKQ6.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>894<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>ASUS ROG ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE - WIFI...</b><br><a href="https://www.ouedkniss.com/consoles-asus-rog-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-kouba-alger-algeria-d55066837" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/consoles-asus-rog-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-kouba-alger-algeria-d55066837</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge warn">conf 0.90</span><br></td><td><b>ASUS ROG Ally X</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: 24,
+  &quot;storage_gb&quot;: 1024,
+  &quot;screen_size&quot;: 7.0,
+  &quot;refresh_rate_hz&quot;: 120,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>195000.00 DZD<br><span class='small'>€ 705.68</span></td><td class='raw'><pre>ASUS ROG ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE - WIFI... ASUS ROG ALLY X - AMD RYZEN AI Z2 EXTREME - 24GB - 1TB - 7&quot; 120HZ TACTILE - WIFI... 195 000 DA Payment on delivery Kouba, 16 7 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn9.ouedkniss.com/640/medias/announcements/images/jqLzVz/2QkSh6StVdwLkyy496NHzu5NwI4jxeNkAU3qrfh3.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>893<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>ASUS ROG Ally | Ryzen Z1 Extreme | 16GB | 512GB SSD</b><br><a href="https://www.ouedkniss.com/laptop-asus-rog-ally-ryzen-z1-extreme-16gb-512gb-ssd-bab-ezzouar-alger-algeria-d56232406" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/laptop-asus-rog-ally-ryzen-z1-extreme-16gb-512gb-ssd-bab-ezzouar-alger-algeria-d56232406</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge ok">conf 1.00</span><br></td><td><b>ASUS ROG Ally</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;AMD Z1 Extreme&quot;,
+  &quot;ram_gb&quot;: 16,
+  &quot;storage_gb&quot;: 512,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b>ROG ally</b><br><span class='small'>16GB RAM / 512GB</span><br><span class="badge warn">LaptopListing needs_review conf=0.50</span></td><td>94000.00 DZD<br><span class='small'>€ 340.17</span></td><td class='raw'><pre>ASUS ROG Ally | Ryzen Z1 Extreme | 16GB | 512GB SSD ASUS ROG Ally | Ryzen Z1 Extreme | 16GB | 512GB SSD 94 000 DA Payment on delivery Bab ezzouar, 16 10 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn9.ouedkniss.com/640/medias/announcements/images/PN5yKA/v4YuEXBBZZwOQipvvhzXfBkGBsBjNlfeqz1AOT1j.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>892<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>ASUS ROG XBOX ALLY AMD RYZEN Z2A 16GB 512GB NVME 7 FHD 120Hz</b><br><a href="https://www.ouedkniss.com/other-asus-rog-xbox-ally-amd-ryzen-z2a-16gb-512gb-nvme-7-fhd-120hz-birkhadem-alger-algeria-d35340259" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/other-asus-rog-xbox-ally-amd-ryzen-z2a-16gb-512gb-nvme-7-fhd-120hz-birkhadem-alger-algeria-d35340259</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge ok">conf 1.00</span><br></td><td><b>Microsoft Xbox Ally</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;&quot;,
+  &quot;ram_gb&quot;: 16,
+  &quot;storage_gb&quot;: 512,
+  &quot;screen_size&quot;: 7.0,
+  &quot;refresh_rate_hz&quot;: 120,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b></b><br><span class='small'></span><br></td><td>128000.00 DZD<br><span class='small'>€ 463.21</span></td><td class='raw'><pre>ASUS ROG XBOX ALLY AMD RYZEN Z2A 16GB 512GB NVME 7 FHD 120Hz ASUS ROG XBOX ALLY AMD RYZEN Z2A 16GB 512GB NVME 7 FHD 120Hz 128 000 DA Birkhadem, 16 24 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn9.ouedkniss.com/640/medias/announcements/images/kZ5mx/bWq5J8kfeNInTRD3QrgxSD25a2i2FollryberV8b.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;}</pre></td></tr><tr><td>8<br><span class='small'>ouedkniss / algeria</span></td><td class='raw'><b>LENOVO LEGION GO | Ryzen Z1 Extreme | 16GB | 512GB SSD</b><br><a href="https://www.ouedkniss.com/laptop-lenovo-legion-go-ryzen-z1-extreme-16gb-512gb-ssd-bab-ezzouar-alger-algeria-d56176264" target="_blank">open</a><br><span class='small'>https://www.ouedkniss.com/laptop-lenovo-legion-go-ryzen-z1-extreme-16gb-512gb-ssd-bab-ezzouar-alger-algeria-d56176264</span></td><td><span class="badge">portable_console</span> <span class="badge">pending</span><br><span class="badge ok">conf 1.00</span><br></td><td><b>Lenovo Legion Go</b><br><span class='small'></span></td><td><pre>{
+  &quot;chipset&quot;: &quot;AMD Z1 Extreme&quot;,
+  &quot;ram_gb&quot;: 16,
+  &quot;storage_gb&quot;: 512,
+  &quot;screen_size&quot;: null,
+  &quot;refresh_rate_hz&quot;: null,
+  &quot;connectivity&quot;: &quot;&quot;,
+  &quot;color&quot;: &quot;&quot;
+}</pre></td><td><b>Legion go</b><br><span class='small'>16GB RAM / 512GB</span><br><span class="badge warn">LaptopListing needs_review conf=0.50</span></td><td>143000.00 DZD<br><span class='small'>€ 517.50</span></td><td class='raw'><pre>LENOVO LEGION GO | Ryzen Z1 Extreme | 16GB | 512GB SSD LENOVO LEGION GO | Ryzen Z1 Extreme | 16GB | 512GB SSD 143 000 DA Payment on delivery Bab ezzouar, 16 10 days
+{&quot;store&quot;: &quot;&quot;, &quot;image_url&quot;: &quot;https://cdn8.ouedkniss.com/640/medias/announcements/images/PN5yKA/kyiqRYc8hH8OTevXy3hb6QekohJxnoDJOEFBZnn6.webp&quot;, &quot;source&quot;: &quot;ouedkniss_cdp&quot;, &quot;category&quot;: &quot;laptops&quot;, &quot;cpu&quot;: &quot;&quot;, &quot;gpu&quot;: &quot;&quot;, &quot;ram_gb&quot;: 16, &quot;storage_gb&quot;: 512, &quot;screen_size&quot;: null, &quot;resolution&quot;: &quot;&quot;}</pre></td></tr></tbody>
+  </table>
+</main>
+</body>
+</html>

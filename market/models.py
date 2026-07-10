@@ -955,6 +955,7 @@ class RawImportRun(models.Model):
     class CategoryHint(models.TextChoices):
         PHONES = "phones", "Phones"
         LAPTOPS = "laptops", "Laptops"
+        CONSOLES = "consoles", "Portable gaming consoles"
         UNKNOWN = "unknown", "Unknown"
 
     source_type = models.CharField(max_length=20, choices=SourceType.choices)
@@ -1006,6 +1007,7 @@ class RawListing(models.Model):
     class CategoryHint(models.TextChoices):
         PHONES = "phones", "Phones"
         LAPTOPS = "laptops", "Laptops"
+        CONSOLES = "consoles", "Portable gaming consoles"
         ACCESSORIES = "accessories", "Accessories"
         UNKNOWN = "unknown", "Unknown"
 
@@ -1082,6 +1084,7 @@ class ParsedListingCandidate(models.Model):
     class DetectedCategory(models.TextChoices):
         PHONE = "phone", "Phone"
         LAPTOP = "laptop", "Laptop"
+        PORTABLE_CONSOLE = "portable_console", "Portable gaming console"
         ACCESSORY = "accessory", "Accessory"
         UNKNOWN = "unknown", "Unknown"
 
@@ -1119,6 +1122,7 @@ class ParsedListingCandidate(models.Model):
 
     phone_specs_json = models.JSONField(default=dict, blank=True)
     laptop_specs_json = models.JSONField(default=dict, blank=True)
+    console_specs_json = models.JSONField(default=dict, blank=True)
 
     detected_segments_json = models.JSONField(default=list, blank=True)
 
@@ -1141,6 +1145,13 @@ class ParsedListingCandidate(models.Model):
     )
     matched_laptop_variant = models.ForeignKey(
         "LaptopVariant", null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    matched_console_model = models.ForeignKey(
+        "ConsoleModel", null=True, blank=True, on_delete=models.SET_NULL
+    )
+    matched_console_variant = models.ForeignKey(
+        "ConsoleVariant", null=True, blank=True, on_delete=models.SET_NULL
     )
 
     status = models.CharField(
@@ -1502,3 +1513,158 @@ class LaptopListing(models.Model):
 
     def __str__(self):
         return self.title or f"LaptopListing {self.pk}"
+
+
+# ===========================================================================
+# Portable gaming console models
+# ===========================================================================
+
+
+class ConsoleModel(models.Model):
+    brand = models.ForeignKey(
+        Brand, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    canonical_name = models.CharField(max_length=240)
+    aliases = models.JSONField(default=list, blank=True)
+    release_year = models.PositiveSmallIntegerField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["brand__name", "canonical_name"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["brand", "canonical_name"],
+                name="unique_console_model_per_brand",
+            )
+        ]
+
+    def __str__(self):
+        return self.canonical_name
+
+
+def build_console_variant_identity(chipset="", ram_gb=None, storage_gb=None, connectivity="", color=""):
+    def _norm(val):
+        return normalize_variant_text(str(val)).lower() if val else ""
+
+    return "|".join([
+        f"chipset={_norm(chipset)}",
+        f"ram={ram_gb or ''}",
+        f"storage={storage_gb or ''}",
+        f"connectivity={_norm(connectivity)}",
+        f"color={_norm(color)}",
+    ])
+
+
+class ConsoleVariant(models.Model):
+    console_model = models.ForeignKey(
+        ConsoleModel, on_delete=models.CASCADE, related_name="variants"
+    )
+    chipset = models.CharField(max_length=160, blank=True)
+    ram_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    storage_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    screen_size = models.DecimalField(
+        max_digits=4, decimal_places=1, null=True, blank=True
+    )
+    refresh_rate_hz = models.PositiveSmallIntegerField(null=True, blank=True)
+    connectivity = models.CharField(max_length=80, blank=True)
+    color = models.CharField(max_length=80, blank=True)
+
+    canonical_label = models.CharField(max_length=300)
+    identity_key = models.CharField(max_length=300, db_index=True, editable=False)
+    aliases = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ["console_model__canonical_name", "storage_gb", "ram_gb", "chipset"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["console_model", "identity_key"],
+                name="unique_console_variant_identity",
+            )
+        ]
+
+    def __str__(self):
+        return self.canonical_label
+
+    def save(self, *args, **kwargs):
+        self.identity_key = build_console_variant_identity(
+            self.chipset, self.ram_gb, self.storage_gb, self.connectivity, self.color
+        )
+        super().save(*args, **kwargs)
+
+
+class ConsoleListing(models.Model):
+    class ReviewStatus(models.TextChoices):
+        AUTO = "auto", "Auto"
+        NEEDS_REVIEW = "needs_review", "Needs review"
+        APPROVED = "approved", "Approved"
+        REJECTED = "rejected", "Rejected"
+
+    raw_listing = models.OneToOneField(
+        RawListing, null=True, blank=True, on_delete=models.SET_NULL,
+        related_name="console_listing",
+    )
+
+    source = models.ForeignKey(Source, null=True, blank=True, on_delete=models.SET_NULL)
+    source_type = models.CharField(max_length=20, choices=SourceType.choices)
+    country = models.CharField(max_length=20, choices=Country.choices)
+
+    console_model = models.ForeignKey(
+        ConsoleModel, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    variant = models.ForeignKey(
+        ConsoleVariant, null=True, blank=True, on_delete=models.SET_NULL
+    )
+
+    title = models.CharField(max_length=500, blank=True)
+    price_original = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    currency_original = models.CharField(max_length=8, blank=True)
+    price_eur = models.DecimalField(
+        max_digits=12, decimal_places=2, null=True, blank=True
+    )
+    condition = models.CharField(
+        max_length=20, choices=Condition.choices, default=Condition.UNKNOWN
+    )
+
+    chipset = models.CharField(max_length=160, blank=True)
+    ram_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    storage_gb = models.PositiveSmallIntegerField(null=True, blank=True)
+    screen_size = models.DecimalField(
+        max_digits=4, decimal_places=1, null=True, blank=True
+    )
+    refresh_rate_hz = models.PositiveSmallIntegerField(null=True, blank=True)
+    connectivity = models.CharField(max_length=80, blank=True)
+    color = models.CharField(max_length=80, blank=True)
+
+    listing_url = models.URLField(max_length=1000, blank=True)
+    image_url = models.URLField(max_length=1000, blank=True)
+    observed_at = models.DateTimeField(default=timezone.now)
+    parsed_confidence = models.FloatField(default=0)
+    review_status = models.CharField(
+        max_length=20, choices=ReviewStatus.choices,
+        default=ReviewStatus.NEEDS_REVIEW,
+    )
+
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-observed_at"]
+        indexes = [
+            models.Index(fields=["country", "source_type"]),
+            models.Index(fields=["console_model", "storage_gb"]),
+            models.Index(fields=["price_eur"]),
+            models.Index(fields=["review_status"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["source_type", "listing_url"],
+                name="unique_console_listing_source_url",
+                condition=~models.Q(listing_url=""),
+            )
+        ]
+
+    def __str__(self):
+        return self.title or f"ConsoleListing {self.pk}"

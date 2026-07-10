@@ -147,6 +147,27 @@ def normalize_laptop_model_name(brand_name, model_name):
     if not text:
         return ""
 
+    if ascii_fold(brand_name).lower().strip() == "apple":
+        apple_text = ascii_fold(text)
+        m = re.search(
+            r"\bmac\s*book\s*(air|pro)?(?:\s*(?:13|14|15|16)(?:\s*(?:inch|in|inc))?)?"
+            r"(?:\s*(m[1-4])\s*(pro|max|ultra)?)?\b",
+            apple_text,
+            re.IGNORECASE,
+        )
+        if m:
+            family = (m.group(1) or "").lower()
+            chip = (m.group(2) or "").upper()
+            suffix = (m.group(3) or "").title()
+            parts = ["MacBook"]
+            if family:
+                parts.append(family.title())
+            if chip:
+                parts.append(chip)
+            if suffix:
+                parts.append(suffix)
+            return " ".join(parts)
+
     # Normalize for lookup
     lookup = _clean_tokens(text)
 
@@ -255,6 +276,9 @@ def laptop_model_merge_key(brand_name, model_name):
     Legion 5 Pro) should produce different keys.
     """
     brand = ascii_fold(brand_name).lower().strip()
+    if brand == "apple":
+        return brand, _clean_tokens(normalize_laptop_model_name(brand_name, model_name))
+
     text = ascii_fold(model_name).lower().strip()
 
     # Remove brand prefix

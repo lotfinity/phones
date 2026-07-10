@@ -1,26 +1,28 @@
 [
   {
-    "brand": "Lenovo",
-    "model": "Legion",
-    "laptop_model_id": 10,
-    "cpu": "",
-    "gpu": "",
-    "ram_gb": null,
-    "storage_gb": null,
-    "algeria_min_eur": 350.18,
-    "algeria_avg_eur": 350.18,
-    "turkiye_min_eur": 298.61,
-    "turkiye_avg_eur": 979.42,
-    "margin_eur": 629.24,
-    "margin_percent": 179.69,
+    "brand": "Apple",
+    "model": "MacBook Pro M4 Pro",
+    "laptop_model_id": 428,
+    "cpu": "Apple M4 Pro",
+    "gpu": "Apple Integrated",
+    "ram_gb": 24,
+    "storage_gb": 512,
+    "algeria_min_eur": 189.53,
+    "algeria_avg_eur": 189.53,
+    "turkiye_min_eur": 1744.99,
+    "turkiye_avg_eur": 1744.99,
+    "margin_eur": 1555.46,
+    "margin_percent": 820.69,
     "algeria_count": 1,
-    "turkiye_count": 27,
-    "confidence": 0.75,
+    "turkiye_count": 1,
+    "confidence": 0.9,
     "recommendation": "strong_buy",
     "algeria_urls": [
-      "https://www.ouedkniss.com/laptop-lenovo-legion-bab-ezzouar-alger-algeria-d56390368"
+      "https://www.ouedkniss.com/macbooks-macbook-pro-m4-16inch-24gb-512gb-oran-algeria-d52438121"
     ],
-    "turkiye_urls": []
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-pro-m4-pro-24gb-512gb-ssd-mx2t3tu-a-16-inc-1326991131/detay"
+    ]
   },
   {
     "brand": "Lenovo",
@@ -46,28 +48,175 @@
     "turkiye_urls": []
   },
   {
-    "brand": "Dell",
-    "model": "Latitude",
-    "laptop_model_id": 115,
-    "cpu": "Intel Core i5",
-    "gpu": "",
-    "ram_gb": 16,
-    "storage_gb": 256,
-    "algeria_min_eur": 389.89,
-    "algeria_avg_eur": 389.89,
-    "turkiye_min_eur": 513.23,
-    "turkiye_avg_eur": 513.23,
-    "margin_eur": 123.34,
-    "margin_percent": 31.63,
+    "brand": "Apple",
+    "model": "MacBook Air",
+    "laptop_model_id": 22,
+    "cpu": "Apple M4",
+    "gpu": "Apple Integrated",
+    "ram_gb": 24,
+    "storage_gb": 512,
+    "algeria_min_eur": 1155.23,
+    "algeria_avg_eur": 1155.23,
+    "turkiye_min_eur": 1306.41,
+    "turkiye_avg_eur": 1353.07,
+    "margin_eur": 197.84,
+    "margin_percent": 17.13,
     "algeria_count": 1,
-    "turkiye_count": 1,
-    "confidence": 0.8,
-    "recommendation": "strong_buy",
+    "turkiye_count": 2,
+    "confidence": 0.9,
+    "recommendation": "good_opportunity",
     "algeria_urls": [
-      "https://www.ouedkniss.com/store/12527/eternel-store/annonce/51496396"
+      "https://www.ouedkniss.com/macbooks-macbook-air-m4-10c-cpu-gpu-24go-512nvme-13-pouce-azerty-bab-ezzouar-alger-algeria-d54869690"
     ],
     "turkiye_urls": [
-      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-dell-latitude-3540-i5-1335u-16gb-ram-256gb-ssd-temiz-1326095165/detay"
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-garantili-15-m4-24gb-ram-512gb-sdd-sifirdan-farksiz-1325503979/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-garantili-15-m4-24gb-ram-512gb-sdd-sifirdan-farksiz-1325518006/detay"
+    ]
+  },
+  {
+    "brand": "Apple",
+    "model": "MacBook Air M1",
+    "laptop_model_id": 415,
+    "cpu": "Apple M1",
+    "gpu": "Apple Integrated",
+    "ram_gb": 8,
+    "storage_gb": 256,
+    "algeria_min_eur": 375.45,
+    "algeria_avg_eur": 387.48,
+    "turkiye_min_eur": 541.23,
+    "turkiye_avg_eur": 547.45,
+    "margin_eur": 172.0,
+    "margin_percent": 45.81,
+    "algeria_count": 3,
+    "turkiye_count": 3,
+    "confidence": 1.0,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-macbook-air-m1-8gb-ram-256gb-ssd-mostaganem-algeria-d51145846",
+      "https://www.ouedkniss.com/macbooks-macbook-air-m1-8gb-ram-256gb-ssd-comptage-de-cycles-91-mostaganem-algeria-d54145703",
+      "https://www.ouedkniss.com/macbooks-macbook-air-m1-8gb-ram-256gb-ssd-comptage-de-cycles-91-mostaganem-algeria-d53960276"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-temiz-macbook-air-m1-8gb-ram-256gb-3-1326967696/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-temiz-macbook-air-m1-8gb-ram-256gb-hafiza-1-1326959283/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-kusursuz-ciziksiz-macbook-air-m1-97-pil-256gb-uzay-grisi-1325106573/detay"
+    ]
+  },
+  {
+    "brand": "Apple",
+    "model": "MacBook Air",
+    "laptop_model_id": 22,
+    "cpu": "Apple M4",
+    "gpu": "Apple Integrated",
+    "ram_gb": 16,
+    "storage_gb": 256,
+    "algeria_min_eur": 693.14,
+    "algeria_avg_eur": 693.14,
+    "turkiye_min_eur": 802.51,
+    "turkiye_avg_eur": 858.5,
+    "margin_eur": 165.36,
+    "margin_percent": 23.86,
+    "algeria_count": 1,
+    "turkiye_count": 3,
+    "confidence": 0.95,
+    "recommendation": "good_opportunity",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-macbook-air-m4-2024-argent-puce-8-core-gpu-16gb-ram-256gb-ssd-cycles-57-capacite-batterie-100-mostaganem-algeria-d39110591"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m2-16gb-ram-256gb-ssd-1326433657/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m4-2025-16gb-ram-256-gb-ssd-1326996222/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m4-16-gb-256-gb-ssd-1326997967/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-m4-13-16-gb-256-gb-ssd-100-pil-garantili-1326116710/detay"
+    ]
+  },
+  {
+    "brand": "Apple",
+    "model": "MacBook Pro",
+    "laptop_model_id": 41,
+    "cpu": "Intel Core i5",
+    "gpu": "Apple Integrated",
+    "ram_gb": 8,
+    "storage_gb": 256,
+    "algeria_min_eur": 122.74,
+    "algeria_avg_eur": 236.46,
+    "turkiye_min_eur": 240.75,
+    "turkiye_avg_eur": 240.75,
+    "margin_eur": 118.01,
+    "margin_percent": 96.15,
+    "algeria_count": 4,
+    "turkiye_count": 1,
+    "confidence": 0.95,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-macbook-pro-retina-2013-13-pouces-intel-core-i5-at-260ghz-8gb-ram-256gb-ssd-cycles-107-mostaganem-algeria-d47295099",
+      "https://www.ouedkniss.com/laptop-macbook-pro-13-pouces-2015-core-i5-double-coeur-8gb-ram-256gb-ssd-intel-iris-graphics-mostaganem-algeria-d48639301",
+      "https://www.ouedkniss.com/macbooks-macbook-pro-2016-i5-8go-256gb-133-retina-bab-ezzouar-alger-algeria-d56010826",
+      "https://www.ouedkniss.com/laptop-macbook-pro-retina-133-touchbar-2019-i5-24ghz-8go-256go-ssd-alger-centre-algeria-d51957585"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-pro-2017-13inc-8-256-kutulu-kusursuz-cihaz-1326963552/detay"
+    ]
+  },
+  {
+    "brand": "Apple",
+    "model": "MacBook Pro",
+    "laptop_model_id": 41,
+    "cpu": "Intel Core i7",
+    "gpu": "Apple Integrated",
+    "ram_gb": 16,
+    "storage_gb": 512,
+    "algeria_min_eur": 303.25,
+    "algeria_avg_eur": 342.96,
+    "turkiye_min_eur": 298.59,
+    "turkiye_avg_eur": 338.26,
+    "margin_eur": 35.01,
+    "margin_percent": 11.54,
+    "algeria_count": 3,
+    "turkiye_count": 4,
+    "confidence": 1.0,
+    "recommendation": "marginal",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-macbook-pro-156-core-i7-16gb-ram-amd-radeon-455-2gb-512gb-ssd-gamme-workstation-mostaganem-algeria-d54011555",
+      "https://www.ouedkniss.com/laptop-macbook-pro-156-core-i7-16gb-ram-amd-radeon-560-4gb-512gb-ssd-gamme-workstation-mostaganem-algeria-d47723023",
+      "https://www.ouedkniss.com/laptop-macbook-pro-16-2019-core-i7-16gb-ram-amd-radeon-5300m-4gb-512gb-ssd-gamme-workstation-mostaganem-algeria-d41375614",
+      "https://www.ouedkniss.com/laptop-macbook-pro-2019-16-touch-bar-i7-16gb-512gb-amd-radeon-graphics-5300-4gb-vram-bab-ezzouar-alger-algeria-d55567966",
+      "https://www.ouedkniss.com/laptop-macbook-pro-2019-i9-16gb-512-ssd-ecran-152k-gpu-amd-radeon-560x-bab-ezzouar-alger-algeria-d56074579"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-pro-4k-2016-sonu-16-ram-512-ssd-i7-15-4-inc-1326674726/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-kacmaz-fiyata-macbook-pro-15-inc-i7-16-ram-512-ssd-4k-1326145424/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-pro-15-2018-i7-16gb-ram-512gb-ssd-temiz-sorunsuz-1325320388/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-2020-macbook-pro-a2251-i7-4.1ghz-boost-13-4xtb-512gb-16gb-ram-1326515209/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-pro-2020-16-gb-ram-512-gb-ssd-89-pil-sorunsuz-1326643474/detay"
+    ]
+  },
+  {
+    "brand": "Apple",
+    "model": "MacBook Air",
+    "laptop_model_id": 22,
+    "cpu": "Intel Core i5",
+    "gpu": "Apple Integrated",
+    "ram_gb": 8,
+    "storage_gb": 128,
+    "algeria_min_eur": 162.45,
+    "algeria_avg_eur": 162.45,
+    "turkiye_min_eur": 158.64,
+    "turkiye_avg_eur": 183.52,
+    "margin_eur": 21.07,
+    "margin_percent": 12.97,
+    "algeria_count": 1,
+    "turkiye_count": 3,
+    "confidence": 0.95,
+    "recommendation": "marginal",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/laptop-macbook-air-2015-i5-8gb-128-ssd-133-bab-ezzouar-alger-algeria-d47400505",
+      "https://www.ouedkniss.com/laptop-macbook-air-13-2015-intel-core-i7-double-coeur-ram-8gb-128gb-ssd-mostaganem-algeria-d41983114"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-laptop-8-gb-128-gb-bellek-1326724992/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-satilik-2017-macbook-air-i5-8gb-128gb-ssd-1326716158/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-13-2017-i5-8-gb-128-gb-ssd-temiz-1326906040/detay"
     ]
   }
 ]

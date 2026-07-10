@@ -232,7 +232,7 @@ _KNOWN_MODEL_FAMILIES = {
 def detect_brand(text):
     text_lower = text.lower()
     for keyword, brand_name in LAPTOP_BRANDS.items():
-        if keyword in text_lower:
+        if re.search(rf"(?<![a-z0-9]){re.escape(keyword)}(?![a-z0-9])", text_lower):
             return brand_name
     return ""
 
@@ -519,6 +519,19 @@ def detect_condition(text):
     return "unknown"
 
 
+def _identity_text(raw_text="", title_raw=""):
+    """Prefer human listing text over serialized collector metadata for identity."""
+    text = raw_text or title_raw or ""
+    if "{\"source\"" in text:
+        text = text.split("{\"source\"", 1)[0]
+    if '"source" "sahibinden_cdp"' in text:
+        text = text.split('"source" "sahibinden_cdp"', 1)[0]
+    text = text.strip()
+    if title_raw and (not text or len(text) > len(title_raw) * 2):
+        return title_raw
+    return text or title_raw or raw_text or ""
+
+
 def _extract_model_text(text, brand):
     """Extract model family from text after removing spec tokens and garbage.
 
@@ -601,10 +614,11 @@ def parse_laptop(raw_text="", title_raw="", raw_payload=None):
     text = raw_text or title_raw or ""
     if not text and raw_payload:
         text = raw_payload.get("title", "") or raw_payload.get("description", "") or ""
+    identity_text = _identity_text(text, title_raw)
 
-    brand = detect_brand(text)
-    cpu = detect_cpu(text)
-    gpu = detect_gpu(text)
+    brand = detect_brand(identity_text)
+    cpu = detect_cpu(identity_text) or detect_cpu(text)
+    gpu = detect_gpu(identity_text) or detect_gpu(text)
     ram_gb = detect_ram_gb(text)
     storage_gb = detect_storage_gb(text)
     screen_size = detect_screen_size(text)
@@ -615,12 +629,12 @@ def parse_laptop(raw_text="", title_raw="", raw_payload=None):
     price_original = detect_price(text)
     currency_original = detect_currency(text)
 
-    model_text = _extract_model_text(text, brand)
-    series = _detect_series(text, brand)
+    model_text = _extract_model_text(identity_text, brand)
+    series = _detect_series(identity_text, brand)
 
     segments = []
     if brand:
-        m = re.search(re.escape(brand), text, re.IGNORECASE)
+        m = re.search(re.escape(brand), identity_text, re.IGNORECASE)
         if m:
             segments.append(make_segment("brand", m.group(), m.start(), m.end(), 0.95))
     if cpu:

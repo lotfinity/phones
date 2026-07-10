@@ -63,3 +63,21 @@ class MacBookCandidateRepairTests(TestCase):
         self.assertEqual(candidate.model_text, "Legion")
         self.assertLess(candidate.confidence, 0.65)
         self.assertEqual(candidate.status, ParsedListingCandidate.Status.NEEDS_REVIEW)
+
+    def test_garbage_model_tokens_are_needs_review(self):
+        raw = RawListing.objects.create(
+            source_type=SourceType.OUEDKNISS,
+            country=Country.ALGERIA,
+            category_hint=RawListing.CategoryHint.LAPTOPS,
+            listing_url="https://www.ouedkniss.com/laptop-unknown-algeria-d999",
+            title_raw="Apple gpu ram gb storage gb",
+            raw_text="Apple gpu ram gb storage gb",
+            price_text_raw="65000 DA",
+            raw_payload={"legacy_price_original": "65000", "legacy_currency": "DZD"},
+        )
+
+        candidate, _created = build_candidate(raw)
+
+        self.assertEqual(candidate.detected_category, ParsedListingCandidate.DetectedCategory.LAPTOP)
+        self.assertEqual(candidate.status, ParsedListingCandidate.Status.NEEDS_REVIEW)
+        self.assertLess(candidate.confidence, 0.65)
