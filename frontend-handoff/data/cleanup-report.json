@@ -1,0 +1,80 @@
+{
+  "schema_version": "pricebridge.frontend-cleanup-report.v1",
+  "source_branch": "refactor/deals-swiper-partials",
+  "source_files": [
+    {
+      "path": "exports/phone_opportunities_v2_strong.json",
+      "role": "phone opportunities"
+    },
+    {
+      "path": "exports/laptop_opportunities_v2_cleaned.json",
+      "role": "laptop opportunities"
+    },
+    {
+      "path": "exports/console_opportunities_v1.json",
+      "role": "portable-console opportunities"
+    }
+  ],
+  "output_files": [
+    {
+      "path": "frontend-handoff/data/opportunities.sample.json",
+      "role": "combined normalized fixture",
+      "item_count": 11
+    },
+    {
+      "path": "frontend-handoff/data/opportunity.schema.json",
+      "role": "machine-readable JSON Schema"
+    }
+  ],
+  "normalization": {
+    "common_category_field": true,
+    "common_model_id_field": true,
+    "common_margin_field": true,
+    "confidence_scale": "0-100",
+    "recommendation_enum": [
+      "strong_opportunity",
+      "good_opportunity",
+      "watch",
+      "weak_evidence",
+      "avoid"
+    ],
+    "category_specific_fields_location": "specifications",
+    "price_fields_location": "prices.algeria / prices.turkiye",
+    "profit_fields_location": "gain_split",
+    "source_links_location": "evidence"
+  },
+  "curation": {
+    "included": {
+      "phone": 4,
+      "laptop": 4,
+      "portable_console": 3
+    },
+    "omitted_examples": [
+      {
+        "reason": "duplicate_or_less_complete_variant",
+        "example": "ROG Ally Z1 Extreme 512 GB row without RAM"
+      },
+      {
+        "reason": "obvious_price_outlier_pending_review",
+        "example": "Xbox Ally X row with Türkiye minimum near EUR 193"
+      },
+      {
+        "reason": "mixed_generation_identity",
+        "example": "generic MacBook rows combining multiple years or processors"
+      },
+      {
+        "reason": "incomplete_product_identity",
+        "example": "rows missing the minimum fields needed to distinguish a variant"
+      }
+    ],
+    "warnings_retained": true,
+    "warning_examples": [
+      "single_algeria_listing",
+      "small_evidence_sample",
+      "mixed_cpu_evidence",
+      "variant_identity_incomplete",
+      "thin_buyer_margin"
+    ]
+  },
+  "usage_note": "Attach opportunities.sample.json with the design prompt. Attach opportunity.schema.json when the design or coding tool should generate typed models or validate fixtures."
+}
