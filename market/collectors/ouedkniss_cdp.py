@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from decimal import Decimal
 from html import unescape
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import quote, urlparse
 
 from django.conf import settings
 from django.utils import timezone
@@ -71,6 +71,14 @@ def normalize_ouedkniss_url(value):
     return f"https://www.ouedkniss.com/{value.lstrip('/')}"
 
 
+def ouedkniss_search_url(query, page=1):
+    query = re.sub(r"\s+", "-", (query or "").strip())
+    query = re.sub(r"-+", "-", query).strip("-")
+    if not query:
+        return ""
+    return f"https://www.ouedkniss.com/s/{int(page or 1)}?keywords={quote(query, safe='-')}"
+
+
 def comparable_url(value):
     parsed = urlparse(normalize_ouedkniss_url(value))
     path = parsed.path.rstrip("/") or "/"
@@ -86,8 +94,12 @@ def target_match_score(target, target_url):
         return 100
     if target_url in target.url:
         return 50
-    wanted_path = urlparse(normalize_ouedkniss_url(target_url)).path.rstrip("/")
-    target_path = urlparse(target.url).path.rstrip("/")
+    wanted = urlparse(normalize_ouedkniss_url(target_url))
+    target_parsed = urlparse(target.url)
+    if wanted.query:
+        return 0
+    wanted_path = wanted.path.rstrip("/")
+    target_path = target_parsed.path.rstrip("/")
     if wanted_path and wanted_path == target_path:
         return 40
     return 0

@@ -295,8 +295,12 @@ def build_candidate(raw_listing):
                 result = laptop_result
                 detected_category = ParsedListingCandidate.DetectedCategory.LAPTOP
         elif hint == RawListing.CategoryHint.CONSOLES:
-            result = console_result
-            detected_category = ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE
+            if console_result:
+                result = console_result
+                detected_category = ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE
+            else:
+                result = None
+                detected_category = ParsedListingCandidate.DetectedCategory.UNKNOWN
         else:
             choices = []
             if phone_result:

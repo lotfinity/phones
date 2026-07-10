@@ -73,7 +73,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--category",
-            choices=["phones", "laptops", "unknown"],
+            choices=["phones", "laptops", "consoles", "unknown"],
             default="unknown",
             help="Category hint for raw listings.",
         )

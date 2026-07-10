@@ -1,6 +1,6 @@
 import json
 import re
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -442,153 +442,14 @@ class OpportunitySnapshot(models.Model):
     SUPPLIER_BUYER_DISCOUNT_USD = Decimal("100")
 
     def gain_split(self):
-        from decimal import Decimal as D
-        from market.services.currency import eur_to_dzd, money, usd_to_eur
+        from market.services.gain_split import compute_gain_split
 
-        gross = self.gross_margin_vs_sahibinden_eur
-        algeria_min = self.algeria_min_eur
-        sahibinden_avg = self.sahibinden_avg_eur
-        supplier = self.supplier_eur
-
-        if algeria_min is None:
-            return None
-
-        algeria_min = D(str(algeria_min))
-
-        if supplier is not None:
-            supplier = D(str(supplier))
-            buyer_floor = usd_to_eur(self.SUPPLIER_BUYER_DISCOUNT_USD)
-            gross = supplier - algeria_min
-            split_pool = gross - buyer_floor
-
-            if split_pool <= 0:
-                my_gain = D("0")
-                buyer_gain = gross
-                offer_price = algeria_min
-                deal_quality = "weak" if buyer_gain > 0 else "ignore"
-                notes = (
-                    f"Supplier-list rule: target buyer discount USD {self.SUPPLIER_BUYER_DISCOUNT_USD:.0f}; "
-                    "spread is too thin to split after the target discount."
-                )
-            else:
-                my_gain = split_pool / D("2")
-                buyer_gain = buyer_floor + (split_pool / D("2"))
-                offer_price = algeria_min + my_gain
-                buyer_gain_pct = (buyer_gain / offer_price * D("100")) if offer_price else D("0")
-                if buyer_gain_pct >= 30:
-                    deal_quality = "strong"
-                elif buyer_gain_pct >= 15 or split_pool >= self.GOOD_DEAL_GROSS_FLOOR_EUR:
-                    deal_quality = "medium"
-                else:
-                    deal_quality = "weak"
-                notes = (
-                    f"Supplier-list rule: buyer gets USD {self.SUPPLIER_BUYER_DISCOUNT_USD:.0f} below supplier, "
-                    "then remaining spread is split 50/50."
-                )
-
-            buyer_gain_pct = (buyer_gain / offer_price * D("100")) if offer_price else D("0")
-            my_gain_pct_of_gross = (my_gain / gross * D("100")) if gross else D("0")
-            return {
-                "pricing_basis": "supplier",
-                "gross_margin_eur": money(gross),
-                "my_gain_eur": money(my_gain),
-                "buyer_gain_eur": money(buyer_gain),
-                "offer_price_to_buyer_eur": money(offer_price),
-                "buyer_gain_percent": buyer_gain_pct.quantize(D("0.01"), rounding=ROUND_HALF_UP),
-                "my_gain_percent_of_gross": my_gain_pct_of_gross.quantize(D("0.01"), rounding=ROUND_HALF_UP),
-                "my_gain_dzd": money(eur_to_dzd(my_gain)),
-                "offer_price_to_buyer_dzd": money(eur_to_dzd(offer_price)),
-                "deal_quality": deal_quality,
-                "notes": notes,
-            }
-
-        if gross is None or sahibinden_avg is None:
-            return None
-
-        gross = D(str(gross))
-
-        if gross <= 0:
-            return {
-                "pricing_basis": "turkiye_market",
-                "gross_margin_eur": money(gross),
-                "my_gain_eur": money(D("0")),
-                "buyer_gain_eur": money(gross),
-                "offer_price_to_buyer_eur": money(algeria_min),
-                "buyer_gain_percent": D("0.00"),
-                "my_gain_percent_of_gross": D("0.00"),
-                "my_gain_dzd": money(D("0")),
-                "offer_price_to_buyer_dzd": money(eur_to_dzd(algeria_min)),
-                "deal_quality": "ignore",
-                "notes": "No spread available to split.",
-            }
-
-        # Find the right tier
-        my_gain_pct = D("0")
-        buyer_min = D("0")
-        for threshold, gain_pct, min_gain in self.GAIN_SPLIT_TIERS:
-            if threshold is None or gross < threshold:
-                my_gain_pct = gain_pct
-                buyer_min = min_gain
-                break
-
-        my_gain = gross * my_gain_pct
-
-        # Cap: buyer must keep at least buyer_min.
-        capped = False
-        max_my_gain = gross - buyer_min
-        if my_gain > max_my_gain:
-            my_gain = max(D("0"), max_my_gain)
-            capped = True
-
-        buyer_gain = gross - my_gain
-        offer_price = algeria_min + my_gain
-
-        # Percentages
-        my_gain_pct_of_gross = (my_gain / gross * D("100")) if gross else D("0")
-        buyer_gain_pct = (buyer_gain / offer_price * D("100")) if offer_price else D("0")
-
-        # Deal quality
-        if gross < D("50"):
-            deal_quality = "weak"
-        elif buyer_gain_pct >= 30:
-            deal_quality = "strong"
-        elif buyer_gain_pct >= 15:
-            deal_quality = "medium"
-        elif gross >= self.GOOD_DEAL_GROSS_FLOOR_EUR and buyer_gain > 0:
-            deal_quality = "medium"
-        elif buyer_gain_pct > 0:
-            deal_quality = "weak"
-        else:
-            deal_quality = "ignore"
-
-        # Notes
-        notes_parts = []
-        if my_gain_pct > 0:
-            notes_parts.append(f"My cut: {my_gain_pct * 100:.0f}% of spread")
-        if capped and buyer_gain >= buyer_min and buyer_min > 0:
-            notes_parts.append(f"Capped to leave buyer at least EUR {buyer_min:.0f}")
-        elif buyer_gain < buyer_min and buyer_min > 0:
-            notes_parts.append(f"Buyer minimum target EUR {buyer_min:.0f} is not met")
-        if gross >= self.GOOD_DEAL_GROSS_FLOOR_EUR and deal_quality == "medium" and buyer_gain_pct < 15:
-            notes_parts.append(f"Absolute spread above EUR {self.GOOD_DEAL_GROSS_FLOOR_EUR:.0f}; kept as medium")
-        if deal_quality == "weak":
-            notes_parts.append("Thin margin for buyer; may not close")
-        if deal_quality == "strong":
-            notes_parts.append("Healthy buyer profit; attractive deal")
-
-        return {
-            "pricing_basis": "turkiye_market",
-            "gross_margin_eur": money(gross),
-            "my_gain_eur": money(my_gain),
-            "buyer_gain_eur": money(buyer_gain),
-            "offer_price_to_buyer_eur": money(offer_price),
-            "buyer_gain_percent": buyer_gain_pct.quantize(D("0.01"), rounding=ROUND_HALF_UP),
-            "my_gain_percent_of_gross": my_gain_pct_of_gross.quantize(D("0.01"), rounding=ROUND_HALF_UP),
-            "my_gain_dzd": money(eur_to_dzd(my_gain)),
-            "offer_price_to_buyer_dzd": money(eur_to_dzd(offer_price)),
-            "deal_quality": deal_quality,
-            "notes": "; ".join(notes_parts),
-        }
+        return compute_gain_split(
+            algeria_min_eur=self.algeria_min_eur,
+            turkiye_avg_eur=self.sahibinden_avg_eur,
+            gross_margin_eur=self.gross_margin_vs_sahibinden_eur,
+            supplier_eur=self.supplier_eur,
+        )
 
 
 class DealSnapshot(models.Model):

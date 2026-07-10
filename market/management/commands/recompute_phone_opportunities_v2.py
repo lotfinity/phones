@@ -15,6 +15,7 @@ from market.models import (
     PhoneListing,
     SourceType,
 )
+from market.services.gain_split import attach_buyer_pricing, json_safe
 
 VALID_PHONE_STORAGE_GB = (64, 128, 256, 512, 1024, 2048)
 VISIBLE_REVIEW_STATUSES = (
@@ -48,13 +49,7 @@ def _percent(value):
 
 
 def _row_to_json(row):
-    converted = {}
-    for key, value in row.items():
-        if isinstance(value, Decimal):
-            converted[key] = float(value)
-        else:
-            converted[key] = value
-    return converted
+    return json_safe(row)
 
 
 def _recommendation_for_row(row):
@@ -189,6 +184,7 @@ def compute_phone_opportunity_rows(
         }
         row["recommendation"] = _recommendation_for_row(row)
         row["confidence_score"] = _confidence_for_row(row)
+        attach_buyer_pricing(row, margin_key="gross_margin_eur")
         rows.append(row)
 
     rows.sort(key=lambda item: (item["gross_margin_eur"], item["margin_percent"] or Decimal("0")), reverse=True)

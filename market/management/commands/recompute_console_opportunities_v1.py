@@ -9,6 +9,7 @@ from django.utils import timezone
 
 from market.clean_models import ConsoleOpportunitySnapshot
 from market.models import ConsoleListing, Country, SourceType
+from market.services.gain_split import attach_buyer_pricing, json_safe
 
 
 VISIBLE_REVIEW_STATUSES = (
@@ -20,6 +21,8 @@ APPROVED_REVIEW_STATUSES = (
     ConsoleListing.ReviewStatus.AUTO,
     ConsoleListing.ReviewStatus.APPROVED,
 )
+MIN_CONSOLE_PRICE_EUR = Decimal("100")
+MAX_CONSOLE_PRICE_EUR = Decimal("2500")
 
 
 def _decimal_option(value):
@@ -42,10 +45,7 @@ def _percent(value):
 
 
 def _row_to_json(row):
-    converted = {}
-    for key, value in row.items():
-        converted[key] = float(value) if isinstance(value, Decimal) else value
-    return converted
+    return json_safe(row)
 
 
 def _confidence_score(algeria_count, turkiye_count, has_storage, has_chipset):
@@ -86,7 +86,15 @@ def _snapshot_recommendation(value):
 
 
 def _eligible_queryset(qs):
-    return qs.filter(console_model__isnull=False, price_eur__isnull=False).exclude(storage_gb__isnull=True)
+    return (
+        qs.filter(
+            console_model__isnull=False,
+            price_eur__isnull=False,
+            price_eur__gte=MIN_CONSOLE_PRICE_EUR,
+            price_eur__lte=MAX_CONSOLE_PRICE_EUR,
+        )
+        .exclude(storage_gb__isnull=True)
+    )
 
 
 def compute_console_opportunity_rows(
@@ -168,7 +176,7 @@ def compute_console_opportunity_rows(
                 storage_gb=group["storage_gb"],
             ).order_by("price_eur").values_list("listing_url", flat=True)[:5]
         )
-        rows.append({
+        row = {
             "brand": sample.console_model.brand.name if sample.console_model.brand else "",
             "model": sample.console_model.canonical_name,
             "console_model_id": group["console_model_id"],
@@ -187,7 +195,9 @@ def compute_console_opportunity_rows(
             "recommendation": _recommendation(margin_percent, confidence),
             "algeria_urls": [url for url in algeria_urls if url],
             "turkiye_urls": [url for url in turkiye_urls if url],
-        })
+        }
+        attach_buyer_pricing(row, margin_key="margin_eur")
+        rows.append(row)
 
     rows.sort(key=lambda item: (item["margin_eur"] or Decimal("0"), item["margin_percent"] or Decimal("0")), reverse=True)
     return rows[:limit]

@@ -78,6 +78,8 @@ class RecomputePhoneOpportunitiesV2Tests(TestCase):
         self.assertEqual(rows[0]["storage_gb"], 256)
         self.assertEqual(rows[0]["gross_margin_eur"], Decimal("300.00"))
         self.assertEqual(rows[0]["margin_percent"], Decimal("60.00"))
+        self.assertEqual(rows[0]["buyer_proposal"]["proposed_buyer_price_eur"], Decimal("605.00"))
+        self.assertEqual(rows[0]["gain_split"]["buyer_gain_eur"], Decimal("195.00"))
 
     def test_group_missing_turkiye_side_is_skipped(self):
         self.create_phone(

@@ -60,6 +60,22 @@
         </div>
       </div>
 
+      {% if deal.buyer_price %}
+      <div class="deal-buyer-offer">
+        <div class="deal-buyer-col">
+          <span class="label">{% trans "Buyer offer" %}</span>
+          <span class="amount">EUR {{ deal.buyer_price|floatformat:2 }}</span>
+          {% if deal.buyer_price_dzd %}<span class="sub">DZD {{ deal.buyer_price_dzd|floatformat:0 }}</span>{% endif %}
+        </div>
+        <div class="deal-buyer-col">
+          <span class="label">{% trans "Buyer gain" %}</span>
+          <span class="amount">EUR {{ deal.buyer_gain|floatformat:2 }}</span>
+          {% if deal.buyer_gain_percent %}<span class="sub">{{ deal.buyer_gain_percent|floatformat:1 }}%</span>{% endif %}
+          {% if deal.deal_quality %}<span class="sub">{{ deal.deal_quality }}</span>{% endif %}
+        </div>
+      </div>
+      {% endif %}
+
       <div class="deal-sahibinden">
         <div class="deal-sah-header">
           <span class="title">{% trans "Sahibinden" %}</span>
@@ -76,6 +92,20 @@
         {% if deal.supplier_eur %}
         <span class="sep">&middot;</span>
         <span>EUR {{ deal.supplier_eur|floatformat:2 }}</span>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% if can_view_supplier and deal.my_gain %}
+      <div class="deal-specs supplier-block">
+        <span>{% trans "Internal gain" %}: EUR {{ deal.my_gain|floatformat:2 }}</span>
+        {% if deal.my_gain_dzd %}
+        <span class="sep">&middot;</span>
+        <span>DZD {{ deal.my_gain_dzd|floatformat:0 }}</span>
+        {% endif %}
+        {% if deal.my_gain_percent %}
+        <span class="sep">&middot;</span>
+        <span>{{ deal.my_gain_percent|floatformat:1 }}%</span>
         {% endif %}
       </div>
       {% endif %}

@@ -1,1 +1,245 @@
-[]
+[
+  {
+    "brand": "ASUS",
+    "model": "ROG Ally X",
+    "console_model_id": 1,
+    "chipset": "",
+    "ram_gb": null,
+    "storage_gb": 1024,
+    "algeria_min_eur": 430.64,
+    "algeria_avg_eur": 582.64,
+    "turkiye_min_eur": 522.96,
+    "turkiye_avg_eur": 770.43,
+    "margin_eur": 339.79,
+    "margin_percent": 78.9,
+    "algeria_count": 3,
+    "turkiye_count": 7,
+    "confidence": 0.9,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/consoles-rog-ally-x-1-tb-tiaret-algeria-d56292232",
+      "https://www.ouedkniss.com/consoles-asus-rog-ally-x-1tb-24gb-avec-systeme-de-refroidissement-bab-ezzouar-alger-algeria-d54319691",
+      "https://www.ouedkniss.com/consoles-asus-rog-ally-x-24gb-1tb-oran-algeria-d50901751",
+      "https://www.ouedkniss.com/consoles-asus-rog-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-kouba-alger-algeria-d55066837"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-x-1tb-24-1302863404/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-x-1tb-1326861016/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-z1-islemcili-1tb-rog-ally-x-1327397574/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-x-1-tb-1225843705/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-x-z2-extreme-1tb-markon-1318065674/detay"
+    ],
+    "gain_split": {
+      "pricing_basis": "turkiye_market",
+      "gross_margin_eur": 339.79,
+      "my_gain_eur": 118.93,
+      "buyer_gain_eur": 220.86,
+      "offer_price_to_buyer_eur": 549.57,
+      "buyer_gain_percent": 40.19,
+      "my_gain_percent_of_gross": 35.0,
+      "my_gain_dzd": 32862.96,
+      "offer_price_to_buyer_dzd": 151861.71,
+      "deal_quality": "strong",
+      "notes": "My cut: 35% of spread; Healthy buyer profit; attractive deal"
+    },
+    "buyer_proposal": {
+      "proposed_buyer_price_eur": 549.57,
+      "proposed_buyer_price_usd": 628.43,
+      "proposed_buyer_price_dzd": 151862.68,
+      "proposed_buyer_price_try": 29424.53
+    }
+  },
+  {
+    "brand": "ASUS",
+    "model": "ROG Ally",
+    "console_model_id": 3,
+    "chipset": "AMD Z1 Extreme",
+    "ram_gb": 16,
+    "storage_gb": 512,
+    "algeria_min_eur": 307.6,
+    "algeria_avg_eur": 307.6,
+    "turkiye_min_eur": 410.9,
+    "turkiye_avg_eur": 466.65,
+    "margin_eur": 159.05,
+    "margin_percent": 51.71,
+    "algeria_count": 1,
+    "turkiye_count": 2,
+    "confidence": 0.95,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/consoles-asus-rog-ally-rc71l-amd-z1-extreme-16go-ram-512go-ssd-mostaganem-algeria-d56443156",
+      "https://www.ouedkniss.com/laptop-asus-rog-ally-ryzen-z1-extreme-16gb-512gb-ssd-bab-ezzouar-alger-algeria-d56232406"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-512gb-1317802559/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-ay-kut-bilgisayar-gsmden-asus-rog-ally-z1-16-512-temiz-1316924063/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-16-gb-ram-512-gb-ssd-1309843849/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-garantili-temiz-asus-rog-ally-z1-extreme-512gb-1306927183/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-512-gb-kapali-kutu-1315612865/detay"
+    ],
+    "gain_split": {
+      "pricing_basis": "turkiye_market",
+      "gross_margin_eur": 159.05,
+      "my_gain_eur": 39.76,
+      "buyer_gain_eur": 119.29,
+      "offer_price_to_buyer_eur": 347.36,
+      "buyer_gain_percent": 34.34,
+      "my_gain_percent_of_gross": 25.0,
+      "my_gain_dzd": 10987.57,
+      "offer_price_to_buyer_dzd": 95986.68,
+      "deal_quality": "strong",
+      "notes": "My cut: 25% of spread; Healthy buyer profit; attractive deal"
+    },
+    "buyer_proposal": {
+      "proposed_buyer_price_eur": 347.36,
+      "proposed_buyer_price_usd": 397.21,
+      "proposed_buyer_price_dzd": 95985.99,
+      "proposed_buyer_price_try": 18598.0
+    }
+  },
+  {
+    "brand": "ASUS",
+    "model": "ROG Ally",
+    "console_model_id": 3,
+    "chipset": "AMD Z1 Extreme",
+    "ram_gb": null,
+    "storage_gb": 512,
+    "algeria_min_eur": 340.17,
+    "algeria_avg_eur": 340.17,
+    "turkiye_min_eur": 280.16,
+    "turkiye_avg_eur": 493.48,
+    "margin_eur": 153.31,
+    "margin_percent": 45.07,
+    "algeria_count": 1,
+    "turkiye_count": 8,
+    "confidence": 0.95,
+    "recommendation": "strong_buy",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/consoles-asus-rog-ally-rc71l-amd-z1-extreme-16go-ram-512go-ssd-mostaganem-algeria-d56443156",
+      "https://www.ouedkniss.com/laptop-asus-rog-ally-ryzen-z1-extreme-16gb-512gb-ssd-bab-ezzouar-alger-algeria-d56232406"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-512gb-1317802559/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-ay-kut-bilgisayar-gsmden-asus-rog-ally-z1-16-512-temiz-1316924063/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-16-gb-ram-512-gb-ssd-1309843849/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-garantili-temiz-asus-rog-ally-z1-extreme-512gb-1306927183/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-512-gb-kapali-kutu-1315612865/detay"
+    ],
+    "gain_split": {
+      "pricing_basis": "turkiye_market",
+      "gross_margin_eur": 153.31,
+      "my_gain_eur": 38.33,
+      "buyer_gain_eur": 114.98,
+      "offer_price_to_buyer_eur": 378.5,
+      "buyer_gain_percent": 30.38,
+      "my_gain_percent_of_gross": 25.0,
+      "my_gain_dzd": 10591.04,
+      "offer_price_to_buyer_dzd": 104590.21,
+      "deal_quality": "strong",
+      "notes": "My cut: 25% of spread; Healthy buyer profit; attractive deal"
+    },
+    "buyer_proposal": {
+      "proposed_buyer_price_eur": 378.5,
+      "proposed_buyer_price_usd": 432.82,
+      "proposed_buyer_price_dzd": 104590.91,
+      "proposed_buyer_price_try": 20265.27
+    }
+  },
+  {
+    "brand": "Microsoft",
+    "model": "Xbox Ally X",
+    "console_model_id": 2,
+    "chipset": "",
+    "ram_gb": null,
+    "storage_gb": 1024,
+    "algeria_min_eur": 694.82,
+    "algeria_avg_eur": 702.06,
+    "turkiye_min_eur": 193.61,
+    "turkiye_avg_eur": 820.1,
+    "margin_eur": 125.28,
+    "margin_percent": 18.03,
+    "algeria_count": 3,
+    "turkiye_count": 7,
+    "confidence": 0.9,
+    "recommendation": "good_opportunity",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/consoles-asus-rog-xbox-ally-x-2025-ryzen-z2-extreme-24gb-ram-1tb-ssd-blida-algeria-d56476235",
+      "https://www.ouedkniss.com/other-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-tipaza-algeria-d55393378",
+      "https://www.ouedkniss.com/other-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-kouba-alger-algeria-d55068697",
+      "https://www.ouedkniss.com/consoles-asus-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-7-120hz-tactile-wifi-6e-bt-52-win11-original-scellee-hussein-dey-alger-algeria-d55066459"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-x-24gb-1tb-ssd-avrupadan-sifir-1316157365/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rc73xa-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-ssd-1319945066/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-x-rc73xa-24gb-ram-1tb-ssd-sifir-1314486607/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-x-2025-rc73xa-ai-z2-extreme-8-cekirdekli-1-tb-1289238551/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-sifir-asus-rog-xbox-ally-x-2025-ryzen-z2-ai-extreme-8cpu-1-tb-1327195831/detay"
+    ],
+    "gain_split": {
+      "pricing_basis": "turkiye_market",
+      "gross_margin_eur": 125.28,
+      "my_gain_eur": 31.32,
+      "buyer_gain_eur": 93.96,
+      "offer_price_to_buyer_eur": 726.14,
+      "buyer_gain_percent": 12.94,
+      "my_gain_percent_of_gross": 25.0,
+      "my_gain_dzd": 8654.66,
+      "offer_price_to_buyer_dzd": 200654.27,
+      "deal_quality": "weak",
+      "notes": "My cut: 25% of spread; Thin margin for buyer; may not close"
+    },
+    "buyer_proposal": {
+      "proposed_buyer_price_eur": 726.14,
+      "proposed_buyer_price_usd": 830.34,
+      "proposed_buyer_price_dzd": 200654.27,
+      "proposed_buyer_price_try": 38878.26
+    }
+  },
+  {
+    "brand": "Microsoft",
+    "model": "Xbox Ally",
+    "console_model_id": 4,
+    "chipset": "",
+    "ram_gb": 16,
+    "storage_gb": 512,
+    "algeria_min_eur": 463.21,
+    "algeria_avg_eur": 463.21,
+    "turkiye_min_eur": 522.4,
+    "turkiye_avg_eur": 522.4,
+    "margin_eur": 59.19,
+    "margin_percent": 12.78,
+    "algeria_count": 1,
+    "turkiye_count": 1,
+    "confidence": 0.8,
+    "recommendation": "marginal",
+    "algeria_urls": [
+      "https://www.ouedkniss.com/other-asus-rog-xbox-ally-amd-ryzen-z2a-16gb-512gb-nvme-7-fhd-120hz-birkhadem-alger-algeria-d35340259"
+    ],
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-8-gb-cekirdekli-512-gb-hafiza-2025-rc73ya-z2-1327076761/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-z2-512-gb-1-yil-garantili-1317243973/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rc73yarog-xbox-ally-ryzen-z2-a-16gb-512gb-ssd-7-el-konsolu-1314117110/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-2025-rc73ya-z2-a-8-cekirdekli-512-gb-ssd-oyun-1289240838/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-512-gb-oyun-konsolu-1294973761/detay"
+    ],
+    "gain_split": {
+      "pricing_basis": "turkiye_market",
+      "gross_margin_eur": 59.19,
+      "my_gain_eur": 11.84,
+      "buyer_gain_eur": 47.35,
+      "offer_price_to_buyer_eur": 475.05,
+      "buyer_gain_percent": 9.97,
+      "my_gain_percent_of_gross": 20.0,
+      "my_gain_dzd": 3271.19,
+      "offer_price_to_buyer_dzd": 131270.01,
+      "deal_quality": "weak",
+      "notes": "My cut: 20% of spread; Thin margin for buyer; may not close"
+    },
+    "buyer_proposal": {
+      "proposed_buyer_price_eur": 475.05,
+      "proposed_buyer_price_usd": 543.22,
+      "proposed_buyer_price_dzd": 131270.57,
+      "proposed_buyer_price_try": 25434.65
+    }
+  }
+]

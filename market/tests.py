@@ -9,11 +9,13 @@ from market.collectors.sahibinden_cdp import parse_condition, parse_storage_gb, 
 from market.collectors.ouedkniss_cdp import (
     clean_model_text as clean_ouedkniss_model_text,
     is_within_max_age as is_ouedkniss_within_max_age,
+    ouedkniss_search_url,
     parse_obsidian_content_rows,
     parse_relative_age_days as parse_ouedkniss_relative_age_days,
     parse_dzd_price as parse_ouedkniss_dzd_price,
     parse_sim_config as parse_ouedkniss_sim_config,
     parse_storage_ram as parse_ouedkniss_storage_ram,
+    target_match_score as ouedkniss_target_match_score,
 )
 from market.models import (
     Brand,
@@ -127,6 +129,22 @@ class OpportunityGainSplitTests(TestCase):
         self.assertEqual(gain_split["my_gain_eur"], split_gain)
         self.assertEqual(gain_split["buyer_gain_eur"], money(buyer_floor + split_gain))
         self.assertEqual(gain_split["offer_price_to_buyer_eur"], money(Decimal("700") + split_gain))
+
+    def test_gain_split_builds_buyer_proposal_prices(self):
+        from market.services.gain_split import buyer_proposal_from_gain_split
+
+        opportunity = OpportunitySnapshot(
+            algeria_min_eur=Decimal("250"),
+            sahibinden_avg_eur=Decimal("500"),
+            gross_margin_vs_sahibinden_eur=Decimal("250"),
+        )
+
+        proposal = buyer_proposal_from_gain_split(opportunity.gain_split())
+
+        self.assertEqual(proposal["proposed_buyer_price_eur"], Decimal("337.50"))
+        self.assertIn("proposed_buyer_price_usd", proposal)
+        self.assertIn("proposed_buyer_price_dzd", proposal)
+        self.assertIn("proposed_buyer_price_try", proposal)
 
 
 class BrandListTests(SimpleTestCase):
@@ -245,6 +263,28 @@ class SahibindenParserTests(SimpleTestCase):
 
 
 class OuedknissParserTests(SimpleTestCase):
+    def test_builds_ouedkniss_search_url_from_query(self):
+        self.assertEqual(
+            ouedkniss_search_url("ASUS ROG Ally X 24GB 1024GB"),
+            "https://www.ouedkniss.com/s/1?keywords=ASUS-ROG-Ally-X-24GB-1024GB",
+        )
+        self.assertEqual(
+            ouedkniss_search_url("  iphone   17 pro max  "),
+            "https://www.ouedkniss.com/s/1?keywords=iphone-17-pro-max",
+        )
+
+    def test_ouedkniss_search_target_matching_respects_query_string(self):
+        target = SimpleNamespace(url="https://www.ouedkniss.com/s/1?keywords=ASUS-ROG-Ally-X")
+
+        self.assertEqual(
+            ouedkniss_target_match_score(target, "https://www.ouedkniss.com/s/1?keywords=Steam-Deck"),
+            0,
+        )
+        self.assertEqual(
+            ouedkniss_target_match_score(target, "https://www.ouedkniss.com/s/1?keywords=ASUS-ROG-Ally-X"),
+            100,
+        )
+
     def test_parses_price_immediately_before_da(self):
         text = "Samsung Galaxy A16 31 500 DA Paiement à la livraison Bouzareah, 16 12 heures"
         self.assertEqual(parse_ouedkniss_dzd_price(text), Decimal("31500"))

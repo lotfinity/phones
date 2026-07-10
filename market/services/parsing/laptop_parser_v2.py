@@ -173,9 +173,10 @@ _PANEL_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+_PRICE_AMOUNT_PATTERN = r"(?:\d{1,3}(?:[.\s]\d{3})+(?:,\d{1,2})?|\d{4,8}(?:,\d{1,2})?|\d{1,3}(?:,\d{1,2})?)"
 _PRICE_PATTERN = re.compile(
-    r"([\d\s.,]+)\s*(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)\b|"
-    r"(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)\s*([\d\s.,]+)",
+    rf"(?P<amount_before>{_PRICE_AMOUNT_PATTERN})\s*(?P<currency_after>DA|DZD|TL|TRY|₺|\$|USD|€|EUR)\b|"
+    rf"(?<![A-Za-z])(?P<currency_before>DA|DZD|TL|TRY|₺|\$|USD|€|EUR)\s*(?P<amount_after>{_PRICE_AMOUNT_PATTERN})",
     re.IGNORECASE,
 )
 
@@ -481,14 +482,23 @@ def detect_panel_type(text):
 
 def detect_price(text):
     for m in _PRICE_PATTERN.finditer(text):
-        raw = m.group(1) or m.group(2)
+        raw = m.group("amount_before") or m.group("amount_after")
         if not raw:
             continue
+        matched_currency = _CURRENCY_MAP.get(
+            (m.group("currency_after") or m.group("currency_before") or "").upper(),
+            detect_currency(m.group(0)),
+        )
         cleaned = re.sub(r"[^\d.,]", "", raw).strip()
         if not cleaned:
             continue
         cleaned = cleaned.replace(" ", "")
-        if "," in cleaned and "." in cleaned:
+        if matched_currency == "TRY":
+            if "," in cleaned:
+                cleaned = cleaned.replace(".", "").replace(",", ".")
+            else:
+                cleaned = cleaned.replace(".", "")
+        elif "," in cleaned and "." in cleaned:
             cleaned = cleaned.replace(",", "")
         elif "," in cleaned:
             parts = cleaned.split(",")

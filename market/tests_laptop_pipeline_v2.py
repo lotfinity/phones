@@ -1198,6 +1198,44 @@ class BuildCandidateSignalOverrideTests(TestCase):
         self.assertEqual(candidate.brand_text, "Lenovo")
         self.assertEqual(candidate.model_text, "Legion Go")
         self.assertEqual(candidate.console_specs_json["storage_gb"], 512)
+        self.assertIsNone(candidate.console_specs_json["ram_gb"])
+
+    def test_console_parser_does_not_invent_switch_ram(self):
+        raw = self._make_raw(
+            category_hint=RawListing.CategoryHint.CONSOLES,
+            listing_url="https://www.ouedkniss.com/consoles-nintendo-switch-oled-128gb",
+            title_raw="Nintendo Switch OLED 128GB",
+            raw_text="Nintendo Switch OLED 128GB 48000 DA",
+        )
+        from market.services.parsing.candidate_builder import build_candidate
+        candidate, created = build_candidate(raw)
+        self.assertEqual(candidate.detected_category, ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE)
+        self.assertEqual(candidate.console_specs_json["storage_gb"], 128)
+        self.assertIsNone(candidate.console_specs_json["ram_gb"])
+
+    def test_console_parser_keeps_handheld_pc_ram_storage_pair(self):
+        raw = self._make_raw(
+            category_hint=RawListing.CategoryHint.CONSOLES,
+            listing_url="https://www.ouedkniss.com/consoles-asus-rog-ally-x-24gb-1024gb",
+            title_raw="ASUS ROG Ally X 24GB 1024GB",
+            raw_text="ASUS ROG Ally X 24GB 1024GB 145000 DA",
+        )
+        from market.services.parsing.candidate_builder import build_candidate
+        candidate, created = build_candidate(raw)
+        self.assertEqual(candidate.detected_category, ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE)
+        self.assertEqual(candidate.console_specs_json["ram_gb"], 24)
+        self.assertEqual(candidate.console_specs_json["storage_gb"], 1024)
+
+    def test_console_accessory_compatibility_row_is_not_portable_console(self):
+        raw = self._make_raw(
+            category_hint=RawListing.CategoryHint.CONSOLES,
+            listing_url="https://www.ouedkniss.com/memory-card-carte-memoire-samsung-nintendo-switch-2-256gb",
+            title_raw="CARTE MEMOIRE SAMSUNG NINTENDO SWITCH 2 256GB",
+            raw_text="CARTE MEMOIRE SAMSUNG NINTENDO SWITCH 2 256GB 9500 DA",
+        )
+        from market.services.parsing.candidate_builder import build_candidate
+        candidate, created = build_candidate(raw)
+        self.assertNotEqual(candidate.detected_category, ParsedListingCandidate.DetectedCategory.PORTABLE_CONSOLE)
 
     def test_phone_hint_stays_phone_when_no_laptop_signal(self):
         """Normal phone listing with phone hint stays phone."""

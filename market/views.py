@@ -18,6 +18,7 @@ from django.views.decorators.http import require_http_methods
 
 from market.services.brand_logos import brand_initial as _brand_initial
 from market.services.brand_logos import brand_logo_url as _brand_logo_url
+from market.services.gain_split import compute_gain_split
 
 from market.models import (
     Brand,
@@ -1514,6 +1515,14 @@ def _deal_to_json(d):
         "sah_count": _val("sah_count"),
         "sah_urls": _val("sah_urls"),
         "margin_pct": _float("margin_pct"),
+        "buyer_price": _float("buyer_price"),
+        "buyer_price_dzd": _float("buyer_price_dzd"),
+        "buyer_gain": _float("buyer_gain"),
+        "buyer_gain_percent": _float("buyer_gain_percent"),
+        "my_gain": _float("my_gain"),
+        "my_gain_dzd": _float("my_gain_dzd"),
+        "my_gain_percent": _float("my_gain_percent"),
+        "deal_quality": _val("deal_quality"),
         "supplier_usd": _float("supplier_usd"),
         "source_code": _val("source_code"),
         "source_name": _val("source_name"),
@@ -1526,9 +1535,47 @@ def _deal_to_json(d):
     }
 
 
+def _deal_gain_split_fields(*, algeria_min_eur, turkiye_avg_eur, gross_margin_eur, supplier_eur=None):
+    gain_split = compute_gain_split(
+        algeria_min_eur=algeria_min_eur,
+        turkiye_avg_eur=turkiye_avg_eur,
+        gross_margin_eur=gross_margin_eur,
+        supplier_eur=supplier_eur,
+    )
+    if not gain_split:
+        return {
+            "gain_split": None,
+            "buyer_price": None,
+            "buyer_price_dzd": None,
+            "buyer_gain": None,
+            "buyer_gain_percent": None,
+            "my_gain": None,
+            "my_gain_dzd": None,
+            "my_gain_percent": None,
+            "deal_quality": "",
+        }
+    return {
+        "gain_split": gain_split,
+        "buyer_price": gain_split["offer_price_to_buyer_eur"],
+        "buyer_price_dzd": gain_split["offer_price_to_buyer_dzd"],
+        "buyer_gain": gain_split["buyer_gain_eur"],
+        "buyer_gain_percent": gain_split["buyer_gain_percent"],
+        "my_gain": gain_split["my_gain_eur"],
+        "my_gain_dzd": gain_split["my_gain_dzd"],
+        "my_gain_percent": gain_split["my_gain_percent_of_gross"],
+        "deal_quality": gain_split["deal_quality"],
+    }
+
+
 def _snapshot_to_dict(snap):
     """Convert a DealSnapshot instance to a template-friendly dict."""
     audit = getattr(snap.listing, "condition_audit", None) if snap.listing_id else None
+    gain_fields = _deal_gain_split_fields(
+        algeria_min_eur=snap.price_eur,
+        turkiye_avg_eur=snap.sah_median_eur,
+        gross_margin_eur=snap.margin_eur,
+        supplier_eur=snap.supplier_eur,
+    )
     return {
         "id": snap.id,
         "brand": snap.brand_name,
@@ -1566,6 +1613,7 @@ def _snapshot_to_dict(snap):
         "supplier_eur": snap.supplier_eur,
         "supplier_try": snap.supplier_try,
         "supplier_dzd": snap.supplier_dzd,
+        **gain_fields,
     }
 
 
@@ -1577,6 +1625,11 @@ def _clean_deal_dicts():
         recommendation=PhoneOpportunitySnapshot.Recommendation.BUY,
     ).order_by("-gross_margin_eur", "-margin_percent")
     for snap in phone_qs:
+        gain_fields = _deal_gain_split_fields(
+            algeria_min_eur=snap.algeria_min_eur,
+            turkiye_avg_eur=snap.turkiye_avg_eur,
+            gross_margin_eur=snap.gross_margin_eur,
+        )
         deals.append({
             "id": f"phone-{snap.pk}",
             "brand": snap.brand,
@@ -1614,6 +1667,7 @@ def _clean_deal_dicts():
             "supplier_eur": None,
             "supplier_try": None,
             "supplier_dzd": None,
+            **gain_fields,
         })
     laptop_qs = LaptopOpportunitySnapshot.objects.filter(
         recommendation__in=[
@@ -1622,6 +1676,11 @@ def _clean_deal_dicts():
         ],
     ).order_by("-gross_margin_eur", "-margin_percent")
     for snap in laptop_qs:
+        gain_fields = _deal_gain_split_fields(
+            algeria_min_eur=snap.algeria_min_eur,
+            turkiye_avg_eur=snap.turkiye_avg_eur,
+            gross_margin_eur=snap.gross_margin_eur,
+        )
         specs = " / ".join(
             part for part in [
                 snap.cpu,
@@ -1671,6 +1730,7 @@ def _clean_deal_dicts():
             "supplier_eur": None,
             "supplier_try": None,
             "supplier_dzd": None,
+            **gain_fields,
         })
     console_qs = ConsoleOpportunitySnapshot.objects.filter(
         recommendation__in=[
@@ -1679,6 +1739,11 @@ def _clean_deal_dicts():
         ],
     ).order_by("-gross_margin_eur", "-margin_percent")
     for snap in console_qs:
+        gain_fields = _deal_gain_split_fields(
+            algeria_min_eur=snap.algeria_min_eur,
+            turkiye_avg_eur=snap.turkiye_avg_eur,
+            gross_margin_eur=snap.gross_margin_eur,
+        )
         specs = " / ".join(
             part for part in [
                 snap.chipset,
@@ -1727,6 +1792,7 @@ def _clean_deal_dicts():
             "supplier_eur": None,
             "supplier_try": None,
             "supplier_dzd": None,
+            **gain_fields,
         })
     deals.sort(key=lambda item: (item["margin_eur"] or Decimal("0"), item["margin_pct"] or Decimal("0")), reverse=True)
     return deals

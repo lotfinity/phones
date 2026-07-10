@@ -9,14 +9,16 @@ from django.utils import timezone
 
 from market.clean_models import LaptopOpportunitySnapshot
 from market.models import Country, LaptopListing, LaptopModel, SourceType
+from market.services.gain_split import attach_buyer_pricing, json_safe
 from market.services.laptop_model_canonicalization import (
     normalize_cpu_family,
     normalize_gpu_family,
 )
 from market.services.laptop_quality import (
+    is_implausible_laptop_price,
     is_garbage_laptop_model_name,
     is_generic_laptop_model_name,
-    listing_has_laptop_export_identity,
+    listing_has_laptop_opportunity_identity,
 )
 
 VISIBLE_REVIEW_STATUSES = (
@@ -51,15 +53,7 @@ def _percent(value):
 
 
 def _row_to_json(row):
-    converted = {}
-    for key, value in row.items():
-        if isinstance(value, Decimal):
-            converted[key] = float(value)
-        elif isinstance(value, list):
-            converted[key] = value
-        else:
-            converted[key] = value
-    return converted
+    return json_safe(row)
 
 
 def _confidence_score(algeria_count, turkiye_count, has_cpu, has_gpu):
@@ -115,7 +109,7 @@ def _snapshot_recommendation(value):
 def _eligible_laptop_queryset(qs):
     eligible_ids = []
     for listing in qs.select_related("laptop_model", "variant").iterator():
-        if listing_has_laptop_export_identity(listing):
+        if listing_has_laptop_opportunity_identity(listing) and not is_implausible_laptop_price(listing):
             eligible_ids.append(listing.pk)
     return qs.filter(pk__in=eligible_ids)
 
@@ -175,7 +169,7 @@ def compute_laptop_opportunity_rows(
         has_ram_storage = bool(ram_gb and storage_gb)
         has_cpu_gpu = bool(cpu_key and gpu_key)
 
-        if not (has_ram_storage or has_cpu_gpu):
+        if not has_ram_storage:
             continue
         if storage_gb and storage_gb not in VALID_LAPTOP_STORAGE_GB:
             continue
@@ -202,9 +196,7 @@ def compute_laptop_opportunity_rows(
             if not has_ram_storage:
                 continue
         else:
-            # Strict matching: require CPU + GPU match too
-            if not has_cpu_gpu:
-                continue
+            # Strict matching: model + RAM + storage is enough; CPU/GPU narrow when present.
             if cpu_key:
                 tr_filter["cpu__icontains"] = cpu_raw.split("-")[0] if "-" in cpu_raw else cpu_raw
             if gpu_key:
@@ -301,6 +293,7 @@ def compute_laptop_opportunity_rows(
             "algeria_urls": [url for url in algeria_urls if url],
             "turkiye_urls": [url for url in turkiye_urls if url],
         })
+        attach_buyer_pricing(rows[-1], margin_key="margin_eur")
 
     rows.sort(key=lambda item: (item["margin_eur"] or Decimal("0"), item["margin_percent"] or Decimal("0")), reverse=True)
     return rows[:limit]

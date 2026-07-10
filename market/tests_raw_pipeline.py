@@ -172,6 +172,19 @@ class PhoneParserV2Tests(SimpleTestCase):
         text = "IPHONE 11 2677717722972\n000008-008271-22062026\n33000da"
         self.assertEqual(detect_price(text), Decimal("33000"))
 
+    def test_raw_first_laptop_price_parses_turkish_thousands(self):
+        from market.services.parsing.laptop_parser_v2 import detect_price
+        self.assertEqual(detect_price("ASUS ROG Ally X 1 TB 45.000 TL"), Decimal("45000"))
+        self.assertEqual(detect_price("47.499,99 TL"), Decimal("47499.99"))
+        self.assertEqual(
+            detect_price("Asus Rog Ally El Konsolu 512 GB SSD Tertemiz Kutusunda 18.000 TL"),
+            Decimal("18000"),
+        )
+        self.assertEqual(
+            detect_price("Lenovo Legion Go - 2 TB SSD - 16GB - Pil D.53 30.000 TL"),
+            Decimal("30000"),
+        )
+
     def test_detect_storage_gb(self):
         from market.services.parsing.phone_parser_v2 import detect_storage
         storage = detect_storage("Samsung Galaxy S25 256GB")
@@ -528,6 +541,251 @@ class ExportCandidatesCommandTests(TestCase):
         call_command("export_candidates", "--category=phones", "--limit=10", stdout=io.StringIO())
         count2 = PhoneListing.objects.count()
         self.assertEqual(count1, count2)
+
+
+class ConsoleOpportunityTests(TestCase):
+    def setUp(self):
+        self.tr_source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN,
+            username=f"console-opp-tr-{_uid()}",
+            defaults={"name": "Console Opportunity TR Test"},
+        )
+        self.dz_source, _ = Source.objects.get_or_create(
+            source_type=SourceType.OUEDKNISS,
+            username=f"console-opp-dz-{_uid()}",
+            defaults={"name": "Console Opportunity DZ Test"},
+        )
+        brand = Brand.objects.create(name=f"ASUS {_uid()}")
+        self.model = ConsoleModel.objects.create(brand=brand, canonical_name=f"ROG Ally X {_uid()}")
+
+    def _listing(self, *, country, price_eur, source_type, source):
+        return ConsoleListing.objects.create(
+            source=source,
+            source_type=source_type,
+            country=country,
+            console_model=self.model,
+            title="ASUS ROG Ally X",
+            price_original=price_eur,
+            currency_original="EUR",
+            price_eur=price_eur,
+            condition=Condition.UNKNOWN,
+            storage_gb=1024,
+            review_status=ConsoleListing.ReviewStatus.NEEDS_REVIEW,
+            listing_url=f"https://example.com/{_uid()}",
+        )
+
+    def test_console_opportunities_ignore_implausible_prices(self):
+        from market.management.commands.recompute_console_opportunities_v1 import compute_console_opportunity_rows
+
+        self._listing(
+            country=Country.ALGERIA,
+            price_eur=Decimal("300"),
+            source_type=SourceType.OUEDKNISS,
+            source=self.dz_source,
+        )
+        self._listing(
+            country=Country.TURKIYE,
+            price_eur=Decimal("10"),
+            source_type=SourceType.SAHIBINDEN,
+            source=self.tr_source,
+        )
+        self._listing(
+            country=Country.TURKIYE,
+            price_eur=Decimal("500"),
+            source_type=SourceType.SAHIBINDEN,
+            source=self.tr_source,
+        )
+        self._listing(
+            country=Country.TURKIYE,
+            price_eur=Decimal("5000"),
+            source_type=SourceType.SAHIBINDEN,
+            source=self.tr_source,
+        )
+
+        rows = compute_console_opportunity_rows()
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["turkiye_count"], 1)
+        self.assertEqual(rows[0]["turkiye_avg_eur"], Decimal("500.00"))
+        self.assertEqual(rows[0]["buyer_proposal"]["proposed_buyer_price_eur"], Decimal("350.00"))
+        self.assertEqual(rows[0]["gain_split"]["buyer_gain_eur"], Decimal("150.00"))
+
+
+class LaptopOpportunityQualityTests(TestCase):
+    def setUp(self):
+        self.tr_source, _ = Source.objects.get_or_create(
+            source_type=SourceType.SAHIBINDEN,
+            username=f"laptop-opp-tr-{_uid()}",
+            defaults={"name": "Laptop Opportunity TR Test"},
+        )
+        self.dz_source, _ = Source.objects.get_or_create(
+            source_type=SourceType.OUEDKNISS,
+            username=f"laptop-opp-dz-{_uid()}",
+            defaults={"name": "Laptop Opportunity DZ Test"},
+        )
+
+    def _model(self, name, brand_name="Apple"):
+        brand = Brand.objects.create(name=f"{brand_name} {_uid()}")
+        return LaptopModel.objects.create(brand=brand, canonical_name=f"{name} {_uid()}")
+
+    def _listing(
+        self,
+        *,
+        model,
+        country,
+        price_eur,
+        source_type,
+        source,
+        cpu="",
+        gpu="",
+        ram_gb=None,
+        storage_gb=None,
+    ):
+        return LaptopListing.objects.create(
+            source=source,
+            source_type=source_type,
+            country=country,
+            laptop_model=model,
+            title=model.canonical_name,
+            price_original=price_eur,
+            currency_original="EUR",
+            price_eur=price_eur,
+            condition=Condition.UNKNOWN,
+            cpu=cpu,
+            gpu=gpu,
+            ram_gb=ram_gb,
+            storage_gb=storage_gb,
+            parsed_confidence=0.95,
+            review_status=LaptopListing.ReviewStatus.NEEDS_REVIEW,
+            listing_url=f"https://example.com/{_uid()}",
+        )
+
+    def test_laptop_opportunities_ignore_implausible_apple_silicon_price(self):
+        from market.management.commands.recompute_laptop_opportunities_v2 import compute_laptop_opportunity_rows
+
+        model = self._model("MacBook Pro M4 Pro")
+        self._listing(
+            model=model,
+            country=Country.ALGERIA,
+            price_eur=Decimal("189"),
+            source_type=SourceType.OUEDKNISS,
+            source=self.dz_source,
+            cpu="Apple M4 Pro",
+            gpu="Apple Integrated",
+            ram_gb=24,
+            storage_gb=512,
+        )
+        self._listing(
+            model=model,
+            country=Country.TURKIYE,
+            price_eur=Decimal("1800"),
+            source_type=SourceType.SAHIBINDEN,
+            source=self.tr_source,
+            cpu="Apple M4 Pro",
+            gpu="Apple Integrated",
+            ram_gb=24,
+            storage_gb=512,
+        )
+
+        self.assertEqual(compute_laptop_opportunity_rows(), [])
+
+    def test_laptop_opportunity_rows_include_buyer_proposal(self):
+        from market.management.commands.recompute_laptop_opportunities_v2 import compute_laptop_opportunity_rows
+
+        model = self._model("MacBook Air M1")
+        self._listing(
+            model=model,
+            country=Country.ALGERIA,
+            price_eur=Decimal("300"),
+            source_type=SourceType.OUEDKNISS,
+            source=self.dz_source,
+            cpu="Apple M1",
+            gpu="Apple Integrated",
+            ram_gb=8,
+            storage_gb=256,
+        )
+        self._listing(
+            model=model,
+            country=Country.TURKIYE,
+            price_eur=Decimal("500"),
+            source_type=SourceType.SAHIBINDEN,
+            source=self.tr_source,
+            cpu="Apple M1",
+            gpu="Apple Integrated",
+            ram_gb=8,
+            storage_gb=256,
+        )
+
+        rows = compute_laptop_opportunity_rows()
+
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["buyer_proposal"]["proposed_buyer_price_eur"], Decimal("350.00"))
+        self.assertEqual(rows[0]["gain_split"]["buyer_gain_eur"], Decimal("150.00"))
+
+    def test_laptop_opportunities_require_ram_storage_identity(self):
+        from market.management.commands.recompute_laptop_opportunities_v2 import compute_laptop_opportunity_rows
+
+        model = self._model("Legion Y540", brand_name="Lenovo")
+        self._listing(
+            model=model,
+            country=Country.ALGERIA,
+            price_eur=Decimal("433"),
+            source_type=SourceType.OUEDKNISS,
+            source=self.dz_source,
+            cpu="Intel Core i7",
+            gpu="NVIDIA GTX 1660 Ti",
+        )
+        self._listing(
+            model=model,
+            country=Country.TURKIYE,
+            price_eur=Decimal("700"),
+            source_type=SourceType.SAHIBINDEN,
+            source=self.tr_source,
+            cpu="Intel Core i7",
+            gpu="NVIDIA GTX 1660 Ti",
+            ram_gb=16,
+            storage_gb=512,
+        )
+
+        self.assertEqual(compute_laptop_opportunity_rows(), [])
+
+    def test_laptop_opportunities_ignore_dirty_model_names_console_rows_and_bad_storage(self):
+        from market.management.commands.recompute_laptop_opportunities_v2 import compute_laptop_opportunity_rows
+
+        dirty_model = self._model(
+            "9xpifxjzqnnlazun0sec8wk3jruxu7kn85uj webp source ouedkniss cdp category laptops",
+            brand_name="HP",
+        )
+        console_model = self._model("Legion go", brand_name="Lenovo")
+        bad_storage_model = self._model("MacBook Pro", brand_name="Apple")
+        bad_ram_model = self._model("MacBook Air", brand_name="Apple")
+        for model in [dirty_model, console_model, bad_storage_model, bad_ram_model]:
+            storage_gb = 215 if model == bad_storage_model else 512
+            ram_gb = 128 if model == bad_ram_model else 16
+            self._listing(
+                model=model,
+                country=Country.ALGERIA,
+                price_eur=Decimal("500"),
+                source_type=SourceType.OUEDKNISS,
+                source=self.dz_source,
+                cpu="Intel Core i7",
+                gpu="Apple Integrated",
+                ram_gb=ram_gb,
+                storage_gb=storage_gb,
+            )
+            self._listing(
+                model=model,
+                country=Country.TURKIYE,
+                price_eur=Decimal("800"),
+                source_type=SourceType.SAHIBINDEN,
+                source=self.tr_source,
+                cpu="Intel Core i7",
+                gpu="Apple Integrated",
+                ram_gb=ram_gb,
+                storage_gb=storage_gb,
+            )
+
+        self.assertEqual(compute_laptop_opportunity_rows(), [])
 
 
 class BackfillCommandTests(TestCase):

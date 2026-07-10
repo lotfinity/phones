@@ -24,6 +24,14 @@
 - Added a raw-first portable gaming console lane: `portable_console` candidates, `ConsoleModel`/`ConsoleVariant`/`ConsoleListing`, `ConsoleOpportunitySnapshot`, console parser/export support, and `recompute_console_opportunities_v1`.
 - Reclassified current portable console rows into the console lane and exported 11 identity-complete Algeria console listings; console opportunities are currently zero until Türkiye comparison rows are enriched.
 - Added `build_enrichment_queries` to generate prioritized Sahibinden search URLs for one-sided phone/laptop/console rows.
+- Fixed `import_ouedkniss_from_cdp --query` so it builds an Ouedkniss `/s/1?keywords=...` search URL for tab selection/opening instead of only recording the query on the import run.
+- Tightened Ouedkniss query tab matching so `/s/1?...` searches with different keywords do not reuse the wrong tab, and imported broader Algeria console searches for Legion Go, Steam Deck, Switch, and portable console inventory.
+- Made console RAM parsing conservative so storage-only Nintendo Switch rows do not become fake `128GB RAM` variants while handheld PC RAM/storage pairs like ROG Ally X `24GB 1024GB` still parse.
+- Fixed raw-first Turkish price parsing for Sahibinden console/laptop rows so `45.000 TL` is treated as 45,000 TRY and Turkish word endings like `Kutusunda` are not misread as DZD.
+- Added console opportunity price sanity gates so implausible clean console prices below €100 or above €2,500 are excluded from buyer-facing snapshot math.
+- Tightened laptop opportunity/enrichment eligibility so buyer-facing laptop math requires RAM+storage identity, standard storage/RAM buckets, plausible prices, and non-garbage/non-console model names.
+- Removed integrated GPU noise from generated laptop enrichment queries while keeping dedicated GPUs in search terms.
+- Ported the legacy buyer-offer/gain-split formula into a shared service and wired it into clean phone, laptop, and console opportunity JSON exports plus the clean deals swiper cards.
 
 ## 2026-07-09
 

@@ -7,7 +7,6 @@ from market.services.parsing.laptop_parser_v2 import (
     detect_condition,
     detect_currency,
     detect_price,
-    detect_ram_gb,
     detect_storage_gb,
 )
 
@@ -38,15 +37,34 @@ _CHIPSET_PATTERNS = [
 
 _REFRESH_RE = re.compile(r"\b(60|90|120|144)\s*hz\b", re.IGNORECASE)
 _SCREEN_RE = re.compile(r"\b(5\.5|6\.2|7|7\.4|8|8\.8)\s*(?:inch|in|\"|pouce)?\b", re.IGNORECASE)
+_ACCESSORY_ONLY_RE = re.compile(
+    r"\b(?:carte\s+m[ée]moire|memory\s+card|micro\s*sd|sd\s+card|casque|headset|"
+    r"souris|mouse|clavier|keyboard|chargeur|charger|c[âa]ble|cable|coque|case|"
+    r"protection|manette|controller|joy-?con)\b",
+    re.IGNORECASE,
+)
+_EXPLICIT_RAM_RE = re.compile(
+    r"\b(?:(?:ram|mémoire|memoire)\s*[:=]?\s*(?P<after>4|6|8|12|16|18|24|32|64)\s*(?:gb|go)?|"
+    r"(?P<before>4|6|8|12|16|18|24|32|64)\s*(?:gb|go)?\s*(?:ram|mémoire|memoire))\b",
+    re.IGNORECASE,
+)
+_HANDHELD_PC_RAM_STORAGE_RE = re.compile(
+    r"\b(?P<ram>8|16|24|32)\s*(?:gb|go)\s+(?P<storage>256|512|1000|1024|1\s*tb|1\s*to)\s*(?:gb|go|tb|to)?\b",
+    re.IGNORECASE,
+)
 
 
 def is_portable_console_text(text):
     text = re.sub(r"[-_/]+", " ", text or "")
+    if _ACCESSORY_ONLY_RE.search(text):
+        return False
     return any(pattern.search(text) for pattern, _brand, _model in _CONSOLE_PATTERNS)
 
 
 def detect_console_identity(text):
     text = re.sub(r"[-_/]+", " ", text or "")
+    if _ACCESSORY_ONLY_RE.search(text):
+        return "", ""
     for pattern, brand, model in _CONSOLE_PATTERNS:
         if pattern.search(text or ""):
             return brand, model
@@ -76,6 +94,20 @@ def detect_screen_size(text):
         return None
 
 
+def detect_console_ram_gb(text, brand="", model=""):
+    text = text or ""
+    explicit = _EXPLICIT_RAM_RE.search(text)
+    if explicit:
+        return int(explicit.group("after") or explicit.group("before"))
+
+    handheld_pc = (f"{brand} {model}").lower()
+    if any(token in handheld_pc for token in ["rog ally", "legion go", "xbox ally", "msi claw"]):
+        match = _HANDHELD_PC_RAM_STORAGE_RE.search(text)
+        if match:
+            return int(match.group("ram"))
+    return None
+
+
 def parse_console(raw_text="", title="", payload=None):
     payload = payload or {}
     text = "\n".join(
@@ -94,7 +126,7 @@ def parse_console(raw_text="", title="", payload=None):
     currency_original = detect_currency(text) if price_original is not None else ""
     price_eur = convert_to_eur(price_original, currency_original) if price_original and currency_original else None
     storage_gb = detect_storage_gb(text)
-    ram_gb = detect_ram_gb(text)
+    ram_gb = detect_console_ram_gb(text, brand=brand, model=model)
     chipset = detect_chipset(text)
     refresh_rate_hz = detect_refresh_rate_hz(text)
     screen_size = detect_screen_size(text)

@@ -11,6 +11,7 @@ from market.collectors.ouedkniss_cdp import (
     extract_rows_with_obsidian,
     is_within_max_age,
     normalize_ouedkniss_url,
+    ouedkniss_search_url,
     parse_cdp_endpoint,
     parse_dzd_price,
     save_raw_row,
@@ -57,7 +58,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--category",
-            choices=["phones", "laptops", "unknown"],
+            choices=["phones", "laptops", "consoles", "unknown"],
             default="unknown",
             help="Category hint for raw listings.",
         )
@@ -68,12 +69,16 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        target_url = options["target_url"].strip()
+        if options["query"] and not target_url:
+            target_url = ouedkniss_search_url(options["query"])
+
         import_run = RawImportRun.objects.create(
             source_type=SourceType.OUEDKNISS,
             country=Country.ALGERIA,
             category_hint=options["category"],
             query_text=options["query"],
-            target_url=options["target_url"],
+            target_url=target_url,
             cdp_endpoint=options["cdp"],
             params_json={
                 "limit": options["limit"],
@@ -93,7 +98,7 @@ class Command(BaseCommand):
             cdp = ChromeCdp(host, port)
             target = target_ouedkniss_page(
                 cdp,
-                target_url=options["target_url"],
+                target_url=target_url,
                 open_if_missing=options["open_if_missing"],
                 load_timeout=options["load_timeout"],
             )

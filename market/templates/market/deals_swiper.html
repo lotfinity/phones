@@ -163,6 +163,38 @@
     .deal-price-col .sub { font-size: 0.5rem; }
   }
 
+  .deal-buyer-offer {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem;
+    padding: 0.375rem; border-radius: var(--pb-radius-sm);
+    border: 1px solid rgba(16, 185, 129, 0.32);
+    background: rgba(16, 185, 129, 0.08);
+    font-family: ui-monospace, monospace;
+  }
+  @media (min-width: 640px) {
+    .deal-buyer-offer { gap: 0.375rem; padding: 0.5rem; border-radius: var(--pb-radius-md); }
+  }
+  .deal-buyer-col { display: flex; flex-direction: column; gap: 0.0625rem; min-width: 0; }
+  .deal-buyer-col .label {
+    font-size: 0.45rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--pb-muted);
+  }
+  @media (min-width: 640px) {
+    .deal-buyer-col .label { font-size: 0.5rem; }
+  }
+  .deal-buyer-col .amount {
+    font-size: 0.8rem; font-weight: 700; color: var(--pb-success);
+    overflow-wrap: anywhere;
+  }
+  @media (min-width: 640px) {
+    .deal-buyer-col .amount { font-size: 0.9rem; }
+  }
+  .deal-buyer-col .sub {
+    font-size: 0.45rem; color: var(--pb-muted);
+  }
+  @media (min-width: 640px) {
+    .deal-buyer-col .sub { font-size: 0.5rem; }
+  }
+
   .deal-sahibinden {
     padding: 0.375rem; border-radius: var(--pb-radius-sm);
     border: 1px solid var(--pb-border); font-size: 0.55rem;

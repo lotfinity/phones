@@ -7,6 +7,10 @@ from django.core.management.base import BaseCommand
 from django.db.models import Count, Min
 
 from market.models import ConsoleListing, Country, LaptopListing, PhoneListing
+from market.services.laptop_quality import (
+    is_implausible_laptop_price,
+    listing_has_laptop_opportunity_identity,
+)
 
 
 SAHIBINDEN_BASE = "https://www.sahibinden.com/arama?query_text={query}"
@@ -14,6 +18,13 @@ SAHIBINDEN_BASE = "https://www.sahibinden.com/arama?query_text={query}"
 
 def sahibinden_url(query):
     return SAHIBINDEN_BASE.format(query=quote_plus(query))
+
+
+def _searchable_gpu(value):
+    text = (value or "").strip()
+    if text.lower() in {"integrated", "apple integrated", "intel integrated", "amd integrated"}:
+        return ""
+    return text
 
 
 class Command(BaseCommand):
@@ -80,8 +91,15 @@ class Command(BaseCommand):
         return rows
 
     def _laptop_rows(self, min_count):
+        eligible_ids = [
+            listing.pk
+            for listing in LaptopListing.objects.filter(country=Country.ALGERIA).select_related(
+                "laptop_model", "variant"
+            )
+            if listing_has_laptop_opportunity_identity(listing) and not is_implausible_laptop_price(listing)
+        ]
         dz = (
-            LaptopListing.objects.filter(country=Country.ALGERIA, laptop_model__isnull=False, price_eur__isnull=False)
+            LaptopListing.objects.filter(pk__in=eligible_ids, laptop_model__isnull=False, price_eur__isnull=False)
             .values("laptop_model_id", "laptop_model__brand__name", "laptop_model__canonical_name", "cpu", "gpu", "ram_gb", "storage_gb")
             .annotate(algeria_count=Count("id"), algeria_min_eur=Min("price_eur"))
             .filter(algeria_count__gte=min_count)
@@ -104,7 +122,7 @@ class Command(BaseCommand):
                     item["laptop_model__brand__name"],
                     item["laptop_model__canonical_name"],
                     item["cpu"],
-                    item["gpu"],
+                    _searchable_gpu(item["gpu"]),
                     f"{item['ram_gb']}GB" if item["ram_gb"] else "",
                     f"{item['storage_gb']}GB" if item["storage_gb"] else "",
                 ]
