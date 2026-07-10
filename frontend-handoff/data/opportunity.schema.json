@@ -1,0 +1,331 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pricebridge.local/schemas/opportunity.schema.json",
+  "title": "PriceBridge Frontend Opportunity Fixture",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "fixture_kind",
+    "currency",
+    "sample_policy",
+    "recommendation_values",
+    "items"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "pricebridge.opportunities.v1"
+    },
+    "fixture_kind": {
+      "type": "string"
+    },
+    "currency": {
+      "const": "EUR"
+    },
+    "generated_from": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "sample_policy": {
+      "type": "object",
+      "required": [
+        "purpose",
+        "not_for_trading_decisions",
+        "curated",
+        "notes"
+      ],
+      "properties": {
+        "purpose": {
+          "type": "string"
+        },
+        "not_for_trading_decisions": {
+          "type": "boolean"
+        },
+        "curated": {
+          "type": "boolean"
+        },
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "recommendation_values": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "strong_opportunity",
+          "good_opportunity",
+          "watch",
+          "weak_evidence",
+          "avoid"
+        ]
+      },
+      "uniqueItems": true
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/opportunity"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "marketPrice": {
+      "type": "object",
+      "required": [
+        "min_eur",
+        "avg_eur",
+        "listing_count"
+      ],
+      "properties": {
+        "min_eur": {
+          "type": "number",
+          "minimum": 0
+        },
+        "avg_eur": {
+          "type": "number",
+          "minimum": 0
+        },
+        "listing_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": false
+    },
+    "opportunity": {
+      "type": "object",
+      "required": [
+        "id",
+        "category",
+        "brand",
+        "model",
+        "model_id",
+        "variant_label",
+        "image_url",
+        "specifications",
+        "prices",
+        "opportunity",
+        "gain_split",
+        "buyer_proposal",
+        "evidence",
+        "updated_at"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "phone",
+            "laptop",
+            "portable_console"
+          ]
+        },
+        "brand": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "variant_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "image_url": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "uri-reference"
+        },
+        "specifications": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "integer",
+              "boolean",
+              "null"
+            ]
+          }
+        },
+        "prices": {
+          "type": "object",
+          "required": [
+            "algeria",
+            "turkiye"
+          ],
+          "properties": {
+            "algeria": {
+              "$ref": "#/$defs/marketPrice"
+            },
+            "turkiye": {
+              "$ref": "#/$defs/marketPrice"
+            }
+          },
+          "additionalProperties": false
+        },
+        "opportunity": {
+          "type": "object",
+          "required": [
+            "margin_eur",
+            "margin_percent",
+            "confidence_score",
+            "recommendation",
+            "source_recommendation",
+            "warnings"
+          ],
+          "properties": {
+            "margin_eur": {
+              "type": "number"
+            },
+            "margin_percent": {
+              "type": "number"
+            },
+            "confidence_score": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 100
+            },
+            "recommendation": {
+              "enum": [
+                "strong_opportunity",
+                "good_opportunity",
+                "watch",
+                "weak_evidence",
+                "avoid"
+              ]
+            },
+            "source_recommendation": {
+              "type": "string"
+            },
+            "warnings": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "uniqueItems": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "gain_split": {
+          "type": "object",
+          "required": [
+            "pricing_basis",
+            "gross_margin_eur",
+            "trader_gain_eur",
+            "buyer_gain_eur",
+            "proposed_buyer_price_eur",
+            "buyer_gain_percent",
+            "trader_share_percent",
+            "deal_quality"
+          ],
+          "properties": {
+            "pricing_basis": {
+              "type": "string"
+            },
+            "gross_margin_eur": {
+              "type": "number"
+            },
+            "trader_gain_eur": {
+              "type": "number"
+            },
+            "buyer_gain_eur": {
+              "type": "number"
+            },
+            "proposed_buyer_price_eur": {
+              "type": "number"
+            },
+            "buyer_gain_percent": {
+              "type": "number"
+            },
+            "trader_share_percent": {
+              "type": "number"
+            },
+            "deal_quality": {
+              "enum": [
+                "strong",
+                "medium",
+                "weak"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "buyer_proposal": {
+          "type": "object",
+          "required": [
+            "eur",
+            "usd",
+            "dzd",
+            "try"
+          ],
+          "properties": {
+            "eur": {
+              "type": "number"
+            },
+            "usd": {
+              "type": "number"
+            },
+            "dzd": {
+              "type": "number"
+            },
+            "try": {
+              "type": "number"
+            }
+          },
+          "additionalProperties": false
+        },
+        "evidence": {
+          "type": "object",
+          "required": [
+            "algeria_urls",
+            "turkiye_urls"
+          ],
+          "properties": {
+            "algeria_urls": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uri-reference"
+              }
+            },
+            "turkiye_urls": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "uri-reference"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "updated_at": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
