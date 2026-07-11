@@ -162,40 +162,46 @@ class CleanCardOpportunityViewTests(TestCase):
         self.assertIn("my_gain", response.context["rows"][0])
         self.assertIn("pricing_notes", response.context["rows"][0])
 
-    def test_clean_detail_uses_rich_layout_and_matching_clean_listings(self):
+    def test_public_detail_uses_rich_layout_without_internal_algeria_evidence(self):
         response = self.client.get(self.detail_url())
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "market/clean_opportunity_detail.html")
-        self.assertContains(response, "Raw Market Spread", count=0)
-        self.assertContains(response, "Suggested Deal Split", count=0)
         self.assertContains(response, "Buyer Offer")
-        self.assertContains(response, "Clean Algeria iPhone listing")
         self.assertContains(response, "Clean Türkiye iPhone listing")
-        self.assertContains(response, "https://example.com/dz-phone.jpg")
-        self.assertContains(response, "Used A")
         self.assertContains(response, "Sealed")
+        self.assertNotContains(response, "Raw Market Spread")
+        self.assertNotContains(response, "Suggested Deal Split")
+        self.assertNotContains(response, "Clean Algeria iPhone listing")
+        self.assertNotContains(response, "Algeria Min")
+        self.assertNotContains(response, "Gross Margin")
         self.assertNotContains(response, "Unrelated clean phone listing")
-        self.assertEqual(len(response.context["algeria_rows"]), 1)
+        self.assertEqual(response.context["algeria_rows"], [])
         self.assertEqual(len(response.context["turkiye_rows"]), 1)
+        self.assertNotIn("algeria_min_eur", response.context["row"])
+        self.assertNotIn("gross_margin_eur", response.context["row"])
+        self.assertNotIn("item", response.context["row"])
 
-    def test_staff_sees_listing_review_and_operational_metadata_not_superuser_pricing(self):
+    def test_staff_sees_operational_metadata_but_not_internal_algeria_evidence(self):
         self.client.force_login(self.staff_user)
         response = self.client.get(self.detail_url())
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "phone-test-source")
         self.assertContains(response, "Snapshot ID")
-        self.assertContains(response, "Approved")
         self.assertContains(response, "Auto")
-        self.assertContains(response, "parse 93%")
+        self.assertContains(response, "parse 88%")
+        self.assertNotContains(response, "Approved")
+        self.assertNotContains(response, "Clean Algeria iPhone listing")
         self.assertNotContains(response, "Raw Market Spread")
         self.assertNotContains(response, "Suggested Deal Split")
         self.assertTrue(response.context["can_view_operational_meta"])
         self.assertFalse(response.context["can_view_internal_gain"])
+        self.assertEqual(response.context["algeria_rows"], [])
         self.assertNotIn("my_gain", response.context["row"])
+        self.assertNotIn("algeria_min_eur", response.context["row"])
 
-    def test_superuser_sees_old_style_internal_spread_and_deal_split(self):
+    def test_superuser_sees_old_style_internal_spread_deal_split_and_algeria_evidence(self):
         self.client.force_login(self.superuser)
         response = self.client.get(self.detail_url())
 
@@ -204,8 +210,13 @@ class CleanCardOpportunityViewTests(TestCase):
         self.assertContains(response, "Suggested Deal Split")
         self.assertContains(response, "My Gain")
         self.assertContains(response, "of spread")
+        self.assertContains(response, "Algeria Min")
+        self.assertContains(response, "Clean Algeria iPhone listing")
+        self.assertContains(response, "Used A")
+        self.assertEqual(len(response.context["algeria_rows"]), 1)
         self.assertIn("my_gain", response.context["row"])
         self.assertIn("pricing_notes", response.context["row"])
+        self.assertIn("algeria_min_eur", response.context["row"])
 
     def test_unknown_category_returns_404(self):
         response = self.client.get(
