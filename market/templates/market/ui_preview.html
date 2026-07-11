@@ -1,0 +1,51 @@
+{% extends "market/base.html" %}
+{% load i18n %}
+
+{% block title %}PriceBridge — {% trans "UI preview" %}{% endblock %}
+{% block crumb %}{% trans "UI preview" %}{% endblock %}
+
+{% block content %}
+<section class="page-shell">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">{% trans "Opportunity UI comparison" %}</h1>
+      <p class="page-desc">
+        {% trans "Open each implementation with the same local database and decide which visual direction should become the final production page." %}
+      </p>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <article class="metric-card">
+      <b>{% trans "Clean unified" %}</b>
+      <span>{% trans "Current homepage. Reads clean phone, laptop, and console snapshot tables and presents them in a compact table." %}</span>
+      <a class="btn btn-primary btn-sm mt-3" href="{% url 'ui_preview_clean_opportunities' %}">{% trans "Open clean UI" %}</a>
+    </article>
+
+    <article class="metric-card">
+      <b>{% trans "Card opportunities" %}</b>
+      <span>{% trans "Previously disconnected card-based opportunities template. Uses legacy OpportunitySnapshot rows and supports the existing detail modal." %}</span>
+      <a class="btn btn-primary btn-sm mt-3" href="{% url 'ui_preview_card_opportunities' %}">{% trans "Open card UI" %}</a>
+    </article>
+
+    <article class="metric-card">
+      <b>{% trans "Phone v2" %}</b>
+      <span>{% trans "Clean PhoneOpportunitySnapshot page with metrics, filters, a top card, evidence links, and a detailed table." %}</span>
+      <a class="btn btn-primary btn-sm mt-3" href="{% url 'ui_preview_phone_opportunities' %}">{% trans "Open phone UI" %}</a>
+    </article>
+
+    <article class="metric-card">
+      <b>{% trans "Buyer deals" %}</b>
+      <span>{% trans "Buyer-facing swiper/card interface. Prefers clean opportunity snapshots and falls back to legacy DealSnapshot rows." %}</span>
+      <a class="btn btn-primary btn-sm mt-3" href="{% url 'ui_preview_deals' %}">{% trans "Open deals UI" %}</a>
+    </article>
+  </div>
+
+  <div class="empty-state mt-4">
+    <strong>{% trans "Comparison note" %}</strong>
+    <div class="mt-2">
+      {% trans "The card opportunities page uses legacy opportunity records, while the clean and phone-v2 pages use the migrated clean snapshot tables. Compare layout separately from data freshness." %}
+    </div>
+  </div>
+</section>
+{% endblock %}
