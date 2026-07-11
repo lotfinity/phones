@@ -4,7 +4,10 @@
 {% block title %}PriceBridge — {% trans "Clean Phone Opportunities" %}{% endblock %}
 {% block crumb %}{% trans "Clean Phone Opportunities" %}{% endblock %}
 {% block header_actions %}
-<a class="btn btn-secondary btn-sm" href="{% url 'opportunities' %}">{% trans "Legacy" %}</a>
+<a class="btn btn-secondary btn-sm" href="{% url 'ui_preview' %}">{% trans "Compare UIs" %}</a>
+<a class="btn btn-secondary btn-sm" href="{% url 'ui_preview_clean_opportunities' %}">{% trans "Clean unified" %}</a>
+<a class="btn btn-secondary btn-sm" href="{% url 'ui_preview_card_opportunities' %}">{% trans "Card UI" %}</a>
+<a class="btn btn-secondary btn-sm" href="{% url 'ui_preview_deals' %}">{% trans "Deals UI" %}</a>
 <a class="btn btn-primary btn-sm" href="/admin/market/phoneopportunitysnapshot/">{% trans "Admin" %}</a>
 {% endblock %}
 
@@ -82,7 +85,7 @@
       </select>
     </label>
     <button class="btn btn-primary" type="submit">{% trans "Filter" %}</button>
-    <a class="btn btn-secondary" href="{% url 'phone_opportunities_v2' %}">{% trans "Reset" %}</a>
+    <a class="btn btn-secondary" href="{% url 'ui_preview_phone_opportunities' %}">{% trans "Reset" %}</a>
   </div>
 </form>
 
