@@ -33,6 +33,15 @@ DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
+# Django requires complete origins, including the scheme, for HTTPS POSTs.
+# Extra origins can be supplied as a comma-separated environment variable.
+CSRF_TRUSTED_ORIGINS = ["https://phones.whatsynaptic.tech"]
+CSRF_TRUSTED_ORIGINS.extend(
+    origin.strip()
+    for origin in os.environ.get("CSRF_TRUSTED_ORIGINS", "").split(",")
+    if origin.strip() and origin.strip() not in CSRF_TRUSTED_ORIGINS
+)
+
 
 # Application definition
 
