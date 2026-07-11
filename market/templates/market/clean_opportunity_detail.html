@@ -1,101 +1,255 @@
 {% extends "market/base.html" %}
-{% load i18n %}
+{% load i18n brand_logos %}
 
 {% block title %}PriceBridge — {{ row.title }}{% endblock %}
 {% block crumb %}{% trans "Clean opportunity detail" %}{% endblock %}
 {% block header_actions %}
-<a class="btn btn-secondary btn-sm" href="{% url 'ui_preview_card_opportunities' %}">{% trans "Back to cards" %}</a>
+  <a class="btn btn-secondary btn-sm" href="{% url 'ui_preview_card_opportunities' %}">{% trans "Back to cards" %}</a>
+  {% if can_view_operational_meta %}
+    <a class="btn btn-primary btn-sm" href="{{ admin_url }}">{% trans "Admin" %}</a>
+  {% endif %}
 {% endblock %}
 
 {% block content %}
-<section class="page-shell">
-  <div class="page-header">
-    <div>
-      <div class="card-meta-row">
-        <span class="badge">{{ row.category_label }}</span>
-        <span class="cell-rec {{ row.recommendation_class }}">{{ row.recommendation }}</span>
-        {% if row.deal_quality %}<span class="badge">{{ row.deal_quality }}</span>{% endif %}
+  <section class="detail-hero">
+    <span class="thumb thumb-hero">
+      {% if hero_image_url %}
+        <img src="{{ hero_image_url }}" alt="{{ row.title }}">
+      {% else %}
+        {% with logo_url=row.brand|brand_logo_url %}
+          {% if logo_url %}
+            <img src="{{ logo_url }}" alt="{{ row.brand }} logo">
+          {% else %}
+            <span class="brand-logo-wrap brand-logo-lg brand-logo-fallback-visible">
+              <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+            </span>
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+    </span>
+
+    <div class="min-w-0">
+      <div class="badge-row mb-3">
+        <span class="cell-rec {{ row.recommendation_class }}">
+          <span class="rec-icon" aria-hidden="true">
+            {% if row.recommendation_class == 'rec-buy' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+            {% elif row.recommendation_class == 'rec-watch' %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+            {% else %}
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+            {% endif %}
+          </span>
+          {{ row.recommendation }}
+        </span>
+
+        {% for item in coverage %}
+          <span class="badge {{ item.class }}">{{ item.code }} {{ item.count }}</span>
+        {% endfor %}
+
+        <span class="cat-chip cat-{{ row.device_type }}">{{ row.category_label }}</span>
+        {% if row.deal_quality %}<span class="badge {{ row.deal_quality }}">{{ row.deal_quality|title }}</span>{% endif %}
         {% if can_view_internal_gain %}<span class="badge">{% trans "superuser pricing" %}</span>{% endif %}
       </div>
-      <h1 class="page-title mt-2">{{ row.title }}</h1>
-      <p class="page-desc">{{ row.spec }}</p>
-    </div>
-    <div class="toolbar">
-      <code>{% trans "confidence" %} {{ row.confidence_score }}%</code>
-      {% if can_view_operational_meta %}<code>{{ row.source_label }}</code>{% endif %}
-    </div>
-  </div>
 
-  <div class="stats-grid">
-    <div class="stat-card"><span class="stat-label">{% trans "Algeria minimum" %}</span><strong class="stat-value">{{ row.algeria_min }}</strong></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Algeria average" %}</span><strong class="stat-value">{{ row.algeria_avg }}</strong></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Türkiye minimum" %}</span><strong class="stat-value">{{ row.turkiye_min }}</strong></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Türkiye average" %}</span><strong class="stat-value">{{ row.turkiye_avg }}</strong></div>
-  </div>
+      <h1 class="page-title">{{ row.title }}</h1>
+      <p class="page-desc brand-name-line">
+        <span class="brand-logo-wrap">
+          {% if row.brand|brand_logo_url %}
+            <img class="brand-logo-img" src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo">
+          {% endif %}
+          <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+        </span>
+        <span>{{ row.brand }} / {{ row.spec }}</span>
+      </p>
+    </div>
+  </section>
 
-  <div class="stats-grid mt-4">
-    <div class="stat-card"><span class="stat-label">{% trans "Gross margin" %}</span><strong class="stat-value">{{ row.gross_margin }}</strong></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Margin percent" %}</span><strong class="stat-value">{{ row.margin_percent_label }}</strong></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Algeria listings" %}</span><strong class="stat-value">{{ row.algeria_count }}</strong></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Türkiye listings" %}</span><strong class="stat-value">{{ row.turkiye_count }}</strong></div>
+  <section class="summary-strip">
+    <div class="stat-card">
+      <div class="lbl">{% trans "Algeria Min" %}</div>
+      <div class="num">{{ row.algeria_min }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">{% trans "Algeria Avg" %}</div>
+      <div class="num">{{ row.algeria_avg }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">{% trans "Türkiye Min" %}</div>
+      <div class="num">{{ row.turkiye_min }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">{% trans "Türkiye Avg" %}</div>
+      <div class="num">{{ row.turkiye_avg }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">{% trans "Gross Margin" %}</div>
+      <div class="num">{{ row.gross_margin }}</div>
+      <span class="delta">{{ row.margin_percent_label }}</span>
+    </div>
+    <div class="stat-card">
+      <div class="lbl">{% trans "Confidence" %}</div>
+      <div class="num">{{ row.confidence_score }}%</div>
+    </div>
+  </section>
+
+  {% if can_view_internal_gain %}
+  <div class="card mb-4 border-blue-200 bg-blue-50/70 dark:border-blue-900 dark:bg-blue-950/30">
+    <div class="card-h">{% trans "Raw Market Spread" %}</div>
+    <div class="num text-xl font-semibold mt-2" style="color: var(--pb-fg)">
+      {{ row.turkiye_avg }} − {{ row.algeria_min }} = {{ row.gross_margin }}
+    </div>
+    <div class="hint">{% trans "Calculated from the migrated clean snapshot, not the legacy opportunity cache." %}</div>
   </div>
+  {% endif %}
 
   {% if row.buyer_offer %}
-  <div class="stats-grid mt-4">
-    <div class="stat-card"><span class="stat-label">{% trans "Buyer offer" %}</span><strong class="stat-value">{{ row.buyer_offer }}</strong><span class="stat-delta">{{ row.buyer_offer_dzd }}</span></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Buyer gain" %}</span><strong class="stat-value">{{ row.buyer_gain }}</strong><span class="stat-delta">{{ row.buyer_gain_percent }}</span></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Deal quality" %}</span><strong class="stat-value">{{ row.deal_quality }}</strong></div>
-    <div class="stat-card"><span class="stat-label">{% trans "Recommendation" %}</span><strong class="stat-value">{{ row.recommendation }}</strong></div>
-  </div>
-  {% endif %}
-
-  {% if can_view_internal_gain and row.my_gain %}
-  <section class="metric-card mt-4">
-    <div class="page-header">
+  <div class="card mb-4 border-emerald-200 bg-emerald-50/70 dark:border-emerald-900 dark:bg-emerald-950/30">
+    <div class="card-h">
+      {% if can_view_internal_gain %}{% trans "Suggested Deal Split" %}{% else %}{% trans "Buyer Offer" %}{% endif %}
+      <span class="badge {{ row.deal_quality }}">{{ row.deal_quality|title }}</span>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-3">
+      {% if can_view_internal_gain and row.my_gain %}
       <div>
-        <h2 class="h3">{% trans "Internal pricing" %}</h2>
-        <p class="page-desc">{% trans "Visible only to authenticated superusers." %}</p>
+        <div class="lbl">{% trans "My Gain" %}</div>
+        <div class="num text-xl">{{ row.my_gain }}</div>
+        <div class="delta">{{ row.my_gain_dzd }} / {{ row.my_gain_percent }} {% trans "of spread" %}</div>
+      </div>
+      {% endif %}
+      <div>
+        <div class="lbl">{% trans "Buyer Price" %}</div>
+        <div class="num text-xl">{{ row.buyer_offer }}</div>
+        <div class="delta">{{ row.buyer_offer_dzd }}</div>
+      </div>
+      <div>
+        <div class="lbl">{% trans "Buyer Gain" %}</div>
+        <div class="num text-xl">{{ row.buyer_gain }}</div>
+        <div class="delta">{{ row.buyer_gain_percent }} {% trans "vs offer price" %}</div>
       </div>
     </div>
-    <div class="stats-grid">
-      <div class="stat-card"><span class="stat-label">{% trans "Internal gain" %}</span><strong class="stat-value">{{ row.my_gain }}</strong><span class="stat-delta">{{ row.my_gain_dzd }}</span></div>
-      <div class="stat-card"><span class="stat-label">{% trans "Internal share" %}</span><strong class="stat-value">{{ row.my_gain_percent }}</strong></div>
-      <div class="stat-card"><span class="stat-label">{% trans "Pricing basis" %}</span><strong class="stat-value">{{ row.pricing_basis }}</strong></div>
-    </div>
-    {% if row.pricing_notes %}<p class="page-desc mt-3">{{ row.pricing_notes }}</p>{% endif %}
-  </section>
+    {% if can_view_internal_gain and row.pricing_notes %}
+      <div class="hint mt-3">{{ row.pricing_notes }}</div>
+    {% endif %}
+  </div>
   {% endif %}
 
-  <div class="metric-grid mt-4">
-    <article class="metric-card">
-      <b>{% trans "Algeria evidence" %}</b>
-      <span>{% trans "Source listings stored on this clean snapshot." %}</span>
-      <div class="mt-3">
-        {% for url in row.algeria_urls %}
-          <div class="mt-2"><a href="{{ url }}" target="_blank" rel="noopener">{{ forloop.counter }}. {% trans "Open Algeria listing" %} ↗</a></div>
-        {% empty %}
-          <div class="meta">{% trans "No Algeria URLs stored." %}</div>
-        {% endfor %}
+  <section class="detail-grid">
+    <div class="card">
+      <div class="card-h">
+        {% trans "Algeria listings" %}
+        <span class="badge ok">{{ algeria_rows|length }}</span>
       </div>
-    </article>
 
-    <article class="metric-card">
-      <b>{% trans "Türkiye evidence" %}</b>
-      <span>{% trans "Sahibinden comparison listings stored on this clean snapshot." %}</span>
-      <div class="mt-3">
-        {% for url in row.turkiye_urls %}
-          <div class="mt-2"><a href="{{ url }}" target="_blank" rel="noopener">{{ forloop.counter }}. {% trans "Open Türkiye listing" %} ↗</a></div>
-        {% empty %}
-          <div class="meta">{% trans "No Türkiye URLs stored." %}</div>
-        {% endfor %}
+      {% for listing in algeria_rows %}
+        <article class="listing-card{% if listing.listing_url %} clickable{% endif %}"{% if listing.listing_url %} data-clean-listing-url="{{ listing.listing_url }}"{% endif %}>
+          <span class="thumb thumb-md">
+            {% if listing.image_url %}<img src="{{ listing.image_url }}" alt="{{ listing.title }}">{% endif %}
+          </span>
+          <div class="min-w-0">
+            <div class="listing-title">{{ listing.title }}</div>
+            <div class="listing-meta">
+              <span class="badge {{ listing.source_class }}">{{ listing.source_code }}</span>
+              {% if listing.condition %}<span class="badge">{{ listing.condition }}</span>{% endif %}
+              {% if can_view_operational_meta and listing.review_status %}<span class="badge {{ listing.review_class }}">{{ listing.review_status }}</span>{% endif %}
+            </div>
+            <div class="listing-meta"><span>{{ listing.spec }}</span></div>
+            {% if can_view_operational_meta and listing.observed_at %}
+              <div class="listing-meta"><span>{{ listing.observed_at|date:"M d H:i" }}</span><span>{% trans "parse" %} {{ listing.parsed_confidence }}%</span></div>
+            {% endif %}
+          </div>
+          <div class="listing-price">
+            <div class="price-stack">
+              {% if listing.price_original %}
+              <div class="price-line">
+                <span class="price-label">{% trans "Original" %}</span>
+                <span class="num price-value">{{ listing.price_original|floatformat:0 }} {{ listing.currency_original }}</span>
+              </div>
+              {% endif %}
+              <div class="price-line">
+                <span class="price-label">{% trans "Converted" %}</span>
+                <span class="num price-value">{{ listing.price_eur }}</span>
+              </div>
+            </div>
+            <div class="deal-actions mt-2">
+              {% if listing.listing_url %}<a href="{{ listing.listing_url }}" target="_blank" rel="noopener">{% trans "Open listing" %} ↗</a>{% endif %}
+              {% if can_view_operational_meta and listing.admin_url %}<a href="{{ listing.admin_url }}">{% trans "Admin" %}</a>{% endif %}
+            </div>
+          </div>
+        </article>
+      {% empty %}
+        <div class="empty-state">{% trans "No matching Algeria clean listings were found." %}</div>
+      {% endfor %}
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        {% trans "Türkiye listings" %}
+        <span class="badge sh">{{ turkiye_rows|length }}</span>
       </div>
-    </article>
-  </div>
+
+      {% for listing in turkiye_rows %}
+        <article class="listing-card{% if listing.listing_url %} clickable{% endif %}"{% if listing.listing_url %} data-clean-listing-url="{{ listing.listing_url }}"{% endif %}>
+          <span class="thumb thumb-md">
+            {% if listing.image_url %}<img src="{{ listing.image_url }}" alt="{{ listing.title }}">{% endif %}
+          </span>
+          <div class="min-w-0">
+            <div class="listing-title">{{ listing.title }}</div>
+            <div class="listing-meta">
+              <span class="badge {{ listing.source_class }}">{{ listing.source_code }}</span>
+              {% if listing.condition %}<span class="badge">{{ listing.condition }}</span>{% endif %}
+              {% if can_view_operational_meta and listing.review_status %}<span class="badge {{ listing.review_class }}">{{ listing.review_status }}</span>{% endif %}
+            </div>
+            <div class="listing-meta"><span>{{ listing.spec }}</span></div>
+            {% if can_view_operational_meta and listing.observed_at %}
+              <div class="listing-meta"><span>{{ listing.observed_at|date:"M d H:i" }}</span><span>{% trans "parse" %} {{ listing.parsed_confidence }}%</span></div>
+            {% endif %}
+          </div>
+          <div class="listing-price">
+            <div class="price-stack">
+              {% if listing.price_original %}
+              <div class="price-line">
+                <span class="price-label">{% trans "Original" %}</span>
+                <span class="num price-value">{{ listing.price_original|floatformat:0 }} {{ listing.currency_original }}</span>
+              </div>
+              {% endif %}
+              <div class="price-line">
+                <span class="price-label">{% trans "Converted" %}</span>
+                <span class="num price-value">{{ listing.price_eur }}</span>
+              </div>
+            </div>
+            <div class="deal-actions mt-2">
+              {% if listing.listing_url %}<a href="{{ listing.listing_url }}" target="_blank" rel="noopener">{% trans "Open listing" %} ↗</a>{% endif %}
+              {% if can_view_operational_meta and listing.admin_url %}<a href="{{ listing.admin_url }}">{% trans "Admin" %}</a>{% endif %}
+            </div>
+          </div>
+        </article>
+      {% empty %}
+        <div class="empty-state">{% trans "No matching Türkiye clean listings were found." %}</div>
+      {% endfor %}
+    </div>
+  </section>
 
   {% if can_view_operational_meta %}
-  <p class="page-desc mt-4">
-    {% trans "Generated" %}: {{ row.generated_at }} · {% trans "Snapshot ID" %}: {{ row.snapshot_id }} · {% trans "Source label" %}: {{ row.source_label }}
-  </p>
+  <div class="card mt-4">
+    <div class="card-h">{% trans "Clean pipeline metadata" %}</div>
+    <div class="listing-meta">
+      <span>{% trans "Generated" %}: {{ row.generated_at }}</span>
+      <span>{% trans "Snapshot ID" %}: {{ row.snapshot_id }}</span>
+      <span>{% trans "Source label" %}: {{ row.source_label }}</span>
+      <span>{% trans "Match contract" %}: {{ row.category_label }} / {{ row.spec }}</span>
+    </div>
+  </div>
   {% endif %}
-</section>
+
+  <script>
+  (function () {
+    document.querySelectorAll('[data-clean-listing-url]').forEach(function (card) {
+      card.addEventListener('click', function (event) {
+        if (event.target.closest('a, button')) return;
+        window.open(card.dataset.cleanListingUrl, '_blank', 'noopener');
+      });
+    });
+  })();
+  </script>
 {% endblock %}
