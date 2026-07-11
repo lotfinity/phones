@@ -24,7 +24,7 @@
 
     <article class="metric-card">
       <b>{% trans "Card opportunities" %}</b>
-      <span>{% trans "Previously disconnected card-based opportunities template. Uses legacy OpportunitySnapshot rows and supports the existing detail modal." %}</span>
+      <span>{% trans "Card-based opportunities interface powered only by clean phone, laptop, and portable-console snapshots, with category-aware clean detail modals." %}</span>
       <a class="btn btn-primary btn-sm mt-3" href="{% url 'ui_preview_card_opportunities' %}">{% trans "Open card UI" %}</a>
     </article>
 
@@ -44,7 +44,7 @@
   <div class="empty-state mt-4">
     <strong>{% trans "Comparison note" %}</strong>
     <div class="mt-2">
-      {% trans "The card opportunities page uses legacy opportunity records, while the clean and phone-v2 pages use the migrated clean snapshot tables. Compare layout separately from data freshness." %}
+      {% trans "Both the clean table and card-opportunities pages now read the migrated PhoneOpportunitySnapshot, LaptopOpportunitySnapshot, and ConsoleOpportunitySnapshot tables. Their difference is presentation, not pipeline freshness." %}
     </div>
   </div>
 </section>
