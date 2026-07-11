@@ -89,11 +89,13 @@
   </section>
 
   <section class="summary-strip">
-    <div class="stat-card"><div class="lbl">{% trans "Algeria Min" %}</div><div class="num">{{ row.algeria_min }}</div></div>
-    <div class="stat-card"><div class="lbl">{% trans "Algeria Avg" %}</div><div class="num">{{ row.algeria_avg }}</div></div>
-    <div class="stat-card"><div class="lbl">{% trans "Türkiye Min" %}</div><div class="num">{{ row.turkiye_min }}</div></div>
+    {% if can_view_internal_gain %}
+      <div class="stat-card"><div class="lbl">{% trans "Algeria Min" %}</div><div class="num">{{ row.algeria_min }}</div></div>
+      <div class="stat-card"><div class="lbl">{% trans "Algeria Avg" %}</div><div class="num">{{ row.algeria_avg }}</div></div>
+      <div class="stat-card"><div class="lbl">{% trans "Türkiye Min" %}</div><div class="num">{{ row.turkiye_min }}</div></div>
+      <div class="stat-card"><div class="lbl">{% trans "Gross Margin" %}</div><div class="num">{{ row.gross_margin }}</div><span class="delta">{{ row.margin_percent_label }}</span></div>
+    {% endif %}
     <div class="stat-card"><div class="lbl">{% trans "Türkiye Avg" %}</div><div class="num">{{ row.turkiye_avg }}</div></div>
-    <div class="stat-card"><div class="lbl">{% trans "Gross Margin" %}</div><div class="num">{{ row.gross_margin }}</div><span class="delta">{{ row.margin_percent_label }}</span></div>
     <div class="stat-card"><div class="lbl">{% trans "Confidence" %}</div><div class="num">{{ row.confidence_score }}%</div></div>
   </section>
 
@@ -137,6 +139,7 @@
   {% endif %}
 
   <section class="detail-grid">
+    {% if can_view_internal_gain %}
     <div class="card">
       <div class="card-h">{% trans "Algeria listings" %}<span class="badge ok">{{ algeria_rows|length }}</span></div>
       {% for listing in algeria_rows %}
@@ -188,6 +191,7 @@
         <div class="empty-state">{% trans "No matching Algeria clean listings were found." %}</div>
       {% endfor %}
     </div>
+    {% endif %}
 
     <div class="card">
       <div class="card-h">{% trans "Türkiye listings" %}<span class="badge sh">{{ turkiye_rows|length }}</span></div>
