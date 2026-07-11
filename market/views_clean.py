@@ -1,85 +1,97 @@
 from decimal import Decimal
 
-from django.db.models import Avg, Count, Sum
-from django.shortcuts import render
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 
 from market.clean_models import ConsoleOpportunitySnapshot, LaptopOpportunitySnapshot, PhoneOpportunitySnapshot
 from market.models import ConsoleListing, LaptopListing, ParsedListingCandidate, PhoneListing, RawListing
 from market.views import base_context, money, pct
 
 
+CLEAN_SNAPSHOT_MODELS = {
+    "phone": PhoneOpportunitySnapshot,
+    "laptop": LaptopOpportunitySnapshot,
+    "console": ConsoleOpportunitySnapshot,
+}
+
+CATEGORY_LABELS = {
+    "phone": "Phone",
+    "laptop": "Laptop",
+    "console": "Portable console",
+}
+
+
+def _snapshot_spec(item, device_type):
+    parts = []
+    if device_type == "phone":
+        if item.storage_gb:
+            parts.append(f"{item.storage_gb}GB")
+    elif device_type == "laptop":
+        if item.cpu:
+            parts.append(item.cpu)
+        if item.gpu:
+            parts.append(item.gpu)
+        if item.ram_gb:
+            parts.append(f"{item.ram_gb}GB RAM")
+        if item.storage_gb:
+            parts.append(f"{item.storage_gb}GB")
+    elif device_type == "console":
+        if item.chipset:
+            parts.append(item.chipset)
+        if item.ram_gb:
+            parts.append(f"{item.ram_gb}GB RAM")
+        if item.storage_gb:
+            parts.append(f"{item.storage_gb}GB")
+    return " / ".join(parts) or "-"
+
+
+def _recommendation_class(value):
+    if value in {"buy", "good_opportunity"}:
+        return "rec-buy"
+    if value in {"watch", "marginal", "low_confidence"}:
+        return "rec-watch"
+    return "rec-ignore"
+
+
+def _snapshot_row(item, device_type):
+    return {
+        "item": item,
+        "snapshot_id": item.pk,
+        "device_type": device_type,
+        "category_label": CATEGORY_LABELS[device_type],
+        "brand": item.brand,
+        "model": item.model,
+        "title": f"{item.brand} {item.model}".strip(),
+        "spec": _snapshot_spec(item, device_type),
+        "algeria_min_eur": item.algeria_min_eur,
+        "algeria_avg_eur": item.algeria_avg_eur,
+        "turkiye_min_eur": item.turkiye_min_eur,
+        "turkiye_avg_eur": item.turkiye_avg_eur,
+        "gross_margin_eur": item.gross_margin_eur,
+        "margin_percent": item.margin_percent,
+        "algeria_count": item.algeria_count,
+        "turkiye_count": item.turkiye_count,
+        "recommendation": item.get_recommendation_display(),
+        "recommendation_value": item.recommendation,
+        "recommendation_class": _recommendation_class(item.recommendation),
+        "confidence_score": item.confidence_score,
+        "algeria_urls": item.algeria_urls or [],
+        "turkiye_urls": item.turkiye_urls or [],
+        "generated_at": item.generated_at,
+        "source_label": item.source_label,
+        "detail_url": reverse(
+            "clean_opportunity_detail",
+            kwargs={"category": device_type, "pk": item.pk},
+        ),
+    }
+
+
 def _clean_snapshot_rows():
     rows = []
-    for item in PhoneOpportunitySnapshot.objects.order_by("-gross_margin_eur", "-margin_percent")[:300]:
-        rows.append({
-            "device_type": "phone",
-            "brand": item.brand,
-            "model": item.model,
-            "spec": f"{item.storage_gb}GB" if item.storage_gb else "-",
-            "algeria_min_eur": item.algeria_min_eur,
-            "turkiye_avg_eur": item.turkiye_avg_eur,
-            "gross_margin_eur": item.gross_margin_eur,
-            "margin_percent": item.margin_percent,
-            "algeria_count": item.algeria_count,
-            "turkiye_count": item.turkiye_count,
-            "recommendation": item.get_recommendation_display(),
-            "confidence_score": item.confidence_score,
-            "algeria_urls": item.algeria_urls or [],
-            "turkiye_urls": item.turkiye_urls or [],
-            "generated_at": item.generated_at,
-        })
-    for item in LaptopOpportunitySnapshot.objects.order_by("-gross_margin_eur", "-margin_percent")[:300]:
-        spec_parts = []
-        if item.cpu:
-            spec_parts.append(item.cpu)
-        if item.gpu:
-            spec_parts.append(item.gpu)
-        if item.ram_gb:
-            spec_parts.append(f"{item.ram_gb}GB RAM")
-        if item.storage_gb:
-            spec_parts.append(f"{item.storage_gb}GB")
-        rows.append({
-            "device_type": "laptop",
-            "brand": item.brand,
-            "model": item.model,
-            "spec": " / ".join(spec_parts) or "-",
-            "algeria_min_eur": item.algeria_min_eur,
-            "turkiye_avg_eur": item.turkiye_avg_eur,
-            "gross_margin_eur": item.gross_margin_eur,
-            "margin_percent": item.margin_percent,
-            "algeria_count": item.algeria_count,
-            "turkiye_count": item.turkiye_count,
-            "recommendation": item.get_recommendation_display(),
-            "confidence_score": item.confidence_score,
-            "algeria_urls": item.algeria_urls or [],
-            "turkiye_urls": item.turkiye_urls or [],
-            "generated_at": item.generated_at,
-        })
-    for item in ConsoleOpportunitySnapshot.objects.order_by("-gross_margin_eur", "-margin_percent")[:300]:
-        spec_parts = []
-        if item.chipset:
-            spec_parts.append(item.chipset)
-        if item.ram_gb:
-            spec_parts.append(f"{item.ram_gb}GB RAM")
-        if item.storage_gb:
-            spec_parts.append(f"{item.storage_gb}GB")
-        rows.append({
-            "device_type": "console",
-            "brand": item.brand,
-            "model": item.model,
-            "spec": " / ".join(spec_parts) or "-",
-            "algeria_min_eur": item.algeria_min_eur,
-            "turkiye_avg_eur": item.turkiye_avg_eur,
-            "gross_margin_eur": item.gross_margin_eur,
-            "margin_percent": item.margin_percent,
-            "algeria_count": item.algeria_count,
-            "turkiye_count": item.turkiye_count,
-            "recommendation": item.get_recommendation_display(),
-            "confidence_score": item.confidence_score,
-            "algeria_urls": item.algeria_urls or [],
-            "turkiye_urls": item.turkiye_urls or [],
-            "generated_at": item.generated_at,
-        })
+    for device_type, model in CLEAN_SNAPSHOT_MODELS.items():
+        for item in model.objects.order_by("-gross_margin_eur", "-margin_percent")[:300]:
+            rows.append(_snapshot_row(item, device_type))
     rows.sort(
         key=lambda row: (
             row["gross_margin_eur"] or Decimal("0"),
@@ -90,8 +102,7 @@ def _clean_snapshot_rows():
     return rows
 
 
-def clean_opportunities(request):
-    selected_currency = request.GET.get("currency") or request.COOKIES.get("pricebridge_currency") or "EUR"
+def _filtered_clean_rows(request):
     device_type = request.GET.get("type", "").strip()
     brand = request.GET.get("brand", "").strip()
     q = request.GET.get("q", "").strip()
@@ -104,11 +115,46 @@ def clean_opportunities(request):
     if q:
         q_lower = q.lower()
         rows = [
-            row for row in rows
-            if q_lower in row["model"].lower() or q_lower in row["brand"].lower() or q_lower in row["spec"].lower()
+            row
+            for row in rows
+            if q_lower in row["model"].lower()
+            or q_lower in row["brand"].lower()
+            or q_lower in row["spec"].lower()
         ]
+    return rows, device_type, brand, q
 
+
+def _display_row(row, selected_currency):
+    return row | {
+        "algeria_min": money(row["algeria_min_eur"], selected_currency)
+        if row["algeria_min_eur"] is not None
+        else "-",
+        "algeria_avg": money(row["algeria_avg_eur"], selected_currency)
+        if row["algeria_avg_eur"] is not None
+        else "-",
+        "turkiye_min": money(row["turkiye_min_eur"], selected_currency)
+        if row["turkiye_min_eur"] is not None
+        else "-",
+        "turkiye_avg": money(row["turkiye_avg_eur"], selected_currency)
+        if row["turkiye_avg_eur"] is not None
+        else "-",
+        "gross_margin": money(row["gross_margin_eur"], selected_currency)
+        if row["gross_margin_eur"] is not None
+        else "-",
+        "margin_percent_label": pct(row["margin_percent"])
+        if row["margin_percent"] is not None
+        else "-",
+        "margin_class": "good"
+        if row["margin_percent"] is not None and row["margin_percent"] >= Decimal("20")
+        else "warn",
+        "counts_label": f"DZ {row['algeria_count']} / TR {row['turkiye_count']}",
+    }
+
+
+def _shared_clean_context(request, rows, device_type, brand, q):
+    selected_currency = request.GET.get("currency") or request.COOKIES.get("pricebridge_currency") or "EUR"
     visible_rows = rows[:300]
+    display_rows = [_display_row(row, selected_currency) for row in visible_rows]
     total_gross = sum((row["gross_margin_eur"] or Decimal("0")) for row in visible_rows)
     margins = [row["margin_percent"] for row in visible_rows if row["margin_percent"] is not None]
     avg_margin = sum(margins) / len(margins) if margins else None
@@ -119,46 +165,67 @@ def clean_opportunities(request):
     ]
     latest_generated_at = max([item for item in latest_candidates if item], default=None)
 
-    brands = sorted({row["brand"] for row in _clean_snapshot_rows() if row["brand"]})
-    device_counts = {
-        "phone": PhoneOpportunitySnapshot.objects.count(),
-        "laptop": LaptopOpportunitySnapshot.objects.count(),
-        "console": ConsoleOpportunitySnapshot.objects.count(),
-    }
-    source_counts = {
-        "raw_total": RawListing.objects.count(),
-        "phone_total": PhoneListing.objects.count(),
-        "laptop_total": LaptopListing.objects.count(),
-        "console_total": ConsoleListing.objects.count(),
-        "needs_review": ParsedListingCandidate.objects.filter(status=ParsedListingCandidate.Status.NEEDS_REVIEW).count(),
+    return {
+        "rows": display_rows,
+        "snapshots_count": len(rows),
+        "visible_count": len(display_rows),
+        "total_gross": money(total_gross, selected_currency) if total_gross else "-",
+        "avg_margin": pct(avg_margin) if avg_margin is not None else "-",
+        "latest_generated_at": latest_generated_at,
+        "brands": sorted({row["brand"] for row in _clean_snapshot_rows() if row["brand"]}),
+        "brand_list": [{"name": value} for value in sorted({row["brand"] for row in _clean_snapshot_rows() if row["brand"]})],
+        "active_brand": brand,
+        "active_type": device_type,
+        "search_query": q,
+        "device_counts": {
+            "phone": PhoneOpportunitySnapshot.objects.count(),
+            "laptop": LaptopOpportunitySnapshot.objects.count(),
+            "console": ConsoleOpportunitySnapshot.objects.count(),
+        },
+        "source_counts": {
+            "raw_total": RawListing.objects.count(),
+            "phone_total": PhoneListing.objects.count(),
+            "laptop_total": LaptopListing.objects.count(),
+            "console_total": ConsoleListing.objects.count(),
+            "needs_review": ParsedListingCandidate.objects.filter(
+                status=ParsedListingCandidate.Status.NEEDS_REVIEW
+            ).count(),
+        },
+        "best_opportunity": display_rows[0] if display_rows else None,
     }
 
-    display_rows = []
-    for row in visible_rows:
-        display_rows.append(row | {
-            "algeria_min": money(row["algeria_min_eur"], selected_currency) if row["algeria_min_eur"] is not None else "-",
-            "turkiye_avg": money(row["turkiye_avg_eur"], selected_currency) if row["turkiye_avg_eur"] is not None else "-",
-            "gross_margin": money(row["gross_margin_eur"], selected_currency) if row["gross_margin_eur"] is not None else "-",
-            "margin_percent_label": pct(row["margin_percent"]) if row["margin_percent"] is not None else "-",
-            "counts_label": f"DZ {row['algeria_count']} / TR {row['turkiye_count']}",
-        })
 
+def clean_opportunities(request):
+    rows, device_type, brand, q = _filtered_clean_rows(request)
     return render(
         request,
         "market/clean_opportunities.html",
         base_context(request, "opportunities")
-        | {
-            "rows": display_rows,
-            "snapshots_count": len(rows),
-            "visible_count": len(display_rows),
-            "total_gross": money(total_gross, selected_currency) if total_gross else "-",
-            "avg_margin": pct(avg_margin) if avg_margin is not None else "-",
-            "latest_generated_at": latest_generated_at,
-            "brands": brands,
-            "active_brand": brand,
-            "active_type": device_type,
-            "search_query": q,
-            "device_counts": device_counts,
-            "source_counts": source_counts,
-        },
+        | _shared_clean_context(request, rows, device_type, brand, q),
+    )
+
+
+def clean_card_opportunities(request):
+    """Card-based UI backed only by the clean snapshot tables."""
+    rows, device_type, brand, q = _filtered_clean_rows(request)
+    return render(
+        request,
+        "market/clean_card_opportunities.html",
+        base_context(request, "opportunities")
+        | _shared_clean_context(request, rows, device_type, brand, q),
+    )
+
+
+def clean_opportunity_detail(request, category, pk):
+    model = CLEAN_SNAPSHOT_MODELS.get(category)
+    if model is None:
+        raise Http404("Unknown clean opportunity category")
+
+    item = get_object_or_404(model, pk=pk)
+    selected_currency = request.GET.get("currency") or request.COOKIES.get("pricebridge_currency") or "EUR"
+    row = _display_row(_snapshot_row(item, category), selected_currency)
+    return render(
+        request,
+        "market/clean_opportunity_detail.html",
+        base_context(request, "opportunities") | {"row": row},
     )
