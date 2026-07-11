@@ -13,19 +13,42 @@
 {% block content %}
   <section class="detail-hero">
     <span class="thumb thumb-hero">
-      {% if hero_image_url %}
-        <img src="{{ hero_image_url }}" alt="{{ row.title }}">
-      {% else %}
-        {% with logo_url=row.brand|brand_logo_url %}
-          {% if logo_url %}
-            <img src="{{ logo_url }}" alt="{{ row.brand }} logo">
-          {% else %}
-            <span class="brand-logo-wrap brand-logo-lg brand-logo-fallback-visible">
-              <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
-            </span>
-          {% endif %}
-        {% endwith %}
-      {% endif %}
+      {% with dz_hero=algeria_rows.0 tr_hero=turkiye_rows.0 %}
+        {% if dz_hero.item and dz_hero.image_url %}
+          <img
+            src="{% url 'clean_listing_image' row.device_type dz_hero.item.pk %}"
+            alt="{{ row.title }}"
+            referrerpolicy="no-referrer"
+            onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
+          >
+          <span class="brand-logo-wrap brand-logo-lg brand-logo-fallback-visible" hidden>
+            {% if row.brand|brand_logo_url %}
+              <img src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove();">
+            {% endif %}
+            <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+          </span>
+        {% elif tr_hero.item and tr_hero.image_url %}
+          <img
+            src="{% url 'clean_listing_image' row.device_type tr_hero.item.pk %}"
+            alt="{{ row.title }}"
+            referrerpolicy="no-referrer"
+            onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
+          >
+          <span class="brand-logo-wrap brand-logo-lg brand-logo-fallback-visible" hidden>
+            {% if row.brand|brand_logo_url %}
+              <img src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove();">
+            {% endif %}
+            <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+          </span>
+        {% else %}
+          <span class="brand-logo-wrap brand-logo-lg brand-logo-fallback-visible">
+            {% if row.brand|brand_logo_url %}
+              <img src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove();">
+            {% endif %}
+            <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+          </span>
+        {% endif %}
+      {% endwith %}
     </span>
 
     <div class="min-w-0">
@@ -56,7 +79,7 @@
       <p class="page-desc brand-name-line">
         <span class="brand-logo-wrap">
           {% if row.brand|brand_logo_url %}
-            <img class="brand-logo-img" src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo">
+            <img class="brand-logo-img" src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove();">
           {% endif %}
           <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
         </span>
@@ -66,31 +89,12 @@
   </section>
 
   <section class="summary-strip">
-    <div class="stat-card">
-      <div class="lbl">{% trans "Algeria Min" %}</div>
-      <div class="num">{{ row.algeria_min }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="lbl">{% trans "Algeria Avg" %}</div>
-      <div class="num">{{ row.algeria_avg }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="lbl">{% trans "Türkiye Min" %}</div>
-      <div class="num">{{ row.turkiye_min }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="lbl">{% trans "Türkiye Avg" %}</div>
-      <div class="num">{{ row.turkiye_avg }}</div>
-    </div>
-    <div class="stat-card">
-      <div class="lbl">{% trans "Gross Margin" %}</div>
-      <div class="num">{{ row.gross_margin }}</div>
-      <span class="delta">{{ row.margin_percent_label }}</span>
-    </div>
-    <div class="stat-card">
-      <div class="lbl">{% trans "Confidence" %}</div>
-      <div class="num">{{ row.confidence_score }}%</div>
-    </div>
+    <div class="stat-card"><div class="lbl">{% trans "Algeria Min" %}</div><div class="num">{{ row.algeria_min }}</div></div>
+    <div class="stat-card"><div class="lbl">{% trans "Algeria Avg" %}</div><div class="num">{{ row.algeria_avg }}</div></div>
+    <div class="stat-card"><div class="lbl">{% trans "Türkiye Min" %}</div><div class="num">{{ row.turkiye_min }}</div></div>
+    <div class="stat-card"><div class="lbl">{% trans "Türkiye Avg" %}</div><div class="num">{{ row.turkiye_avg }}</div></div>
+    <div class="stat-card"><div class="lbl">{% trans "Gross Margin" %}</div><div class="num">{{ row.gross_margin }}</div><span class="delta">{{ row.margin_percent_label }}</span></div>
+    <div class="stat-card"><div class="lbl">{% trans "Confidence" %}</div><div class="num">{{ row.confidence_score }}%</div></div>
   </section>
 
   {% if can_view_internal_gain %}
@@ -128,23 +132,34 @@
         <div class="delta">{{ row.buyer_gain_percent }} {% trans "vs offer price" %}</div>
       </div>
     </div>
-    {% if can_view_internal_gain and row.pricing_notes %}
-      <div class="hint mt-3">{{ row.pricing_notes }}</div>
-    {% endif %}
+    {% if can_view_internal_gain and row.pricing_notes %}<div class="hint mt-3">{{ row.pricing_notes }}</div>{% endif %}
   </div>
   {% endif %}
 
   <section class="detail-grid">
     <div class="card">
-      <div class="card-h">
-        {% trans "Algeria listings" %}
-        <span class="badge ok">{{ algeria_rows|length }}</span>
-      </div>
-
+      <div class="card-h">{% trans "Algeria listings" %}<span class="badge ok">{{ algeria_rows|length }}</span></div>
       {% for listing in algeria_rows %}
         <article class="listing-card{% if listing.listing_url %} clickable{% endif %}"{% if listing.listing_url %} data-clean-listing-url="{{ listing.listing_url }}"{% endif %}>
           <span class="thumb thumb-md">
-            {% if listing.image_url %}<img src="{{ listing.image_url }}" alt="{{ listing.title }}">{% endif %}
+            {% if listing.item and listing.image_url %}
+              <img
+                src="{% url 'clean_listing_image' row.device_type listing.item.pk %}"
+                alt="{{ listing.title }}"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
+              >
+              <span class="brand-logo-wrap brand-logo-fallback-visible" hidden>
+                {% if row.brand|brand_logo_url %}<img src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove();">{% endif %}
+                <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+              </span>
+            {% else %}
+              <span class="brand-logo-wrap brand-logo-fallback-visible">
+                {% if row.brand|brand_logo_url %}<img src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove();">{% endif %}
+                <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+              </span>
+            {% endif %}
           </span>
           <div class="min-w-0">
             <div class="listing-title">{{ listing.title }}</div>
@@ -160,16 +175,8 @@
           </div>
           <div class="listing-price">
             <div class="price-stack">
-              {% if listing.price_original %}
-              <div class="price-line">
-                <span class="price-label">{% trans "Original" %}</span>
-                <span class="num price-value">{{ listing.price_original|floatformat:0 }} {{ listing.currency_original }}</span>
-              </div>
-              {% endif %}
-              <div class="price-line">
-                <span class="price-label">{% trans "Converted" %}</span>
-                <span class="num price-value">{{ listing.price_eur }}</span>
-              </div>
+              {% if listing.price_original %}<div class="price-line"><span class="price-label">{% trans "Original" %}</span><span class="num price-value">{{ listing.price_original|floatformat:0 }} {{ listing.currency_original }}</span></div>{% endif %}
+              <div class="price-line"><span class="price-label">{% trans "Converted" %}</span><span class="num price-value">{{ listing.price_eur }}</span></div>
             </div>
             <div class="deal-actions mt-2">
               {% if listing.listing_url %}<a href="{{ listing.listing_url }}" target="_blank" rel="noopener">{% trans "Open listing" %} ↗</a>{% endif %}
@@ -183,15 +190,28 @@
     </div>
 
     <div class="card">
-      <div class="card-h">
-        {% trans "Türkiye listings" %}
-        <span class="badge sh">{{ turkiye_rows|length }}</span>
-      </div>
-
+      <div class="card-h">{% trans "Türkiye listings" %}<span class="badge sh">{{ turkiye_rows|length }}</span></div>
       {% for listing in turkiye_rows %}
         <article class="listing-card{% if listing.listing_url %} clickable{% endif %}"{% if listing.listing_url %} data-clean-listing-url="{{ listing.listing_url }}"{% endif %}>
           <span class="thumb thumb-md">
-            {% if listing.image_url %}<img src="{{ listing.image_url }}" alt="{{ listing.title }}">{% endif %}
+            {% if listing.item and listing.image_url %}
+              <img
+                src="{% url 'clean_listing_image' row.device_type listing.item.pk %}"
+                alt="{{ listing.title }}"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                onerror="this.hidden=true; this.nextElementSibling.hidden=false;"
+              >
+              <span class="brand-logo-wrap brand-logo-fallback-visible" hidden>
+                {% if row.brand|brand_logo_url %}<img src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove();">{% endif %}
+                <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+              </span>
+            {% else %}
+              <span class="brand-logo-wrap brand-logo-fallback-visible">
+                {% if row.brand|brand_logo_url %}<img src="{{ row.brand|brand_logo_url }}" alt="{{ row.brand }} logo" onerror="this.remove();">{% endif %}
+                <span class="brand-logo-fallback">{{ row.brand|brand_initial }}</span>
+              </span>
+            {% endif %}
           </span>
           <div class="min-w-0">
             <div class="listing-title">{{ listing.title }}</div>
@@ -207,16 +227,8 @@
           </div>
           <div class="listing-price">
             <div class="price-stack">
-              {% if listing.price_original %}
-              <div class="price-line">
-                <span class="price-label">{% trans "Original" %}</span>
-                <span class="num price-value">{{ listing.price_original|floatformat:0 }} {{ listing.currency_original }}</span>
-              </div>
-              {% endif %}
-              <div class="price-line">
-                <span class="price-label">{% trans "Converted" %}</span>
-                <span class="num price-value">{{ listing.price_eur }}</span>
-              </div>
+              {% if listing.price_original %}<div class="price-line"><span class="price-label">{% trans "Original" %}</span><span class="num price-value">{{ listing.price_original|floatformat:0 }} {{ listing.currency_original }}</span></div>{% endif %}
+              <div class="price-line"><span class="price-label">{% trans "Converted" %}</span><span class="num price-value">{{ listing.price_eur }}</span></div>
             </div>
             <div class="deal-actions mt-2">
               {% if listing.listing_url %}<a href="{{ listing.listing_url }}" target="_blank" rel="noopener">{% trans "Open listing" %} ↗</a>{% endif %}
