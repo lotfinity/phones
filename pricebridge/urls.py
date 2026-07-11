@@ -22,7 +22,8 @@ from django.views.generic import TemplateView
 
 from market import views
 from market.cache_control import private_no_store
-from market.views_clean import clean_card_opportunities, clean_opportunities
+from market.views_clean import clean_opportunities
+from market.views_clean_card import clean_card_opportunities
 from market.views_clean_detail import clean_opportunity_detail
 from market.views_images import clean_listing_image
 from market.views_phone_opportunities import phone_opportunities_v2
