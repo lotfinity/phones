@@ -5,11 +5,23 @@ from django.test import TestCase
 from django.urls import reverse
 
 from market.clean_models import ConsoleOpportunitySnapshot, LaptopOpportunitySnapshot, PhoneOpportunitySnapshot
+from market.models import Brand, Condition, Country, PhoneListing, PhoneModel, SourceType
 
 
 class CleanCardOpportunityViewTests(TestCase):
     def setUp(self):
+        self.apple = Brand.objects.create(name="Apple")
+        self.phone_model = PhoneModel.objects.create(
+            brand=self.apple,
+            canonical_name="iPhone Test",
+        )
+        self.other_phone_model = PhoneModel.objects.create(
+            brand=self.apple,
+            canonical_name="Different iPhone",
+        )
+
         self.phone = PhoneOpportunitySnapshot.objects.create(
+            phone_model=self.phone_model,
             brand="Apple",
             model="iPhone Test",
             storage_gb=256,
@@ -56,6 +68,51 @@ class CleanCardOpportunityViewTests(TestCase):
             confidence_score=70,
         )
 
+        self.algeria_listing = PhoneListing.objects.create(
+            source_type=SourceType.OUEDKNISS,
+            country=Country.ALGERIA,
+            phone_model=self.phone_model,
+            title="Clean Algeria iPhone listing",
+            price_original=Decimal("150000.00"),
+            currency_original="DZD",
+            price_eur=Decimal("500.00"),
+            condition=Condition.USED_A,
+            storage_gb=256,
+            battery_health=94,
+            listing_url="https://example.com/dz-phone",
+            image_url="https://example.com/dz-phone.jpg",
+            parsed_confidence=0.93,
+            review_status=PhoneListing.ReviewStatus.APPROVED,
+        )
+        self.turkiye_listing = PhoneListing.objects.create(
+            source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE,
+            phone_model=self.phone_model,
+            title="Clean Türkiye iPhone listing",
+            price_original=Decimal("40000.00"),
+            currency_original="TRY",
+            price_eur=Decimal("750.00"),
+            condition=Condition.SEALED,
+            storage_gb=256,
+            listing_url="https://example.com/tr-phone",
+            image_url="https://example.com/tr-phone.jpg",
+            parsed_confidence=0.88,
+            review_status=PhoneListing.ReviewStatus.AUTO,
+        )
+        PhoneListing.objects.create(
+            source_type=SourceType.SAHIBINDEN,
+            country=Country.TURKIYE,
+            phone_model=self.other_phone_model,
+            title="Unrelated clean phone listing",
+            price_original=Decimal("42000.00"),
+            currency_original="TRY",
+            price_eur=Decimal("780.00"),
+            condition=Condition.SEALED,
+            storage_gb=256,
+            listing_url="https://example.com/unrelated-phone",
+            review_status=PhoneListing.ReviewStatus.APPROVED,
+        )
+
         user_model = get_user_model()
         self.staff_user = user_model.objects.create_user(
             username="clean-card-staff",
@@ -66,6 +123,12 @@ class CleanCardOpportunityViewTests(TestCase):
             username="clean-card-superuser",
             email="superuser@example.com",
             password="test-password",
+        )
+
+    def detail_url(self):
+        return reverse(
+            "clean_opportunity_detail",
+            kwargs={"category": "phone", "pk": self.phone.pk},
         )
 
     def test_card_page_uses_all_clean_snapshot_categories(self):
@@ -99,50 +162,48 @@ class CleanCardOpportunityViewTests(TestCase):
         self.assertIn("my_gain", response.context["rows"][0])
         self.assertIn("pricing_notes", response.context["rows"][0])
 
-    def test_clean_detail_route_is_category_aware(self):
-        response = self.client.get(
-            reverse(
-                "clean_opportunity_detail",
-                kwargs={"category": "phone", "pk": self.phone.pk},
-            )
-        )
+    def test_clean_detail_uses_rich_layout_and_matching_clean_listings(self):
+        response = self.client.get(self.detail_url())
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "market/clean_opportunity_detail.html")
-        self.assertContains(response, "iPhone Test")
-        self.assertContains(response, "https://example.com/dz-phone")
-        self.assertContains(response, "https://example.com/tr-phone")
+        self.assertContains(response, "Raw Market Spread", count=0)
+        self.assertContains(response, "Suggested Deal Split", count=0)
+        self.assertContains(response, "Buyer Offer")
+        self.assertContains(response, "Clean Algeria iPhone listing")
+        self.assertContains(response, "Clean Türkiye iPhone listing")
+        self.assertContains(response, "https://example.com/dz-phone.jpg")
+        self.assertContains(response, "Used A")
+        self.assertContains(response, "Sealed")
+        self.assertNotContains(response, "Unrelated clean phone listing")
+        self.assertEqual(len(response.context["algeria_rows"]), 1)
+        self.assertEqual(len(response.context["turkiye_rows"]), 1)
 
-    def test_staff_sees_operational_metadata_but_not_superuser_pricing(self):
+    def test_staff_sees_listing_review_and_operational_metadata_not_superuser_pricing(self):
         self.client.force_login(self.staff_user)
-        response = self.client.get(
-            reverse(
-                "clean_opportunity_detail",
-                kwargs={"category": "phone", "pk": self.phone.pk},
-            )
-        )
+        response = self.client.get(self.detail_url())
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "phone-test-source")
         self.assertContains(response, "Snapshot ID")
-        self.assertNotContains(response, "Internal pricing")
+        self.assertContains(response, "Approved")
+        self.assertContains(response, "Auto")
+        self.assertContains(response, "parse 93%")
+        self.assertNotContains(response, "Raw Market Spread")
+        self.assertNotContains(response, "Suggested Deal Split")
         self.assertTrue(response.context["can_view_operational_meta"])
         self.assertFalse(response.context["can_view_internal_gain"])
         self.assertNotIn("my_gain", response.context["row"])
 
-    def test_superuser_sees_internal_detail_pricing(self):
+    def test_superuser_sees_old_style_internal_spread_and_deal_split(self):
         self.client.force_login(self.superuser)
-        response = self.client.get(
-            reverse(
-                "clean_opportunity_detail",
-                kwargs={"category": "phone", "pk": self.phone.pk},
-            )
-        )
+        response = self.client.get(self.detail_url())
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Internal pricing")
-        self.assertContains(response, "Internal gain")
-        self.assertContains(response, "Internal share")
+        self.assertContains(response, "Raw Market Spread")
+        self.assertContains(response, "Suggested Deal Split")
+        self.assertContains(response, "My Gain")
+        self.assertContains(response, "of spread")
         self.assertIn("my_gain", response.context["row"])
         self.assertIn("pricing_notes", response.context["row"])
 
