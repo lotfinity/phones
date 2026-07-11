@@ -21,6 +21,7 @@
     <code>phone {{ device_counts.phone }}</code>
     <code>laptop {{ device_counts.laptop }}</code>
     <code>console {{ device_counts.console }}</code>
+    {% if can_view_internal_gain %}<code>{% trans "superuser pricing" %}</code>{% endif %}
   </div>
 </div>
 
@@ -89,6 +90,7 @@
         <div class="card-meta-row mt-2">
           <span class="badge">{{ best_opportunity.category_label }}</span>
           <span class="cell-rec {{ best_opportunity.recommendation_class }}">{{ best_opportunity.recommendation }}</span>
+          {% if best_opportunity.deal_quality %}<span class="badge">{{ best_opportunity.deal_quality }}</span>{% endif %}
         </div>
       </div>
       <span class="meta">{% trans "Top clean snapshot" %} · {{ best_opportunity.confidence_score }}%</span>
@@ -99,6 +101,20 @@
       <div class="price-block"><span class="price-block-label">{% trans "Türkiye avg" %}</span><span class="price-block-value">{{ best_opportunity.turkiye_avg }}</span></div>
       <div class="price-block"><span class="price-block-label">{% trans "Gross margin" %}</span><span class="price-block-value">{{ best_opportunity.gross_margin }}</span></div>
     </div>
+    {% if best_opportunity.buyer_offer %}
+    <div class="price-comparison">
+      <div class="price-block"><span class="price-block-label">{% trans "Buyer offer" %}</span><span class="price-block-value">{{ best_opportunity.buyer_offer }}</span><span class="price-block-sub">{{ best_opportunity.buyer_offer_dzd }}</span></div>
+      <div class="price-block"><span class="price-block-label">{% trans "Buyer gain" %}</span><span class="price-block-value">{{ best_opportunity.buyer_gain }}</span><span class="price-block-sub">{{ best_opportunity.buyer_gain_percent }}</span></div>
+      <div class="price-block"><span class="price-block-label">{% trans "Deal quality" %}</span><span class="price-block-value">{{ best_opportunity.deal_quality }}</span></div>
+    </div>
+    {% endif %}
+    {% if can_view_internal_gain and best_opportunity.my_gain %}
+    <div class="price-comparison">
+      <div class="price-block"><span class="price-block-label">{% trans "Internal gain" %}</span><span class="price-block-value">{{ best_opportunity.my_gain }}</span><span class="price-block-sub">{{ best_opportunity.my_gain_dzd }}</span></div>
+      <div class="price-block"><span class="price-block-label">{% trans "Internal share" %}</span><span class="price-block-value">{{ best_opportunity.my_gain_percent }}</span></div>
+      <div class="price-block"><span class="price-block-label">{% trans "Pricing basis" %}</span><span class="price-block-value">{{ best_opportunity.pricing_basis }}</span></div>
+    </div>
+    {% endif %}
     <div class="deal-card-footer">
       <div class="sahibinden-count"><strong>{{ best_opportunity.algeria_count }} / {{ best_opportunity.turkiye_count }}</strong> {% trans "DZ / TR evidence" %}</div>
       <span class="btn btn-secondary btn-sm">{% trans "Full detail" %}</span>
@@ -127,6 +143,7 @@
             <div class="card-meta-row mt-2">
               <span class="badge">{{ row.category_label }}</span>
               <span class="cell-rec {{ row.recommendation_class }}">{{ row.recommendation }}</span>
+              {% if row.deal_quality %}<span class="badge">{{ row.deal_quality }}</span>{% endif %}
             </div>
           </div>
           <span class="meta">{% trans "Confidence" %} {{ row.confidence_score }}%</span>
@@ -137,6 +154,20 @@
           <div class="price-block"><span class="price-block-label">{% trans "Türkiye avg" %}</span><span class="price-block-value">{{ row.turkiye_avg }}</span></div>
           <div class="price-block"><span class="price-block-label">{% trans "Gross margin" %}</span><span class="price-block-value">{{ row.gross_margin }}</span></div>
         </div>
+        {% if row.buyer_offer %}
+        <div class="price-comparison">
+          <div class="price-block"><span class="price-block-label">{% trans "Buyer offer" %}</span><span class="price-block-value">{{ row.buyer_offer }}</span><span class="price-block-sub">{{ row.buyer_offer_dzd }}</span></div>
+          <div class="price-block"><span class="price-block-label">{% trans "Buyer gain" %}</span><span class="price-block-value">{{ row.buyer_gain }}</span><span class="price-block-sub">{{ row.buyer_gain_percent }}</span></div>
+          <div class="price-block"><span class="price-block-label">{% trans "Deal quality" %}</span><span class="price-block-value">{{ row.deal_quality }}</span></div>
+        </div>
+        {% endif %}
+        {% if can_view_internal_gain and row.my_gain %}
+        <div class="price-comparison">
+          <div class="price-block"><span class="price-block-label">{% trans "Internal gain" %}</span><span class="price-block-value">{{ row.my_gain }}</span><span class="price-block-sub">{{ row.my_gain_dzd }}</span></div>
+          <div class="price-block"><span class="price-block-label">{% trans "Internal share" %}</span><span class="price-block-value">{{ row.my_gain_percent }}</span></div>
+          <div class="price-block"><span class="price-block-label">{% trans "Pricing basis" %}</span><span class="price-block-value">{{ row.pricing_basis }}</span></div>
+        </div>
+        {% endif %}
         <div class="deal-card-footer">
           <div class="sahibinden-count"><strong>{{ row.algeria_count }} / {{ row.turkiye_count }}</strong> {% trans "DZ / TR evidence" %}</div>
           <span class="btn btn-secondary btn-sm">{% trans "Full detail" %}</span>
