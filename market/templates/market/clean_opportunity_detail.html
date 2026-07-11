@@ -14,13 +14,15 @@
       <div class="card-meta-row">
         <span class="badge">{{ row.category_label }}</span>
         <span class="cell-rec {{ row.recommendation_class }}">{{ row.recommendation }}</span>
+        {% if row.deal_quality %}<span class="badge">{{ row.deal_quality }}</span>{% endif %}
+        {% if can_view_internal_gain %}<span class="badge">{% trans "superuser pricing" %}</span>{% endif %}
       </div>
       <h1 class="page-title mt-2">{{ row.title }}</h1>
       <p class="page-desc">{{ row.spec }}</p>
     </div>
     <div class="toolbar">
-      <code>{{ row.source_label }}</code>
       <code>{% trans "confidence" %} {{ row.confidence_score }}%</code>
+      {% if can_view_operational_meta %}<code>{{ row.source_label }}</code>{% endif %}
     </div>
   </div>
 
@@ -37,6 +39,32 @@
     <div class="stat-card"><span class="stat-label">{% trans "Algeria listings" %}</span><strong class="stat-value">{{ row.algeria_count }}</strong></div>
     <div class="stat-card"><span class="stat-label">{% trans "Türkiye listings" %}</span><strong class="stat-value">{{ row.turkiye_count }}</strong></div>
   </div>
+
+  {% if row.buyer_offer %}
+  <div class="stats-grid mt-4">
+    <div class="stat-card"><span class="stat-label">{% trans "Buyer offer" %}</span><strong class="stat-value">{{ row.buyer_offer }}</strong><span class="stat-delta">{{ row.buyer_offer_dzd }}</span></div>
+    <div class="stat-card"><span class="stat-label">{% trans "Buyer gain" %}</span><strong class="stat-value">{{ row.buyer_gain }}</strong><span class="stat-delta">{{ row.buyer_gain_percent }}</span></div>
+    <div class="stat-card"><span class="stat-label">{% trans "Deal quality" %}</span><strong class="stat-value">{{ row.deal_quality }}</strong></div>
+    <div class="stat-card"><span class="stat-label">{% trans "Recommendation" %}</span><strong class="stat-value">{{ row.recommendation }}</strong></div>
+  </div>
+  {% endif %}
+
+  {% if can_view_internal_gain and row.my_gain %}
+  <section class="metric-card mt-4">
+    <div class="page-header">
+      <div>
+        <h2 class="h3">{% trans "Internal pricing" %}</h2>
+        <p class="page-desc">{% trans "Visible only to authenticated superusers." %}</p>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><span class="stat-label">{% trans "Internal gain" %}</span><strong class="stat-value">{{ row.my_gain }}</strong><span class="stat-delta">{{ row.my_gain_dzd }}</span></div>
+      <div class="stat-card"><span class="stat-label">{% trans "Internal share" %}</span><strong class="stat-value">{{ row.my_gain_percent }}</strong></div>
+      <div class="stat-card"><span class="stat-label">{% trans "Pricing basis" %}</span><strong class="stat-value">{{ row.pricing_basis }}</strong></div>
+    </div>
+    {% if row.pricing_notes %}<p class="page-desc mt-3">{{ row.pricing_notes }}</p>{% endif %}
+  </section>
+  {% endif %}
 
   <div class="metric-grid mt-4">
     <article class="metric-card">
@@ -64,8 +92,10 @@
     </article>
   </div>
 
+  {% if can_view_operational_meta %}
   <p class="page-desc mt-4">
-    {% trans "Generated" %}: {{ row.generated_at }} · {% trans "Snapshot ID" %}: {{ row.snapshot_id }}
+    {% trans "Generated" %}: {{ row.generated_at }} · {% trans "Snapshot ID" %}: {{ row.snapshot_id }} · {% trans "Source label" %}: {{ row.source_label }}
   </p>
+  {% endif %}
 </section>
 {% endblock %}
