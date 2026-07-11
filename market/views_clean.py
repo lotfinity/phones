@@ -5,7 +5,14 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 
 from market.clean_models import ConsoleOpportunitySnapshot, LaptopOpportunitySnapshot, PhoneOpportunitySnapshot
-from market.models import ConsoleListing, LaptopListing, ParsedListingCandidate, PhoneListing, RawListing
+from market.models import (
+    ConsoleListing,
+    Country,
+    LaptopListing,
+    ParsedListingCandidate,
+    PhoneListing,
+    RawListing,
+)
 from market.services.gain_split import compute_gain_split
 from market.views import base_context, money, money_amount, pct
 
@@ -16,10 +23,30 @@ CLEAN_SNAPSHOT_MODELS = {
     "console": ConsoleOpportunitySnapshot,
 }
 
+CLEAN_LISTING_MODELS = {
+    "phone": PhoneListing,
+    "laptop": LaptopListing,
+    "console": ConsoleListing,
+}
+
 CATEGORY_LABELS = {
     "phone": "Phone",
     "laptop": "Laptop",
     "console": "Portable console",
+}
+
+SOURCE_META = {
+    "instagram": ("IG", "ig"),
+    "ouedkniss": ("OK", "ok"),
+    "sahibinden": ("SH", "sh"),
+    "supplier": ("SL", "sl"),
+    "manual": ("MN", "mn"),
+}
+
+VISIBLE_REVIEW_STATUSES = {
+    PhoneListing.ReviewStatus.AUTO,
+    PhoneListing.ReviewStatus.APPROVED,
+    PhoneListing.ReviewStatus.NEEDS_REVIEW,
 }
 
 
@@ -245,6 +272,183 @@ def _shared_clean_context(request, rows, device_type, brand, q):
     }
 
 
+def _matching_listing_queryset(item, category):
+    model = CLEAN_LISTING_MODELS[category]
+    related_model_field = {
+        "phone": "phone_model",
+        "laptop": "laptop_model",
+        "console": "console_model",
+    }[category]
+    snapshot_model_id = getattr(item, f"{related_model_field}_id")
+
+    qs = model.objects.select_related("source", "raw_listing", related_model_field, "variant").filter(
+        price_eur__isnull=False,
+        review_status__in=VISIBLE_REVIEW_STATUSES,
+    )
+
+    if snapshot_model_id:
+        qs = qs.filter(**{f"{related_model_field}_id": snapshot_model_id})
+    else:
+        qs = qs.filter(
+            **{
+                f"{related_model_field}__canonical_name__iexact": item.model,
+                f"{related_model_field}__brand__name__iexact": item.brand,
+            }
+        )
+
+    if category == "phone":
+        if item.storage_gb:
+            qs = qs.filter(storage_gb=item.storage_gb)
+    elif category == "laptop":
+        if item.cpu:
+            qs = qs.filter(cpu__iexact=item.cpu)
+        if item.gpu:
+            qs = qs.filter(gpu__iexact=item.gpu)
+        if item.ram_gb:
+            qs = qs.filter(ram_gb=item.ram_gb)
+        if item.storage_gb:
+            qs = qs.filter(storage_gb=item.storage_gb)
+    elif category == "console":
+        if item.chipset:
+            qs = qs.filter(chipset__iexact=item.chipset)
+        if item.ram_gb:
+            qs = qs.filter(ram_gb=item.ram_gb)
+        if item.storage_gb:
+            qs = qs.filter(storage_gb=item.storage_gb)
+
+    return qs.order_by("price_eur", "-observed_at")
+
+
+def _listing_spec(listing, category):
+    parts = []
+    if category == "phone":
+        if listing.storage_gb:
+            parts.append(f"{listing.storage_gb}GB")
+        if listing.ram_gb:
+            parts.append(f"{listing.ram_gb}GB RAM")
+        if listing.sim_config:
+            parts.append(listing.sim_config)
+        if listing.battery_health:
+            parts.append(f"battery {listing.battery_health}%")
+        if listing.box_status:
+            parts.append(listing.box_status)
+        if listing.region:
+            parts.append(listing.region)
+    elif category == "laptop":
+        if listing.cpu:
+            parts.append(listing.cpu)
+        if listing.gpu:
+            parts.append(listing.gpu)
+        if listing.ram_gb:
+            parts.append(f"{listing.ram_gb}GB RAM")
+        if listing.storage_gb:
+            parts.append(f"{listing.storage_gb}GB")
+        if listing.screen_size:
+            parts.append(f'{listing.screen_size}"')
+        if listing.resolution:
+            parts.append(listing.resolution)
+        if listing.refresh_rate_hz:
+            parts.append(f"{listing.refresh_rate_hz}Hz")
+    else:
+        if listing.chipset:
+            parts.append(listing.chipset)
+        if listing.ram_gb:
+            parts.append(f"{listing.ram_gb}GB RAM")
+        if listing.storage_gb:
+            parts.append(f"{listing.storage_gb}GB")
+        if listing.screen_size:
+            parts.append(f'{listing.screen_size}"')
+        if listing.refresh_rate_hz:
+            parts.append(f"{listing.refresh_rate_hz}Hz")
+        if listing.connectivity:
+            parts.append(listing.connectivity)
+    return " / ".join(parts) or "-"
+
+
+def _review_class(status):
+    return {
+        "auto": "review-auto",
+        "approved": "review-approved",
+        "needs_review": "review-needs",
+        "rejected": "review-rejected",
+    }.get(status, "")
+
+
+def _prepare_listing(listing, category, selected_currency):
+    source_code, source_class = SOURCE_META.get(listing.source_type, (listing.source_type[:2].upper(), "mn"))
+    raw_listing = listing.raw_listing
+    image_url = listing.image_url or (raw_listing.image_url if raw_listing else "")
+    title = listing.title or (raw_listing.title_raw if raw_listing else "") or str(listing)
+    return {
+        "item": listing,
+        "title": title,
+        "listing_url": listing.listing_url or (raw_listing.listing_url if raw_listing else ""),
+        "image_url": image_url,
+        "source_code": source_code,
+        "source_class": source_class,
+        "source_name": listing.source.name if listing.source else listing.get_source_type_display(),
+        "country": listing.country,
+        "country_label": listing.get_country_display(),
+        "condition": listing.get_condition_display(),
+        "review_status": listing.get_review_status_display(),
+        "review_class": _review_class(listing.review_status),
+        "observed_at": listing.observed_at,
+        "price_original": listing.price_original,
+        "currency_original": listing.currency_original,
+        "price_eur": money(listing.price_eur, selected_currency) if listing.price_eur is not None else "-",
+        "spec": _listing_spec(listing, category),
+        "parsed_confidence": int(round((listing.parsed_confidence or 0) * 100)),
+        "admin_url": reverse(f"admin:market_{listing._meta.model_name}_change", args=[listing.pk]),
+        "is_fallback": False,
+    }
+
+
+def _fallback_evidence(url, country):
+    is_algeria = country == Country.ALGERIA
+    return {
+        "item": None,
+        "title": "Stored Algeria evidence" if is_algeria else "Stored Türkiye evidence",
+        "listing_url": url,
+        "image_url": "",
+        "source_code": "DZ" if is_algeria else "SH",
+        "source_class": "ok" if is_algeria else "sh",
+        "source_name": "Snapshot URL",
+        "country": country,
+        "country_label": "Algeria" if is_algeria else "Türkiye",
+        "condition": "",
+        "review_status": "",
+        "review_class": "",
+        "observed_at": None,
+        "price_original": None,
+        "currency_original": "",
+        "price_eur": "-",
+        "spec": "Stored on the clean opportunity snapshot",
+        "parsed_confidence": None,
+        "admin_url": "",
+        "is_fallback": True,
+    }
+
+
+def _evidence_rows(item, category, selected_currency):
+    listings = list(_matching_listing_queryset(item, category)[:200])
+    prepared = [_prepare_listing(listing, category, selected_currency) for listing in listings]
+
+    algeria_rows = [row for row in prepared if row["country"] == Country.ALGERIA]
+    turkiye_rows = [row for row in prepared if row["country"] == Country.TURKIYE]
+
+    known_urls = {row["listing_url"] for row in prepared if row["listing_url"]}
+    for url in item.algeria_urls or []:
+        if url and url not in known_urls:
+            algeria_rows.append(_fallback_evidence(url, Country.ALGERIA))
+            known_urls.add(url)
+    for url in item.turkiye_urls or []:
+        if url and url not in known_urls:
+            turkiye_rows.append(_fallback_evidence(url, Country.TURKIYE))
+            known_urls.add(url)
+
+    return algeria_rows, turkiye_rows
+
+
 def clean_opportunities(request):
     rows, device_type, brand, q = _filtered_clean_rows(request)
     return render(
@@ -274,18 +478,34 @@ def clean_opportunity_detail(request, category, pk):
     item = get_object_or_404(model, pk=pk)
     selected_currency = request.GET.get("currency") or request.COOKIES.get("pricebridge_currency") or "EUR"
     show_internal_gain = can_view_internal_gain(request)
+    show_operational_meta = can_view_operational_meta(request)
     row = _display_row(
         _snapshot_row(item, category),
         selected_currency,
         show_internal_gain=show_internal_gain,
     )
+    algeria_rows, turkiye_rows = _evidence_rows(item, category, selected_currency)
+    all_evidence = algeria_rows + turkiye_rows
+    hero_image_url = next((entry["image_url"] for entry in all_evidence if entry["image_url"]), "")
+
+    admin_url = reverse(f"admin:market_{item._meta.model_name}_change", args=[item.pk])
+    coverage = [
+        {"code": "DZ", "count": len(algeria_rows), "class": "ok"},
+        {"code": "TR", "count": len(turkiye_rows), "class": "sh"},
+    ]
+
     return render(
         request,
         "market/clean_opportunity_detail.html",
         base_context(request, "opportunities")
         | {
             "row": row,
+            "hero_image_url": hero_image_url,
+            "coverage": coverage,
+            "algeria_rows": algeria_rows,
+            "turkiye_rows": turkiye_rows,
+            "admin_url": admin_url,
             "can_view_internal_gain": show_internal_gain,
-            "can_view_operational_meta": can_view_operational_meta(request),
+            "can_view_operational_meta": show_operational_meta,
         },
     )
