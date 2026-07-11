@@ -20,7 +20,7 @@ from django.conf.urls.static import static
 from django.urls import include, path
 from django.views.generic import TemplateView
 from market import views
-from market.views_clean import clean_opportunities
+from market.views_clean import clean_card_opportunities, clean_opportunities, clean_opportunity_detail
 from market.views_phone_opportunities import phone_opportunities_v2
 
 urlpatterns = [
@@ -43,8 +43,13 @@ urlpatterns = [
     ),
     path(
         'ui-preview/card-opportunities/',
-        views.opportunities,
+        clean_card_opportunities,
         name='ui_preview_card_opportunities',
+    ),
+    path(
+        'ui-preview/card-opportunities/<slug:category>/<int:pk>/',
+        clean_opportunity_detail,
+        name='clean_opportunity_detail',
     ),
     path(
         'ui-preview/phone-opportunities/',
