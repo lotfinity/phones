@@ -9,7 +9,8 @@ Architecture:
 - Instagram collection can use `INSTAGRAM_SESSION_PATH` or `INSTAGRAM_COOKIE_FILE`; never print cookie values.
 - `market.collectors.sahibinden_cdp` imports a user-opened Sahibinden search-result table through Chrome CDP.
 - `market.collectors.ouedkniss_cdp` imports visible Ouedkniss listing cards from a user-opened Chrome CDP tab.
-- `market.services.currency` contains editable local FX constants. No live-rate fetching yet.
+- `market.services.currency` reads recent `CurrencyRate` rows first, then falls back to editable local FX defaults.
+- `fetch_exchange_rates` stores live EUR/TRY, EUR/USD, derived USD/TRY, and a manual Algeria black-market EUR/DZD benchmark for opportunity calculations.
 - `market.services.opportunity` creates simple explainable opportunity snapshots.
 - `market.services.commons` searches Wikimedia Commons via MediaWiki API for model/series logos and downloads assets into local storage.
 
@@ -39,6 +40,7 @@ Useful commands:
 - `python manage.py process_ocr_queue --limit 100`
 - `python manage.py import_sahibinden_from_cdp --cdp http://127.0.0.1:9222 --max-rows 300`
 - `python manage.py import_ouedkniss_from_cdp --cdp http://127.0.0.1:9222 --limit 50 --max-age-days 30`
+- `python manage.py fetch_exchange_rates --dzd-per-eur-black 295 --recompute-opportunities`
 - `python manage.py run_opportunity_analysis`
 - `python manage.py recompute_deal_snapshots`
 - `python manage.py inspect_recent_data`

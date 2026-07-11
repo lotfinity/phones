@@ -23,6 +23,7 @@ python manage.py crawl_instagram_profile username_or_url --days 60 --limit 300
 python manage.py harvest_instagram_profile_page https://www.instagram.com/profile/ --limit 5 --offset 0 --download-images
 python manage.py harvest_and_process_instagram_profile https://www.instagram.com/profile/ --limit 10 --offset 20
 python manage.py process_ocr_queue --limit 100
+python manage.py fetch_exchange_rates --dzd-per-eur-black 295 --recompute-opportunities
 python manage.py run_opportunity_analysis
 python manage.py inspect_recent_data
 python manage.py import_sahibinden_from_cdp --cdp http://127.0.0.1:9222 --max-rows 300
@@ -35,6 +36,8 @@ python manage.py inspect_listing_matches --product-type laptop --limit 50
 python manage.py recompute_listing_matches --product-type laptop --limit 500
 python manage.py recompute_listing_matches --product-type laptop --limit 100 --dry-run
 ```
+
+`fetch_exchange_rates` stores fresh `CurrencyRate` rows for EUR/TRY, EUR/USD, derived USD/TRY, and the configured Algeria black-market EUR/DZD benchmark. Pass `--dzd-per-eur-black` or set `DZD_PER_EUR_BLACK` so Algeria opportunity math keeps using the realistic buy-side rate instead of official DZD.
 
 Instagram collection uses Instaloader for public profiles. It does not bypass login challenges. If a session is needed, set `INSTAGRAM_SESSION_PATH` for an Instaloader session file or `INSTAGRAM_COOKIE_FILE` for a Netscape-format browser cookie export containing Instagram cookies.
 

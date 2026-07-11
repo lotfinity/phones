@@ -182,6 +182,11 @@ DZD_PER_EUR_BLACK = float(os.environ.get("DZD_PER_EUR_BLACK", "280"))
 EUR_TRY = float(os.environ.get("EUR_TRY", "45"))
 USD_TRY = float(os.environ.get("USD_TRY", "41.5"))
 
+# Live FX refresh command configuration.
+FX_RATE_ENDPOINT = os.environ.get("FX_RATE_ENDPOINT", "https://api.frankfurter.dev/v2/rates")
+FX_RATE_SOURCE = os.environ.get("FX_RATE_SOURCE", "frankfurter.dev")
+FX_RATE_MAX_AGE_DAYS = int(os.environ.get("FX_RATE_MAX_AGE_DAYS", "3"))
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
