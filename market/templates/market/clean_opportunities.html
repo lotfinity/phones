@@ -1,16 +1,26 @@
 {% extends "market/base.html" %}
 {% load i18n %}
 
+{% block title %}PriceBridge — {% trans "Clean opportunities" %}{% endblock %}
+{% block crumb %}{% trans "Clean opportunities" %}{% endblock %}
+{% block header_actions %}
+<a class="btn btn-secondary btn-sm" href="{% url 'ui_preview' %}">{% trans "Compare UIs" %}</a>
+<a class="btn btn-secondary btn-sm" href="{% url 'ui_preview_card_opportunities' %}">{% trans "Card UI" %}</a>
+<a class="btn btn-secondary btn-sm" href="{% url 'ui_preview_phone_opportunities' %}">{% trans "Phone UI" %}</a>
+<a class="btn btn-primary btn-sm" href="{% url 'ui_preview_deals' %}">{% trans "Deals UI" %}</a>
+{% endblock %}
+
 {% block content %}
 <section class="page-shell">
   <div class="page-header">
     <div>
-      <h1>{% trans "Opportunities" %}</h1>
-      <p class="muted">{% trans "Clean raw-first snapshots from PhoneListing and LaptopListing." %}</p>
+      <h1>{% trans "Clean opportunities" %}</h1>
+      <p class="muted">{% trans "Clean raw-first snapshots from PhoneListing, LaptopListing, and ConsoleListing." %}</p>
     </div>
     <div class="toolbar">
       <code>phone {{ device_counts.phone }}</code>
       <code>laptop {{ device_counts.laptop }}</code>
+      <code>console {{ device_counts.console }}</code>
     </div>
   </div>
 
@@ -26,6 +36,7 @@
       <option value="">{% trans "All types" %}</option>
       <option value="phone" {% if active_type == "phone" %}selected{% endif %}>{% trans "Phones" %}</option>
       <option value="laptop" {% if active_type == "laptop" %}selected{% endif %}>{% trans "Laptops" %}</option>
+      <option value="console" {% if active_type == "console" %}selected{% endif %}>{% trans "Portable consoles" %}</option>
     </select>
     <select name="brand">
       <option value="">{% trans "All brands" %}</option>
@@ -35,6 +46,7 @@
     </select>
     <input type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'Search model/spec' %}">
     <button type="submit">{% trans "Filter" %}</button>
+    <a class="btn btn-secondary btn-sm" href="{% url 'ui_preview_clean_opportunities' %}">{% trans "Reset" %}</a>
   </form>
 
   <div class="table-wrap">
@@ -62,12 +74,27 @@
             <td><strong>{{ row.gross_margin }}</strong><br><span class="muted">{{ row.margin_percent_label }}</span></td>
             <td>{{ row.confidence_score }}<br><span class="muted">{{ row.counts_label }}</span></td>
             <td>
-              {% if row.algeria_urls.0 %}<a href="{{ row.algeria_urls.0 }}" target="_blank" rel="noreferrer">DZ</a>{% endif %}
-              {% if row.turkiye_urls.0 %}<a href="{{ row.turkiye_urls.0 }}" target="_blank" rel="noreferrer">TR</a>{% endif %}
+              <details>
+                <summary>{% trans "Open links" %}</summary>
+                <div class="mt-2">
+                  <strong>DZ</strong>
+                  {% for url in row.algeria_urls %}
+                    <div><a href="{{ url }}" target="_blank" rel="noreferrer">{{ forloop.counter }}. {% trans "Algeria listing" %}</a></div>
+                  {% empty %}
+                    <div class="muted">-</div>
+                  {% endfor %}
+                  <strong>TR</strong>
+                  {% for url in row.turkiye_urls %}
+                    <div><a href="{{ url }}" target="_blank" rel="noreferrer">{{ forloop.counter }}. {% trans "Türkiye listing" %}</a></div>
+                  {% empty %}
+                    <div class="muted">-</div>
+                  {% endfor %}
+                </div>
+              </details>
             </td>
           </tr>
         {% empty %}
-          <tr><td colspan="8" class="empty-state">{% trans "No clean opportunities yet. Recompute v2 snapshots first." %}</td></tr>
+          <tr><td colspan="8" class="empty-state">{% trans "No clean opportunities yet. Recompute clean snapshots first." %}</td></tr>
         {% endfor %}
       </tbody>
     </table>
