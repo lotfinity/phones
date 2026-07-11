@@ -1,0 +1,3289 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PriceBridge Buyer Deals</title>
+  <style>
+/* PriceBridge Design System — Dashboard dark theme
+ * Paste :root block into each file's <style>, link this file for shared rules.
+ * Tokens derived from active Dashboard design system + dark mode override.
+ */
+
+/* ─── Dark theme (default) ─────────────────────────────────────────── */
+:root,
+[data-theme="dark"] {
+  --bg: #0B1120;
+  --bg-subtle: #0F172A;
+  --surface: #131B2E;
+  --surface-elevated: #1A2540;
+  --surface-hover: #1E293B;
+  --fg: #F0F4F8;
+  --fg-2: #CBD5E1;
+  --muted: #64748B;
+  --meta: #94A3B8;
+  --border: #1E293B;
+  --border-light: #334155;
+  --accent: #0C5CAB;
+  --accent-hover: #0A4A8A;
+  --accent-soft: rgba(12, 92, 171, 0.15);
+  --accent-on: #ffffff;
+  --success: #10B981;
+  --success-soft: rgba(16, 185, 129, 0.12);
+  --warn: #F59E0B;
+  --warn-soft: rgba(245, 158, 11, 0.12);
+  --danger: #EF4444;
+  --danger-soft: rgba(239, 68, 68, 0.12);
+  --info: #06B6D4;
+  --info-soft: rgba(6, 182, 212, 0.12);
+
+  /* Source badge colors */
+  --src-ig: #E4405F;
+  --src-ok: #25D366;
+  --src-sh: #FF6B35;
+  --src-sl: #8B5CF6;
+  --src-mn: #64748B;
+
+  /* Deal quality */
+  --quality-strong: #10B981;
+  --quality-medium: #F59E0B;
+  --quality-weak: #64748B;
+  --quality-ignore: #EF4444;
+
+  /* Review status */
+  --review-auto: #06B6D4;
+  --review-approved: #10B981;
+  --review-needs: #F59E0B;
+  --review-rejected: #EF4444;
+
+  /* Typography */
+  --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* Type scale */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 17px;
+  --text-xl: 22px;
+  --text-2xl: 30px;
+  --text-3xl: 42px;
+  --text-4xl: 56px;
+
+  /* Leading */
+  --leading-body: 1.48;
+  --leading-tight: 1.1;
+
+  /* Spacing — 8pt grid */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.5);
+  --shadow-glow: 0 0 20px rgba(12, 92, 171, 0.15);
+
+  /* Glass */
+  --glass-bg: rgba(19, 27, 46, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.06);
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion-base: 200ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --topbar-height: 56px;
+  --bottomnav-height: 64px;
+  --container-max: 1400px;
+}
+
+/* ─── Light theme ──────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg: #F4F7FB;
+  --bg-subtle: #EDF2F7;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --surface-hover: #F1F5F9;
+  --fg: #0F172A;
+  --fg-2: #334155;
+  --muted: #64748B;
+  --meta: #94A3B8;
+  --border: #E2E8F0;
+  --border-light: #CBD5E1;
+  --accent: #0C5CAB;
+  --accent-hover: #0A4A8A;
+  --accent-soft: rgba(12, 92, 171, 0.08);
+  --accent-on: #ffffff;
+  --success: #059669;
+  --success-soft: rgba(5, 150, 105, 0.08);
+  --warn: #D97706;
+  --warn-soft: rgba(217, 119, 6, 0.08);
+  --danger: #DC2626;
+  --danger-soft: rgba(220, 38, 38, 0.08);
+  --info: #0891B2;
+  --info-soft: rgba(8, 145, 178, 0.08);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 20px rgba(12, 92, 171, 0.08);
+
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.06);
+}
+
+/* ─── Reset ────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+img, svg { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; cursor: pointer; border: none; background: none; }
+p { text-wrap: pretty; }
+h1, h2, h3, h4, h5 { text-wrap: balance; font-weight: 600; }
+
+/* ─── Typography ───────────────────────────────────────────────────── */
+.h1 { font-size: var(--text-3xl); line-height: var(--leading-tight); letter-spacing: -0.02em; }
+.h2 { font-size: var(--text-2xl); line-height: var(--leading-tight); letter-spacing: -0.015em; }
+.h3 { font-size: var(--text-xl); line-height: 1.2; letter-spacing: -0.01em; }
+.h4 { font-size: var(--text-lg); line-height: 1.3; }
+.h5 { font-size: var(--text-base); line-height: 1.4; font-weight: 600; }
+.lead { font-size: var(--text-lg); line-height: var(--leading-body); color: var(--fg-2); }
+.meta { font-size: var(--text-sm); color: var(--muted); }
+.tiny { font-size: var(--text-xs); color: var(--muted); letter-spacing: 0.02em; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ─── Layout ───────────────────────────────────────────────────────── */
+.app-layout {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: var(--topbar-height) 1fr;
+  min-height: 100vh;
+}
+.app-layout.no-sidebar {
+  grid-template-columns: 1fr;
+}
+.sidebar {
+  grid-row: 1 / -1;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: var(--space-5) 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 20;
+}
+.topbar {
+  grid-column: 2 / -1;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--glass-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-6);
+  height: var(--topbar-height);
+  position: sticky;
+  top: 0;
+  z-index: 15;
+}
+.topbar.no-sidebar {
+  grid-column: 1 / -1;
+}
+.main-content {
+  padding: var(--space-6);
+  padding-bottom: calc(var(--space-6) + var(--bottomnav-height));
+  overflow-y: auto;
+}
+@media (min-width: 1280px) {
+  .main-content { padding: var(--space-8); }
+}
+
+/* ─── Sidebar nav ──────────────────────────────────────────────────── */
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-5) var(--space-6);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-4);
+}
+.sidebar-brand .brand-icon {
+  width: 32px;
+  height: 32px;
+  background: var(--accent);
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  color: var(--accent-on);
+  font-weight: 700;
+  font-size: var(--text-sm);
+}
+.sidebar-brand .brand-text {
+  font-weight: 700;
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+}
+.sidebar-section {
+  padding: var(--space-2) var(--space-4);
+}
+.sidebar-section-label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: var(--space-2) var(--space-3);
+  font-weight: 600;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: all var(--motion-fast) var(--ease-standard);
+  cursor: pointer;
+  text-decoration: none;
+}
+.nav-item:hover { background: var(--surface-hover); color: var(--fg); }
+.nav-item.active { background: var(--accent-soft); color: var(--accent); }
+.nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+.nav-item .nav-badge {
+  margin-left: auto;
+  background: var(--danger);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+}
+
+/* ─── Topbar ───────────────────────────────────────────────────────── */
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.topbar-left .mobile-brand {
+  display: none;
+  font-weight: 700;
+  font-size: var(--text-lg);
+  letter-spacing: -0.02em;
+}
+.topbar-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-2) var(--space-4);
+  min-width: 280px;
+  color: var(--muted);
+  font-size: var(--text-sm);
+}
+.topbar-search:focus-within { border-color: var(--accent); }
+.topbar-search input {
+  border: none;
+  background: none;
+  color: var(--fg);
+  font-size: var(--text-sm);
+  outline: none;
+  width: 100%;
+}
+.topbar-search input::placeholder { color: var(--muted); }
+.topbar-search kbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  background: var(--surface-hover);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  color: var(--muted);
+  border: 1px solid var(--border);
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+.fx-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--muted);
+}
+.fx-strip .fx-rate { display: flex; align-items: center; gap: var(--space-1); }
+.fx-strip .fx-rate .fx-label { color: var(--meta); }
+.fx-strip .fx-rate .fx-value { color: var(--fg-2); font-weight: 500; }
+.currency-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--fg);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: var(--space-1) var(--space-2);
+  cursor: pointer;
+}
+.currency-select:focus { outline: 2px solid var(--accent-soft); border-color: var(--accent); }
+.theme-toggle {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  transition: all var(--motion-fast) var(--ease-standard);
+}
+.theme-toggle:hover { background: var(--surface-hover); color: var(--fg); }
+.theme-toggle svg { width: 18px; height: 18px; }
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  font-size: var(--text-xs);
+  font-weight: 700;
+}
+
+/* ─── Bottom nav (mobile) ──────────────────────────────────────────── */
+.bottomnav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--bottomnav-height);
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 30;
+  padding: 0 var(--space-2);
+}
+.bottomnav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: 100%;
+}
+.bottomnav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  transition: color var(--motion-fast) var(--ease-standard);
+  text-decoration: none;
+}
+.bottomnav-item svg { width: 22px; height: 22px; }
+.bottomnav-item.active { color: var(--accent); }
+
+/* ─── Cards ────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+.card-elevated {
+  background: var(--surface-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+}
+.card-glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+/* ─── KPI cards ────────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+.kpi-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.kpi-card .kpi-label {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  font-weight: 500;
+}
+.kpi-card .kpi-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.kpi-card .kpi-change {
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.kpi-change.positive { color: var(--success); }
+.kpi-change.negative { color: var(--danger); }
+.kpi-change.neutral { color: var(--muted); }
+
+/* ─── Buttons ──────────────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: all var(--motion-fast) var(--ease-standard);
+  white-space: nowrap;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary {
+  background: var(--accent);
+  color: var(--accent-on);
+  border: 1px solid var(--accent);
+}
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-secondary {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover { border-color: var(--fg-2); }
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid transparent;
+}
+.btn-ghost:hover { color: var(--fg); background: var(--surface-hover); }
+.btn-sm { padding: var(--space-1) var(--space-3); font-size: var(--text-xs); }
+.btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-danger:hover { opacity: 0.9; }
+.btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+
+/* ─── Chips / Filters ──────────────────────────────────────────────── */
+.chip-row {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  background: transparent;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--ease-standard);
+}
+.chip:hover { border-color: var(--fg-2); color: var(--fg); }
+.chip.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.chip svg { width: 14px; height: 14px; }
+
+/* ─── Badges ───────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 10px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.badge-success { background: var(--success-soft); color: var(--success); }
+.badge-warn { background: var(--warn-soft); color: var(--warn); }
+.badge-danger { background: var(--danger-soft); color: var(--danger); }
+.badge-info { background: var(--info-soft); color: var(--info); }
+.badge-neutral { background: var(--surface-hover); color: var(--muted); }
+
+/* Source badges */
+.src-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: var(--radius-xs);
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.src-ig { background: rgba(228, 64, 95, 0.15); color: #E4405F; }
+.src-ok { background: rgba(37, 211, 102, 0.15); color: #25D366; }
+.src-sh { background: rgba(255, 107, 53, 0.15); color: #FF6B35; }
+.src-sl { background: rgba(139, 92, 246, 0.15); color: #8B5CF6; }
+.src-mn { background: var(--surface-hover); color: var(--muted); }
+
+/* ─── Tables ───────────────────────────────────────────────────────── */
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.ds-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.ds-table th {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+  position: sticky;
+  top: 0;
+}
+.ds-table td {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+.ds-table tbody tr:hover { background: var(--surface-hover); }
+.ds-table tbody tr:last-child td { border-bottom: none; }
+.ds-table .num-col {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+/* ─── Opportunity card ─────────────────────────────────────────────── */
+.opp-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: var(--space-4);
+  align-items: start;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+.opp-card:hover { border-color: var(--border-light); }
+.opp-card-image {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--accent-soft), var(--surface-hover));
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.opp-card-image img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.7;
+}
+.opp-card-body { min-width: 0; }
+.opp-card-title {
+  font-weight: 600;
+  font-size: var(--text-base);
+  margin-bottom: var(--space-1);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+.opp-card-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+.opp-card-prices {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+}
+.opp-price-col { display: flex; flex-direction: column; gap: 2px; }
+.opp-price-label {
+  font-size: var(--text-xs);
+  color: var(--muted);
+  font-weight: 500;
+}
+.opp-price-value {
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.opp-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.opp-card-actions { display: flex; gap: var(--space-2); }
+
+/* ─── Quality dot ──────────────────────────────────────────────────── */
+.quality-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.quality-dot.strong { background: var(--quality-strong); }
+.quality-dot.medium { background: var(--quality-medium); }
+.quality-dot.weak { background: var(--quality-weak); }
+.quality-dot.ignore { background: var(--quality-ignore); }
+
+/* ─── Confidence bar ───────────────────────────────────────────────── */
+.confidence-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--surface-hover);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.confidence-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width var(--motion-base) var(--ease-standard);
+}
+.confidence-bar-fill.high { background: var(--success); }
+.confidence-bar-fill.medium { background: var(--warn); }
+.confidence-bar-fill.low { background: var(--danger); }
+
+/* ─── Sparkline (CSS) ──────────────────────────────────────────────── */
+.sparkline {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 24px;
+}
+.sparkline-bar {
+  width: 4px;
+  border-radius: 2px;
+  background: var(--accent-soft);
+  transition: height var(--motion-base) var(--ease-standard);
+}
+.sparkline-bar.highlight { background: var(--accent); }
+
+/* ─── Modal ────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: none;
+  place-items: center;
+  padding: var(--space-6);
+}
+.modal-overlay.open { display: grid; }
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  max-width: 560px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--border);
+}
+.modal-body { padding: var(--space-5); }
+.modal-body a {
+  display: block;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: var(--text-sm);
+  transition: background var(--motion-fast) var(--ease-standard);
+}
+.modal-body a:hover { background: var(--accent-soft); }
+
+/* ─── Progress ring ────────────────────────────────────────────────── */
+.progress-ring {
+  width: 48px;
+  height: 48px;
+}
+.progress-ring circle {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+/* ─── Section headers ──────────────────────────────────────────────── */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.section-title {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.section-subtitle {
+  font-size: var(--text-sm);
+  color: var(--muted);
+}
+
+/* ─── Tabs ─────────────────────────────────────────────────────────── */
+.tab-row {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-5);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-item {
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--motion-fast) var(--ease-standard);
+}
+.tab-item:hover { color: var(--fg); }
+.tab-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ─── Warning strip ────────────────────────────────────────────────── */
+.warning-strip {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--warn-soft);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  color: var(--warn);
+}
+.warning-strip svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ─── Empty state ──────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-16) var(--space-6);
+  text-align: center;
+  color: var(--muted);
+}
+.empty-state svg { width: 48px; height: 48px; margin-bottom: var(--space-4); opacity: 0.4; }
+.empty-state h3 { color: var(--fg-2); margin-bottom: var(--space-2); }
+
+/* ─── Inline edit ──────────────────────────────────────────────────── */
+.inline-edit {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-xs);
+  color: var(--fg);
+  font: inherit;
+  font-size: inherit;
+  padding: 2px 4px;
+  width: 100%;
+  transition: border-color var(--motion-fast) var(--ease-standard);
+}
+.inline-edit:hover { border-color: var(--border); }
+.inline-edit:focus { outline: none; border-color: var(--accent); background: var(--surface-elevated); }
+
+/* ─── Responsive ───────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .app-layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .topbar { grid-column: 1 / -1; }
+  .topbar-left .mobile-brand { display: block; }
+  .topbar-search { min-width: 0; flex: 1; max-width: 300px; }
+  .bottomnav { display: block; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .opp-card { grid-template-columns: 60px 1fr; }
+  .opp-card .opp-card-actions { grid-column: 1 / -1; }
+  .fx-strip { display: none; }
+  .desktop-only { display: none !important; }
+}
+@media (max-width: 640px) {
+  .main-content { padding: var(--space-4); padding-bottom: calc(var(--space-4) + var(--bottomnav-height)); }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  .kpi-card { padding: var(--space-4); }
+  .kpi-card .kpi-value { font-size: var(--text-xl); }
+  .opp-card { grid-template-columns: 1fr; }
+  .opp-card-image { width: 100%; height: 120px; }
+  .opp-card-prices { grid-template-columns: 1fr; }
+  .section-header { flex-direction: column; align-items: flex-start; }
+}
+
+/* ─── Scrollbar styling ────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+/* ─── Focus visible ────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+</style>
+  <style>
+    .brand-tabs {
+      display: flex;
+      gap: var(--space-2);
+      overflow-x: auto;
+      padding-bottom: var(--space-3);
+      margin-bottom: var(--space-6);
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .brand-tabs::-webkit-scrollbar { display: none; }
+    .brand-tab {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-5);
+      border-radius: var(--radius-pill);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: var(--text-sm);
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all var(--motion-fast) var(--ease-standard);
+    }
+    .brand-tab:hover { border-color: var(--fg-2); color: var(--fg); }
+    .brand-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-on);
+    }
+    .brand-tab .tab-count {
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      opacity: 0.7;
+    }
+    .deal-cards { display: flex; flex-direction: column; gap: var(--space-5); }
+    .deal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      transition: border-color var(--motion-fast) var(--ease-standard);
+    }
+    .deal-card:hover { border-color: var(--border-light); }
+    .deal-card-hero {
+      background: linear-gradient(135deg, var(--accent-soft), var(--surface-hover));
+      display: grid;
+      place-items: center;
+      padding: var(--space-8);
+      position: relative;
+      min-height: 220px;
+    }
+    .deal-card-hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.28));
+      pointer-events: none;
+    }
+    .deal-card-hero img { width: 80px; height: 80px; object-fit: contain; filter: brightness(0) invert(1); opacity: 0.8; }
+    .deal-card-hero .listing-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: none;
+      opacity: 1;
+    }
+    .deal-card-hero .hero-initials {
+      font-family: var(--font-mono);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--fg);
+    }
+    .deal-card-hero .margin-float {
+      position: absolute;
+      top: var(--space-4);
+      right: var(--space-4);
+      z-index: 1;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      font-weight: 700;
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-pill);
+      backdrop-filter: blur(8px);
+    }
+    .hero-zoom {
+      position: absolute;
+      left: var(--space-4);
+      bottom: var(--space-4);
+      z-index: 1;
+      width: 38px;
+      height: 38px;
+      border: 1px solid rgba(255,255,255,0.34);
+      border-radius: var(--radius-pill);
+      background: rgba(15, 23, 42, 0.68);
+      color: white;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+    }
+    .hero-zoom:hover { background: rgba(15, 23, 42, 0.86); }
+    .hero-zoom svg { width: 17px; height: 17px; }
+    .margin-float.strong { background: var(--success-soft); color: var(--success); }
+    .margin-float.medium { background: var(--warn-soft); color: var(--warn); }
+    .margin-float.weak { background: var(--surface-hover); color: var(--muted); }
+    .deal-card-body { padding: var(--space-6); display: flex; flex-direction: column; gap: var(--space-4); }
+    .deal-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-4); }
+    .deal-card-header h3 { font-size: var(--text-xl); line-height: 1.25; }
+    .price-comparison {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+    }
+    .price-block { display: flex; flex-direction: column; gap: 2px; }
+    .price-block-label { font-size: var(--text-xs); color: var(--muted); font-weight: 500; }
+    .price-block-value { font-family: var(--font-mono); font-size: var(--text-lg); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .price-block-sub { font-size: var(--text-xs); color: var(--muted); font-family: var(--font-mono); }
+    .buyer-offer-block {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      background: var(--success-soft);
+      border: 1px solid rgba(5, 150, 105, 0.24);
+      border-radius: var(--radius-md);
+    }
+    .buyer-offer-block .offer-value {
+      font-family: var(--font-mono);
+      font-size: var(--text-2xl);
+      font-weight: 700;
+      color: var(--success);
+      font-variant-numeric: tabular-nums;
+    }
+    .currency-subline {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin-top: 2px;
+      font-family: var(--font-mono);
+      font-size: var(--text-xs);
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .deal-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-3);
+      padding-top: var(--space-3);
+      border-top: 1px solid var(--border);
+    }
+    .sahibinden-count {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--text-sm);
+      color: var(--muted);
+    }
+    .sahibinden-count strong { color: var(--fg); }
+    .image-modal {
+      width: min(96vw, 980px);
+      max-height: 92vh;
+      padding: 0;
+      overflow: hidden;
+    }
+    .image-modal .modal-header {
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--border);
+    }
+    .image-modal-stage {
+      background: #020617;
+      display: grid;
+      place-items: center;
+      max-height: calc(92vh - 72px);
+    }
+    .image-modal-stage img {
+      width: 100%;
+      height: auto;
+      max-height: calc(92vh - 72px);
+      object-fit: contain;
+      display: block;
+    }
+    @media (max-width: 768px) {
+      .deal-card { grid-template-columns: 1fr; }
+      .deal-card-hero { padding: var(--space-6); min-height: 0; aspect-ratio: 16 / 10; }
+      .deal-card-body { padding: var(--space-4); gap: var(--space-3); }
+      .deal-card-header { flex-direction: column; gap: var(--space-2); }
+      .deal-card-header h3 { font-size: var(--text-lg); }
+      .buyer-offer-block { align-items: flex-start; padding: var(--space-3); }
+      .buyer-offer-block .offer-value { font-size: var(--text-xl); }
+      .price-comparison { grid-template-columns: 1fr; }
+      .deal-card-footer { flex-direction: column; align-items: stretch; }
+      .deal-card-footer > div:last-child { justify-content: stretch !important; }
+      .deal-card-footer .btn { width: 100%; justify-content: center; }
+      .sahibinden-count { justify-content: center; }
+      .brand-tabs { margin-inline: calc(var(--space-4) * -1); padding-inline: var(--space-4); }
+      .brand-tab { padding: var(--space-2) var(--space-4); }
+      .hero-zoom {
+        left: var(--space-3);
+        bottom: var(--space-3);
+        width: 42px;
+        height: 42px;
+      }
+      .image-modal {
+        width: 100vw;
+        max-height: 100vh;
+        border-radius: 0;
+      }
+      .image-modal-stage { max-height: calc(100vh - 66px); }
+      .image-modal-stage img { max-height: calc(100vh - 66px); }
+    }
+    @media (max-width: 420px) {
+      .buyer-offer-block { flex-direction: column; }
+    }
+  </style>
+
+<style>
+  .sidebar,
+  .bottomnav,
+  .topbar-search,
+  .fx-strip,
+  .currency-select,
+  .theme-toggle,
+  .user-avatar { display: none !important; }
+  .app-layout { grid-template-columns: 1fr !important; }
+  .topbar { grid-column: 1 / -1 !important; justify-content: flex-start; padding-inline: var(--space-6); }
+  .topbar-left .mobile-brand { display: block; font-weight: 700; }
+  .main-content { grid-column: 1 / -1 !important; padding-bottom: var(--space-8) !important; max-width: 1120px; width: 100%; margin: 0 auto; }
+  @media (max-width: 768px) {
+    .topbar { padding-inline: var(--space-4); }
+    .main-content { padding: var(--space-4) !important; }
+  }
+</style>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </div>
+        <span class="brand-text">PriceBridge</span>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Trading</div>
+        <a href="opportunities.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Opportunities
+        </a>
+        <a href="deals.html" class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Deals by Brand
+        </a>
+        <a href="opportunity-detail.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Detail View
+        </a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-label">Data</div>
+        <a href="listings.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          All Listings
+          <span class="nav-badge">24</span>
+        </a>
+        <a href="data-quality.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Data Quality
+          <span class="nav-badge">18</span>
+        </a>
+        <a href="sources.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Sources
+        </a>
+      </div>
+      <div class="sidebar-section" style="margin-top:auto;padding-top:var(--space-4);border-top:1px solid var(--border);">
+        <a href="index.html" class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          All Screens
+        </a>
+      </div>
+    </aside>
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="mobile-brand">PriceBridge</span>
+        <div class="topbar-search">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          <input type="text" placeholder="Search deals..." />
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="fx-strip">
+          <div class="fx-rate"><span class="fx-label">EUR/USD</span><span class="fx-value">1.0842</span></div>
+        </div>
+        <select class="currency-select"><option>EUR</option><option>USD</option><option>TL</option></select>
+        <button class="theme-toggle" onclick="toggleTheme()">
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+          <svg class="icon-moon" style="display:none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+        <div class="user-avatar">TR</div>
+      </div>
+    </header>
+
+    <!-- Main -->
+    <main class="main-content" data-od-id="deals-page">
+      <div class="section-header">
+        <div>
+          <h1 class="h2">Deals by Brand</h1>
+          <p class="section-subtitle">Browse opportunities grouped by manufacturer</p>
+        </div>
+      </div>
+
+      <!-- Brand tabs -->
+      <div class="brand-tabs" id="brandTabs">
+        <button class="brand-tab active" data-brand="all">All <span class="tab-count">41</span></button>
+        <button class="brand-tab" data-brand="Apple">
+          <img src="https://cdn.simpleicons.org/apple/ffffff" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);opacity:0.8;" />
+          Apple <span class="tab-count">12</span>
+        </button>
+        <button class="brand-tab" data-brand="Samsung">
+          <img src="https://cdn.simpleicons.org/samsung/ffffff" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);opacity:0.8;" />
+          Samsung <span class="tab-count">9</span>
+        </button>
+        <button class="brand-tab" data-brand="Xiaomi">
+          <img src="https://cdn.simpleicons.org/xiaomi/ffffff" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);opacity:0.8;" />
+          Xiaomi <span class="tab-count">11</span>
+        </button>
+        <button class="brand-tab" data-brand="Lenovo">
+          <img src="https://cdn.simpleicons.org/lenovo/ffffff" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);opacity:0.8;" />
+          Lenovo <span class="tab-count">4</span>
+        </button>
+        <button class="brand-tab" data-brand="Meta">
+          <img src="https://cdn.simpleicons.org/meta/ffffff" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);opacity:0.8;" />
+          Meta <span class="tab-count">3</span>
+        </button>
+        <button class="brand-tab" data-brand="Canon">
+          <img src="https://cdn.simpleicons.org/canon/ffffff" alt="" style="width:16px;height:16px;filter:brightness(0) invert(1);opacity:0.8;" />
+          Canon <span class="tab-count">2</span>
+        </button>
+      </div>
+
+      <!-- Deal cards -->
+      <div class="deal-cards" id="dealCards">
+        <div class="card" style="padding:var(--space-6);color:var(--muted);">Loading buyer deals...</div>
+      </div>
+    </main>
+
+    <!-- Bottom nav -->
+    <nav class="bottomnav">
+      <div class="bottomnav-inner">
+        <a href="opportunities.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Opps
+        </a>
+        <a href="deals.html" class="bottomnav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Deals
+        </a>
+        <a href="listings.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+          Listings
+        </a>
+        <a href="data-quality.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Quality
+        </a>
+        <a href="sources.html" class="bottomnav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+          Sources
+        </a>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Sahibinden comparables modal -->
+  <div class="modal-overlay" id="sahibinden-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Sahibinden Comparables</h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('sahibinden-modal')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="tiny">Select a deal to view comparable Sahibinden listings.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listing image zoom modal -->
+  <div class="modal-overlay" id="image-modal">
+    <div class="modal image-modal">
+      <div class="modal-header">
+        <h3 id="image-modal-title">Listing image</h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('image-modal')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="image-modal-stage">
+        <img id="image-modal-img" src="" alt="">
+      </div>
+    </div>
+  </div>
+
+  <script>
+window.PRICEBRIDGE_BUYER_DEALS = [
+  {
+    "category": "phone",
+    "title": "Samsung Galaxy Z Fold 7 512GB",
+    "brand": "Samsung",
+    "model": "Galaxy Z Fold 7",
+    "ram_gb": null,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 1460.37,
+    "turkiye_avg_try": 78189.67,
+    "turkiye_avg_usd": 1669.93,
+    "buyer_offer_price_eur": 1208.53,
+    "buyer_offer_price_try": 64705.9,
+    "buyer_offer_price_usd": 1381.96,
+    "buyer_gain_eur": 251.85,
+    "buyer_gain_try": 13484.3,
+    "buyer_gain_usd": 287.99,
+    "buyer_gain_percent": 20.84,
+    "deal_quality": "medium",
+    "recommendation": "buy",
+    "confidence": 56,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-galaxy-z-fold-7-512gb-sifir-kapali-kutu,magazadan-takas-plustaksit-1315574883/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-z-fol7-sifir-kapali-kutu-512-gb-yd-1322800488/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/16_jRkyxvHwED7brOhGO2oIxWAL5NmZ9SfOLjvTlq6y.webp",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/16_jRkyxvHwED7brOhGO2oIxWAL5NmZ9SfOLjvTlq6y.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/114_NyYcrv7w2n0lzdsPktpwoN33mIzXzPzCUbqB64KK.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/461_lthmb_1315574883wem.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/416_lthmb_1322800488p4v.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 17 Pro 256GB",
+    "brand": "Apple",
+    "model": "iPhone 17 Pro",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 1135.01,
+    "turkiye_avg_try": 60769.57,
+    "turkiye_avg_usd": 1297.88,
+    "buyer_offer_price_eur": 840.76,
+    "buyer_offer_price_try": 45015.13,
+    "buyer_offer_price_usd": 961.41,
+    "buyer_gain_eur": 294.26,
+    "buyer_gain_try": 15754.97,
+    "buyer_gain_usd": 336.49,
+    "buyer_gain_percent": 35.0,
+    "deal_quality": "strong",
+    "recommendation": "buy",
+    "confidence": 75,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256gb-yurtdisi-1326342645/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-256-gb-yd-cift-simli-pil-100-15-ay-acik-devir-10-1326098194/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-17-pro-256-gb-pil-100-hat-takilmamis-1326397279/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-cift-e-sim-bugune-ozel-1326138645/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-256-gb-sifir-kapali-kutu-cift-e-sim-bugune-ozel-1326138117/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_61_684328272_1908942673143689_2062468845929316206_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_61_684328272_1908942673143689_2062468845929316206_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1699_lthmb_1326342645rn6.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1767_lthmb_13260981949cu.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1679_lthmb_1326397279fww.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1763_lthmb_1326138645e13.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1764_lthmb_13261381172xp.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Samsung Galaxy Z Fold 7 256GB",
+    "brand": "Samsung",
+    "model": "Galaxy Z Fold 7",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 1130.85,
+    "turkiye_avg_try": 60546.84,
+    "turkiye_avg_usd": 1293.13,
+    "buyer_offer_price_eur": 907.35,
+    "buyer_offer_price_try": 48580.43,
+    "buyer_offer_price_usd": 1037.56,
+    "buyer_gain_eur": 223.5,
+    "buyer_gain_try": 11966.41,
+    "buyer_gain_usd": 255.57,
+    "buyer_gain_percent": 24.63,
+    "deal_quality": "medium",
+    "recommendation": "buy",
+    "confidence": 68,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-semers-iletisim-samsung-z-fold-7-256-gb-hafiza-1324160213/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223472/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223933/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325223534/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-eren-iletisim-den-samsung-z-fold7-256gb-global-avrupa-orjinal-1325222642/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/101_MJ7xRHnUNTFl6tvG2sZdCykJ2VcboPnaTCfvqAkf.webp",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/101_MJ7xRHnUNTFl6tvG2sZdCykJ2VcboPnaTCfvqAkf.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/102_ywPugMFfozHWj6rkxVbHiEONL95YNaGpY2ll75f8.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/338_lthmb_1324160213spn.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/333_lthmb_1325223472sf3.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/334_lthmb_1325223933zv8.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/335_lthmb_1325223534fu6.avif"
+    ]
+  },
+  {
+    "category": "console",
+    "title": "ASUS ROG Ally X 1024GB",
+    "brand": "ASUS",
+    "model": "ROG Ally X",
+    "ram_gb": null,
+    "storage_gb": 1024,
+    "turkiye_avg_eur": 770.43,
+    "turkiye_avg_try": 41249.59,
+    "turkiye_avg_usd": 880.99,
+    "buyer_offer_price_eur": 549.57,
+    "buyer_offer_price_try": 29424.53,
+    "buyer_offer_price_usd": 628.43,
+    "buyer_gain_eur": 220.86,
+    "buyer_gain_try": 11825.07,
+    "buyer_gain_usd": 252.55,
+    "buyer_gain_percent": 40.19,
+    "deal_quality": "strong",
+    "recommendation": "strong_buy",
+    "confidence": 0.9,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-x-1tb-24-1302863404/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-x-1tb-1326861016/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-z1-islemcili-1tb-rog-ally-x-1327397574/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-x-1-tb-1225843705/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-x-z2-extreme-1tb-markon-1318065674/detay"
+    ],
+    "image_url": "https://cdn7.ouedkniss.com/640/medias/announcements/images/k82JnJ/Vq2izomfGE4u0VbNZVRKYJujsi7jiZgLFc6xIYzK.webp",
+    "image_urls": [
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/k82JnJ/Vq2izomfGE4u0VbNZVRKYJujsi7jiZgLFc6xIYzK.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/G4YA3/7XiLNPNfwz0X34atoa54yZPzIZa3XKsYemQnfivw.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/N0P88/G9WYVpXG2FVeX6G9Ht66u8uM7ZO4DXGw06YwIIoT.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/jqLzVz/2QkSh6StVdwLkyy496NHzu5NwI4jxeNkAU3qrfh3.webp",
+      "https://i0.shbdn.com/photos/86/34/04/lthmb_1302863404x57.avif",
+      "https://i0.shbdn.com/photos/86/10/16/lthmb_1326861016h7b.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 17 256GB",
+    "brand": "Apple",
+    "model": "iPhone 17",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 751.8,
+    "turkiye_avg_try": 40252.12,
+    "turkiye_avg_usd": 859.68,
+    "buyer_offer_price_eur": 564.31,
+    "buyer_offer_price_try": 30213.72,
+    "buyer_offer_price_usd": 645.29,
+    "buyer_gain_eur": 187.49,
+    "buyer_gain_try": 10038.4,
+    "buyer_gain_usd": 214.39,
+    "buyer_gain_percent": 33.23,
+    "deal_quality": "strong",
+    "recommendation": "buy",
+    "confidence": 75,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-dip-fiyat-kapali-kutu-17-256-gb-kilif%7Ekirilmaz-hediyeli-1326402325/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-oyuncu-kulakligi-hediyeli-takas-secenekli-iphone-17-1326401553/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-dev-kampanya-17-256-gb-kulaklik-hediye-1326399912/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-airpods-4-hediyeli-yesil-iphone-17-256-gb-kka-12-ay-taksit-1326400254/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-fiyati-oldurmedik-ama-firsat-bu-iphone-17-siyah-renk-256-gb-1326360097/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_37_696255383_1387440690087164_8159481903068963318_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_37_696255383_1387440690087164_8159481903068963318_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1678_lthmb_1326402325x7d.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1834_lthmb_132640155358h.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1835_lthmb_1326399912p2u.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1838_lthmb_1326400254yo9.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1857_lthmb_1326360097hh6.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 15 Pro 128GB",
+    "brand": "Apple",
+    "model": "iPhone 15 Pro",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 590.17,
+    "turkiye_avg_try": 31598.29,
+    "turkiye_avg_usd": 674.86,
+    "buyer_offer_price_eur": 415.59,
+    "buyer_offer_price_try": 22251.1,
+    "buyer_offer_price_usd": 475.23,
+    "buyer_gain_eur": 174.58,
+    "buyer_gain_try": 9347.19,
+    "buyer_gain_usd": 199.63,
+    "buyer_gain_percent": 42.01,
+    "deal_quality": "strong",
+    "recommendation": "buy",
+    "confidence": 72,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cinar-iletisim-den-iphone-15-pro-128gb-pil88-1325612401/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15pro-128-gb-orjinal-seri-gg-1326158985/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-varol-iletisim-den-15-pro-yd-hatasiz-yili-kurtariyor-1325996166/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-pro-128-gb-yd-cihazi-1326233160/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_52_671124960_4389346577975615_5386448177149557448_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_52_671124960_4389346577975615_5386448177149557448_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaVfS09sHP2.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaIaFm7sUVz.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1810_lthmb_1325612401ari.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1757_lthmb_13261589858j0.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1780_lthmb_1325996166mu6.avif"
+    ]
+  },
+  {
+    "category": "laptop",
+    "title": "Apple MacBook Air 24GB RAM 512GB Apple M4 Apple Integrated",
+    "brand": "Apple",
+    "model": "MacBook Air",
+    "ram_gb": 24,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 1353.07,
+    "turkiye_avg_try": 72444.72,
+    "turkiye_avg_usd": 1547.24,
+    "buyer_offer_price_eur": 1204.69,
+    "buyer_offer_price_try": 64500.31,
+    "buyer_offer_price_usd": 1377.56,
+    "buyer_gain_eur": 148.38,
+    "buyer_gain_try": 7944.41,
+    "buyer_gain_usd": 169.67,
+    "buyer_gain_percent": 12.32,
+    "deal_quality": "medium",
+    "recommendation": "good_opportunity",
+    "confidence": 0.9,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-garantili-15-m4-24gb-ram-512gb-sdd-sifirdan-farksiz-1325503979/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-garantili-15-m4-24gb-ram-512gb-sdd-sifirdan-farksiz-1325518006/detay"
+    ],
+    "image_url": "https://cdn7.ouedkniss.com/640/medias/announcements/images/PWPN6/CoHUgBg7jOwNWFKXl8iifQBN5KCckpfcaJ9zVMi8.webp",
+    "image_urls": [
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/PWPN6/CoHUgBg7jOwNWFKXl8iifQBN5KCckpfcaJ9zVMi8.webp",
+      "https://i0.shbdn.com/photos/50/39/79/lthmb_1325503979z77.avif",
+      "https://i0.shbdn.com/photos/51/80/06/lthmb_1325518006wia.avif"
+    ]
+  },
+  {
+    "category": "laptop",
+    "title": "Apple MacBook Air 8GB RAM 256GB Apple Integrated",
+    "brand": "Apple",
+    "model": "MacBook Air",
+    "ram_gb": 8,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 425.91,
+    "turkiye_avg_try": 22803.65,
+    "turkiye_avg_usd": 487.03,
+    "buyer_offer_price_eur": 290.6,
+    "buyer_offer_price_try": 15559.01,
+    "buyer_offer_price_usd": 332.3,
+    "buyer_gain_eur": 135.32,
+    "buyer_gain_try": 7245.17,
+    "buyer_gain_usd": 154.74,
+    "buyer_gain_percent": 46.56,
+    "deal_quality": "strong",
+    "recommendation": "strong_buy",
+    "confidence": 0.85,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-2020-8-256-kutulu-firsat-cihazi-1326992087/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-sorunsuz-macbook-air-13-inc-m1-islemci-8-gb-ram-256-gb-depolama-1327052185/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m1-8-gb-256-gb-2020-kutulu-laptop-1327044066/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m1-256-gb-1326975412/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m1-2020-8-gb-ram-256-gb-ssd-1326810007/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/ADBrAP/4lBlsZMGA5VbNt2I9M029sXNDkYOLyhGkCGSnKWN.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/ADBrAP/4lBlsZMGA5VbNt2I9M029sXNDkYOLyhGkCGSnKWN.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/nJp55/qb080mLuklEX4ovVyZolVPZwbVuYdmimDVaHaMJG.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/G52E80/XKMi3evcqzOWbRZenG7h7JTrqyPDl4hMtQezWJAj.webp",
+      "https://i0.shbdn.com/photos/99/20/87/lthmb_1326992087uj7.avif",
+      "https://i0.shbdn.com/photos/05/21/85/lthmb_13270521850j2.avif",
+      "https://i0.shbdn.com/photos/04/40/66/lthmb_13270440662x0.avif"
+    ]
+  },
+  {
+    "category": "laptop",
+    "title": "Apple MacBook Air M1 8GB RAM 256GB Apple M1 Apple Integrated",
+    "brand": "Apple",
+    "model": "MacBook Air M1",
+    "ram_gb": 8,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 547.45,
+    "turkiye_avg_try": 29311.02,
+    "turkiye_avg_usd": 626.01,
+    "buyer_offer_price_eur": 418.45,
+    "buyer_offer_price_try": 22404.23,
+    "buyer_offer_price_usd": 478.5,
+    "buyer_gain_eur": 129.0,
+    "buyer_gain_try": 6906.79,
+    "buyer_gain_usd": 147.51,
+    "buyer_gain_percent": 30.83,
+    "deal_quality": "strong",
+    "recommendation": "strong_buy",
+    "confidence": 1.0,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-temiz-macbook-air-m1-8gb-ram-256gb-3-1326967696/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-temiz-macbook-air-m1-8gb-ram-256gb-hafiza-1-1326959283/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-kusursuz-ciziksiz-macbook-air-m1-97-pil-256gb-uzay-grisi-1325106573/detay"
+    ],
+    "image_url": "https://cdn7.ouedkniss.com/640/medias/announcements/images/ADBrAP/sNfbGyx6JzWZllEwhKURdbrUxhiVm4uam3MKccYP.webp",
+    "image_urls": [
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/ADBrAP/sNfbGyx6JzWZllEwhKURdbrUxhiVm4uam3MKccYP.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/ADBrAP/UeJzqfDpllqsbi80v0Ra8gXGOe8dtB2Q8M1h66Qa.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/ADBrAP/UQEJfQOmmHy3VZwkryMW4Jl9nvHVtMQE21uOEljv.webp",
+      "https://i0.shbdn.com/photos/96/76/96/lthmb_1326967696z21.avif",
+      "https://i0.shbdn.com/photos/95/92/83/lthmb_1326959283wrs.avif",
+      "https://i0.shbdn.com/photos/10/65/73/lthmb_1325106573eyo.avif"
+    ]
+  },
+  {
+    "category": "laptop",
+    "title": "Apple MacBook Air 16GB RAM 256GB Apple M4 Apple Integrated",
+    "brand": "Apple",
+    "model": "MacBook Air",
+    "ram_gb": 16,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 858.5,
+    "turkiye_avg_try": 45964.95,
+    "turkiye_avg_usd": 981.7,
+    "buyer_offer_price_eur": 734.48,
+    "buyer_offer_price_try": 39324.79,
+    "buyer_offer_price_usd": 839.88,
+    "buyer_gain_eur": 124.02,
+    "buyer_gain_try": 6640.15,
+    "buyer_gain_usd": 141.82,
+    "buyer_gain_percent": 16.89,
+    "deal_quality": "medium",
+    "recommendation": "good_opportunity",
+    "confidence": 0.95,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m2-16gb-ram-256gb-ssd-1326433657/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m4-2025-16gb-ram-256-gb-ssd-1326996222/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-m4-16-gb-256-gb-ssd-1326997967/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-m4-13-16-gb-256-gb-ssd-100-pil-garantili-1326116710/detay"
+    ],
+    "image_url": "https://cdn8.ouedkniss.com/640/medias/announcements/images/ADBrAP/BRdAcxeIfNPfhYAWRSxeBTechtVSJNhxCk2xS3oQ.webp",
+    "image_urls": [
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/ADBrAP/BRdAcxeIfNPfhYAWRSxeBTechtVSJNhxCk2xS3oQ.webp",
+      "https://i0.shbdn.com/photos/43/36/57/lthmb_1326433657x50.avif",
+      "https://i0.shbdn.com/photos/99/62/22/lthmb_1326996222e95.avif",
+      "https://i0.shbdn.com/photos/99/79/67/lthmb_1326997967lcu.avif",
+      "https://i0.shbdn.com/photos/11/67/10/lthmb_1326116710w10.avif"
+    ]
+  },
+  {
+    "category": "console",
+    "title": "ASUS ROG Ally 16GB RAM 512GB AMD Z1 Extreme",
+    "brand": "ASUS",
+    "model": "ROG Ally",
+    "ram_gb": 16,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 466.65,
+    "turkiye_avg_try": 24984.91,
+    "turkiye_avg_usd": 533.61,
+    "buyer_offer_price_eur": 347.36,
+    "buyer_offer_price_try": 18598.0,
+    "buyer_offer_price_usd": 397.21,
+    "buyer_gain_eur": 119.29,
+    "buyer_gain_try": 6386.91,
+    "buyer_gain_usd": 136.41,
+    "buyer_gain_percent": 34.34,
+    "deal_quality": "strong",
+    "recommendation": "strong_buy",
+    "confidence": 0.95,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-512gb-1317802559/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-ay-kut-bilgisayar-gsmden-asus-rog-ally-z1-16-512-temiz-1316924063/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-16-gb-ram-512-gb-ssd-1309843849/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-garantili-temiz-asus-rog-ally-z1-extreme-512gb-1306927183/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-512-gb-kapali-kutu-1315612865/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/rRPvp/xXHz9qcJSytuGGEEfO8jSxIEeJeJqSuDajU3oRgn.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/rRPvp/xXHz9qcJSytuGGEEfO8jSxIEeJeJqSuDajU3oRgn.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/PN5yKA/v4YuEXBBZZwOQipvvhzXfBkGBsBjNlfeqz1AOT1j.webp",
+      "https://i0.shbdn.com/photos/80/25/59/lthmb_1317802559o96.avif",
+      "https://i0.shbdn.com/photos/92/40/63/lthmb_1316924063v26.avif",
+      "https://i0.shbdn.com/photos/84/38/49/lthmb_1309843849xed.avif",
+      "https://i0.shbdn.com/photos/92/71/83/lthmb_1306927183y99.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 14 256GB",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 363.93,
+    "turkiye_avg_try": 19485.18,
+    "turkiye_avg_usd": 416.15,
+    "buyer_offer_price_eur": 248.03,
+    "buyer_offer_price_try": 13279.77,
+    "buyer_offer_price_usd": 283.62,
+    "buyer_gain_eur": 115.91,
+    "buyer_gain_try": 6205.94,
+    "buyer_gain_usd": 132.54,
+    "buyer_gain_percent": 46.73,
+    "deal_quality": "strong",
+    "recommendation": "watch",
+    "confidence": 63,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14pm-sok-fiyat-1325963466/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaQOQCMMFJQ.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaQOQCMMFJQ.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DZ-FC5qMNcJ.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DZ-FX01MhXO.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1785_lthmb_13259634666us.avif"
+    ]
+  },
+  {
+    "category": "console",
+    "title": "ASUS ROG Ally 512GB AMD Z1 Extreme",
+    "brand": "ASUS",
+    "model": "ROG Ally",
+    "ram_gb": null,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 493.48,
+    "turkiye_avg_try": 26421.41,
+    "turkiye_avg_usd": 564.29,
+    "buyer_offer_price_eur": 378.5,
+    "buyer_offer_price_try": 20265.27,
+    "buyer_offer_price_usd": 432.82,
+    "buyer_gain_eur": 114.98,
+    "buyer_gain_try": 6156.14,
+    "buyer_gain_usd": 131.48,
+    "buyer_gain_percent": 30.38,
+    "deal_quality": "strong",
+    "recommendation": "strong_buy",
+    "confidence": 0.95,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-512gb-1317802559/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-ay-kut-bilgisayar-gsmden-asus-rog-ally-z1-16-512-temiz-1316924063/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-16-gb-ram-512-gb-ssd-1309843849/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-garantili-temiz-asus-rog-ally-z1-extreme-512gb-1306927183/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-ally-z1-extreme-512-gb-kapali-kutu-1315612865/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/rRPvp/xXHz9qcJSytuGGEEfO8jSxIEeJeJqSuDajU3oRgn.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/rRPvp/xXHz9qcJSytuGGEEfO8jSxIEeJeJqSuDajU3oRgn.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/PN5yKA/v4YuEXBBZZwOQipvvhzXfBkGBsBjNlfeqz1AOT1j.webp",
+      "https://i0.shbdn.com/photos/80/25/59/lthmb_1317802559o96.avif",
+      "https://i0.shbdn.com/photos/92/40/63/lthmb_1316924063v26.avif",
+      "https://i0.shbdn.com/photos/84/38/49/lthmb_1309843849xed.avif",
+      "https://i0.shbdn.com/photos/92/71/83/lthmb_1306927183y99.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Samsung Galaxy S26 Ultra 256GB",
+    "brand": "Samsung",
+    "model": "Galaxy S26 Ultra",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 890.33,
+    "turkiye_avg_try": 47669.16,
+    "turkiye_avg_usd": 1018.09,
+    "buyer_offer_price_eur": 785.76,
+    "buyer_offer_price_try": 42070.38,
+    "buyer_offer_price_usd": 898.52,
+    "buyer_gain_eur": 104.57,
+    "buyer_gain_try": 5598.78,
+    "buyer_gain_usd": 119.58,
+    "buyer_gain_percent": 13.31,
+    "deal_quality": "weak",
+    "recommendation": "watch",
+    "confidence": 90,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1324638403/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-premium-seri-s26-ultra-diledigin-aksesuar-hediyesiyle-1324638965/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-256-gb-takasli-satis-1324948149/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-1-yil-garantili-samsung-s26-ultra-256-gb-aksesuar-set-hediyeli-1324639751/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-siyah-renk-samsung-s26-ultra-256-gb-taksitli-ve-garantili-1324560609/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/L93oBj/7gylVzedVxc8RLwYWgmbgsylQZbby6ML5o6jIz1C.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/L93oBj/7gylVzedVxc8RLwYWgmbgsylQZbby6ML5o6jIz1C.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/Jl2qy/ERNmdRLvRwHhJ61jv7WQGdqlEvOJQKMQYW3pcT0D.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/YKMxM/f1pMbdKtFVB3pPLp1KPhmvgJE9XyJ7H4S46pqywB.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/k5PzK/YRJVD7ogQWUQ7ybHoxirsbaUrVujvOd1CPMH1zBZ.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/VOQBwM/JihlRd1iUyptcbK1nVAh1KviY8OpQ5R4PynZ0aQv.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/508_lthmb_13246384035ch.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 16 Pro Max 256GB",
+    "brand": "Apple",
+    "model": "iPhone 16 Pro Max",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 738.87,
+    "turkiye_avg_try": 39559.84,
+    "turkiye_avg_usd": 844.9,
+    "buyer_offer_price_eur": 642.3,
+    "buyer_offer_price_try": 34389.38,
+    "buyer_offer_price_usd": 734.47,
+    "buyer_gain_eur": 96.57,
+    "buyer_gain_try": 5170.45,
+    "buyer_gain_usd": 110.43,
+    "buyer_gain_percent": 15.04,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 95,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256gb-yurtdisi-1325298410/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-max-256-gb-col-titanium-temiz-1326419241/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-16-pro-max-256gb-pil96-3-ay-aktif-1326400519/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-max-256gb-pil-92-3-ay-kullanim-cift-sim-1326336352/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-max-256gb-pil-92-3-ay-kullanim-cift-sim-1326326595/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/cdp_images/DaYigZPoF3S.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/cdp_images/DaYigZPoF3S.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_57_687614153_1711233523636227_7224452994510771850_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_42_686863962_1450580866369189_4654739430022062412_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1859_lthmb_1325298410pol.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1664_lthmb_1326419241nk9.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1836_lthmb_1326400519u1w.avif"
+    ]
+  },
+  {
+    "category": "console",
+    "title": "Microsoft Xbox Ally X 1024GB",
+    "brand": "Microsoft",
+    "model": "Xbox Ally X",
+    "ram_gb": null,
+    "storage_gb": 1024,
+    "turkiye_avg_eur": 820.1,
+    "turkiye_avg_try": 43908.97,
+    "turkiye_avg_usd": 937.79,
+    "buyer_offer_price_eur": 726.14,
+    "buyer_offer_price_try": 38878.26,
+    "buyer_offer_price_usd": 830.34,
+    "buyer_gain_eur": 93.96,
+    "buyer_gain_try": 5030.71,
+    "buyer_gain_usd": 107.44,
+    "buyer_gain_percent": 12.94,
+    "deal_quality": "weak",
+    "recommendation": "good_opportunity",
+    "confidence": 0.9,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-x-24gb-1tb-ssd-avrupadan-sifir-1316157365/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rc73xa-rog-xbox-ally-x-amd-ryzen-ai-z2-extreme-24gb-1tb-ssd-1319945066/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-x-rc73xa-24gb-ram-1tb-ssd-sifir-1314486607/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-x-2025-rc73xa-ai-z2-extreme-8-cekirdekli-1-tb-1289238551/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-sifir-asus-rog-xbox-ally-x-2025-ryzen-z2-ai-extreme-8cpu-1-tb-1327195831/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/400/medias/announcements/images/qj7Jg3/6S3e2sQ0KdqdYrxYWUILzqceetzwDWXYa3MIuq7a.jpg",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/400/medias/announcements/images/qj7Jg3/6S3e2sQ0KdqdYrxYWUILzqceetzwDWXYa3MIuq7a.jpg",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/yrEjx7/EGLiKRzgSjc37aW7R1HwXE3O2ffstp05PvkI1X0e.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/M8LxoO/9JwMSLq3kLZm0ChEtJBZbXz0L4NzzIrYNIv1XJQU.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/JjpK/mfstZnOTC4jxNGC7kSSyyAlYyPNbuKW7sDQ2VH3r.webp",
+      "https://i0.shbdn.com/photos/15/73/65/lthmb_13161573650xi.avif",
+      "https://i0.shbdn.com/photos/94/50/66/lthmb_1319945066jjz.avif"
+    ]
+  },
+  {
+    "category": "laptop",
+    "title": "Dell Latitude 16GB RAM 256GB Intel Core i5",
+    "brand": "Dell",
+    "model": "Latitude",
+    "ram_gb": 16,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 513.23,
+    "turkiye_avg_try": 27478.85,
+    "turkiye_avg_usd": 586.88,
+    "buyer_offer_price_eur": 420.73,
+    "buyer_offer_price_try": 22526.3,
+    "buyer_offer_price_usd": 481.11,
+    "buyer_gain_eur": 92.51,
+    "buyer_gain_try": 4953.08,
+    "buyer_gain_usd": 105.79,
+    "buyer_gain_percent": 21.99,
+    "deal_quality": "medium",
+    "recommendation": "strong_buy",
+    "confidence": 0.8,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-dell-latitude-3540-i5-1335u-16gb-ram-256gb-ssd-temiz-1326095165/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/R6lxjL/kRmVhDUihZBr5hv4FCTQNImQApr6cz7YBwKDxQpB.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/R6lxjL/kRmVhDUihZBr5hv4FCTQNImQApr6cz7YBwKDxQpB.webp",
+      "https://i0.shbdn.com/photos/09/51/65/lthmb_1326095165d4e.avif"
+    ]
+  },
+  {
+    "category": "laptop",
+    "title": "Apple MacBook Pro 8GB RAM 256GB Intel Core i5 Apple Integrated",
+    "brand": "Apple",
+    "model": "MacBook Pro",
+    "ram_gb": 8,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 240.75,
+    "turkiye_avg_try": 12890.0,
+    "turkiye_avg_usd": 275.3,
+    "buyer_offer_price_eur": 152.24,
+    "buyer_offer_price_try": 8151.08,
+    "buyer_offer_price_usd": 174.09,
+    "buyer_gain_eur": 88.51,
+    "buyer_gain_try": 4738.91,
+    "buyer_gain_usd": 101.21,
+    "buyer_gain_percent": 58.14,
+    "deal_quality": "strong",
+    "recommendation": "strong_buy",
+    "confidence": 0.95,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-pro-2017-13inc-8-256-kutulu-kusursuz-cihaz-1326963552/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/ADBrAP/wU5pdmHyYo36E2Br1xdRklfKbkM9KCw7IjH7Dz8O.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/ADBrAP/wU5pdmHyYo36E2Br1xdRklfKbkM9KCw7IjH7Dz8O.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/ADBrAP/7futyB2DeGsxwPzTXwz02NbloSyIBaCAav06JuoN.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/zpPWPO/G41KrDdeS238z825aLixWM9uIdC1cZij9BWGsNTV.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/l00k5/LzWUWfbsWPWKyvIQHarOIuabw8lSuCwEzzRQ2wMf.webp",
+      "https://i0.shbdn.com/photos/96/35/52/lthmb_1326963552po0.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 13 Pro 128GB",
+    "brand": "Apple",
+    "model": "iPhone 13 Pro",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 367.03,
+    "turkiye_avg_try": 19651.15,
+    "turkiye_avg_usd": 419.7,
+    "buyer_offer_price_eur": 278.58,
+    "buyer_offer_price_try": 14915.45,
+    "buyer_offer_price_usd": 318.56,
+    "buyer_gain_eur": 88.45,
+    "buyer_gain_try": 4735.7,
+    "buyer_gain_usd": 101.14,
+    "buyer_gain_percent": 31.75,
+    "deal_quality": "strong",
+    "recommendation": "watch",
+    "confidence": 74,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-13-pro-128-gb-ekime-kadar-acik-1326418372/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-13-pro-128gb-4-ay-aktif-1326405479/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-pro-mavi-128gb-kapali-kutu-1326172299/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_18_702009360_1676431733606068_6173082116782847789_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_18_702009360_1676431733606068_6173082116782847789_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaVdYLTs8OF.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/instagram_image_02.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_19_687743425_959193966728203_5315308417298535271_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DZ-Fg7eMyQM.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1665_lthmb_13264183726z8.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 14 Pro Max 128GB",
+    "brand": "Apple",
+    "model": "iPhone 14 Pro Max",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 510.41,
+    "turkiye_avg_try": 27327.86,
+    "turkiye_avg_usd": 583.65,
+    "buyer_offer_price_eur": 422.73,
+    "buyer_offer_price_try": 22633.39,
+    "buyer_offer_price_usd": 483.39,
+    "buyer_gain_eur": 87.68,
+    "buyer_gain_try": 4694.47,
+    "buyer_gain_usd": 100.26,
+    "buyer_gain_percent": 20.74,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 89,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14-promax-128-gb-pil-86-10-aya-kadar-kullanilabilir-1325140550/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-14-pro-max-128gb-5-ay-aktif-1326403141/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-y.disi-iphone-14-pro-max-128-gb-derin-mor-4-ay-kullanima-acik-1326361216/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-14-pro-max-128-gb-14-ay-aktif-1326403871/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14-promax-128-2-yd-pil76-orjinal-seri-hat-takilmamis-1326389159/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_63_689528850_976018881548437_3275848213070581220_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_63_689528850_976018881548437_3275848213070581220_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/cdp_images/Daa1wlsIL6R.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/cdp_images/DaaX-yYIUqP.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DZ-F822swdQ.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1629_lthmb_1325140550939.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1828_lthmb_13264031418s9.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 12 Pro Max 128GB",
+    "brand": "Apple",
+    "model": "iPhone 12 Pro Max",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 382.57,
+    "turkiye_avg_try": 20483.18,
+    "turkiye_avg_usd": 437.47,
+    "buyer_offer_price_eur": 298.71,
+    "buyer_offer_price_try": 15993.23,
+    "buyer_offer_price_usd": 341.58,
+    "buyer_gain_eur": 83.86,
+    "buyer_gain_try": 4489.95,
+    "buyer_gain_usd": 95.89,
+    "buyer_gain_percent": 28.07,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 56,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-12-pro-max-128gb-pil-74-tertemiz-2ay-1326232523/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-12-pro-max-128gb-pil-85-tertemiz-hatasiz-1325295471/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_68_687107821_990762906811114_5960044305351373305_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_68_687107821_990762906811114_5960044305351373305_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_84_687281759_26624276337199841_3185754859461382032_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1731_lthmb_13262325238gi.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1860_lthmb_1325295471208.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 15 Pro Max 256GB",
+    "brand": "Apple",
+    "model": "iPhone 15 Pro Max",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 647.07,
+    "turkiye_avg_try": 34644.77,
+    "turkiye_avg_usd": 739.93,
+    "buyer_offer_price_eur": 565.2,
+    "buyer_offer_price_try": 30261.37,
+    "buyer_offer_price_usd": 646.31,
+    "buyer_gain_eur": 81.87,
+    "buyer_gain_try": 4383.4,
+    "buyer_gain_usd": 93.62,
+    "buyer_gain_percent": 14.49,
+    "deal_quality": "weak",
+    "recommendation": "watch",
+    "confidence": 100,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-pro-max-256-gb-natural-titanium-renk-1326422248/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildiz-iletisimden-temiz-apple-iphone-15-pro-max-256gb-pil-86-1324170519/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-pro-max-256gb-full-orjinal-tertemiz-degisensiz-firsatt-1326288632/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-15-pro-max-256gb-pil-82-tertemiz-4-ay-kullanim-1325312059/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-7-24-adrese-teslim-iphone-15-promax-256gb-pil86-70gun-acik-1325955539/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_66_684566604_976173835057479_8935821925181444892_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_66_684566604_976173835057479_8935821925181444892_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_55_687217703_1958531434869720_4449925432824024661_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaQIlOVM0Rv.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaIblbJM2Hn.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1663_lthmb_13264222480h8.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1649_lthmb_13241705192yd.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 13 Pro Max 128GB",
+    "brand": "Apple",
+    "model": "iPhone 13 Pro Max",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 396.59,
+    "turkiye_avg_try": 21233.83,
+    "turkiye_avg_usd": 453.5,
+    "buyer_offer_price_eur": 318.46,
+    "buyer_offer_price_try": 17050.67,
+    "buyer_offer_price_usd": 364.16,
+    "buyer_gain_eur": 78.13,
+    "buyer_gain_try": 4183.16,
+    "buyer_gain_usd": 89.34,
+    "buyer_gain_percent": 24.53,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 74,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ikizler-gsm-iphone-13-pro-max-128gb-pil84-yd-1326063539/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ata-iletisimden-iphone-13-pro-max-128gb-pil77-4-ay-aktif-1326406554/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-13-pro-max-128-gb-koknar-yesili-14-ay-acik-1326072591/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaQN-SCMCND.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaQN-SCMCND.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_62_683833312_1868017943873761_8553592623397327465_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_22_701643897_1458658605535312_5808747699995723483_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaIZnJjsRv_.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_72_688831955_2050429995911550_1657435124144084323_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1771_lthmb_132606353973p.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 14 Pro 128GB",
+    "brand": "Apple",
+    "model": "iPhone 14 Pro",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 440.44,
+    "turkiye_avg_try": 23581.6,
+    "turkiye_avg_usd": 503.64,
+    "buyer_offer_price_eur": 374.01,
+    "buyer_offer_price_try": 20024.87,
+    "buyer_offer_price_usd": 427.68,
+    "buyer_gain_eur": 66.43,
+    "buyer_gain_try": 3556.73,
+    "buyer_gain_usd": 75.96,
+    "buyer_gain_percent": 17.76,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 45,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14-pro-128-gb-pil-99-deyisen-1325595343/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14-pro-hat-takilmamis-15-ay-acik-1325571009/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14-pro-128-gb-y.d-hatasiz-1326004825/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-iphone-14-pro-128-gb-pil-87-hat-takilmamis-1326373592/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-14-pro-128-gb-beyaz-kutulu-ydisi-16-ay-1322831828/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_54_696522378_1477065740059062_6669784137527463562_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_54_696522378_1477065740059062_6669784137527463562_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1812_lthmb_1325595343rx5.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1816_lthmb_1325571009hja.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1779_lthmb_13260048252en.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1853_lthmb_1326373592flc.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1589_lthmb_1322831828vwc.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 12 64GB",
+    "brand": "Apple",
+    "model": "iPhone 12",
+    "ram_gb": null,
+    "storage_gb": 64,
+    "turkiye_avg_eur": 247.28,
+    "turkiye_avg_try": 13239.62,
+    "turkiye_avg_usd": 282.76,
+    "buyer_offer_price_eur": 182.3,
+    "buyer_offer_price_try": 9760.52,
+    "buyer_offer_price_usd": 208.46,
+    "buyer_gain_eur": 64.98,
+    "buyer_gain_try": 3479.09,
+    "buyer_gain_usd": 74.3,
+    "buyer_gain_percent": 35.64,
+    "deal_quality": "strong",
+    "recommendation": "watch",
+    "confidence": 36,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-12-y.d-64gb-1326408547/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-12-yurtdisi-1325344336/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_86_683783271_1508093977517375_1744800175850670986_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_86_683783271_1508093977517375_1744800175850670986_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1671_no-image-camera:f201d60ff6bef9afd79ad108475e92df.png",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1851_lthmb_1325344336z9m.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 16 128GB",
+    "brand": "Apple",
+    "model": "iPhone 16",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 533.96,
+    "turkiye_avg_try": 28588.75,
+    "turkiye_avg_usd": 610.58,
+    "buyer_offer_price_eur": 470.69,
+    "buyer_offer_price_try": 25201.21,
+    "buyer_offer_price_usd": 538.23,
+    "buyer_gain_eur": 63.27,
+    "buyer_gain_try": 3387.54,
+    "buyer_gain_usd": 72.35,
+    "buyer_gain_percent": 13.44,
+    "deal_quality": "weak",
+    "recommendation": "watch",
+    "confidence": 47,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-128-gb-pil-89-9.aya-kadar-kullanilabilir-1325507569/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pil-92-128-gb-temiz-uygun-fiyat-1325353156/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-asya-telecom-dan-yd-iphone-16-128-gb-mavi-70-gun-kullanima-acik-1326240815/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-128-gb-yd-pil-93-3-ay-acik-1326278426/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-128gb-1326273408/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_38_695819712_1409987231126243_2067827169276555029_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_38_695819712_1409987231126243_2067827169276555029_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1628_lthmb_1325507569huz.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1848_lthmb_13253531562tp.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1871_lthmb_13262408152tp.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1721_lthmb_13262784266bt.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1866_lthmb_1326273408xjg.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Xiaomi Redmi Note 15 256GB",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 15",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 228.62,
+    "turkiye_avg_try": 12240.54,
+    "turkiye_avg_usd": 261.43,
+    "buyer_offer_price_eur": 165.58,
+    "buyer_offer_price_try": 8865.32,
+    "buyer_offer_price_usd": 189.34,
+    "buyer_gain_eur": 63.04,
+    "buyer_gain_try": 3375.22,
+    "buyer_gain_usd": 72.09,
+    "buyer_gain_percent": 38.07,
+    "deal_quality": "strong",
+    "recommendation": "watch",
+    "confidence": 61,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-8-plus8-256-gb-global-nfc-li-1325538702/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-sifir-yurtdisi-urun-1325521553/detay"
+    ],
+    "image_url": "https://cdn7.ouedkniss.com/640/medias/announcements/images/jqLzVz/YfI1cFrrlHhniMk4WGAMismROig5vxzIvgOUuEnE.webp",
+    "image_urls": [
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/jqLzVz/YfI1cFrrlHhniMk4WGAMismROig5vxzIvgOUuEnE.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/jqLzVz/2hmEwtoqe06fBrATu7dZNDsv1yDjzJXYMICXUjt9.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/v2Lg9M/AdMR76osO6myedAY77bcc8IagzNFqJZ4AMIAiVEK.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/jDX4R/HRhJbCY1g2aCDpncznM1p4HGBmdLEkkcNkWM2lnZ.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/VOQBwM/OWEg9xB4bLSj7wHiLEIzEe99PPBB2cNkhFRXqXf6.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1525_lthmb_13255387022ff.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Samsung Galaxy S26 Ultra 512GB",
+    "brand": "Samsung",
+    "model": "Galaxy S26 Ultra",
+    "ram_gb": null,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 1012.79,
+    "turkiye_avg_try": 54225.79,
+    "turkiye_avg_usd": 1158.13,
+    "buyer_offer_price_eur": 950.57,
+    "buyer_offer_price_try": 50894.47,
+    "buyer_offer_price_usd": 1086.98,
+    "buyer_gain_eur": 62.22,
+    "buyer_gain_try": 3331.32,
+    "buyer_gain_usd": 71.15,
+    "buyer_gain_percent": 6.55,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 80,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-yildizlardan-samsung-s26-ultra-kapali-kutu-1325304811/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-sifir-kapali-kutu-mor-renk-1322168948/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s26-ultra-sifir-kapali-kutu-1322206569/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-sifir-sb2f-alan-kazanir-kutulu-yurt-disi-kampanya-cep-telefonu-aksesuar-69-inc-846902090/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-gozdesi-s26-ultra-512-gb-takasli-satis-1324938730/detay"
+    ],
+    "image_url": "https://cdn8.ouedkniss.com/640/medias/announcements/images/VP3Klz/s6qsGSXhb9Tlwnq8G5YCIwyK5sRNINt5FwfNN8Jt.webp",
+    "image_urls": [
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/VP3Klz/s6qsGSXhb9Tlwnq8G5YCIwyK5sRNINt5FwfNN8Jt.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/xvAwZz/fJ1yXDDQYVK0bmDlMICCmNgmC6WORaXARKiXVWVC.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/VOQBwM/KOLIueFdYaMwr46jEfpnK3pWrUBd6wJtJSYcBtT4.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/31VyNn/kSOAgzvrOzWmwZRs8HTCcsFHLZaDttUSpaeN92qR.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/M8LxoO/AEmiXRApt85M6TAMgppkmw2QPO7JpBfI8krX18aV.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/331_lthmb_132530481148m.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Xiaomi POCO X8 512GB",
+    "brand": "Xiaomi",
+    "model": "POCO X8",
+    "ram_gb": null,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 391.01,
+    "turkiye_avg_try": 20935.07,
+    "turkiye_avg_usd": 447.12,
+    "buyer_offer_price_eur": 334.95,
+    "buyer_offer_price_try": 17933.56,
+    "buyer_offer_price_usd": 383.02,
+    "buyer_gain_eur": 56.06,
+    "buyer_gain_try": 3001.51,
+    "buyer_gain_usd": 64.1,
+    "buyer_gain_percent": 16.74,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 75,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-poco-x8-pro-512-12-plus12-pubg-canavari-100w-sarj-ful-kutu-1326365241/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-indirim-poco-x8-pro-512-gb-8-plus8-ram-global-y.d-1326055185/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-5g-512-12-plus12-sifir-full-mazemeli-global-120w-1326334051/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-poco-x8-pro-5g-512-12-plus12-sifir-full-mazemeli-global-120w-1325941996/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-ates-iletisim-den-poco-x8-pro-12-ram-512-gb-1326324683/detay"
+    ],
+    "image_url": "https://cdn7.ouedkniss.com/400/medias/announcements/images/k5PzK/SC9nWvCdROVRFZFLTG9ynw5YlmnjHuksUHfskGvu.jpg",
+    "image_urls": [
+      "https://cdn7.ouedkniss.com/400/medias/announcements/images/k5PzK/SC9nWvCdROVRFZFLTG9ynw5YlmnjHuksUHfskGvu.jpg",
+      "https://cdn8.ouedkniss.com/400/medias/announcements/images/48gD6g/h5g0yZIZSq3ceXA119Chp4tMWGyZx6ga9Bw8MwR1.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1418_lthmb_1326365241u86.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1543_lthmb_1326055185ddz.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1452_lthmb_1326334051wwp.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1483_lthmb_1325941996hzk.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Samsung Galaxy S24 Ultra 256GB",
+    "brand": "Samsung",
+    "model": "Galaxy S24 Ultra",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 509.4,
+    "turkiye_avg_try": 27273.79,
+    "turkiye_avg_usd": 582.5,
+    "buyer_offer_price_eur": 454.22,
+    "buyer_offer_price_try": 24319.39,
+    "buyer_offer_price_usd": 519.4,
+    "buyer_gain_eur": 55.18,
+    "buyer_gain_try": 2954.39,
+    "buyer_gain_usd": 63.1,
+    "buyer_gain_percent": 12.15,
+    "deal_quality": "weak",
+    "recommendation": "watch",
+    "confidence": 75,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-magazadan-s24-ultra-cift-sim-256-gb-kutulu-fiyay-son-1323696860/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s24-ultra-256-gb-15-ay-acik-1324488481/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s24-ultra-256-gb-1323364034/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cinar-iletisim-den-galaxy-s24-ultra-12-256gb-1316288682/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-s24-ultra-1320530164/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/58_q4LWnGzQUsevP5PfXssy3IRZoNv4oAl4jwfFVYNA.webp",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/58_q4LWnGzQUsevP5PfXssy3IRZoNv4oAl4jwfFVYNA.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/178_3ps9k0JHOwKHYHsC1EXwrW78cXuXtlYnbLcFteOP.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1570_TOlxYmU23K2uCDw9zLGJhUN0N2BadNYPJeLhKpLq.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/399_lthmb_13236968601w8.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/354_lthmb_1324488481tee.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/414_lthmb_1323364034nls.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 14 128GB",
+    "brand": "Apple",
+    "model": "iPhone 14",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 367.65,
+    "turkiye_avg_try": 19684.35,
+    "turkiye_avg_usd": 420.41,
+    "buyer_offer_price_eur": 313.24,
+    "buyer_offer_price_try": 16771.18,
+    "buyer_offer_price_usd": 358.19,
+    "buyer_gain_eur": 54.41,
+    "buyer_gain_try": 2913.17,
+    "buyer_gain_usd": 62.22,
+    "buyer_gain_percent": 17.37,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 55,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-magazadan-iph-14-128-gb-pil-86-sorunsuz-fiyat-son-kurye-1320222857/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-altuner-iletisim-iphone-14-128-gb-yd-15-ay-acik-1325818737/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-altuner-iletisim-iphone-14-128-gb-yd-15-ay-1325816813/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-tech-iphone-14-128-gb-lansman-rengi-ydisi-15-ay-kutulu-1326193706/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-14-beyaz-128-gb-kapali-kutu-1326171445/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaVbaVbsQbl.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaVbaVbsQbl.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/instagram_image_05.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1724_lthmb_13202228571hj.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1795_lthmb_1325818737vb3.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1796_lthmb_1325816813t0z.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1612_lthmb_132619370683g.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 13 128GB",
+    "brand": "Apple",
+    "model": "iPhone 13",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 305.6,
+    "turkiye_avg_try": 16362.13,
+    "turkiye_avg_usd": 349.45,
+    "buyer_offer_price_eur": 251.74,
+    "buyer_offer_price_try": 13478.41,
+    "buyer_offer_price_usd": 287.86,
+    "buyer_gain_eur": 53.86,
+    "buyer_gain_try": 2883.72,
+    "buyer_gain_usd": 61.59,
+    "buyer_gain_percent": 21.4,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 73,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-y.d-128gb-1326406156/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-sok-fiyat-1326427538/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-128-gb-pil-83-esim-no-aktif-1325738402/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-128gb-1326284429/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-128-gb-pil-92-sure-15-ay-hatasiz-gibi-1325203697/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_65_687226896_1711207616705093_8993420851250051628_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_65_687226896_1711207616705093_8993420851250051628_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_73_686157079_1506356327614715_1718753881136434632_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaSxRgDM_DS.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DZ-FRzEseki.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1673_lthmb_1326406156j7f.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1659_lthmb_13264275382a4.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 15 128GB",
+    "brand": "Apple",
+    "model": "iPhone 15",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 423.21,
+    "turkiye_avg_try": 22659.09,
+    "turkiye_avg_usd": 483.94,
+    "buyer_offer_price_eur": 370.56,
+    "buyer_offer_price_try": 19840.15,
+    "buyer_offer_price_usd": 423.74,
+    "buyer_gain_eur": 52.65,
+    "buyer_gain_try": 2818.93,
+    "buyer_gain_usd": 60.21,
+    "buyer_gain_percent": 14.21,
+    "deal_quality": "weak",
+    "recommendation": "watch",
+    "confidence": 63,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-garantili-iphone-15-1325801073/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-iphone-15-128gb-pil-92-4-ay-kullanim-tertemiz-1325300706/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-iphone-15-128gb-pil-92-4-ay-kullanim-tertemiz-1325298672/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-yd-cift-sim-garantili-pil-86-1326146245/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-128gb-1326312542/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_23_701599044_1354349646544216_7955543576868713622_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_23_701599044_1354349646544216_7955543576868713622_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DZ-FJpLsGfx.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1797_lthmb_1325801073mkg.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1701_lthmb_132530070640l.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1703_lthmb_1325298672spc.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1760_lthmb_1326146245bw2.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Samsung Galaxy Note 20 256GB",
+    "brand": "Samsung",
+    "model": "Galaxy Note 20",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 242.62,
+    "turkiye_avg_try": 12990.12,
+    "turkiye_avg_usd": 277.44,
+    "buyer_offer_price_eur": 190.04,
+    "buyer_offer_price_try": 10174.93,
+    "buyer_offer_price_usd": 217.31,
+    "buyer_gain_eur": 52.58,
+    "buyer_gain_try": 2815.19,
+    "buyer_gain_usd": 60.13,
+    "buyer_gain_percent": 27.67,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 33,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-note-20-ultra-5g-12-ram-256gb-hafiza-1326221579/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/281_8aLDT0kfi2lVrCI1VlGpzAtdKdQY1Ee8Mgl7xQmW.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/281_8aLDT0kfi2lVrCI1VlGpzAtdKdQY1Ee8Mgl7xQmW.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/319_lthmb_1326221579vgv.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 12 Pro 128GB",
+    "brand": "Apple",
+    "model": "iPhone 12 Pro",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 233.28,
+    "turkiye_avg_try": 12490.04,
+    "turkiye_avg_usd": 266.76,
+    "buyer_offer_price_eur": 182.4,
+    "buyer_offer_price_try": 9765.88,
+    "buyer_offer_price_usd": 208.57,
+    "buyer_gain_eur": 50.88,
+    "buyer_gain_try": 2724.17,
+    "buyer_gain_usd": 58.18,
+    "buyer_gain_percent": 27.89,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 52,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-magazadan-12-pro-128-gb-pil-77-hat-takilmadi-fiyat-son-1320219541/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-12-pro-y.d-128gb-1326408241/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-12-pro-128gb-100-15-ay-1325991525/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-12-pro-128-gb-pil-87-esim-no-aktif-1325738604/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_87_683330346_1522849462589996_709063360457031268_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_87_683330346_1522849462589996_709063360457031268_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_14_704032243_1287180256958371_3120155561521501181_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1870_lthmb_1320219541h05.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1672_no-image-camera:f201d60ff6bef9afd79ad108475e92df.png",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1782_lthmb_13259915255ox.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1804_lthmb_1325738604f9s.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Xiaomi Redmi Note 14 Pro 256GB",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 14 Pro",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 264.65,
+    "turkiye_avg_try": 14169.63,
+    "turkiye_avg_usd": 302.63,
+    "buyer_offer_price_eur": 217.27,
+    "buyer_offer_price_try": 11632.85,
+    "buyer_offer_price_usd": 248.45,
+    "buyer_gain_eur": 47.38,
+    "buyer_gain_try": 2536.77,
+    "buyer_gain_usd": 54.18,
+    "buyer_gain_percent": 21.81,
+    "deal_quality": "medium",
+    "recommendation": "watch",
+    "confidence": 79,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-15-ay-acik-8-256-1325718818/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-5g-256-8-plus8-sifir-full-mazemeli-67w-1326313036/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-5g-256-8-plus8-sifir-full-mazemeli-67w-1326167425/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-14-pro-5g-256-8-plus8-sifir-full-mazemeli-67w-1325932715/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-note-14-pro-5g-256-8-plus8-50mp-kmra-nfc-67w-sarj-full-kutulu-1326168833/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/138_TP9ioCAKgksdPkAflr9HmR0LuZd4OVSaJ9O0VskJ.webp",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/138_TP9ioCAKgksdPkAflr9HmR0LuZd4OVSaJ9O0VskJ.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/739nor/TP9ioCAKgksdPkAflr9HmR0LuZd4OVSaJ9O0VskJ.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/k5PzK/6DBH6te9fHqNltchuLi9pX34pwg76PxUZoNA46Zu.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/VOQBwM/IG1ScerXFid6talXFBESpSUVzdN2c7n9Y5k3W7Q3.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1520_lthmb_1325718818a5j.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1460_lthmb_13263130369ot.avif"
+    ]
+  },
+  {
+    "category": "console",
+    "title": "Microsoft Xbox Ally 16GB RAM 512GB",
+    "brand": "Microsoft",
+    "model": "Xbox Ally",
+    "ram_gb": 16,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 522.4,
+    "turkiye_avg_try": 27969.82,
+    "turkiye_avg_usd": 597.36,
+    "buyer_offer_price_eur": 475.05,
+    "buyer_offer_price_try": 25434.65,
+    "buyer_offer_price_usd": 543.22,
+    "buyer_gain_eur": 47.35,
+    "buyer_gain_try": 2535.17,
+    "buyer_gain_usd": 54.14,
+    "buyer_gain_percent": 9.97,
+    "deal_quality": "weak",
+    "recommendation": "marginal",
+    "confidence": 0.8,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-8-gb-cekirdekli-512-gb-hafiza-2025-rc73ya-z2-1327076761/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-z2-512-gb-1-yil-garantili-1317243973/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rc73yarog-xbox-ally-ryzen-z2-a-16gb-512gb-ssd-7-el-konsolu-1314117110/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-2025-rc73ya-z2-a-8-cekirdekli-512-gb-ssd-oyun-1289240838/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-oyunculara-ozel-oyun-konsolu-asus-rog-xbox-ally-512-gb-oyun-konsolu-1294973761/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/kZ5mx/bWq5J8kfeNInTRD3QrgxSD25a2i2FollryberV8b.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/kZ5mx/bWq5J8kfeNInTRD3QrgxSD25a2i2FollryberV8b.webp",
+      "https://i0.shbdn.com/photos/07/67/61/lthmb_1327076761t4d.avif",
+      "https://i0.shbdn.com/photos/24/39/73/lthmb_1317243973f95.avif",
+      "https://i0.shbdn.com/photos/11/71/10/lthmb_1314117110r33.avif",
+      "https://i0.shbdn.com/photos/24/08/38/lthmb_128924083874v.avif",
+      "https://i0.shbdn.com/photos/97/37/61/lthmb_129497376194y.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Honor Magic 8 Pro 512GB",
+    "brand": "Honor",
+    "model": "Magic 8 Pro",
+    "ram_gb": null,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 845.58,
+    "turkiye_avg_try": 45273.2,
+    "turkiye_avg_usd": 966.92,
+    "buyer_offer_price_eur": 804.49,
+    "buyer_offer_price_try": 43073.2,
+    "buyer_offer_price_usd": 919.94,
+    "buyer_gain_eur": 41.09,
+    "buyer_gain_try": 2200.0,
+    "buyer_gain_usd": 46.99,
+    "buyer_gain_percent": 5.11,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 38,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-honor-magic-8-pro-512-gb-ciziksiz-orj-kutulu-1319012295/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-mobilstar-honor-magic-8-pro-12-512gb-global-orj-kutu-aksesua-1316279635/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-semers-iletisim-honor-magic-8-pro-air-16-ram-512-gb-hafiza-1318575010/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-honor-magic-8-pro-12-512-gb-5-gunluk-global-model-1326409236/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-mobilstar-honor-magic-8-pro-16-512gb-orj-kutu-aksesuar-1284546561/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/21_9svoncTx6Bd8ArHJDkm0NizikbyLneWe0L58EEb5.webp",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/21_9svoncTx6Bd8ArHJDkm0NizikbyLneWe0L58EEb5.webp",
+      "https://i0.shbdn.com/photos/01/22/95/lthmb_1319012295im7.avif",
+      "https://i0.shbdn.com/photos/27/96/35/lthmb_1316279635e8a.avif",
+      "https://i0.shbdn.com/photos/57/50/10/lthmb_1318575010v5r.avif",
+      "https://i0.shbdn.com/photos/40/92/36/lthmb_13264092361en.avif",
+      "https://i0.shbdn.com/photos/54/65/61/lthmb_1284546561txx.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Xiaomi POCO F7 512GB",
+    "brand": "Xiaomi",
+    "model": "POCO F7",
+    "ram_gb": null,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 354.58,
+    "turkiye_avg_try": 18984.57,
+    "turkiye_avg_usd": 405.46,
+    "buyer_offer_price_eur": 306.86,
+    "buyer_offer_price_try": 16429.59,
+    "buyer_offer_price_usd": 350.89,
+    "buyer_gain_eur": 47.72,
+    "buyer_gain_try": 2554.98,
+    "buyer_gain_usd": 54.57,
+    "buyer_gain_percent": 15.55,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 33,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-poco-f7-pro-12-plus12-512-gb-pil-96-sifirdan-farksiz-orj-sarj-1325198039/detay"
+    ],
+    "image_url": "https://cdn8.ouedkniss.com/400/medias/announcements/images/k5PzK/SbJcTREj5m2SS8IkExtRsSRXQEEZrmHUOsPJB8R4.jpg",
+    "image_urls": [
+      "https://cdn8.ouedkniss.com/400/medias/announcements/images/k5PzK/SbJcTREj5m2SS8IkExtRsSRXQEEZrmHUOsPJB8R4.jpg",
+      "https://cdn8.ouedkniss.com/400/medias/announcements/images/VOQBwM/qQDviPraO7AHnwKdHtUCWAuniRPY4zwbweUpd3co.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1435_lthmb_13251980399rl.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Xiaomi Redmi Note 15 Pro 256GB",
+    "brand": "Xiaomi",
+    "model": "Redmi Note 15 Pro",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 256.72,
+    "turkiye_avg_try": 13745.05,
+    "turkiye_avg_usd": 293.56,
+    "buyer_offer_price_eur": 215.88,
+    "buyer_offer_price_try": 11558.43,
+    "buyer_offer_price_usd": 246.86,
+    "buyer_gain_eur": 40.84,
+    "buyer_gain_try": 2186.61,
+    "buyer_gain_usd": 46.7,
+    "buyer_gain_percent": 18.92,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 78,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-mazemeli-global-67w-1326187944/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-mazemeli-global-67w-1325940383/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326381052/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326381453/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-redmi-note-15-pro-256-8-plus8-sifir-full-malzemeli-global-1326347450/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/k5PzK/aEmahL0DXYakdJSEqZmBj7LAtUjPcwC9iyurHitN.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/k5PzK/aEmahL0DXYakdJSEqZmBj7LAtUjPcwC9iyurHitN.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/jDX4R/KpBfOjhdonwhTgicjnutdGWwqEoTxYFZY2OkuzYY.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/VOQBwM/NqEZdUk3eT7hq8WQFqLr6jwB8JKESuds5f7cHE2a.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/v2Lg9M/mK5m7Shji02pvYZa3cU7UydXMyjYYMhtZMYutEPQ.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/9rrKr3/CN5xwR2Rru56FDr2Ego98xUtXFq31pZY9EOwvcIC.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1470_lthmb_13261879449e2.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Xiaomi Redmi 15 256GB",
+    "brand": "Xiaomi",
+    "model": "Redmi 15",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 149.1,
+    "turkiye_avg_try": 7982.96,
+    "turkiye_avg_usd": 170.5,
+    "buyer_offer_price_eur": 113.72,
+    "buyer_offer_price_try": 6088.68,
+    "buyer_offer_price_usd": 130.04,
+    "buyer_gain_eur": 35.38,
+    "buyer_gain_try": 1894.28,
+    "buyer_gain_usd": 40.46,
+    "buyer_gain_percent": 31.11,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 53,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-15c-256gb-full-kutu-1-1325772945/detay"
+    ],
+    "image_url": "https://cdn8.ouedkniss.com/640/medias/announcements/images/VOQBwM/9tuh8FjYpdpBBb0fxn18uPIfel4WyRn3J4sOxgsg.webp",
+    "image_urls": [
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/VOQBwM/9tuh8FjYpdpBBb0fxn18uPIfel4WyRn3J4sOxgsg.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/4RKRE7/H0dwYdY4XW3hz85HFwBmb6p1iYktGMB3hharmVOn.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/M8LxoO/Ysd0HQ8yuYhxsBAA3FAzC6UsgGieBk7ycFfX4mTJ.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1550_lthmb_1325772945vi1.avif"
+    ]
+  },
+  {
+    "category": "laptop",
+    "title": "Apple MacBook Pro 16GB RAM 512GB Intel Core i7 Apple Integrated",
+    "brand": "Apple",
+    "model": "MacBook Pro",
+    "ram_gb": 16,
+    "storage_gb": 512,
+    "turkiye_avg_eur": 338.26,
+    "turkiye_avg_try": 18110.78,
+    "turkiye_avg_usd": 386.8,
+    "buyer_offer_price_eur": 303.25,
+    "buyer_offer_price_try": 16236.31,
+    "buyer_offer_price_usd": 346.77,
+    "buyer_gain_eur": 35.01,
+    "buyer_gain_try": 1874.47,
+    "buyer_gain_usd": 40.03,
+    "buyer_gain_percent": 11.54,
+    "deal_quality": "weak",
+    "recommendation": "marginal",
+    "confidence": 1.0,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-pro-4k-2016-sonu-16-ram-512-ssd-i7-15-4-inc-1326674726/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-kacmaz-fiyata-macbook-pro-15-inc-i7-16-ram-512-ssd-4k-1326145424/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-pro-15-2018-i7-16gb-ram-512gb-ssd-temiz-sorunsuz-1325320388/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-2020-macbook-pro-a2251-i7-4.1ghz-boost-13-4xtb-512gb-16gb-ram-1326515209/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-pro-2020-16-gb-ram-512-gb-ssd-89-pil-sorunsuz-1326643474/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/ADBrAP/rvkIjaTBALPtZ2ZjcX1t0wehLLpfDD9aUQKqyDMe.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/ADBrAP/rvkIjaTBALPtZ2ZjcX1t0wehLLpfDD9aUQKqyDMe.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/ADBrAP/Anj091xidY6y7deuAjJ0BpaNiB1el5Syeh7EyyI7.webp",
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/ADBrAP/moG9FdkqlzjMycP0ngNmjkr2tpM1YtqEkOLjIXTO.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/PN5yKA/5k6VnWA9mP2NcC0SgIfT3bZr00bDw3I9dQ7ugV2M.webp",
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/mw44w3/jBsLl1mRIHOSfdiSVb6AsNHmrU6OvO9Yndd2eeIG.webp",
+      "https://i0.shbdn.com/photos/67/47/26/lthmb_1326674726aec.avif"
+    ]
+  },
+  {
+    "category": "laptop",
+    "title": "Apple MacBook Air 8GB RAM 128GB Intel Core i5 Apple Integrated",
+    "brand": "Apple",
+    "model": "MacBook Air",
+    "ram_gb": 8,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 183.52,
+    "turkiye_avg_try": 9825.84,
+    "turkiye_avg_usd": 209.86,
+    "buyer_offer_price_eur": 162.45,
+    "buyer_offer_price_try": 8697.74,
+    "buyer_offer_price_usd": 185.76,
+    "buyer_gain_eur": 21.07,
+    "buyer_gain_try": 1128.11,
+    "buyer_gain_usd": 24.09,
+    "buyer_gain_percent": 12.97,
+    "deal_quality": "weak",
+    "recommendation": "marginal",
+    "confidence": 0.95,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-apple-macbook-air-laptop-8-gb-128-gb-bellek-1326724992/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-satilik-2017-macbook-air-i5-8gb-128gb-ssd-1326716158/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-bilgisayar-dizustu-notebook-macbook-air-13-2017-i5-8-gb-128-gb-ssd-temiz-1326906040/detay"
+    ],
+    "image_url": "https://cdn7.ouedkniss.com/640/medias/announcements/images/zpPWPO/TT4Ahx4XLnRifexnwMB43f6AdSmtES82RsWw91xu.webp",
+    "image_urls": [
+      "https://cdn7.ouedkniss.com/640/medias/announcements/images/zpPWPO/TT4Ahx4XLnRifexnwMB43f6AdSmtES82RsWw91xu.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/ADBrAP/fnJTlCNb6mYBZAKlVzGdXCxrITi4UWzH2WJwXfPi.webp",
+      "https://i0.shbdn.com/photos/72/49/92/lthmb_1326724992so6.avif",
+      "https://i0.shbdn.com/photos/71/61/58/lthmb_13267161582zb.avif",
+      "https://i0.shbdn.com/photos/90/60/40/lthmb_1326906040ybv.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Samsung Galaxy S24 128GB",
+    "brand": "Samsung",
+    "model": "Galaxy S24",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 317.26,
+    "turkiye_avg_try": 16986.42,
+    "turkiye_avg_usd": 362.79,
+    "buyer_offer_price_eur": 306.86,
+    "buyer_offer_price_try": 16429.59,
+    "buyer_offer_price_usd": 350.89,
+    "buyer_gain_eur": 10.4,
+    "buyer_gain_try": 556.83,
+    "buyer_gain_usd": 11.89,
+    "buyer_gain_percent": 3.39,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 26,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-samsung-galaxy-s24-hatasiz-128gb-1325918164/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-karadeniz-iletisimden-yurt-disi-samsung-s24-128gb-1323725707/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/176_FiRYm90rKx8D2EIsK1Exe9za7ikji9rbrpJLvVY7.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/176_FiRYm90rKx8D2EIsK1Exe9za7ikji9rbrpJLvVY7.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/322_lthmb_13259181644e5.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/326_lthmb_13237257077ns.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 13 Pro Max 256GB",
+    "brand": "Apple",
+    "model": "iPhone 13 Pro Max",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 403.5,
+    "turkiye_avg_try": 21603.79,
+    "turkiye_avg_usd": 461.4,
+    "buyer_offer_price_eur": 393.5,
+    "buyer_offer_price_try": 21068.38,
+    "buyer_offer_price_usd": 449.97,
+    "buyer_gain_eur": 10.0,
+    "buyer_gain_try": 535.41,
+    "buyer_gain_usd": 11.44,
+    "buyer_gain_percent": 2.54,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 26,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-nokta-hatasiz-iphone-13-pro-max-256-gb-ada-telekomda-1326013993/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-13-pro-max-1305856760/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_85_687264443_943510951795447_5989234225922071738_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_85_687264443_943510951795447_5989234225922071738_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1773_lthmb_1326013993rb7.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1638_lthmb_1305856760fma.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 17 Pro Max 256GB",
+    "brand": "Apple",
+    "model": "iPhone 17 Pro Max",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 1160.55,
+    "turkiye_avg_try": 62137.01,
+    "turkiye_avg_usd": 1327.09,
+    "buyer_offer_price_eur": 1151.62,
+    "buyer_offer_price_try": 61658.89,
+    "buyer_offer_price_usd": 1316.88,
+    "buyer_gain_eur": 8.93,
+    "buyer_gain_try": 478.12,
+    "buyer_gain_usd": 10.21,
+    "buyer_gain_percent": 0.78,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 80,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-max-256gb-90gun-merkez-iletisim-1326402207/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-promax-256-gb-pil-100-14-ay-kullanim-hakki-1326235332/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-17-pro-max-256-1325963751/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-cadde-apple-dan-17promax-256gb-16ay-acik-hatasiz-firsat-1326331786/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-17-pro-max-256-gb-pil-91-sure-110-gun-1325403491/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_56_686969852_1352680100088841_8826638085949404670_n.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_56_686969852_1352680100088841_8826638085949404670_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_83_689044477_899404469779772_3564435406912219979_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_69_688462370_1293975576156314_3647845078189704972_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/deghoul_haroun_telecom/manual_folder_images/imgi_58_671218046_1300052818751589_5657107891385566520_n.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1669_lthmb_13264022075ux.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1729_lthmb_13262353323js.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 16 Pro 128GB",
+    "brand": "Apple",
+    "model": "iPhone 16 Pro",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 638.62,
+    "turkiye_avg_try": 34192.35,
+    "turkiye_avg_usd": 730.26,
+    "buyer_offer_price_eur": 631.77,
+    "buyer_offer_price_try": 33825.6,
+    "buyer_offer_price_usd": 722.43,
+    "buyer_gain_eur": 6.85,
+    "buyer_gain_try": 366.76,
+    "buyer_gain_usd": 7.83,
+    "buyer_gain_percent": 1.08,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 65,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-16-pro-ekran-degisen-128gb-pil91-1325572930/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-bozdogan-store-iphone-16-pro-128-gb-cift-fiziki-sim-pil-94-1325588178/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-firsat-iphone-16-pro-pil-99-128gb-110-gun-kullanima-acik-1326314510/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-apple-iphone-16-pro-128-gb-cift-fiziki-1326239268/detay",
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-platinum-gsm-den-16-pro-128gb-pil-90-6-ay-garantili-3-ay-kullani-1326338104/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaVdj_ZMEJD.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaVdj_ZMEJD.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/instagram_image_01.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1815_lthmb_1325572930jes.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1597_lthmb_1325588178h2i.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1710_lthmb_1326314510c35.avif",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1872_lthmb_1326239268s3v.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Apple iPhone 15 Plus 128GB",
+    "brand": "Apple",
+    "model": "iPhone 15 Plus",
+    "ram_gb": null,
+    "storage_gb": 128,
+    "turkiye_avg_eur": 457.24,
+    "turkiye_avg_try": 24481.09,
+    "turkiye_avg_usd": 522.85,
+    "buyer_offer_price_eur": 451.26,
+    "buyer_offer_price_try": 24160.91,
+    "buyer_offer_price_usd": 516.02,
+    "buyer_gain_eur": 5.98,
+    "buyer_gain_try": 320.18,
+    "buyer_gain_usd": 6.84,
+    "buyer_gain_percent": 1.33,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 43,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-iphone-15-plus-yd-2027-etlule-kadar-acik-1325954569/detay"
+    ],
+    "image_url": "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaQPEHZsWP_.jpg",
+    "image_urls": [
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaQPEHZsWP_.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaIZWoaMmWf.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/instagram/brothers_phone___official_/manual_images/DaVfcEYsWkH.jpg",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1789_lthmb_1325954569znw.avif"
+    ]
+  },
+  {
+    "category": "phone",
+    "title": "Xiaomi Redmi 14 256GB",
+    "brand": "Xiaomi",
+    "model": "Redmi 14",
+    "ram_gb": null,
+    "storage_gb": 256,
+    "turkiye_avg_eur": 83.96,
+    "turkiye_avg_try": 4495.3,
+    "turkiye_avg_usd": 96.01,
+    "buyer_offer_price_eur": 81.23,
+    "buyer_offer_price_try": 4349.14,
+    "buyer_offer_price_usd": 92.89,
+    "buyer_gain_eur": 2.73,
+    "buyer_gain_try": 146.17,
+    "buyer_gain_usd": 3.12,
+    "buyer_gain_percent": 3.36,
+    "deal_quality": "weak",
+    "recommendation": "ignore",
+    "confidence": 33,
+    "turkiye_urls": [
+      "https://www.sahibinden.com/ilan/ikinci-el-ve-sifir-alisveris-cep-telefonu-aksesuar-cep-telefonu-xiaomi-redmi-14c-256-8-50mp-kmra-sifir-ayarinda-kayitli-kutulu-1325030763/detay"
+    ],
+    "image_url": "https://cdn9.ouedkniss.com/640/medias/announcements/images/RgPEO/N5WdTNXzYirzd7LQPGmmAZ6QT0mjozUCsglvnjIy.webp",
+    "image_urls": [
+      "https://cdn9.ouedkniss.com/640/medias/announcements/images/RgPEO/N5WdTNXzYirzd7LQPGmmAZ6QT0mjozUCsglvnjIy.webp",
+      "https://cdn8.ouedkniss.com/640/medias/announcements/images/31VyNn/RS2kENcq8WPHb5xc2A6frGdLyceL7ylZbKtG5hJs.webp",
+      "https://raw.githubusercontent.com/lotfinity/phones/refs/heads/refactor/deals-swiper-partials/media/listing_images/1444_lthmb_1325030763nls.avif"
+    ]
+  }
+];
+</script>
+  <script>
+    const dealRows = Array.isArray(window.PRICEBRIDGE_BUYER_DEALS) ? window.PRICEBRIDGE_BUYER_DEALS : [];
+    let activeComparableUrls = [];
+
+    function money(value, currency = 'EUR', digits = 0) {
+      if (value === null || value === undefined || value === '') return '—';
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '—';
+      const symbol = currency === 'EUR' ? '€' : currency === 'USD' ? '$' : currency === 'TL' ? '₺' : currency + ' ';
+      return symbol + number.toLocaleString(undefined, { maximumFractionDigits: digits, minimumFractionDigits: digits });
+    }
+
+    function moneySub(tryValue, usdValue) {
+      return `<div class="currency-subline"><span>${money(tryValue, 'TL')}</span><span>${money(usdValue, 'USD')}</span></div>`;
+    }
+
+    function pct(value) {
+      if (value === null || value === undefined || value === '') return '';
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '';
+      return number.toLocaleString(undefined, { maximumFractionDigits: 1 }) + '%';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      }[char]));
+    }
+
+    function qualityClass(row) {
+      const quality = String(row.deal_quality || row.recommendation || '').toLowerCase();
+      if (quality.includes('strong')) return 'strong';
+      if (quality.includes('weak') || quality.includes('watch')) return 'weak';
+      return 'medium';
+    }
+
+    function qualityBadgeClass(quality) {
+      if (quality === 'strong') return 'badge-success';
+      if (quality === 'weak') return 'badge-danger';
+      return 'badge-warn';
+    }
+
+    function confidenceValue(row) {
+      const raw = row.confidence ?? row.confidence_score;
+      if (typeof raw === 'number') return raw <= 1 ? Math.round(raw * 100) : Math.round(raw);
+      const text = String(raw || '').toLowerCase();
+      if (text.includes('high')) return 90;
+      if (text.includes('medium')) return 70;
+      if (text.includes('low')) return 45;
+      return 75;
+    }
+
+    function initials(row) {
+      const label = row.brand || row.model || row.category || '?';
+      return label.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase();
+    }
+
+    function renderDealCard(row, index) {
+      const quality = qualityClass(row);
+      const title = row.title || [row.brand, row.model, row.storage_gb ? row.storage_gb + 'GB' : ''].filter(Boolean).join(' ');
+      const comparables = Array.isArray(row.turkiye_urls) ? row.turkiye_urls : (row.turkiye_url ? [row.turkiye_url] : []);
+      const buyerGainPct = pct(row.buyer_gain_percent);
+      const heroMedia = row.image_url
+        ? `<img class="listing-image" src="${escapeHtml(row.image_url)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.remove()">`
+        : `<span class="hero-initials">${escapeHtml(initials(row))}</span>`;
+      const zoomButton = row.image_url
+        ? `<button class="hero-zoom" type="button" title="Zoom image" aria-label="Zoom image" onclick="openImageModal(${index})">
+             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+           </button>`
+        : '';
+      return `
+        <div class="deal-card" data-brand="${escapeHtml(row.brand || '')}">
+          <div class="deal-card-hero">
+            ${heroMedia}
+            ${zoomButton}
+            <span class="margin-float ${quality}">${buyerGainPct || money(row.buyer_gain_eur)}</span>
+          </div>
+          <div class="deal-card-body">
+            <div class="deal-card-header">
+              <div>
+                <h3>${escapeHtml(title)}</h3>
+                <div style="display:flex;gap:var(--space-2);margin-top:var(--space-2);flex-wrap:wrap;">
+                  <span class="src-badge src-sh">Sahibinden</span>
+                  <span class="badge ${qualityBadgeClass(quality)}">${escapeHtml(row.deal_quality || row.recommendation || quality)}</span>
+                  <span class="badge">${escapeHtml(row.category || 'deal')}</span>
+                </div>
+              </div>
+              <span class="meta">Confidence ${confidenceValue(row)}%</span>
+            </div>
+            <div class="buyer-offer-block">
+              <div>
+                <div class="tiny">Your offer price</div>
+                <div class="offer-value">${money(row.buyer_offer_price_eur)}</div>
+                ${moneySub(row.buyer_offer_price_try, row.buyer_offer_price_usd)}
+              </div>
+            </div>
+            <div class="price-comparison">
+              <div class="price-block">
+                <span class="price-block-label">Sahibinden average</span>
+                <span class="price-block-value">${money(row.turkiye_avg_eur)}</span>
+                ${moneySub(row.turkiye_avg_try, row.turkiye_avg_usd)}
+              </div>
+              <div class="price-block">
+                <span class="price-block-label">Your upside</span>
+                <span class="price-block-value">${money(row.buyer_gain_eur)}</span>
+                ${moneySub(row.buyer_gain_try, row.buyer_gain_usd)}
+                <span class="price-block-sub">${buyerGainPct || 'projected gain'}</span>
+              </div>
+              <div class="price-block">
+                <span class="price-block-label">Confidence</span>
+                <span class="price-block-value">${confidenceValue(row)}%</span>
+                <span class="price-block-sub">${escapeHtml(row.deal_quality || row.recommendation || quality)}</span>
+              </div>
+            </div>
+            <div class="deal-card-footer">
+              <div class="sahibinden-count">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <strong>${comparables.length}</strong> comparable Sahibinden listings
+              </div>
+              <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;justify-content:flex-end;">
+                <button class="btn btn-primary btn-sm" onclick="openComparables(${index})">Sahibinden list</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderBrandTabs(rows) {
+      const tabs = document.getElementById('brandTabs');
+      if (!tabs || !rows.length) return;
+      const counts = rows.reduce((acc, row) => {
+        const brand = row.brand || 'Other';
+        acc[brand] = (acc[brand] || 0) + 1;
+        return acc;
+      }, {});
+      const brands = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+      tabs.innerHTML = [
+        `<button class="brand-tab active" data-brand="all">All <span class="tab-count">${rows.length}</span></button>`,
+        ...brands.map(([brand, count]) => `<button class="brand-tab" data-brand="${escapeHtml(brand)}">${escapeHtml(brand)} <span class="tab-count">${count}</span></button>`),
+      ].join('');
+      bindBrandTabs();
+    }
+
+    function renderDeals() {
+      if (!dealRows.length) return;
+      const cards = document.getElementById('dealCards');
+      if (!cards) return;
+      cards.innerHTML = dealRows.map(renderDealCard).join('');
+      renderBrandTabs(dealRows);
+      const subtitle = document.querySelector('.section-subtitle');
+      if (subtitle) subtitle.textContent = `${dealRows.length} buyer-ready deals with offer prices and Sahibinden comparables`;
+    }
+
+    function openImageModal(index) {
+      const row = dealRows[index];
+      if (!row || !row.image_url) return;
+      const image = document.getElementById('image-modal-img');
+      const title = document.getElementById('image-modal-title');
+      if (image) {
+        image.src = row.image_url;
+        image.alt = row.title || row.model || 'Listing image';
+      }
+      if (title) title.textContent = row.title || row.model || 'Listing image';
+      openModal('image-modal');
+    }
+
+    function openComparables(index) {
+      const row = dealRows[index];
+      activeComparableUrls = row && Array.isArray(row.turkiye_urls) ? row.turkiye_urls : [];
+      const title = row ? row.title : 'Sahibinden comparables';
+      const header = document.querySelector('#sahibinden-modal h3');
+      if (header) header.textContent = title + ' · Sahibinden';
+      const body = document.querySelector('#sahibinden-modal .modal-body');
+      if (body) {
+        body.innerHTML = activeComparableUrls.length
+          ? activeComparableUrls.map((url, idx) => `
+              <a href="${escapeHtml(url)}" target="_blank" rel="noopener">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:var(--space-3);">
+                  <span>Sahibinden comparable ${idx + 1}</span>
+                  <span class="src-badge src-sh">open</span>
+                </div>
+                <div class="tiny">${escapeHtml(url)}</div>
+              </a>
+            `).join('')
+          : '<div class="tiny">No Sahibinden comparable URLs stored for this row.</div>';
+      }
+      openModal('sahibinden-modal');
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.querySelector('.icon-sun').style.display = next === 'dark' ? 'block' : 'none';
+      document.querySelector('.icon-moon').style.display = next === 'light' ? 'block' : 'none';
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function bindBrandTabs() {
+      document.querySelectorAll('.brand-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.brand-tab').forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          const brand = tab.dataset.brand;
+          document.querySelectorAll('.deal-card').forEach(card => {
+            card.style.display = brand === 'all' || card.dataset.brand === brand ? '' : 'none';
+          });
+        });
+      });
+    }
+
+    renderDeals();
+    bindBrandTabs();
+
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) overlay.classList.remove('open');
+      });
+    });
+  </script>
+</body>
+</html>

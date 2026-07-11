@@ -833,7 +833,186 @@
     </nav>
   </div>
 
+  <script src="opportunities-data.js"></script>
   <script>
+    const opportunityRows = Array.isArray(window.PRICEBRIDGE_OPPORTUNITIES) ? window.PRICEBRIDGE_OPPORTUNITIES : [];
+
+    function money(value, currency = 'EUR', digits = 0) {
+      if (value === null || value === undefined || value === '') return '—';
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '—';
+      const symbol = currency === 'EUR' ? '€' : currency + ' ';
+      return symbol + number.toLocaleString(undefined, { maximumFractionDigits: digits, minimumFractionDigits: digits });
+    }
+
+    function pct(value) {
+      if (value === null || value === undefined || value === '') return '—';
+      const number = Number(value);
+      if (!Number.isFinite(number)) return '—';
+      return number.toLocaleString(undefined, { maximumFractionDigits: 1 }) + '%';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+      }[char]));
+    }
+
+    function qualityClass(row) {
+      const quality = String(row.deal_quality || row.recommendation || '').toLowerCase();
+      if (quality.includes('strong')) return 'strong';
+      if (quality.includes('medium') || quality.includes('good')) return 'medium';
+      if (quality.includes('weak') || quality.includes('watch')) return 'weak';
+      return 'medium';
+    }
+
+    function qualityBadgeClass(quality) {
+      if (quality === 'strong') return 'badge-success';
+      if (quality === 'weak') return 'badge-danger';
+      return 'badge-warn';
+    }
+
+    function confidenceValue(row) {
+      const raw = row.confidence ?? row.confidence_score;
+      if (typeof raw === 'number') return raw <= 1 ? Math.round(raw * 100) : Math.round(raw);
+      const text = String(raw || '').toLowerCase();
+      if (text.includes('high')) return 90;
+      if (text.includes('medium')) return 70;
+      if (text.includes('low')) return 45;
+      return 75;
+    }
+
+    function confidenceClass(value) {
+      if (value >= 85) return 'high';
+      if (value >= 65) return 'medium';
+      return 'low';
+    }
+
+    function sourceBadges(row) {
+      const badges = [];
+      if (row.algeria_url) badges.push('<span class="src-badge src-ok">OK</span>');
+      if (row.turkiye_url) badges.push('<span class="src-badge src-sh">SH</span>');
+      return badges.join('');
+    }
+
+    function initials(row) {
+      const label = row.brand || row.model || row.category || '?';
+      return label.split(/\s+/).filter(Boolean).slice(0, 2).map(part => part[0]).join('').toUpperCase();
+    }
+
+    function renderOpportunityCard(row) {
+      const quality = qualityClass(row);
+      const confidence = confidenceValue(row);
+      const title = row.title || [row.brand, row.model, row.storage_gb ? row.storage_gb + 'GB' : ''].filter(Boolean).join(' ');
+      const buyerUrl = row.algeria_url || '#';
+      const benchmarkUrl = row.turkiye_url || '#';
+      return `
+        <div class="opp-card" data-quality="${quality}" data-brand="${escapeHtml(row.brand || '')}" data-category="${escapeHtml(row.category || '')}">
+          <div class="opp-card-image">
+            <span style="font-family:var(--font-mono);font-size:var(--text-xl);font-weight:700;color:var(--fg);">${escapeHtml(initials(row))}</span>
+          </div>
+          <div class="opp-card-body">
+            <div class="opp-card-title">
+              ${escapeHtml(title)}
+              <span class="quality-dot ${quality}" title="${quality} deal"></span>
+              <span class="badge ${qualityBadgeClass(quality)}">${escapeHtml(row.deal_quality || row.recommendation || quality)}</span>
+            </div>
+            <div class="opp-card-meta">
+              ${sourceBadges(row)}
+              <span class="meta">${escapeHtml(row.category || 'opportunity')}</span>
+              <span class="meta">Confidence: ${confidence}%</span>
+            </div>
+            <div class="opp-card-prices">
+              <div class="opp-price-col">
+                <span class="opp-price-label">Algeria Min</span>
+                <span class="opp-price-value">${money(row.algeria_min_eur)}</span>
+                <span class="tiny">source buy price</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Türkiye Avg</span>
+                <span class="opp-price-value">${money(row.turkiye_avg_eur)}</span>
+                <span class="tiny">benchmark market price</span>
+              </div>
+              <div class="opp-price-col">
+                <span class="opp-price-label">Buyer Offer</span>
+                <span class="opp-price-value">${money(row.buyer_offer_price_eur)}</span>
+                <span class="tiny">${money(row.buyer_offer_price_dzd, 'DZD')}</span>
+              </div>
+            </div>
+            <div class="opp-card-footer">
+              <div style="display:flex;gap:var(--space-4);align-items:center;flex-wrap:wrap;">
+                <div>
+                  <span class="tiny">Projected Income</span>
+                  <div class="opp-price-value num" style="color:var(--success);font-size:var(--text-lg);">${money(row.projected_our_income_eur)}</div>
+                </div>
+                <div>
+                  <span class="tiny">Buyer Gain</span>
+                  <div class="opp-price-value num" style="color:var(--info);font-size:var(--text-lg);">${money(row.buyer_gain_eur)}</div>
+                  <span class="tiny">${pct(row.buyer_gain_percent)}</span>
+                </div>
+                <div>
+                  <span class="tiny">Gross Margin</span>
+                  <div class="opp-price-value num" style="font-size:var(--text-lg);">${money(row.gross_margin_eur)}</div>
+                </div>
+                <div>
+                  <span class="tiny">Confidence</span>
+                  <div class="confidence-bar" style="width:80px;margin-top:4px;">
+                    <div class="confidence-bar-fill ${confidenceClass(confidence)}" style="width:${Math.max(0, Math.min(100, confidence))}%"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="opp-card-actions">
+                <a href="${escapeHtml(buyerUrl)}" target="_blank" rel="noreferrer" class="btn btn-primary btn-sm">Algeria listing</a>
+                <a href="${escapeHtml(benchmarkUrl)}" target="_blank" rel="noreferrer" class="btn btn-ghost btn-sm">Türkiye comp</a>
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function updateSummary(rows) {
+      const values = rows.map(row => Number(row.projected_our_income_eur || 0)).filter(Number.isFinite);
+      const buyerGains = rows.map(row => Number(row.buyer_gain_eur || 0)).filter(Number.isFinite);
+      const margins = rows.map(row => Number(row.gross_margin_eur || 0)).filter(Number.isFinite);
+      const strongCount = rows.filter(row => qualityClass(row) === 'strong').length;
+      const avgBuyerGain = buyerGains.length ? buyerGains.reduce((a, b) => a + b, 0) / buyerGains.length : 0;
+      const totalProjected = values.reduce((a, b) => a + b, 0);
+      const avgMargin = margins.length ? margins.reduce((a, b) => a + b, 0) / margins.length : 0;
+
+      const kpis = document.querySelectorAll('.kpi-card .kpi-value');
+      if (kpis[0]) kpis[0].textContent = rows.length;
+      if (kpis[1]) kpis[1].textContent = strongCount;
+      if (kpis[2]) kpis[2].textContent = money(avgMargin);
+      if (kpis[3]) kpis[3].textContent = money(totalProjected);
+
+      const labels = document.querySelectorAll('.kpi-card .kpi-label');
+      if (labels[2]) labels[2].textContent = 'Avg Gross Margin';
+      if (labels[3]) labels[3].textContent = 'Projected Income';
+
+      const changes = document.querySelectorAll('.kpi-card .kpi-change');
+      if (changes[0]) changes[0].lastChild.textContent = ' live export rows';
+      if (changes[1]) changes[1].lastChild.textContent = ' strong quality';
+      if (changes[2]) changes[2].lastChild.textContent = ' avg spread';
+      if (changes[3]) changes[3].lastChild.textContent = ' internal ranking';
+
+      const subtitle = document.querySelector('.section-subtitle');
+      if (subtitle) subtitle.textContent = `Sorted by projected income · ${rows.length} results · avg buyer gain ${money(avgBuyerGain)}`;
+    }
+
+    function renderOpportunityRows() {
+      if (!opportunityRows.length) return;
+      const list = document.querySelector('[data-od-id="opp-list"]');
+      if (!list) return;
+      list.innerHTML = opportunityRows.map(renderOpportunityCard).join('');
+      updateSummary(opportunityRows);
+    }
+
+    renderOpportunityRows();
+
     // Theme toggle
     function toggleTheme() {
       const html = document.documentElement;
