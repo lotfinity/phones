@@ -40,7 +40,9 @@ def _sanitize_card_context(context, *, show_internal_gain, show_operational_meta
 
     sanitized_rows = []
     for row in context.get("rows", []):
-        sanitized_rows.append({key: value for key, value in row.items() if key not in hidden_keys})
+        sanitized = {key: value for key, value in row.items() if key not in hidden_keys}
+        sanitized["gross_margin"] = "-"
+        sanitized_rows.append(sanitized)
 
     context["rows"] = sanitized_rows
     context["best_opportunity"] = sanitized_rows[0] if sanitized_rows else None
