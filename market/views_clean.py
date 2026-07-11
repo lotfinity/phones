@@ -6,7 +6,8 @@ from django.urls import reverse
 
 from market.clean_models import ConsoleOpportunitySnapshot, LaptopOpportunitySnapshot, PhoneOpportunitySnapshot
 from market.models import ConsoleListing, LaptopListing, ParsedListingCandidate, PhoneListing, RawListing
-from market.views import base_context, money, pct
+from market.services.gain_split import compute_gain_split
+from market.views import base_context, money, money_amount, pct
 
 
 CLEAN_SNAPSHOT_MODELS = {
@@ -20,6 +21,16 @@ CATEGORY_LABELS = {
     "laptop": "Laptop",
     "console": "Portable console",
 }
+
+
+def can_view_internal_gain(request):
+    user = getattr(request, "user", None)
+    return bool(user and user.is_authenticated and user.is_superuser)
+
+
+def can_view_operational_meta(request):
+    user = getattr(request, "user", None)
+    return bool(user and user.is_authenticated and user.is_staff)
 
 
 def _snapshot_spec(item, device_type):
@@ -124,8 +135,8 @@ def _filtered_clean_rows(request):
     return rows, device_type, brand, q
 
 
-def _display_row(row, selected_currency):
-    return row | {
+def _display_row(row, selected_currency, *, show_internal_gain=False):
+    display = row | {
         "algeria_min": money(row["algeria_min_eur"], selected_currency)
         if row["algeria_min_eur"] is not None
         else "-",
@@ -150,11 +161,46 @@ def _display_row(row, selected_currency):
         "counts_label": f"DZ {row['algeria_count']} / TR {row['turkiye_count']}",
     }
 
+    gain_split = compute_gain_split(
+        algeria_min_eur=row.get("algeria_min_eur"),
+        turkiye_avg_eur=row.get("turkiye_avg_eur"),
+        gross_margin_eur=row.get("gross_margin_eur"),
+    )
+    if not gain_split:
+        return display
+
+    display.update(
+        {
+            "buyer_offer": money(gain_split["offer_price_to_buyer_eur"], selected_currency),
+            "buyer_offer_dzd": money_amount(gain_split["offer_price_to_buyer_dzd"], "DZD"),
+            "buyer_gain": money(gain_split["buyer_gain_eur"], selected_currency),
+            "buyer_gain_percent": pct(gain_split["buyer_gain_percent"]),
+            "deal_quality": gain_split["deal_quality"],
+        }
+    )
+
+    if show_internal_gain:
+        display.update(
+            {
+                "my_gain": money(gain_split["my_gain_eur"], selected_currency),
+                "my_gain_dzd": money_amount(gain_split["my_gain_dzd"], "DZD"),
+                "my_gain_percent": pct(gain_split["my_gain_percent_of_gross"]),
+                "pricing_basis": gain_split["pricing_basis"],
+                "pricing_notes": gain_split["notes"],
+            }
+        )
+    return display
+
 
 def _shared_clean_context(request, rows, device_type, brand, q):
     selected_currency = request.GET.get("currency") or request.COOKIES.get("pricebridge_currency") or "EUR"
+    show_internal_gain = can_view_internal_gain(request)
+    show_operational_meta = can_view_operational_meta(request)
     visible_rows = rows[:300]
-    display_rows = [_display_row(row, selected_currency) for row in visible_rows]
+    display_rows = [
+        _display_row(row, selected_currency, show_internal_gain=show_internal_gain)
+        for row in visible_rows
+    ]
     total_gross = sum((row["gross_margin_eur"] or Decimal("0")) for row in visible_rows)
     margins = [row["margin_percent"] for row in visible_rows if row["margin_percent"] is not None]
     avg_margin = sum(margins) / len(margins) if margins else None
@@ -164,6 +210,8 @@ def _shared_clean_context(request, rows, device_type, brand, q):
         ConsoleOpportunitySnapshot.objects.order_by("-generated_at").values_list("generated_at", flat=True).first(),
     ]
     latest_generated_at = max([item for item in latest_candidates if item], default=None)
+    all_rows = _clean_snapshot_rows()
+    brand_values = sorted({row["brand"] for row in all_rows if row["brand"]})
 
     return {
         "rows": display_rows,
@@ -172,8 +220,8 @@ def _shared_clean_context(request, rows, device_type, brand, q):
         "total_gross": money(total_gross, selected_currency) if total_gross else "-",
         "avg_margin": pct(avg_margin) if avg_margin is not None else "-",
         "latest_generated_at": latest_generated_at,
-        "brands": sorted({row["brand"] for row in _clean_snapshot_rows() if row["brand"]}),
-        "brand_list": [{"name": value} for value in sorted({row["brand"] for row in _clean_snapshot_rows() if row["brand"]})],
+        "brands": brand_values,
+        "brand_list": [{"name": value} for value in brand_values],
         "active_brand": brand,
         "active_type": device_type,
         "search_query": q,
@@ -192,6 +240,8 @@ def _shared_clean_context(request, rows, device_type, brand, q):
             ).count(),
         },
         "best_opportunity": display_rows[0] if display_rows else None,
+        "can_view_internal_gain": show_internal_gain,
+        "can_view_operational_meta": show_operational_meta,
     }
 
 
@@ -223,9 +273,19 @@ def clean_opportunity_detail(request, category, pk):
 
     item = get_object_or_404(model, pk=pk)
     selected_currency = request.GET.get("currency") or request.COOKIES.get("pricebridge_currency") or "EUR"
-    row = _display_row(_snapshot_row(item, category), selected_currency)
+    show_internal_gain = can_view_internal_gain(request)
+    row = _display_row(
+        _snapshot_row(item, category),
+        selected_currency,
+        show_internal_gain=show_internal_gain,
+    )
     return render(
         request,
         "market/clean_opportunity_detail.html",
-        base_context(request, "opportunities") | {"row": row},
+        base_context(request, "opportunities")
+        | {
+            "row": row,
+            "can_view_internal_gain": show_internal_gain,
+            "can_view_operational_meta": can_view_operational_meta(request),
+        },
     )
