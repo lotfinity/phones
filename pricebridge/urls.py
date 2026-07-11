@@ -18,12 +18,45 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
+from django.views.generic import TemplateView
 from market import views
 from market.views_clean import clean_opportunities
 from market.views_phone_opportunities import phone_opportunities_v2
 
 urlpatterns = [
     path('', clean_opportunities, name='opportunities'),
+
+    # Side-by-side frontend review routes. These aliases intentionally leave
+    # the public routes unchanged while each UI variant is evaluated.
+    path(
+        'ui-preview/',
+        TemplateView.as_view(
+            template_name='market/ui_preview.html',
+            extra_context={'active': 'opportunities'},
+        ),
+        name='ui_preview',
+    ),
+    path(
+        'ui-preview/clean-opportunities/',
+        clean_opportunities,
+        name='ui_preview_clean_opportunities',
+    ),
+    path(
+        'ui-preview/card-opportunities/',
+        views.opportunities,
+        name='ui_preview_card_opportunities',
+    ),
+    path(
+        'ui-preview/phone-opportunities/',
+        phone_opportunities_v2,
+        name='ui_preview_phone_opportunities',
+    ),
+    path(
+        'ui-preview/deals/',
+        views.deals_swiper,
+        name='ui_preview_deals',
+    ),
+
     path('phone-opportunities/', phone_opportunities_v2, name='phone_opportunities_v2'),
     path('opportunities/<int:pk>/', views.opportunity_detail, name='opportunity_detail'),
     path('listings/', views.listings, name='listings'),
