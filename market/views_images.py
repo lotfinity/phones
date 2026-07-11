@@ -20,6 +20,7 @@ CLEAN_LISTING_MODELS = {
 
 ALLOWED_IMAGE_TYPES = {
     "image/jpeg",
+    "image/jpg",
     "image/png",
     "image/webp",
     "image/gif",
@@ -27,6 +28,20 @@ ALLOWED_IMAGE_TYPES = {
 }
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
 MAX_REDIRECTS = 3
+
+
+def _sniff_image_type(payload):
+    if payload.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if payload.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if payload.startswith((b"GIF87a", b"GIF89a")):
+        return "image/gif"
+    if len(payload) >= 12 and payload[:4] == b"RIFF" and payload[8:12] == b"WEBP":
+        return "image/webp"
+    if len(payload) >= 16 and payload[4:8] == b"ftyp" and payload[8:12] in {b"avif", b"avis"}:
+        return "image/avif"
+    return ""
 
 
 def _validate_public_http_url(url):
@@ -78,9 +93,6 @@ def _download_image(url, *, referer=""):
 
         response.raise_for_status()
         content_type = response.headers.get("Content-Type", "").split(";", 1)[0].strip().lower()
-        if content_type not in ALLOWED_IMAGE_TYPES:
-            response.close()
-            raise ValueError("Remote resource is not a supported raster image")
 
         declared_size = response.headers.get("Content-Length")
         if declared_size and int(declared_size) > MAX_IMAGE_BYTES:
@@ -98,7 +110,14 @@ def _download_image(url, *, referer=""):
                 raise ValueError("Remote image exceeded the size limit")
             chunks.append(chunk)
         response.close()
-        return b"".join(chunks), content_type
+        payload = b"".join(chunks)
+        if content_type == "image/jpg":
+            content_type = "image/jpeg"
+        if content_type not in ALLOWED_IMAGE_TYPES:
+            content_type = _sniff_image_type(payload)
+        if content_type not in ALLOWED_IMAGE_TYPES:
+            raise ValueError("Remote resource is not a supported raster image")
+        return payload, content_type
 
     raise ValueError("Too many image redirects")
 
