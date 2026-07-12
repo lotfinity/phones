@@ -48,6 +48,35 @@ class FetchExchangeRatesCommandTests(TestCase):
         self.assertIn("Saved 4 FX rate rows", out.getvalue())
 
     @patch("market.management.commands.fetch_exchange_rates.requests.get")
+    def test_saves_current_frankfurter_list_payload(self, mock_get):
+        response = Mock()
+        response.raise_for_status.return_value = None
+        response.json.return_value = [
+            {"date": "2026-07-13", "base": "EUR", "quote": "TRY", "rate": 53.705},
+            {"date": "2026-07-13", "base": "EUR", "quote": "USD", "rate": 1.1443},
+        ]
+        mock_get.return_value = response
+
+        out = StringIO()
+        call_command(
+            "fetch_exchange_rates",
+            "--dzd-per-eur-black",
+            "295",
+            stdout=out,
+        )
+
+        self.assertEqual(CurrencyRate.objects.count(), 4)
+        self.assertEqual(
+            CurrencyRate.objects.get(base_currency="EUR", quote_currency="TRY").rate,
+            Decimal("53.705000"),
+        )
+        self.assertEqual(
+            CurrencyRate.objects.get(base_currency="EUR", quote_currency="USD").rate,
+            Decimal("1.144300"),
+        )
+        self.assertIn("Saved 4 FX rate rows", out.getvalue())
+
+    @patch("market.management.commands.fetch_exchange_rates.requests.get")
     def test_latest_db_rates_are_used_by_currency_helpers(self, mock_get):
         response = Mock()
         response.raise_for_status.return_value = None

@@ -44,6 +44,7 @@ def fetch_public_rates(endpoint, timeout):
     except ValueError as exc:
         raise CommandError("FX provider returned invalid JSON.") from exc
 
+    payload = normalize_provider_payload(payload)
     rates = payload.get("rates")
     if not isinstance(rates, dict):
         raise CommandError("FX provider response is missing a rates object.")
@@ -53,6 +54,32 @@ def fetch_public_rates(endpoint, timeout):
         raise CommandError(f"FX provider response is missing rates for: {', '.join(missing)}")
 
     return payload
+
+
+def normalize_provider_payload(payload):
+    if isinstance(payload, dict):
+        return payload
+
+    if not isinstance(payload, list):
+        raise CommandError("FX provider returned an unsupported JSON shape.")
+
+    rates = {}
+    provider_date = ""
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        if item.get("base") != PUBLIC_BASE:
+            continue
+        quote = item.get("quote")
+        if quote in PUBLIC_QUOTES:
+            rates[quote] = item.get("rate")
+            provider_date = provider_date or item.get("date", "")
+
+    return {
+        "base": PUBLIC_BASE,
+        "date": provider_date,
+        "rates": rates,
+    }
 
 
 def build_rate_rows(payload, *, source, dzd_per_eur_black=None, include_dzd_black=True, observed_at=None):
