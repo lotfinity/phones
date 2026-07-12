@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" style="color-scheme: dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account Drawer Reference</title>
+  <link rel="stylesheet" href="../../assets/css/bagisto-theme.css" data-bagisto-port-css>
+  <link rel="stylesheet" href="../../assets/css/port-fixes.css" data-bagisto-port-fixes>
+</head>
+<body class="min-h-screen font-archivo bg-white dark:bg-neutral-950 text-neutral-900 dark:text-white overflow-hidden">
+  <main class="min-h-screen p-8">
+    <h1 class="text-2xl font-semibold">Account drawer structural reference</h1>
+    <p class="mt-2 text-neutral-500 dark:text-neutral-400">The drawer markup is loaded from the extracted logged-in capture.</p>
+  </main>
+
+  <div id="account-drawer-backdrop" class="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm"></div>
+  <div id="account-drawer-mount" class="fixed inset-0 z-[70]"></div>
+
+  <script>
+    (async () => {
+      const mount = document.getElementById("account-drawer-mount");
+      const backdrop = document.getElementById("account-drawer-backdrop");
+      const source = "../../analysis/home/index-account-menu-open/sections/01-account-dialog.html";
+
+      try {
+        const response = await fetch(source);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        mount.innerHTML = await response.text();
+        const dialog = mount.querySelector('[role="dialog"]');
+        if (!dialog) throw new Error("Account dialog markup was not found");
+
+        dialog.style.position = "absolute";
+        dialog.style.top = "0";
+        dialog.style.right = "0";
+        dialog.style.bottom = "0";
+        dialog.hidden = false;
+        dialog.setAttribute("aria-hidden", "false");
+
+        const close = () => {
+          mount.hidden = true;
+          backdrop.hidden = true;
+          document.documentElement.style.overflow = "";
+          document.body.style.overflow = "";
+        };
+
+        backdrop.addEventListener("click", close);
+        dialog.querySelector('button[aria-label="Close account"]')?.addEventListener("click", close);
+      } catch (error) {
+        mount.innerHTML = `<div class="fixed right-4 top-4 rounded-lg bg-red-50 p-4 text-red-700">Unable to load account drawer: ${error.message}</div>`;
+      }
+    })();
+  </script>
+</body>
+</html>
