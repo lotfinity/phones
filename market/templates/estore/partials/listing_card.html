@@ -1,0 +1,51 @@
+<article class="pb-product-card">
+    <a class="pb-product-card__image" href="{{ card.detail_url }}" aria-label="{{ card.title }}">
+        {% if card.has_image %}
+            <img
+                src="{{ card.image_url }}"
+                alt="{{ card.title }}"
+                loading="lazy"
+                decoding="async"
+                data-listing-image
+            >
+        {% endif %}
+        <span class="pb-image-fallback{% if card.has_image %} is-hidden{% endif %}" data-image-fallback aria-hidden="true">
+            {{ card.initials }}
+        </span>
+        <span class="pb-product-card__category">{{ card.category_label }}</span>
+    </a>
+
+    <div class="pb-product-card__body">
+        <div class="pb-product-card__meta">
+            <span>{{ card.country }}</span>
+            <span>•</span>
+            <span>{{ card.source }}</span>
+        </div>
+
+        <a class="pb-product-card__title" href="{{ card.detail_url }}">{{ card.title }}</a>
+
+        {% if card.subtitle %}
+            <p class="pb-product-card__subtitle">{{ card.subtitle }}</p>
+        {% endif %}
+
+        <div class="pb-badge-row">
+            <span class="pb-badge">{{ card.condition }}</span>
+            {% if card.observed_at %}
+                <span class="pb-badge pb-badge--muted">{{ card.observed_at|timesince }} önce</span>
+            {% endif %}
+        </div>
+
+        <div class="pb-price-block">
+            <span>İlan fiyatı</span>
+            <strong>{{ card.price_original }}</strong>
+            {% if card.price_try %}
+                <small>Yaklaşık {{ card.price_try }}</small>
+            {% endif %}
+        </div>
+
+        <a class="pb-card-action" href="{{ card.detail_url }}">
+            İlanı incele
+            <span aria-hidden="true">→</span>
+        </a>
+    </div>
+</article>
