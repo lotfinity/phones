@@ -4,29 +4,30 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}PriceBridge Mağaza{% endblock %}</title>
-    <meta name="description" content="Cezayir ve Türkiye pazarlarından gerçek elektronik ilanları.">
+    <title>{% block title %}PriceBridge Fırsatlar{% endblock %}</title>
+    <meta name="description" content="Cezayir ve Türkiye pazarlarından hesaplanan elektronik alım fırsatları.">
     <link rel="stylesheet" href="{% url 'estore_asset' path='css/bagisto-theme.css' %}">
     <link rel="stylesheet" href="{% url 'estore_asset' path='css/port-fixes.css' %}">
     <link rel="stylesheet" href="{% url 'estore_asset' path='css/pricebridge-estore.css' %}">
+    <link rel="stylesheet" href="{% url 'estore_asset' path='css/opportunity-overrides.css' %}">
     {% block head %}{% endblock %}
 </head>
 <body class="pb-storefront">
     <header class="pb-header">
         <div class="pb-header__inner">
-            <a class="pb-brand" href="{% url 'estore_listing_index' %}" aria-label="PriceBridge ana sayfa">
+            <a class="pb-brand" href="{% url 'estore_opportunity_index' %}" aria-label="PriceBridge fırsatlar ana sayfası">
                 <span class="pb-brand__mark">PB</span>
                 <span>
                     <strong>PriceBridge</strong>
-                    <small>Gerçek cihaz ilanları</small>
+                    <small>Mağazan için alım fırsatları</small>
                 </span>
             </a>
 
             <nav class="pb-desktop-nav" aria-label="Ana menü">
-                <a href="{% url 'estore_listing_index' %}">Tüm İlanlar</a>
-                <a href="{% url 'estore_listing_index' %}?category=phone">Telefonlar</a>
-                <a href="{% url 'estore_listing_index' %}?category=laptop">Laptoplar</a>
-                <a href="{% url 'estore_listing_index' %}?category=console">Konsollar</a>
+                <a href="{% url 'estore_opportunity_index' %}">Tüm Fırsatlar</a>
+                <a href="{% url 'estore_opportunity_index' %}?category=phone">Telefonlar</a>
+                <a href="{% url 'estore_opportunity_index' %}?category=laptop">Laptoplar</a>
+                <a href="{% url 'estore_opportunity_index' %}?category=console">Konsollar</a>
             </nav>
 
             <button class="pb-icon-button" type="button" data-theme-toggle aria-label="Temayı değiştir">
@@ -42,25 +43,25 @@
     <footer class="pb-footer">
         <div>
             <strong>PriceBridge</strong>
-            <span>Gerçek kaynaklardan güncel elektronik ilanları.</span>
+            <span>Gerçek ilanlardan hesaplanan güncel alım fırsatları.</span>
         </div>
-        <a href="{% url 'estore_listing_index' %}">Tüm ilanlara dön</a>
+        <a href="{% url 'estore_opportunity_index' %}">Tüm fırsatlara dön</a>
     </footer>
 
     <nav class="pb-mobile-nav" aria-label="Mobil menü">
-        <a href="{% url 'estore_listing_index' %}">
+        <a href="{% url 'estore_opportunity_index' %}">
             <span aria-hidden="true">⌂</span>
-            <small>İlanlar</small>
+            <small>Fırsatlar</small>
         </a>
-        <a href="{% url 'estore_listing_index' %}?category=phone">
+        <a href="{% url 'estore_opportunity_index' %}?category=phone">
             <span aria-hidden="true">▯</span>
             <small>Telefon</small>
         </a>
-        <a href="{% url 'estore_listing_index' %}?category=laptop">
+        <a href="{% url 'estore_opportunity_index' %}?category=laptop">
             <span aria-hidden="true">▰</span>
             <small>Laptop</small>
         </a>
-        <a href="{% url 'estore_listing_index' %}?category=console">
+        <a href="{% url 'estore_opportunity_index' %}?category=console">
             <span aria-hidden="true">⌁</span>
             <small>Konsol</small>
         </a>
