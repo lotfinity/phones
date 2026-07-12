@@ -18,7 +18,7 @@ from market.models import (
 )
 
 
-class EstoreOpportunityViewsTests(TestCase):
+class EstoreBagistoOpportunityViewsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         apple = Brand.objects.create(name="Apple")
@@ -168,44 +168,53 @@ class EstoreOpportunityViewsTests(TestCase):
             password="test-password",
         )
 
-    def test_estore_index_contains_all_opportunity_categories(self):
+    def test_index_serves_preserved_bagisto_smartphones_page(self):
         response = self.client.get(reverse("estore_opportunity_index"))
 
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["X-PriceBridge-Frontend"], "preserved-bagisto-port")
+        self.assertEqual(
+            response["X-PriceBridge-Bagisto-Source"],
+            "pages/smartphones-preview.html",
+        )
+        self.assertContains(response, 'name="pricebridge-bagisto-source"')
+        self.assertContains(response, "pages/smartphones-preview.html")
+        self.assertContains(response, "Bagisto Headless")
+        self.assertContains(response, "bagisto-opportunity-adapter.js")
+
+    def test_index_payload_contains_all_opportunity_categories(self):
+        response = self.client.get(reverse("estore_opportunity_index"))
+
         self.assertContains(response, "Apple iPhone 15 Pro")
         self.assertContains(response, "Asus ROG Zephyrus")
         self.assertContains(response, "Valve Steam Deck OLED")
-        self.assertEqual(response.context["total_count"], 3)
-        self.assertContains(response, "fırsat gösteriliyor")
+        self.assertContains(response, '"total_count":3')
 
-    def test_raw_listing_without_opportunity_is_not_a_catalog_card(self):
+    def test_raw_listing_without_snapshot_is_not_in_payload(self):
         response = self.client.get(reverse("estore_opportunity_index"))
 
-        self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, self.unmatched_listing.title)
 
-    def test_category_filter_filters_opportunities(self):
+    def test_category_filter_filters_opportunity_payload(self):
         response = self.client.get(
             reverse("estore_opportunity_index"),
             {"category": "phone"},
         )
 
-        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Apple iPhone 15 Pro")
         self.assertNotContains(response, "Asus ROG Zephyrus")
         self.assertNotContains(response, "Valve Steam Deck OLED")
 
-    def test_search_filters_opportunities(self):
+    def test_search_filters_opportunity_payload(self):
         response = self.client.get(
             reverse("estore_opportunity_index"),
             {"q": "Zephyrus"},
         )
 
-        self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Asus ROG Zephyrus")
         self.assertNotContains(response, "Valve Steam Deck OLED")
 
-    def test_phone_opportunity_detail_renders_pricing_status_and_proxy_image(self):
+    def test_detail_serves_preserved_bagisto_product_page(self):
         response = self.client.get(
             reverse(
                 "estore_opportunity_detail",
@@ -214,22 +223,19 @@ class EstoreOpportunityViewsTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Apple iPhone 15 Pro")
-        self.assertContains(response, "Önerilen alım fiyatı")
-        self.assertContains(response, "Tahmini mağaza kazancı")
-        self.assertContains(response, "Batarya sağlığı")
-        self.assertContains(response, "91%")
-        self.assertContains(
-            response,
-            reverse(
-                "clean_listing_image",
-                kwargs={"category": "phone", "pk": self.phone_listing.pk},
-            ),
+        self.assertEqual(response["X-PriceBridge-Frontend"], "preserved-bagisto-port")
+        self.assertEqual(
+            response["X-PriceBridge-Bagisto-Source"],
+            "pages/products/smartphone-earphone-bundle-preview.html",
         )
+        self.assertContains(response, "Apple iPhone 15 Pro")
+        self.assertContains(response, '"buyer_offer"')
+        self.assertContains(response, '"buyer_gain"')
+        self.assertContains(response, "Batarya sağlığı")
         self.assertContains(response, "iPhone 15 Pro Türkiye karşılaştırması")
         self.assertNotContains(response, "iPhone 15 Pro 256 GB gerçek ilan")
 
-    def test_superuser_can_see_algeria_evidence_and_internal_gain(self):
+    def test_superuser_detail_includes_algeria_evidence_and_internal_values(self):
         self.client.force_login(self.superuser)
         response = self.client.get(
             reverse(
@@ -238,12 +244,11 @@ class EstoreOpportunityViewsTests(TestCase):
             )
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Cezayir alım kanıtları")
         self.assertContains(response, "iPhone 15 Pro 256 GB gerçek ilan")
-        self.assertContains(response, "İç kazanç")
+        self.assertContains(response, '"can_view_internal_gain":true')
+        self.assertContains(response, '"my_gain"')
 
-    def test_laptop_and_console_opportunity_details_render(self):
+    def test_laptop_and_console_details_use_same_preserved_product_layout(self):
         for category, opportunity, title in (
             ("laptop", self.laptop_opportunity, "Asus ROG Zephyrus"),
             ("console", self.console_opportunity, "Valve Steam Deck OLED"),
@@ -257,12 +262,16 @@ class EstoreOpportunityViewsTests(TestCase):
                 )
                 self.assertEqual(response.status_code, 200)
                 self.assertContains(response, title)
+                self.assertEqual(
+                    response["X-PriceBridge-Bagisto-Source"],
+                    "pages/products/smartphone-earphone-bundle-preview.html",
+                )
 
-    def test_unknown_opportunity_category_returns_404(self):
+    def test_unknown_category_returns_404(self):
         response = self.client.get("/estore/opportunity/tablet/1/")
         self.assertEqual(response.status_code, 404)
 
-    def test_storefront_responses_are_private_and_vary_by_cookie(self):
+    def test_storefront_responses_remain_private_and_vary_by_cookie(self):
         response = self.client.get(reverse("estore_opportunity_index"))
 
         self.assertIn("private", response["Cache-Control"])
