@@ -1,0 +1,193 @@
+/*
+ * Minimal bridge styles for the preserved Bagisto captures.
+ * The captured Bagisto DOM and compiled theme remain the visual source.
+ * These rules only support injected opportunity data and loading safety.
+ */
+
+html.pb-bagisto-hydrating body {
+  visibility: hidden;
+}
+
+[data-pb-opportunity-meta] {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+[data-pb-opportunity-meta] strong {
+  font-weight: 700;
+}
+
+[data-pb-opportunity-meta] small {
+  opacity: 0.72;
+}
+
+[data-pb-opportunity-badge] {
+  display: inline-flex;
+  width: max-content;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+[data-pb-opportunity-badge][data-state="buy"],
+[data-pb-opportunity-badge][data-state="good_opportunity"] {
+  color: #166534;
+  background: #dcfce7;
+}
+
+[data-pb-opportunity-badge][data-state="watch"],
+[data-pb-opportunity-badge][data-state="marginal"] {
+  color: #854d0e;
+  background: #fef9c3;
+}
+
+[data-pb-opportunity-badge][data-state="ignore"],
+[data-pb-opportunity-badge][data-state="no_margin"],
+[data-pb-opportunity-badge][data-state="low_confidence"] {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+.dark [data-pb-opportunity-badge][data-state="buy"],
+.dark [data-pb-opportunity-badge][data-state="good_opportunity"] {
+  color: #bbf7d0;
+  background: rgba(22, 101, 52, 0.45);
+}
+
+.dark [data-pb-opportunity-badge][data-state="watch"],
+.dark [data-pb-opportunity-badge][data-state="marginal"] {
+  color: #fef08a;
+  background: rgba(133, 77, 14, 0.45);
+}
+
+.dark [data-pb-opportunity-badge][data-state="ignore"],
+.dark [data-pb-opportunity-badge][data-state="no_margin"],
+.dark [data-pb-opportunity-badge][data-state="low_confidence"] {
+  color: #fecaca;
+  background: rgba(153, 27, 27, 0.45);
+}
+
+[data-pb-opportunity-panel] {
+  width: min(1280px, calc(100% - 2rem));
+  margin: 2.5rem auto;
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-panel-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-panel-card {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.dark [data-pb-opportunity-panel] .pb-bagisto-panel-card {
+  background: rgba(17, 24, 39, 0.72);
+}
+
+[data-pb-opportunity-panel] h2,
+[data-pb-opportunity-panel] h3,
+[data-pb-opportunity-panel] p {
+  margin: 0;
+}
+
+[data-pb-opportunity-panel] h2 {
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.15;
+}
+
+[data-pb-opportunity-panel] h3 {
+  margin-top: 1.25rem;
+  font-size: 1rem;
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-metrics {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-metric {
+  border-radius: 0.625rem;
+  padding: 0.875rem;
+  background: rgba(148, 163, 184, 0.12);
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-metric span,
+[data-pb-opportunity-panel] .pb-bagisto-evidence small {
+  display: block;
+  opacity: 0.7;
+  font-size: 0.75rem;
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-metric strong {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 1rem;
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-evidence {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.625rem;
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-evidence a {
+  display: block;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  padding-bottom: 0.625rem;
+}
+
+[data-pb-opportunity-panel] .pb-bagisto-evidence a:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.pb-bagisto-fallback-grid {
+  width: min(1280px, calc(100% - 2rem));
+  margin: 2rem auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.pb-bagisto-fallback-card {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+.pb-bagisto-fallback-card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.pb-bagisto-fallback-card > div {
+  padding: 1rem;
+}
+
+@media (min-width: 48rem) {
+  [data-pb-opportunity-panel] .pb-bagisto-panel-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  }
+
+  [data-pb-opportunity-panel] .pb-bagisto-metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .pb-bagisto-fallback-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
