@@ -14,6 +14,7 @@
 - Made `run_instagram_markdown_pipeline` refuse the dummy OCR backend by default so imports cannot be silently marked processed with empty OCR text; reset the RDphone Markdown import back to pending OCR after detecting the dummy run.
 - Deprecated non-NVIDIA OCR backends for Instagram processing, made NVIDIA the default OCR backend, and updated the NVIDIA prompt to extract parser-friendly model/storage/SIM/battery/cycles/condition/color/price/warranty lines plus visible text.
 - Added local `.env` loading in Django settings so NVIDIA credentials and OCR settings are read from the ignored project `.env` file.
+- Processed the RDphone Markdown import through NVIDIA OCR, producing 52 nonempty OCR rows and 48 Instagram market listings, then refreshed FX, legacy opportunity/deal snapshots, and clean opportunity snapshots.
 
 ### Bagisto storefront PriceBridge semantics
 
