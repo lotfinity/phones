@@ -1,4 +1,5 @@
 import base64
+import json
 import mimetypes
 import re
 import subprocess
@@ -201,12 +202,7 @@ class NvidiaVisionBackend(OCRBackend):
 
             mime_type = mimetypes.guess_type(image_path.name)[0] or "image/jpeg"
             encoded = base64.b64encode(image_path.read_bytes()).decode("ascii")
-            prompt = (
-                "You are an OCR engine. Extract only the literal visible text from this "
-                "phone-store Instagram listing image. Preserve useful line breaks. Do not "
-                "summarize, label fields, add markdown, translate, normalize, infer missing "
-                "words, or infer currencies. Return only text that is visibly present in the image."
-            )
+            prompt = self._build_prompt()
             response = requests.post(
                 self.endpoint,
                 headers={
@@ -254,8 +250,42 @@ class NvidiaVisionBackend(OCRBackend):
         text = self._clean_text(text)
         return text, 0.8 if text else 0.0
 
+    def _build_prompt(self):
+        return (
+            "You are PriceBridge's NVIDIA vision extractor for Algerian Instagram phone-store listings.\n"
+            "Extract both literal visible text and structured phone-sale facts from the image.\n\n"
+            "Read every visible area: main overlay text, captions embedded in the image, price tags, "
+            "battery/settings screenshots, small inset images, Arabic/French/English text, stickers, "
+            "box labels, and store design text.\n\n"
+            "Return parser-friendly plain text only. No markdown, no JSON, no prose explanation.\n"
+            "Use these exact line labels when visible or strongly implied by the image:\n"
+            "Model: <brand and model, e.g. iPhone 17 Pro Max>\n"
+            "Storage: <storage, e.g. 256GB>\n"
+            "RAM: <ram if visible>\n"
+            "SIM: <1sim/2sim/esim if visible>\n"
+            "Battery: <battery health percentage if visible, e.g. 91%>\n"
+            "Cycles: <battery cycle count if visible>\n"
+            "Condition: <sealed/new/used/clean/repaired/issue/demo/unknown plus visible wording>\n"
+            "Color: <device color if visible or written>\n"
+            "Price: <visible Algeria price exactly as written, with DA/DZD if present>\n"
+            "Warranty: <warranty text if visible>\n"
+            "Visible text: <all other readable text, preserving useful line breaks>\n\n"
+            "Rules:\n"
+            "- Do not invent a price, model, battery health, cycle count, color, or condition.\n"
+            "- Do infer obvious normalized fields from visible text, e.g. '256 GB' -> Storage: 256GB.\n"
+            "- If an iOS Battery Health screen or Parts/Repair screen is visible, extract it.\n"
+            "- If the image indicates afficheur/ecran inconnu/pieces et reparation/non-original/demo/"
+            "Face ID/True Tone/screen issue, put that in Condition.\n"
+            "- If a sealed box is shown and no opened device issue is visible, Condition: sealed/new.\n"
+            "- Preserve Arabic and French text that affects price, condition, warranty, or device identity.\n"
+            "- If no meaningful sale data is visible, return only the visible text you can read."
+        )
+
     def _clean_text(self, text):
         text = (text or "").strip()
+        extracted = self._json_to_text(text)
+        if extracted:
+            text = extracted
         text = re.sub(
             r"(?is)^\s*(?:the\s+)?(?:visible\s+)?text(?:\s+displayed)?(?:\s+on[^:]{0,80})?\s+(?:reads|is)\s*:\s*",
             "",
@@ -266,26 +296,53 @@ class NvidiaVisionBackend(OCRBackend):
         lines = [line.strip(" -\t") for line in text.splitlines()]
         return "\n".join(line for line in lines if line).strip()
 
+    def _json_to_text(self, text):
+        candidate = text.strip()
+        candidate = re.sub(r"^```(?:json)?\s*", "", candidate)
+        candidate = re.sub(r"\s*```$", "", candidate)
+        try:
+            data = json.loads(candidate)
+        except json.JSONDecodeError:
+            return ""
+        if not isinstance(data, dict):
+            return ""
+        label_map = [
+            ("model", "Model"),
+            ("storage", "Storage"),
+            ("storage_gb", "Storage"),
+            ("ram", "RAM"),
+            ("ram_gb", "RAM"),
+            ("sim", "SIM"),
+            ("battery", "Battery"),
+            ("battery_health", "Battery"),
+            ("cycles", "Cycles"),
+            ("battery_cycles", "Cycles"),
+            ("condition", "Condition"),
+            ("condition_text", "Condition"),
+            ("color", "Color"),
+            ("price", "Price"),
+            ("price_text", "Price"),
+            ("warranty", "Warranty"),
+            ("visible_text", "Visible text"),
+            ("all_text", "Visible text"),
+        ]
+        lines = []
+        for key, label in label_map:
+            value = data.get(key)
+            if value in (None, "", [], {}):
+                continue
+            if isinstance(value, (list, tuple)):
+                value = " ".join(str(item) for item in value if item)
+            elif isinstance(value, dict):
+                value = " ".join(str(item) for item in value.values() if item)
+            lines.append(f"{label}: {value}")
+        return "\n".join(lines)
+
 
 def get_ocr_backend(name):
     backend = (name or "").lower()
-    if backend in {"ocrspace", "ocr.space", "ocr_space"}:
-        try:
-            return OCRSpaceBackend()
-        except Exception:
-            return TesseractOCRBackend()
-    if backend in {"nvidia", "nvidia_vision", "nvidia-vlm", "nim"}:
+    if backend in {"", "nvidia", "nvidia_vision", "nvidia-vlm", "nim"}:
         return NvidiaVisionBackend()
-    if backend == "easyocr":
-        try:
-            return EasyOCRBackend()
-        except Exception:
-            return TesseractOCRBackend()
-    if backend == "paddleocr":
-        try:
-            return PaddleOCRBackend()
-        except Exception:
-            return TesseractOCRBackend()
-    if backend == "tesseract":
-        return TesseractOCRBackend()
-    return DummyOCRBackend()
+    raise RuntimeError(
+        f"OCR backend '{name}' is deprecated. PriceBridge Instagram OCR uses only the NVIDIA vision backend."
+    )

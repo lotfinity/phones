@@ -49,11 +49,6 @@ class Command(BaseCommand):
             action="store_true",
             help="Skip clean phone/laptop/console opportunity snapshot recomputes.",
         )
-        parser.add_argument(
-            "--allow-dummy-ocr",
-            action="store_true",
-            help="Allow the pipeline to mark posts processed with the dummy OCR backend.",
-        )
         parser.add_argument("--dry-run", action="store_true", help="Show the import plan without writing rows.")
 
     def handle(self, *args, **options):
@@ -98,7 +93,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING("Dry run selected; stopping before writes."))
             return
 
-        self.validate_ocr_backend(options)
+        self.validate_ocr_backend()
 
         self.run_step(
             "Import markdown posts and download images",
@@ -232,12 +227,10 @@ class Command(BaseCommand):
             self.stdout.write("")
             self.stdout.write(recent_data)
 
-    def validate_ocr_backend(self, options):
+    def validate_ocr_backend(self):
         backend = str(settings.OCR_BACKEND or "").strip().lower()
-        if backend == "dummy" and not options["allow_dummy_ocr"]:
+        if backend not in {"nvidia", "nvidia_vision", "nvidia-vlm", "nim"}:
             raise CommandError(
-                "OCR_BACKEND is set to 'dummy', which creates empty OCR rows and no listings. "
-                "Run with a real backend, for example: "
-                "OCR_BACKEND=tesseract python manage.py run_instagram_markdown_pipeline <markdown_file>. "
-                "Use --allow-dummy-ocr only for tests."
+                f"OCR_BACKEND is set to '{settings.OCR_BACKEND}'. PriceBridge Instagram OCR is NVIDIA-only. "
+                "Set NVIDIA_API_KEY or NVIDIA_NIM_API_KEY, then run with OCR_BACKEND=nvidia."
             )

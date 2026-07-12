@@ -127,7 +127,7 @@ class InstagramMarkdownPipelineCommandTests(TestCase):
         self.assertIn("Post/reel links found: 1", output)
         self.assertIn("Would import/update 1 Markdown posts", output)
 
-    def test_refuses_dummy_ocr_backend_before_writes(self):
+    def test_refuses_non_nvidia_ocr_backend_before_writes(self):
         with TemporaryDirectory() as tmp:
             media_root = Path(tmp) / "media"
             markdown = Path(tmp) / "RDphone35.md"
@@ -141,8 +141,8 @@ class InstagramMarkdownPipelineCommandTests(TestCase):
                 )
             )
 
-            with override_settings(MEDIA_ROOT=media_root, OCR_BACKEND="dummy"):
-                with self.assertRaisesMessage(CommandError, "OCR_BACKEND is set to 'dummy'"):
+            with override_settings(MEDIA_ROOT=media_root, OCR_BACKEND="tesseract"):
+                with self.assertRaisesMessage(CommandError, "NVIDIA-only"):
                     call_command("run_instagram_markdown_pipeline", str(markdown), stdout=StringIO())
 
         self.assertEqual(InstagramPost.objects.count(), 0)

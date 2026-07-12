@@ -173,7 +173,7 @@ DEBUG_TOOLBAR_CONFIG = {
 
 INSTAGRAM_SESSION_PATH = os.environ.get("INSTAGRAM_SESSION_PATH", "")
 INSTAGRAM_COOKIE_FILE = os.environ.get("INSTAGRAM_COOKIE_FILE", "")
-OCR_BACKEND = os.environ.get("OCR_BACKEND", "dummy")
+OCR_BACKEND = os.environ.get("OCR_BACKEND", "nvidia")
 OCR_SPACE_API_KEY = os.environ.get("OCR_SPACE_API_KEY", "")
 OCR_SPACE_LANGUAGE = os.environ.get("OCR_SPACE_LANGUAGE", "eng")
 OCR_SPACE_ENGINE = os.environ.get("OCR_SPACE_ENGINE", "2")
