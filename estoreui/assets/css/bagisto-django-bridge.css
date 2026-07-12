@@ -1,27 +1,205 @@
 /*
- * Minimal bridge styles for the preserved Bagisto captures.
- * The captured Bagisto DOM and compiled theme remain the visual source.
- * These rules only support injected opportunity data and loading safety.
+ * PriceBridge bridge layer for the preserved Bagisto captures.
+ * The original Bagisto DOM, spacing, responsive classes, typography and
+ * component hierarchy remain authoritative. These rules provide the
+ * PriceBridge palette and style only the injected opportunity information.
  */
+
+:root {
+  --pb-navy-950: #071a2f;
+  --pb-navy-900: #0b2744;
+  --pb-navy-800: #123b5d;
+  --pb-navy-700: #195078;
+  --pb-teal-700: #0f766e;
+  --pb-teal-600: #0d9488;
+  --pb-teal-500: #14b8a6;
+  --pb-gold-500: #d99a22;
+  --pb-page: #f4f7fa;
+  --pb-surface: #ffffff;
+  --pb-surface-soft: #eaf0f5;
+  --pb-ink: #10243e;
+  --pb-muted: #607286;
+  --pb-border: #d7e1ea;
+  --pb-shadow: 0 16px 42px rgba(7, 26, 47, 0.09);
+  accent-color: var(--pb-teal-600);
+}
+
+html.dark {
+  --pb-page: #07111f;
+  --pb-surface: #0c1d2f;
+  --pb-surface-soft: #12283d;
+  --pb-ink: #edf5fb;
+  --pb-muted: #a9bdcf;
+  --pb-border: #264058;
+  --pb-shadow: 0 18px 48px rgba(0, 0, 0, 0.32);
+}
 
 html.pb-bagisto-hydrating body {
   visibility: hidden;
+}
+
+body {
+  background: var(--pb-page) !important;
+  color: var(--pb-ink);
+}
+
+main {
+  background: var(--pb-page);
+}
+
+header {
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(7, 26, 47, 0.97) !important;
+  color: #f8fbfd !important;
+  box-shadow: 0 10px 30px rgba(7, 26, 47, 0.16);
+  backdrop-filter: blur(18px);
+}
+
+header > div,
+header > section {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+header a,
+header button,
+header [role="button"] {
+  color: inherit;
+}
+
+header nav a {
+  color: #d9e7f2 !important;
+  transition: color 160ms ease, opacity 160ms ease;
+}
+
+header nav a:hover,
+header nav a:focus-visible {
+  color: #68ded1 !important;
+}
+
+header input,
+header [role="searchbox"] {
+  border-color: rgba(255, 255, 255, 0.22) !important;
+  background: #ffffff !important;
+  color: #10243e !important;
+}
+
+footer {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  background: var(--pb-navy-950) !important;
+  color: #cbdce9 !important;
+}
+
+footer > div,
+footer > section {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+footer a {
+  color: #d9e7f2 !important;
+}
+
+footer a:hover,
+footer a:focus-visible {
+  color: #68ded1 !important;
+}
+
+main h1,
+main h2,
+main h3,
+main h4 {
+  color: var(--pb-ink);
+}
+
+main p,
+main small {
+  color: var(--pb-muted);
+}
+
+button[type="submit"],
+[class*="bg-navyBlue"],
+[class*="bg-primary"] {
+  border-color: var(--pb-navy-800) !important;
+  background-color: var(--pb-navy-800) !important;
+  color: #ffffff !important;
+}
+
+button[type="submit"]:hover,
+[class*="bg-navyBlue"]:hover,
+[class*="bg-primary"]:hover {
+  background-color: var(--pb-teal-700) !important;
+}
+
+[class*="text-navyBlue"],
+[class*="text-primary"] {
+  color: var(--pb-navy-800) !important;
+}
+
+.dark [class*="text-navyBlue"],
+.dark [class*="text-primary"] {
+  color: #68ded1 !important;
+}
+
+[class*="border-navyBlue"],
+[class*="border-primary"] {
+  border-color: var(--pb-navy-800) !important;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[role="button"]:focus-visible {
+  outline: 3px solid rgba(20, 184, 166, 0.42) !important;
+  outline-offset: 3px;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--pb-teal-600) !important;
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.15) !important;
+}
+
+[data-pb-opportunity-card] {
+  border-color: var(--pb-border) !important;
+  border-radius: 1rem;
+  background: var(--pb-surface);
+  box-shadow: 0 1px 0 rgba(7, 26, 47, 0.04);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+[data-pb-opportunity-card]:hover {
+  border-color: rgba(13, 148, 136, 0.44) !important;
+  box-shadow: var(--pb-shadow);
+  transform: translateY(-2px);
 }
 
 [data-pb-opportunity-meta] {
   margin-top: 0.75rem;
   display: grid;
   gap: 0.35rem;
+  border-top: 1px solid var(--pb-border);
+  padding-top: 0.75rem;
+  color: var(--pb-ink);
   font-size: 0.8125rem;
   line-height: 1.35;
 }
 
 [data-pb-opportunity-meta] strong {
-  font-weight: 700;
+  color: var(--pb-navy-800);
+  font-weight: 750;
+}
+
+.dark [data-pb-opportunity-meta] strong {
+  color: #68ded1;
 }
 
 [data-pb-opportunity-meta] small {
-  opacity: 0.72;
+  color: var(--pb-muted);
+  opacity: 1;
 }
 
 [data-pb-opportunity-badge] {
@@ -31,21 +209,21 @@ html.pb-bagisto-hydrating body {
   border-radius: 999px;
   padding: 0.35rem 0.65rem;
   font-size: 0.6875rem;
-  font-weight: 700;
+  font-weight: 750;
   letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 [data-pb-opportunity-badge][data-state="buy"],
 [data-pb-opportunity-badge][data-state="good_opportunity"] {
-  color: #166534;
-  background: #dcfce7;
+  color: #065f57;
+  background: #ccfbf1;
 }
 
 [data-pb-opportunity-badge][data-state="watch"],
 [data-pb-opportunity-badge][data-state="marginal"] {
-  color: #854d0e;
-  background: #fef9c3;
+  color: #7a4b05;
+  background: #fff1c2;
 }
 
 [data-pb-opportunity-badge][data-state="ignore"],
@@ -57,26 +235,27 @@ html.pb-bagisto-hydrating body {
 
 .dark [data-pb-opportunity-badge][data-state="buy"],
 .dark [data-pb-opportunity-badge][data-state="good_opportunity"] {
-  color: #bbf7d0;
-  background: rgba(22, 101, 52, 0.45);
+  color: #99f6e4;
+  background: rgba(15, 118, 110, 0.42);
 }
 
 .dark [data-pb-opportunity-badge][data-state="watch"],
 .dark [data-pb-opportunity-badge][data-state="marginal"] {
-  color: #fef08a;
-  background: rgba(133, 77, 14, 0.45);
+  color: #fde68a;
+  background: rgba(146, 94, 8, 0.42);
 }
 
 .dark [data-pb-opportunity-badge][data-state="ignore"],
 .dark [data-pb-opportunity-badge][data-state="no_margin"],
 .dark [data-pb-opportunity-badge][data-state="low_confidence"] {
   color: #fecaca;
-  background: rgba(153, 27, 27, 0.45);
+  background: rgba(153, 27, 27, 0.42);
 }
 
 [data-pb-opportunity-panel] {
   width: min(1280px, calc(100% - 2rem));
   margin: 2.5rem auto;
+  color: var(--pb-ink);
 }
 
 [data-pb-opportunity-panel] .pb-bagisto-panel-grid {
@@ -85,14 +264,11 @@ html.pb-bagisto-hydrating body {
 }
 
 [data-pb-opportunity-panel] .pb-bagisto-panel-card {
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 0.75rem;
+  border: 1px solid var(--pb-border);
+  border-radius: 1rem;
   padding: 1.25rem;
-  background: rgba(255, 255, 255, 0.72);
-}
-
-.dark [data-pb-opportunity-panel] .pb-bagisto-panel-card {
-  background: rgba(17, 24, 39, 0.72);
+  background: var(--pb-surface);
+  box-shadow: var(--pb-shadow);
 }
 
 [data-pb-opportunity-panel] h2,
@@ -102,13 +278,20 @@ html.pb-bagisto-hydrating body {
 }
 
 [data-pb-opportunity-panel] h2 {
+  margin-top: 0.75rem;
+  color: var(--pb-ink);
   font-size: clamp(1.35rem, 2vw, 2rem);
   line-height: 1.15;
 }
 
 [data-pb-opportunity-panel] h3 {
   margin-top: 1.25rem;
+  color: var(--pb-navy-800);
   font-size: 1rem;
+}
+
+.dark [data-pb-opportunity-panel] h3 {
+  color: #68ded1;
 }
 
 [data-pb-opportunity-panel] .pb-bagisto-metrics {
@@ -119,21 +302,23 @@ html.pb-bagisto-hydrating body {
 }
 
 [data-pb-opportunity-panel] .pb-bagisto-metric {
-  border-radius: 0.625rem;
+  border: 1px solid var(--pb-border);
+  border-radius: 0.75rem;
   padding: 0.875rem;
-  background: rgba(148, 163, 184, 0.12);
+  background: var(--pb-surface-soft);
 }
 
 [data-pb-opportunity-panel] .pb-bagisto-metric span,
 [data-pb-opportunity-panel] .pb-bagisto-evidence small {
   display: block;
-  opacity: 0.7;
+  color: var(--pb-muted);
   font-size: 0.75rem;
 }
 
 [data-pb-opportunity-panel] .pb-bagisto-metric strong {
   display: block;
   margin-top: 0.25rem;
+  color: var(--pb-ink);
   font-size: 1rem;
 }
 
@@ -145,13 +330,16 @@ html.pb-bagisto-hydrating body {
 
 [data-pb-opportunity-panel] .pb-bagisto-evidence a {
   display: block;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
-  padding-bottom: 0.625rem;
+  border: 1px solid var(--pb-border);
+  border-radius: 0.75rem;
+  padding: 0.75rem;
+  background: var(--pb-surface-soft);
+  transition: border-color 160ms ease, transform 160ms ease;
 }
 
-[data-pb-opportunity-panel] .pb-bagisto-evidence a:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
+[data-pb-opportunity-panel] .pb-bagisto-evidence a:hover {
+  border-color: var(--pb-teal-600);
+  transform: translateY(-1px);
 }
 
 .pb-bagisto-fallback-grid {
@@ -163,15 +351,18 @@ html.pb-bagisto-hydrating body {
 }
 
 .pb-bagisto-fallback-card {
-  border: 1px solid rgba(148, 163, 184, 0.28);
-  border-radius: 0.75rem;
+  border: 1px solid var(--pb-border);
+  border-radius: 1rem;
   overflow: hidden;
+  background: var(--pb-surface);
+  box-shadow: var(--pb-shadow);
 }
 
 .pb-bagisto-fallback-card img {
   width: 100%;
   aspect-ratio: 1;
   object-fit: contain;
+  background: var(--pb-surface-soft);
 }
 
 .pb-bagisto-fallback-card > div {
