@@ -1,87 +1,95 @@
 {% extends "estore/base.html" %}
 
-{% block title %}{{ listing.title }} · PriceBridge{% endblock %}
+{% block title %}{{ opportunity.title }} · PriceBridge{% endblock %}
 
 {% block content %}
 <section class="pb-shell pb-detail">
     <nav class="pb-breadcrumb" aria-label="Sayfa yolu">
-        <a href="{% url 'estore_listing_index' %}">Tüm ilanlar</a>
+        <a href="{% url 'estore_opportunity_index' %}">Tüm fırsatlar</a>
         <span>/</span>
-        <a href="{% url 'estore_listing_index' %}?category={{ listing.category }}">{{ listing.category_label }}</a>
+        <a href="{% url 'estore_opportunity_index' %}?category={{ opportunity.category }}">{{ opportunity.category_label }}</a>
         <span>/</span>
-        <span>{{ listing.title|truncatechars:48 }}</span>
+        <span>{{ opportunity.title|truncatechars:48 }}</span>
     </nav>
 
     <div class="pb-detail__layout">
         <section class="pb-detail__gallery">
             <div class="pb-detail__image">
-                {% if listing.has_image %}
+                {% if opportunity.has_image %}
                     <img
-                        src="{{ listing.image_url }}"
-                        alt="{{ listing.title }}"
+                        src="{{ opportunity.image_url }}"
+                        alt="{{ opportunity.title }}"
                         decoding="async"
                         data-listing-image
                     >
                 {% endif %}
-                <span class="pb-image-fallback pb-image-fallback--detail{% if listing.has_image %} is-hidden{% endif %}" data-image-fallback aria-hidden="true">
-                    {{ listing.initials }}
+                <span class="pb-image-fallback pb-image-fallback--detail{% if opportunity.has_image %} is-hidden{% endif %}" data-image-fallback aria-hidden="true">
+                    {{ opportunity.initials }}
                 </span>
-                <span class="pb-product-card__category">{{ listing.category_label }}</span>
+                <span class="pb-product-card__category">{{ opportunity.category_label }}</span>
             </div>
             <div class="pb-detail__source-line">
-                <span>{{ listing.country }}</span>
+                <span>{{ opportunity.coverage.algeria }} Cezayir ilanı</span>
                 <span>•</span>
-                <span>{{ listing.source }}</span>
-                {% if listing.observed_at %}
+                <span>{{ opportunity.coverage.turkiye }} Türkiye karşılaştırması</span>
+                {% if opportunity.generated_at %}
                     <span>•</span>
-                    <span>{{ listing.observed_at|date:"d.m.Y H:i" }}</span>
+                    <span>{{ opportunity.generated_at|date:"d.m.Y H:i" }}</span>
                 {% endif %}
             </div>
         </section>
 
         <section class="pb-detail__summary">
-            <span class="pb-eyebrow">{{ listing.brand|default:listing.category_label }}</span>
-            <h1>{{ listing.title }}</h1>
-            {% if listing.subtitle %}
-                <p class="pb-detail__subtitle">{{ listing.subtitle }}</p>
+            <span class="pb-eyebrow">{{ opportunity.recommendation }}</span>
+            <h1>{{ opportunity.title }}</h1>
+            {% if opportunity.subtitle %}
+                <p class="pb-detail__subtitle">{{ opportunity.subtitle }}</p>
             {% endif %}
 
             <div class="pb-badge-row">
-                <span class="pb-badge">{{ listing.condition }}</span>
-                <span class="pb-badge pb-badge--muted">{{ listing.country }}</span>
+                <span class="pb-badge">{{ opportunity.condition }}</span>
+                {% if opportunity.battery_health %}
+                    <span class="pb-badge pb-badge--success">Batarya %{{ opportunity.battery_health }}</span>
+                {% endif %}
+                <span class="pb-badge pb-badge--muted">Veri güveni %{{ opportunity.confidence_score }}</span>
             </div>
 
-            <div class="pb-detail__price">
-                <span>İlan fiyatı</span>
-                <strong>{{ listing.price_original }}</strong>
-                {% if listing.price_try %}
-                    <small>Yaklaşık {{ listing.price_try }}</small>
+            <div class="pb-finance-grid">
+                <div class="pb-finance-grid__primary">
+                    <span>Önerilen alım fiyatı</span>
+                    <strong>{{ opportunity.buyer_offer|default:"Hesaplanmadı" }}</strong>
+                </div>
+                <div>
+                    <span>Türkiye ortalama satış</span>
+                    <strong>{{ opportunity.turkiye_avg|default:"-" }}</strong>
+                </div>
+                <div>
+                    <span>Tahmini mağaza kazancı</span>
+                    <strong class="pb-profit">{{ opportunity.buyer_gain|default:"-" }}</strong>
+                    {% if opportunity.buyer_gain_percent %}<small>{{ opportunity.buyer_gain_percent }}</small>{% endif %}
+                </div>
+                {% if can_view_internal_gain and opportunity.my_gain %}
+                    <div class="pb-finance-grid__internal">
+                        <span>İç kazanç</span>
+                        <strong>{{ opportunity.my_gain }}</strong>
+                    </div>
                 {% endif %}
             </div>
 
-            {% if listing.listing_url %}
-                <a class="pb-primary-action" href="{{ listing.listing_url }}" target="_blank" rel="noopener noreferrer">
-                    Orijinal ilanı aç
-                    <span aria-hidden="true">↗</span>
-                </a>
-            {% else %}
-                <span class="pb-primary-action is-disabled">Kaynak bağlantısı bulunmuyor</span>
-            {% endif %}
-
-            <p class="pb-detail__notice">Fiyat ve cihaz bilgileri kaynak ilandan alınmıştır. Satın almadan önce ilanı ve cihaz durumunu yeniden doğrula.</p>
+            <p class="pb-detail__notice">Bu ekran tek bir fırsat kaydını gösterir. Fiyatlar, aynı model ve varyanta ait gerçek Cezayir ve Türkiye ilanlarından hesaplanır.</p>
         </section>
     </div>
 
     <div class="pb-detail__content">
         <section class="pb-detail-card">
             <div class="pb-section-heading">
-                <span class="pb-eyebrow">Teknik bilgi</span>
-                <h2>Cihaz özellikleri</h2>
+                <span class="pb-eyebrow">Cihaz bilgisi</span>
+                <h2>Model ve durum</h2>
             </div>
 
-            {% if listing.specs %}
+            {% if opportunity.specs %}
                 <dl class="pb-spec-grid">
-                    {% for spec in listing.specs %}
+                    {% for spec in opportunity.specs %}
                         <div>
                             <dt>{{ spec.label }}</dt>
                             <dd>{{ spec.value }}</dd>
@@ -89,76 +97,107 @@
                     {% endfor %}
                     <div>
                         <dt>Durum</dt>
-                        <dd>{{ listing.condition }}</dd>
+                        <dd>{{ opportunity.condition }}</dd>
                     </div>
                     <div>
-                        <dt>Kaynak</dt>
-                        <dd>{{ listing.source }}</dd>
+                        <dt>Veri güveni</dt>
+                        <dd>%{{ opportunity.confidence_score }}</dd>
                     </div>
                 </dl>
             {% else %}
-                <p class="pb-muted-copy">Bu ilan için henüz ayrıntılı teknik özellik kaydedilmemiş.</p>
+                <p class="pb-muted-copy">Bu fırsat için ayrıntılı cihaz durumu henüz kaydedilmemiş.</p>
             {% endif %}
         </section>
 
-        <section class="pb-detail-card">
+        <section class="pb-detail-card" id="turkiye-evidence">
             <div class="pb-section-heading">
-                <span class="pb-eyebrow">İlan bilgisi</span>
-                <h2>Kaynak ayrıntıları</h2>
+                <span class="pb-eyebrow">Türkiye piyasası</span>
+                <h2>Karşılaştırılan ilanlar</h2>
             </div>
 
-            <dl class="pb-spec-grid">
-                <div>
-                    <dt>Ülke</dt>
-                    <dd>{{ listing.country }}</dd>
+            {% if turkiye_rows %}
+                <div class="pb-evidence-list">
+                    {% for row in turkiye_rows %}
+                        <article class="pb-evidence-row">
+                            <div class="pb-evidence-row__image">
+                                {% if row.has_image %}
+                                    <img src="{{ row.image_url }}" alt="{{ row.title }}" loading="lazy" data-listing-image>
+                                {% else %}
+                                    <span>{{ opportunity.initials }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="pb-evidence-row__body">
+                                <div class="pb-product-card__meta">
+                                    <span>{{ row.country_label }}</span>
+                                    <span>•</span>
+                                    <span>{{ row.source_name }}</span>
+                                </div>
+                                <h3>{{ row.title }}</h3>
+                                {% if row.spec %}<p>{{ row.spec }}</p>{% endif %}
+                                <div class="pb-evidence-row__footer">
+                                    <strong>{{ row.price_eur }}</strong>
+                                    {% if row.listing_url %}
+                                        <a href="{{ row.listing_url }}" target="_blank" rel="noopener noreferrer">İlanı aç ↗</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
                 </div>
-                <div>
-                    <dt>Kaynak</dt>
-                    <dd>{{ listing.source }}</dd>
-                </div>
-                {% if listing.location %}
-                    <div>
-                        <dt>Konum</dt>
-                        <dd>{{ listing.location }}</dd>
-                    </div>
-                {% endif %}
-                {% if listing.date_text %}
-                    <div>
-                        <dt>İlan tarihi</dt>
-                        <dd>{{ listing.date_text }}</dd>
-                    </div>
-                {% endif %}
-                {% if listing.parsed_confidence %}
-                    <div>
-                        <dt>Veri eşleşmesi</dt>
-                        <dd>%{{ listing.parsed_confidence }}</dd>
-                    </div>
-                {% endif %}
-                <div>
-                    <dt>İlan numarası</dt>
-                    <dd>#{{ listing.pk }}</dd>
-                </div>
-            </dl>
-
-            {% if listing.description %}
-                <div class="pb-description">
-                    <h3>İlan açıklaması</h3>
-                    <p>{{ listing.description|linebreaksbr }}</p>
-                </div>
+            {% else %}
+                <p class="pb-muted-copy">Bu fırsat için görüntülenebilir Türkiye karşılaştırması bulunmuyor.</p>
             {% endif %}
         </section>
+
+        {% if can_view_internal_gain %}
+            <section class="pb-detail-card">
+                <div class="pb-section-heading">
+                    <span class="pb-eyebrow">Yalnızca süper kullanıcı</span>
+                    <h2>Cezayir alım kanıtları</h2>
+                </div>
+
+                {% if algeria_rows %}
+                    <div class="pb-evidence-list">
+                        {% for row in algeria_rows %}
+                            <article class="pb-evidence-row">
+                                <div class="pb-evidence-row__image">
+                                    {% if row.has_image %}
+                                        <img src="{{ row.image_url }}" alt="{{ row.title }}" loading="lazy" data-listing-image>
+                                    {% else %}
+                                        <span>{{ opportunity.initials }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="pb-evidence-row__body">
+                                    <div class="pb-product-card__meta">
+                                        <span>{{ row.country_label }}</span>
+                                        <span>•</span>
+                                        <span>{{ row.source_name }}</span>
+                                    </div>
+                                    <h3>{{ row.title }}</h3>
+                                    {% if row.spec %}<p>{{ row.spec }}</p>{% endif %}
+                                    <div class="pb-evidence-row__footer">
+                                        <strong>{{ row.price_eur }}</strong>
+                                        {% if row.listing_url %}
+                                            <a href="{{ row.listing_url }}" target="_blank" rel="noopener noreferrer">İlanı aç ↗</a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="pb-muted-copy">Cezayir kanıtı bulunmuyor.</p>
+                {% endif %}
+            </section>
+        {% endif %}
     </div>
 </section>
 
 <div class="pb-sticky-detail-action">
     <div>
-        <small>İlan fiyatı</small>
-        <strong>{{ listing.price_original }}</strong>
+        <small>Önerilen alım fiyatı</small>
+        <strong>{{ opportunity.buyer_offer|default:"Hesaplanmadı" }}</strong>
     </div>
-    {% if listing.listing_url %}
-        <a href="{{ listing.listing_url }}" target="_blank" rel="noopener noreferrer">Orijinal ilan ↗</a>
-    {% else %}
-        <a href="{% url 'estore_listing_index' %}">Diğer ilanlar</a>
-    {% endif %}
+    <a href="#turkiye-evidence">Karşılaştırmaları gör</a>
 </div>
 {% endblock %}
