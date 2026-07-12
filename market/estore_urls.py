@@ -3,6 +3,7 @@ from django.urls import path
 from django.views.static import serve as serve_static
 
 from market.cache_control import private_no_store
+from market.views_estore import estore_opportunity_detail, estore_opportunity_index
 from market.views_estore_bagisto import (
     estore_bagisto_opportunity_detail,
     estore_bagisto_opportunity_index,
@@ -12,13 +13,23 @@ from market.views_estore_bagisto import (
 urlpatterns = [
     path(
         "",
-        private_no_store(estore_bagisto_opportunity_index),
+        private_no_store(estore_opportunity_index),
         name="estore_opportunity_index",
     ),
     path(
         "opportunity/<slug:category>/<int:pk>/",
-        private_no_store(estore_bagisto_opportunity_detail),
+        private_no_store(estore_opportunity_detail),
         name="estore_opportunity_detail",
+    ),
+    path(
+        "bagisto/",
+        private_no_store(estore_bagisto_opportunity_index),
+        name="estore_bagisto_opportunity_index",
+    ),
+    path(
+        "bagisto/opportunity/<slug:category>/<int:pk>/",
+        private_no_store(estore_bagisto_opportunity_detail),
+        name="estore_bagisto_opportunity_detail",
     ),
     path(
         "assets/<path:path>",

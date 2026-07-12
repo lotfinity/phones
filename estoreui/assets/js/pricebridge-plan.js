@@ -13,8 +13,8 @@
   }
 
   const currency = String(payload.selected_currency || "TRY").toUpperCase();
-  const STORAGE_KEY = `pricebridge.purchasePlan.v1.${currency}`;
-  const MAX_QUANTITY = 99;
+  const STORAGE_KEY = "pricebridge_acquisition_plan_v1";
+  const MAX_PHONES = 6;
   const all = (selector, scope = document) => [...scope.querySelectorAll(selector)];
   const text = (node) => (node?.textContent || "").replace(/\s+/g, " ").trim();
 
@@ -52,18 +52,27 @@
   }
 
   function emptyState() {
-    return { version: 1, currency, budget: 0, items: {} };
+    return { version: 1, currency, items: [] };
   }
 
   function readState() {
     try {
       const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      if (!parsed || typeof parsed !== "object" || parsed.currency !== currency) return emptyState();
+      if (!parsed || typeof parsed !== "object") return emptyState();
+      const rawItems = Array.isArray(parsed.items)
+        ? parsed.items
+        : parsed.items && typeof parsed.items === "object"
+          ? Object.values(parsed.items)
+          : [];
+      const seen = new Set();
+      const items = rawItems
+        .filter((item) => item && typeof item === "object")
+        .map((item) => ({ ...item, id: String(item.id || item.key || "") }))
+        .filter((item) => item.id && !seen.has(item.id) && seen.add(item.id));
       return {
         version: 1,
         currency,
-        budget: Math.max(0, Number(parsed.budget) || 0),
-        items: parsed.items && typeof parsed.items === "object" ? parsed.items : {},
+        items,
       };
     } catch (_) {
       return emptyState();
@@ -74,7 +83,7 @@
 
   function saveState() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: 1, currency, items: state.items }));
     } catch (error) {
       console.warn("PriceBridge plan could not be saved to localStorage", error);
     }
@@ -96,17 +105,21 @@
     const key = opportunityKey(record);
     return {
       key,
+      id: key,
       category: record.category || record.device_type || "opportunity",
-      pk: record.pk ?? record.snapshot_id,
+      opportunity_id: record.pk ?? record.snapshot_id,
+      source_listing_id: record.source_listing_id || null,
       title: record.title || `${record.brand || ""} ${record.model || ""}`.trim() || "Fırsat",
       subtitle: record.subtitle || record.spec || "",
-      imageUrl: record.has_image && record.image_url ? record.image_url : "",
-      detailUrl: record.detail_url || window.location.pathname,
-      unitPrice: parseMoney(record.buyer_offer),
-      unitPriceLabel: record.buyer_offer || "",
-      buyerGain: record.buyer_gain || "",
-      buyerGainPercent: record.buyer_gain_percent || "",
-      quantity: 1,
+      image_url: record.has_image && record.image_url ? record.image_url : "",
+      detail_url: record.detail_url || window.location.pathname,
+      buyer_offer: record.buyer_offer || "",
+      supplier_price: record.supplier_price || "",
+      buyer_gain: record.buyer_gain || "",
+      buyer_gain_percent: record.buyer_gain_percent || "",
+      availability: record.availability_state || "verification_required",
+      availability_label: record.availability_label || "Güncellik doğrulanmalı",
+      added_at: new Date().toISOString(),
     };
   }
 
@@ -175,16 +188,16 @@
   }
 
   function itemValues() {
-    return Object.values(state.items).filter((item) => item && Number(item.quantity) > 0);
+    return Array.isArray(state.items) ? state.items.filter((item) => item && item.id) : [];
   }
 
-  function quantityCount() {
-    return itemValues().reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+  function totalCount() {
+    return itemValues().length;
   }
 
   function plannedTotal() {
     return itemValues().reduce(
-      (sum, item) => sum + (Number(item.unitPrice) || 0) * (Number(item.quantity) || 0),
+      (sum, item) => sum + parseMoney(item.buyer_offer),
       0,
     );
   }
@@ -199,7 +212,7 @@
   }
 
   function updatePlanBadges() {
-    const count = quantityCount();
+    const count = totalCount();
     planTriggerCandidates().forEach((trigger) => {
       trigger.dataset.pbPlanTrigger = "";
       const existing = trigger.querySelector("[data-pb-plan-count]");
@@ -211,63 +224,37 @@
     });
   }
 
-  function summaryValues() {
-    const total = plannedTotal();
-    const budget = Number(state.budget) || 0;
-    const remaining = budget - total;
-    const percent = budget > 0 ? Math.min(100, (total / budget) * 100) : 0;
-    return { total, budget, remaining, percent, over: budget > 0 && remaining < 0 };
+  function categoryCounts() {
+    const counts = { phone: 0, laptop: 0, console: 0 };
+    itemValues().forEach((item) => {
+      if (Object.prototype.hasOwnProperty.call(counts, item.category)) counts[item.category] += 1;
+    });
+    return counts;
   }
 
   function renderSummary() {
     const dialog = ensurePlanDialog();
-    const values = summaryValues();
     const totalNode = dialog.querySelector("[data-pb-plan-total]");
-    const balanceNode = dialog.querySelector("[data-pb-plan-balance]");
-    const progress = dialog.querySelector("[data-pb-plan-progress]");
-    const budgetInput = dialog.querySelector("[data-pb-plan-budget]");
-
-    if (totalNode) totalNode.textContent = money(values.total);
-    if (budgetInput && document.activeElement !== budgetInput) budgetInput.value = state.budget || "";
-    if (balanceNode) {
-      balanceNode.dataset.state = values.over ? "over" : values.budget > 0 ? "ok" : "unset";
-      balanceNode.textContent = values.budget <= 0
-        ? "Bütçe girilmedi"
-        : values.over
-          ? `${money(Math.abs(values.remaining))} limit aşıldı`
-          : `${money(values.remaining)} kaldı`;
-    }
-    if (progress) {
-      progress.style.width = `${values.percent}%`;
-      progress.dataset.state = values.over ? "over" : "ok";
-    }
+    if (totalNode) totalNode.textContent = money(plannedTotal());
   }
 
   function itemMarkup(item) {
-    const quantity = Math.max(1, Math.min(MAX_QUANTITY, Number(item.quantity) || 1));
-    const subtotal = (Number(item.unitPrice) || 0) * quantity;
-    const image = item.imageUrl
-      ? `<img src="${escapeHtml(item.imageUrl)}" alt="${escapeHtml(item.title)}" loading="lazy">`
+    const image = item.image_url
+      ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.title)}" loading="lazy">`
       : `<span class="pb-plan-item__fallback" aria-hidden="true">${escapeHtml(item.title.slice(0, 2).toUpperCase())}</span>`;
 
     return `
-      <article class="pb-plan-item" data-pb-plan-item="${escapeHtml(item.key)}">
-        <a class="pb-plan-item__image" href="${escapeHtml(item.detailUrl || "#")}">${image}</a>
+      <article class="pb-plan-item" data-pb-plan-item="${escapeHtml(item.id)}">
+        <a class="pb-plan-item__image" href="${escapeHtml(item.detail_url || "#")}">${image}</a>
         <div class="pb-plan-item__body">
           <div class="pb-plan-item__topline">
-            <h3><a href="${escapeHtml(item.detailUrl || "#")}">${escapeHtml(item.title)}</a></h3>
-            <button type="button" data-pb-plan-remove="${escapeHtml(item.key)}" aria-label="${escapeHtml(item.title)} ürününü plandan kaldır">×</button>
+            <h3><a href="${escapeHtml(item.detail_url || "#")}">${escapeHtml(item.title)}</a></h3>
+            <button type="button" data-pb-plan-remove="${escapeHtml(item.id)}" aria-label="${escapeHtml(item.title)} fırsatını plandan kaldır">×</button>
           </div>
           ${item.subtitle ? `<p>${escapeHtml(item.subtitle)}</p>` : ""}
-          <strong>${escapeHtml(item.unitPriceLabel || money(item.unitPrice))}</strong>
-          <div class="pb-plan-item__controls">
-            <div class="pb-plan-quantity" aria-label="Adet">
-              <button type="button" data-pb-plan-decrease="${escapeHtml(item.key)}" aria-label="Adedi azalt">−</button>
-              <output>${quantity}</output>
-              <button type="button" data-pb-plan-increase="${escapeHtml(item.key)}" aria-label="Adedi artır">+</button>
-            </div>
-            <span>${escapeHtml(money(subtotal))}</span>
-          </div>
+          <strong>${escapeHtml(item.buyer_offer || "Teklif fiyatı yok")}</strong>
+          ${item.supplier_price ? `<small><s>${escapeHtml(item.supplier_price)}</s> tedarikçi liste fiyatı</small>` : ""}
+          <div class="pb-plan-item__controls"><span>${escapeHtml(item.availability_label || "Güncellik doğrulanmalı")}</span></div>
         </div>
       </article>`;
   }
@@ -277,14 +264,15 @@
     dialog.dataset.pbPlanDrawer = "";
     dialog.setAttribute("aria-label", "Alım Planı");
     const items = itemValues();
+    const counts = categoryCounts();
 
     dialog.innerHTML = `
       <div class="pb-plan-shell">
         <header class="pb-plan-header">
           <div>
             <span>PriceBridge</span>
-            <h2>Alım Planı</h2>
-            <p>Tarayıcıda saklanan seyahat satın alma listesi</p>
+            <h2>Alım planı</h2>
+            <p>Tekil ikinci el fırsatlar tarayıcıda saklanır.</p>
           </div>
           <button type="button" data-pb-plan-close aria-label="Alım planını kapat">×</button>
         </header>
@@ -292,82 +280,119 @@
         <section class="pb-plan-budget" aria-labelledby="pb-plan-budget-title">
           <div class="pb-plan-budget__heading">
             <div>
-              <span id="pb-plan-budget-title">Toplam bütçe</span>
-              <small>${escapeHtml(currency)} olarak kaydedilir</small>
+              <span id="pb-plan-budget-title">Plan kapasitesi</span>
+              <small>Telefonlar: ${counts.phone} / ${MAX_PHONES} · Kalan ${Math.max(0, MAX_PHONES - counts.phone)}</small>
             </div>
-            <label>
-              <span class="sr-only">Bütçe</span>
-              <input data-pb-plan-budget type="number" min="0" step="100" inputmode="decimal" value="${state.budget || ""}" placeholder="0">
-              <b>${escapeHtml(currency)}</b>
-            </label>
+            <div class="pb-plan-capacity">
+              <span>Laptoplar: ${counts.laptop}</span>
+              <span>Konsollar: ${counts.console}</span>
+            </div>
           </div>
-          <div class="pb-plan-progress"><span data-pb-plan-progress></span></div>
           <div class="pb-plan-summary">
-            <div><span>Planlanan</span><strong data-pb-plan-total>${money(plannedTotal())}</strong></div>
-            <div><span>Bütçe durumu</span><strong data-pb-plan-balance></strong></div>
+            <div><span>Plan özeti</span><strong data-pb-plan-total>${money(plannedTotal())}</strong></div>
+            <div><span>Teklif / fatura</span><strong>Yakında</strong></div>
           </div>
         </section>
 
         <section class="pb-plan-items" aria-live="polite">
           ${items.length
             ? items.map(itemMarkup).join("")
-            : `<div class="pb-plan-empty"><strong>Alım planın boş</strong><p>Bir fırsatı eklediğinde burada bütçe ve adet hesabı yapılacak.</p></div>`}
+            : `<div class="pb-plan-empty"><strong>Alım planın boş</strong><p>Bir fırsatı eklediğinde burada plan özeti görünecek.</p></div>`}
         </section>
 
         <footer class="pb-plan-footer">
-          <div><span>${quantityCount()} ürün</span><strong>${money(plannedTotal())}</strong></div>
+          <div><span>${totalCount()} fırsat</span><strong>${money(plannedTotal())}</strong></div>
           <button type="button" data-pb-plan-clear ${items.length ? "" : "disabled"}>Planı temizle</button>
         </footer>
       </div>`;
 
     dialog.querySelector("[data-pb-plan-close]")?.addEventListener("click", closePlan);
-    dialog.querySelector("[data-pb-plan-budget]")?.addEventListener("input", (event) => {
-      state.budget = Math.max(0, Number(event.target.value) || 0);
-      saveState();
-      renderSummary();
-    });
     renderSummary();
     updatePlanBadges();
   }
 
-  function addItem(key) {
+  function planMessage(message) {
+    let node = document.querySelector("[data-pb-plan-message]");
+    if (!node) {
+      node = document.createElement("div");
+      node.dataset.pbPlanMessage = "";
+      document.body.append(node);
+    }
+    node.textContent = message;
+    node.hidden = false;
+    window.clearTimeout(planMessage.timer);
+    planMessage.timer = window.setTimeout(() => { node.hidden = true; }, 2800);
+  }
+
+  function canAdd(record) {
+    if (!record) return { ok: false, message: "Fırsat bulunamadı." };
+    if (record.availability_is_actionable === false) {
+      return { ok: false, message: record.availability_label || "Bu ilan güncel olmadığı için plana eklenemez." };
+    }
+    const key = opportunityKey(record);
+    if (state.items.some((item) => item.id === key)) {
+      return { ok: true, existing: true, message: "Bu fırsat zaten planda." };
+    }
+    if ((record.category || record.device_type) === "phone" && categoryCounts().phone >= MAX_PHONES) {
+      return { ok: false, message: `Telefon limiti dolu: ${MAX_PHONES} / ${MAX_PHONES}` };
+    }
+    return { ok: true };
+  }
+
+  function updateAddButtonStates() {
+    all("[data-pb-add-plan]").forEach((button) => {
+      const record = records.get(button.dataset.pbAddPlan);
+      const key = record ? opportunityKey(record) : button.dataset.pbAddPlan;
+      const isPlanned = state.items.some((item) => item.id === key);
+      const allowed = canAdd(record);
+      button.textContent = isPlanned ? "Planda" : button.dataset.pbImmediateClose === "1" ? "Hemen Ayır" : "Alım planına ekle";
+      button.disabled = !isPlanned && !allowed.ok;
+      button.title = !isPlanned && !allowed.ok ? allowed.message : "";
+      button.dataset.pbPlanned = isPlanned ? "1" : "0";
+    });
+  }
+
+  function addItem(key, immediate = false) {
     const record = records.get(key);
     if (!record) return;
-    const item = normalizedItem(record);
-    if (!item.unitPrice) {
-      window.alert("Bu fırsat için önerilen alım fiyatı henüz hesaplanmamış.");
+    const allowed = canAdd(record);
+    if (!allowed.ok) {
+      planMessage(allowed.message);
+      openPlan();
       return;
     }
-
-    const existing = state.items[key];
-    state.items[key] = existing
-      ? { ...existing, ...item, quantity: Math.min(MAX_QUANTITY, (Number(existing.quantity) || 0) + 1) }
-      : item;
+    if (allowed.existing) {
+      planMessage(allowed.message);
+      openPlan();
+      return;
+    }
+    const item = normalizedItem(record);
+    if (!item.buyer_offer) {
+      planMessage("Bu fırsat için önerilen alım fiyatı henüz hesaplanmamış.");
+      return;
+    }
+    state.items = [...state.items, item];
     saveState();
     renderPlan();
+    updateAddButtonStates();
+    if (immediate) planMessage("Tekil ilan plana eklendi. İlan her an kapanabilir.");
     openPlan();
   }
 
-  function changeQuantity(key, delta) {
-    const item = state.items[key];
-    if (!item) return;
-    item.quantity = Math.max(1, Math.min(MAX_QUANTITY, (Number(item.quantity) || 1) + delta));
-    saveState();
-    renderPlan();
-  }
-
   function removeItem(key) {
-    delete state.items[key];
+    state.items = state.items.filter((item) => item.id !== key);
     saveState();
     renderPlan();
+    updateAddButtonStates();
   }
 
   function clearPlan() {
     if (!itemValues().length) return;
     if (!window.confirm("Alım planındaki tüm ürünler kaldırılsın mı?")) return;
-    state.items = {};
+    state.items = [];
     saveState();
     renderPlan();
+    updateAddButtonStates();
   }
 
   function makeAddButton(record, compact = false) {
@@ -375,7 +400,7 @@
     button.type = "button";
     button.dataset.pbAddPlan = opportunityKey(record);
     button.className = compact ? "pb-plan-add pb-plan-add--compact" : "pb-plan-add";
-    button.textContent = "Alım Planına Ekle";
+    button.textContent = "Alım planına ekle";
     return button;
   }
 
@@ -396,7 +421,7 @@
       const primaryCta = all("button,a", main).find((node) => /fırsat detaylarını incele|add to cart|buy now|sepete ekle|satın al/i.test(text(node)));
       if (primaryCta) {
         primaryCta.dataset.pbAddPlan = key;
-        primaryCta.textContent = "Alım Planına Ekle";
+        primaryCta.textContent = primaryCta.dataset.pbImmediateClose === "1" ? "Hemen Ayır" : "Alım planına ekle";
         if (primaryCta.tagName === "A") primaryCta.setAttribute("href", "#");
       }
       const panelCard = document.querySelector("#pricebridge-opportunity-details .pb-bagisto-panel-card");
@@ -415,7 +440,7 @@
     if (add) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      addItem(add.dataset.pbAddPlan);
+      addItem(add.dataset.pbAddPlan, add.dataset.pbImmediateClose === "1");
       return;
     }
 
@@ -431,22 +456,10 @@
     if (trigger) {
       event.preventDefault();
       event.stopImmediatePropagation();
-      openPlan();
+      window.setTimeout(openPlan, 0);
       return;
     }
 
-    const decrease = event.target.closest?.("[data-pb-plan-decrease]");
-    if (decrease) {
-      event.preventDefault();
-      changeQuantity(decrease.dataset.pbPlanDecrease, -1);
-      return;
-    }
-    const increase = event.target.closest?.("[data-pb-plan-increase]");
-    if (increase) {
-      event.preventDefault();
-      changeQuantity(increase.dataset.pbPlanIncrease, 1);
-      return;
-    }
     const remove = event.target.closest?.("[data-pb-plan-remove]");
     if (remove) {
       event.preventDefault();
@@ -463,10 +476,17 @@
     if (event.key === "Escape") closePlan();
   });
 
+  document.addEventListener("pricebridge:plan-changed", () => {
+    state = readState();
+    updatePlanBadges();
+    updateAddButtonStates();
+  });
+
   window.addEventListener("storage", (event) => {
     if (event.key !== STORAGE_KEY) return;
     state = readState();
     renderPlan();
+    updateAddButtonStates();
   });
 
   function init() {
@@ -475,13 +495,7 @@
     installTriggers();
     renderPlan();
     updatePlanBadges();
-
-    const observer = new MutationObserver(() => {
-      installAddButtons();
-      installTriggers();
-      updatePlanBadges();
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
+    updateAddButtonStates();
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });

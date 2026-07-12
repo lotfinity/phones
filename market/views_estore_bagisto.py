@@ -30,8 +30,10 @@ INDEX_SOURCES = [
 ]
 
 DETAIL_SOURCES = [
-    "pages/products/smartphone-earphone-bundle-preview.html",
-    "pages/products/smartphone-earphone-bundle.html",
+    "pages/products/computer-monitor-preview.html",
+    "pages/products/computer-monitor.html",
+    "pages/products/speakers-preview.html",
+    "pages/products/speakers.html",
 ]
 
 
@@ -85,7 +87,7 @@ def _evidence_payload(rows):
 def estore_bagisto_opportunity_index(request):
     selected_currency = _selected_currency(request)
     show_internal_gain = can_view_internal_gain(request)
-    items, active_category, query = _filtered_items(request)
+    items, active_category, query, active_brand, brand_options = _filtered_items(request)
 
     cards = [
         _opportunity_card(
@@ -110,6 +112,8 @@ def estore_bagisto_opportunity_index(request):
             "total_count": len(cards),
             "counts": counts,
             "active_category": active_category,
+            "active_brand": active_brand,
+            "brand_options": brand_options,
             "query": query,
             "selected_currency": selected_currency,
             "can_view_internal_gain": show_internal_gain,

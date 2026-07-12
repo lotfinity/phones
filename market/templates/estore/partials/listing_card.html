@@ -1,4 +1,4 @@
-<article class="pb-product-card">
+<article class="pb-product-card" data-pb-opportunity-card="{{ card.pk }}">
     <a class="pb-product-card__image" href="{{ card.detail_url }}" aria-label="{{ card.title }}">
         {% if card.has_image %}
             <img
@@ -36,7 +36,7 @@
             <span class="pb-badge pb-badge--muted">{{ card.evidence_count }} doğrulama</span>
         </div>
 
-        <div class="pb-opportunity-pricing">
+        <div class="pb-opportunity-pricing" data-pb-opportunity-meta>
             <div class="pb-price-block pb-price-block--primary">
                 <span>Önerilen alım fiyatı</span>
                 <strong>{{ card.buyer_offer|default:"Hesaplanmadı" }}</strong>

@@ -191,7 +191,7 @@ def render_bagisto_source(
     if "</head>" in html.lower():
         html = re.sub(
             r"</head>",
-            head_injection + "\n</head>",
+            lambda _match: head_injection + "\n</head>",
             html,
             count=1,
             flags=re.IGNORECASE,
@@ -213,7 +213,7 @@ def render_bagisto_source(
     if "</body>" in html.lower():
         html = re.sub(
             r"</body>",
-            runtime + "\n</body>",
+            lambda _match: runtime + "\n</body>",
             html,
             count=1,
             flags=re.IGNORECASE,

@@ -27,6 +27,7 @@
   const lower = (node) => text(node).toLocaleLowerCase("tr-TR");
   const productSelector = 'a[href="#pb-product"], a[href*="/products/"], a[href*="/product/"]';
   const pricePattern = /(?:[$€£₺]|\b(?:USD|EUR|TRY|TL|DZD)\b)\s*[\d.,]+|[\d.,]+\s*(?:[$€£₺]|\b(?:USD|EUR|TRY|TL|DZD)\b)/i;
+  const capturedDetailPattern = /HD Computer Monitor|VisionCraft|UltraView|Display Size|Full HD 1920x1080|Panel Type|Refresh Rate|Response Time|Connectivity|Mount Support|Matte Black/i;
 
   function escapeHtml(value) {
     return String(value ?? "")
@@ -113,17 +114,42 @@
     });
   }
 
-  function rewriteShellLinks() {
-    all("a[href]").forEach((anchor) => {
-      const href = anchor.getAttribute("href") || "";
-      const label = lower(anchor);
-      const mapped = mapCapturedHref(href, label);
-      if (mapped && mapped !== "#pb-product") {
-        anchor.dataset.pbCapturedHref = href;
-        anchor.setAttribute("href", mapped);
-        anchor.removeAttribute("target");
-      }
-    });
+  function renderBrandFilters() {
+    if (payload.page !== "opportunity-index") return;
+    const options = Array.isArray(payload.brand_options) ? payload.brand_options : [];
+    if (options.length <= 1) return;
+
+    const target = all("main .flex.items-center.gap-3")
+      .find((node) => {
+        if (node.dataset.pbBrandFilters === "1") return false;
+        const label = text(node);
+        return /filters|from a-z|sort by|sırala|filtres/i.test(label);
+      }) || all("header .flex.items-center.gap-3")[0];
+    if (!target || target.dataset.pbBrandFilters === "1") return;
+
+    target.dataset.pbBrandFilters = "1";
+    target.innerHTML = `
+      <nav class="pb-header-brand-filters" aria-label="Marka filtreleri">
+        ${options.map((option) => `
+          <a
+            class="pb-header-brand-filter${option.active ? " is-active" : ""}"
+            href="${escapeHtml(option.url || "/estore/")}"
+            data-pb-brand-filter="${escapeHtml(option.value || "")}"
+            title="${escapeHtml(option.value ? `${option.name} fırsatları` : "Tüm markalar")}"
+          >
+            ${option.logo_white || option.logo ? `<img src="${escapeHtml(option.logo_white || option.logo)}" alt="${escapeHtml(option.name)}" class="pb-brand-icon" />` : ""}
+            <span>${escapeHtml(option.name)}</span>
+            <small>${escapeHtml(option.count ?? "")}</small>
+          </a>
+        `).join("")}
+      </nav>`;
+  }
+
+  function relocateMobileBottomNav() {
+    const mobileNav = document.querySelector('header div[class*="inset-x-0"][class*="bottom-0"][class*="lg:hidden"]');
+    if (!mobileNav || mobileNav.dataset.pbMobileBottomNav === "1") return;
+    mobileNav.dataset.pbMobileBottomNav = "1";
+    document.body.append(mobileNav);
   }
 
   function installCapturedLinkGuard() {
@@ -220,9 +246,15 @@
     const target = candidates.find((node) => /smartphone|product|category/i.test(text(node))) || candidates[0];
     if (target && payload.page === "opportunity-index") target.textContent = "Tüm Fırsatlar";
 
-    all("main p, main span").forEach((node) => {
-      if (node.children.length) return;
+    all("main a, main p, main span, main li").forEach((node) => {
       const current = text(node);
+      if (/furniture designed|sofas|wooden tables|storage solutions|crafted with quality/i.test(current)) {
+        node.textContent = "Cezayir kaynaklı tekil alım fırsatlarını Türkiye piyasa karşılaştırmalarıyla birlikte incele. Her kart gerçek bir kaynak ilanına bağlanır ve güncellik durumuna göre aksiyon alır.";
+        return;
+      }
+      if (node.children.length) return;
+      if (/^smartphones$/i.test(current)) node.textContent = "Fırsatlar";
+      if (/^home$/i.test(current)) node.textContent = "Ana sayfa";
       if (/\b\d+\s+(products?|items?)\b/i.test(current)) {
         node.textContent = `${payload.total_count || 0} fırsat`;
       }
@@ -276,6 +308,24 @@
     }) || null;
   }
 
+  function isVisibleNode(node) {
+    if (!node || node.hidden || node.getAttribute("aria-hidden") === "true") return false;
+    const styles = window.getComputedStyle(node);
+    if (styles.display === "none" || styles.visibility === "hidden") return false;
+    return !!(node.offsetWidth || node.offsetHeight || node.getClientRects().length);
+  }
+
+  function isDetailContentNode(node) {
+    return !node.closest("header,footer,[role='dialog'],[aria-hidden='true']");
+  }
+
+  function findDetailHeading(scope) {
+    const headings = all("h1,h2", scope)
+      .filter(isDetailContentNode)
+      .filter((node) => text(node).length >= 3);
+    return headings.find(isVisibleNode) || headings[0] || null;
+  }
+
   function priceNodes(scope) {
     return all("span,strong,p,div", scope)
       .filter((node) => node.children.length === 0)
@@ -289,8 +339,107 @@
 
   function replacePrices(scope, card) {
     const nodes = priceNodes(scope);
-    if (nodes[0] && card.buyer_offer) nodes[0].textContent = card.buyer_offer;
-    if (nodes[1] && card.turkiye_avg) nodes[1].textContent = `Türkiye ort. ${card.turkiye_avg}`;
+    nodes.forEach((node) => {
+      node.dataset.pbCapturedPrice = "";
+      node.textContent = "";
+      node.hidden = true;
+    });
+  }
+
+  function hideNode(node) {
+    if (!node) return;
+    node.dataset.pbSuppressedCapturedCommerce = "";
+    node.hidden = true;
+    node.setAttribute("aria-hidden", "true");
+  }
+
+  function suppressCapturedCardSemantics(scope) {
+    all("button,a,span,p,div", scope).forEach((node) => {
+      if (node.dataset.pbAddPlan !== undefined) return;
+      if (node.closest("[data-pb-opportunity-meta]")) return;
+      const value = text(node);
+      const label = `${value} ${node.getAttribute("aria-label") || ""} ${node.getAttribute("title") || ""}`;
+      const normalized = label.toLocaleLowerCase("tr-TR");
+      const isLeafish = node.children.length <= 2;
+      if (/^\(?\s*0\s*\)?$/.test(value) && node.querySelectorAll("svg").length >= 3) {
+        hideNode(node);
+        return;
+      }
+      if (/^starting at$/i.test(value)) {
+        hideNode(node);
+        return;
+      }
+      if (/add to cart|buy now|sepete ekle|satın al|starting at|reviews?|\(\s*0\s*\)/i.test(label)) {
+        const command = node.closest("button,a");
+        if (command && scope.contains(command)) hideNode(command);
+        else if (node.children.length === 0) hideNode(node);
+        return;
+      }
+      if (isLeafish && /[★☆]\s*[★☆]/.test(value)) {
+        hideNode(node);
+        return;
+      }
+      if (isLeafish && /customer|rating|review/.test(normalized)) hideNode(node);
+    });
+  }
+
+  function confidenceStars(card) {
+    const score = Number(card.confidence_score) || 0;
+    const stars = Math.max(1, Math.min(5, Number(card.confidence_stars) || Math.round(score / 20) || 1));
+    const wrapper = document.createElement("span");
+    wrapper.className = "pb-confidence-stars";
+    wrapper.setAttribute("aria-label", card.confidence_aria_label || `Veri güveni ${score} / 100`);
+    wrapper.setAttribute("title", card.confidence_title || `Veri güveni: %${score}`);
+    wrapper.innerHTML = `${"★".repeat(stars)}${"☆".repeat(5 - stars)}<span class="sr-only"> ${score} / 100</span>`;
+    return wrapper;
+  }
+
+  function availabilityBadge(card) {
+    const badge = document.createElement("span");
+    badge.dataset.pbAvailability = card.availability_state || "verification_required";
+    badge.textContent = card.availability_label || "Güncellik doğrulanmalı";
+    return badge;
+  }
+
+  function pricingBlock(card) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "pb-card-pricing";
+    wrapper.dataset.pbCardPricing = "";
+
+    const current = document.createElement("strong");
+    current.className = "pb-card-pricing__current";
+    current.textContent = card.buyer_offer || "Teklif fiyatı hesaplanmadı";
+    wrapper.append(current);
+
+    const label = document.createElement("small");
+    label.textContent = "PriceBridge teklif fiyatı";
+    wrapper.append(label);
+
+    if (card.supplier_price) {
+      const supplier = document.createElement("span");
+      supplier.className = "pb-card-pricing__supplier";
+      supplier.innerHTML = `<s>${escapeHtml(card.supplier_price)}</s> tedarikçi liste fiyatı`;
+      wrapper.append(supplier);
+    }
+
+    if (card.supplier_discount_label) {
+      const discount = document.createElement("span");
+      discount.className = "pb-card-pricing__discount";
+      discount.textContent = card.supplier_discount_label;
+      wrapper.append(discount);
+    }
+
+    if (card.turkiye_avg) {
+      const market = document.createElement("span");
+      market.textContent = `Türkiye piyasa değeri: ${card.turkiye_avg}`;
+      wrapper.append(market);
+    }
+    if (card.buyer_gain) {
+      const gain = document.createElement("span");
+      gain.textContent = `Tahmini mağaza kazancı: ${card.buyer_gain}${card.buyer_gain_percent ? ` (${card.buyer_gain_percent})` : ""}`;
+      wrapper.append(gain);
+    }
+    return wrapper;
   }
 
   function setProductImage(scope, card) {
@@ -298,7 +447,7 @@
       const source = `${image.getAttribute("src") || ""} ${image.getAttribute("alt") || ""}`;
       return !/logo|icon|flag|avatar/i.test(source);
     });
-    const source = card.has_image && card.image_url ? card.image_url : svgFallback(card.title);
+    const source = card.has_image && card.image_url ? card.image_url : (card.brand_logo_url || svgFallback(card.title));
 
     images.slice(0, 6).forEach((image, index) => {
       image.src = source;
@@ -315,30 +464,25 @@
     const wrapper = document.createElement("div");
     wrapper.dataset.pbOpportunityMeta = "";
 
-    const badge = document.createElement("span");
-    badge.dataset.pbOpportunityBadge = "";
-    badge.dataset.state = card.recommendation_value || "watch";
-    badge.textContent = card.recommendation || "Fırsat";
-    wrapper.append(badge);
+    const top = document.createElement("div");
+    top.className = "pb-card-topline";
+    top.append(availabilityBadge(card), confidenceStars(card));
+    wrapper.append(top);
 
-    const offer = document.createElement("strong");
-    offer.textContent = card.buyer_offer ? `Önerilen alım: ${card.buyer_offer}` : "Önerilen alım fiyatı hesaplanıyor";
-    wrapper.append(offer);
-
-    if (card.turkiye_avg) {
-      const market = document.createElement("small");
-      market.textContent = `Türkiye ortalaması: ${card.turkiye_avg}`;
-      wrapper.append(market);
-    }
-    if (card.buyer_gain) {
-      const gain = document.createElement("small");
-      gain.textContent = `Tahmini mağaza kazancı: ${card.buyer_gain}${card.buyer_gain_percent ? ` (${card.buyer_gain_percent})` : ""}`;
-      wrapper.append(gain);
+    const spec = [card.subtitle, card.condition, card.battery_health ? `Batarya %${card.battery_health}` : ""]
+      .filter(Boolean)
+      .join(" · ");
+    if (spec) {
+      const specNode = document.createElement("small");
+      specNode.textContent = spec;
+      wrapper.append(specNode);
     }
 
-    const confidence = document.createElement("small");
-    confidence.textContent = `Güven: %${card.confidence_score ?? 0} · ${card.evidence_count ?? 0} kanıt`;
-    wrapper.append(confidence);
+    wrapper.append(pricingBlock(card));
+
+    const count = document.createElement("small");
+    count.textContent = `${card.turkiye_count ?? 0} Türkiye karşılaştırması`;
+    wrapper.append(count);
     return wrapper;
   }
 
@@ -353,6 +497,7 @@
     const titleNode = findTitleNode(cardNode);
     if (titleNode) titleNode.textContent = card.title;
     replacePrices(cardNode, card);
+    suppressCapturedCardSemantics(cardNode);
     cardNode.querySelector("[data-pb-opportunity-meta]")?.remove();
 
     const body = all("div", cardNode)
@@ -409,21 +554,59 @@
   function setDetailIdentity(opportunity) {
     document.title = `${opportunity.title} · PriceBridge`;
     const main = document.querySelector("main") || document.body;
-    const heading = all("h1,h2", main).find((node) => text(node).length >= 3) || findTitleNode(main);
+    const heading = findDetailHeading(main) || findTitleNode(main);
     if (heading) heading.textContent = opportunity.title;
     setProductImage(main, opportunity);
     replacePrices(main, opportunity);
+    suppressCapturedDetailCopy(main);
+    renderDetailSummary(main, heading, opportunity);
 
     all("button,a", main).forEach((node) => {
       const label = lower(node);
       if (!/add to cart|buy now|sepete ekle|satın al/.test(label)) return;
-      node.textContent = "Fırsat detaylarını incele";
-      if (node.tagName === "A") node.href = "#pricebridge-opportunity-details";
-      node.addEventListener("click", (event) => {
-        event.preventDefault();
-        document.getElementById("pricebridge-opportunity-details")?.scrollIntoView({ behavior: "smooth" });
-      });
+      node.textContent = /buy now|satın al/.test(label) ? "Hemen Ayır" : "Alım planına ekle";
+      node.dataset.pbAddPlan = `${opportunity.category || "opportunity"}:${opportunity.pk ?? opportunity.snapshot_id}`;
+      if (/buy now|satın al/.test(label)) node.dataset.pbImmediateClose = "1";
+      if (node.tagName === "A") node.href = "#";
     });
+  }
+
+  function suppressCapturedDetailCopy(scope) {
+    all("h1,h2,h3,h4,h5,h6,p,span,strong,li,dt,dd", scope).forEach((node) => {
+      if (node.closest("[data-pb-opportunity-panel]")) return;
+      if (!capturedDetailPattern.test(text(node))) return;
+      hideNode(node);
+    });
+  }
+
+  function detailSpecLine(opportunity) {
+    return [
+      opportunity.subtitle,
+      opportunity.condition,
+      opportunity.battery_health ? `Batarya %${opportunity.battery_health}` : "",
+    ].filter(Boolean).join(" · ");
+  }
+
+  function renderDetailSummary(scope, heading, opportunity) {
+    scope.querySelector("[data-pb-detail-summary]")?.remove();
+    const summary = document.createElement("div");
+    summary.className = "pb-detail-summary";
+    summary.dataset.pbDetailSummary = "";
+
+    const specLine = detailSpecLine(opportunity);
+    summary.innerHTML = `
+      <div class="pb-card-topline">
+        ${availabilityBadge(opportunity).outerHTML}
+        ${confidenceStars(opportunity).outerHTML}
+      </div>
+      ${specLine ? `<p>${escapeHtml(specLine)}</p>` : ""}
+    `;
+    summary.append(pricingBlock(opportunity));
+
+    const anchor = heading?.parentElement && scope.contains(heading.parentElement) && isDetailContentNode(heading.parentElement)
+      ? heading.parentElement
+      : all("main section, main div", scope).find((node) => isDetailContentNode(node) && node.querySelector("img") && text(node).length > 8) || scope;
+    anchor.append(summary);
   }
 
   function metric(label, value) {
@@ -437,7 +620,8 @@
       const title = row.title || "Kaynak ilan";
       const href = safeUrl(row.listing_url, "#");
       const secondary = [row.country_label, row.source_name, row.price_eur, row.condition].filter(Boolean).join(" · ");
-      return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer"><strong>${escapeHtml(title)}</strong><small>${escapeHtml(secondary)}</small></a>`;
+      const image = row.image_url ? `<img src="${escapeHtml(row.image_url)}" alt="${escapeHtml(title)}" loading="lazy">` : "";
+      return `<a href="${escapeHtml(href)}" target="_blank" rel="noopener noreferrer">${image}<span><strong>${escapeHtml(title)}</strong><small>${escapeHtml(secondary)}</small></span></a>`;
     }).join("")}</div>`;
   }
 
@@ -457,20 +641,27 @@
           <span data-pb-opportunity-badge data-state="${escapeHtml(opportunity.recommendation_value || "watch")}">${escapeHtml(opportunity.recommendation || "Fırsat")}</span>
           <h2>${escapeHtml(opportunity.title)}</h2>
           <div class="pb-bagisto-metrics">
-            ${metric("Önerilen alım fiyatı", opportunity.buyer_offer)}
-            ${metric("Türkiye ortalaması", opportunity.turkiye_avg)}
+            ${metric("PriceBridge teklif fiyatı", opportunity.buyer_offer)}
+            ${metric("Tedarikçi liste fiyatı", opportunity.supplier_price)}
+            ${metric("Tedarikçi avantajı", opportunity.supplier_discount_label)}
+            ${metric("Türkiye piyasa değeri", opportunity.turkiye_avg)}
             ${metric("Tahmini mağaza kazancı", opportunity.buyer_gain)}
             ${metric("Kazanç oranı", opportunity.buyer_gain_percent)}
-            ${metric("Güven", `%${opportunity.confidence_score ?? 0}`)}
-            ${metric("Kanıt sayısı", String(opportunity.evidence_count ?? 0))}
+            ${metric("İlan durumu", opportunity.availability_label)}
             ${internalMetric}${specs}
           </div>
           <h3>Türkiye karşılaştırma ilanları</h3>
+          <p>Beklenen Türkiye satış değerini belirlemek için kullanılan benzer ilanlar.</p>
           ${evidenceList(payload.turkiye_rows, "Türkiye karşılaştırma ilanı bulunamadı.")}
         </section>
         <aside class="pb-bagisto-panel-card">
-          <h2>Fırsat özeti</h2>
-          <p>${escapeHtml(opportunity.subtitle || "Gerçek ilanlardan hesaplanan alım fırsatı")}</p>
+          <h2>Alım planı</h2>
+          <p>Bu plan en fazla 6 telefon içerebilir. Laptop ve konsollar için mevcut bir sınır uygulanmıyor.</p>
+          <div class="pb-detail-actions">
+            <button type="button" data-pb-add-plan="${escapeHtml(`${opportunity.category || "opportunity"}:${opportunity.pk ?? opportunity.snapshot_id}`)}">Alım planına ekle</button>
+            <button type="button" data-pb-add-plan="${escapeHtml(`${opportunity.category || "opportunity"}:${opportunity.pk ?? opportunity.snapshot_id}`)}" data-pb-immediate-close="1">Hemen Ayır</button>
+          </div>
+          <button type="button" class="pb-future-offer" disabled>Teklif oluştur yakında</button>
           ${payload.can_view_internal_gain ? `<h3>Cezayir alım kanıtları</h3>${evidenceList(payload.algeria_rows, "Cezayir alım kanıtı bulunamadı.")}` : ""}
         </aside>
       </div>`;
@@ -487,12 +678,33 @@
     renderDetailPanel(opportunity);
   }
 
+  function suppressCapturedCommerceSemantics() {
+    all("input,button,span,label,a,p,h1,h2,h3,h4,h5,h6").forEach((node) => {
+      if (node.children.length > 2) return;
+      if (node.closest(productSelector)) return;
+      const value = lower(node);
+      if (/qty|quantity|free shipping|shipping|checkout|review|frequently bought|bundle|add all to cart|delivery|courier/.test(value)) {
+        const group = node.closest("section,form,article,li") || node.parentElement || node;
+        if (group.querySelector?.(productSelector)) return;
+        group.dataset.pbSuppressedCommerce = "";
+        group.hidden = true;
+      }
+    });
+    all('input[type="number"]').forEach((input) => {
+      const label = lower(input.closest("label,div,form") || input);
+      if (/qty|quantity|adet/.test(label)) input.closest("label,div,form").hidden = true;
+    });
+  }
+
   function run() {
     try {
       rewriteBranding();
+      relocateMobileBottomNav();
+      renderBrandFilters();
       rewriteShellLinks();
       installCapturedLinkGuard();
       configureSearch();
+      suppressCapturedCommerceSemantics();
       if (payload.page === "opportunity-index") renderCatalog();
       else if (payload.page === "opportunity-detail") renderDetail();
       rewriteShellLinks();

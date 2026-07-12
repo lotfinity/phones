@@ -154,6 +154,22 @@
   color: var(--pb-teal-700, #0f766e);
 }
 
+.pb-plan-capacity {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: flex-end;
+}
+
+.pb-plan-capacity span {
+  border: 1px solid var(--pb-border, #d7e1ea);
+  border-radius: 999px;
+  padding: 0.35rem 0.55rem;
+  background: var(--pb-surface, #fff);
+  color: var(--pb-ink, #10243e);
+  font-weight: 750;
+}
+
 .pb-plan-items {
   min-height: 0;
   overflow-y: auto;
@@ -221,6 +237,13 @@
   font-size: 0.84rem;
 }
 
+.pb-plan-item__body small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--pb-muted, #607286);
+  font-size: 0.74rem;
+}
+
 .dark .pb-plan-item__body > strong {
   color: #68ded1;
 }
@@ -239,29 +262,6 @@
 .pb-plan-item__controls > span {
   font-size: 0.82rem;
   font-weight: 800;
-}
-
-.pb-plan-quantity {
-  display: inline-flex;
-  align-items: center;
-  overflow: hidden;
-  border: 1px solid var(--pb-border, #d7e1ea);
-  border-radius: 0.55rem;
-}
-
-.pb-plan-quantity button,
-.pb-plan-quantity output {
-  display: grid;
-  min-width: 2rem;
-  height: 2rem;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  color: inherit;
-}
-
-.pb-plan-quantity button:hover {
-  background: var(--pb-surface-soft, #eaf0f5);
 }
 
 .pb-plan-empty {
@@ -324,6 +324,18 @@
   transform: translateY(1px);
 }
 
+.pb-plan-add:disabled,
+[data-pb-add-plan]:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.5;
+}
+
+.pb-plan-add[data-pb-planned="1"],
+[data-pb-add-plan][data-pb-planned="1"] {
+  border-color: var(--pb-teal-700, #0f766e) !important;
+  background: var(--pb-teal-700, #0f766e) !important;
+}
+
 .pb-plan-add--compact {
   margin-top: 0.35rem;
   padding: 0.58rem 0.7rem;
@@ -349,6 +361,23 @@
   font-size: 0.62rem;
   font-weight: 800;
   line-height: 1;
+}
+
+[data-pb-plan-message] {
+  position: fixed;
+  left: 50%;
+  top: 1rem;
+  z-index: 80;
+  max-width: min(92vw, 28rem);
+  transform: translateX(-50%);
+  border: 1px solid var(--pb-border, #d7e1ea);
+  border-radius: 0.8rem;
+  background: var(--pb-navy-950, #071a2f);
+  color: #fff;
+  padding: 0.8rem 1rem;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.24);
+  font-size: 0.9rem;
+  font-weight: 750;
 }
 
 @media (max-width: 40rem) {

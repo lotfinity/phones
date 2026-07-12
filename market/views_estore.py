@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone as datetime_timezone
 from decimal import Decimal
+from urllib.parse import urlencode
 from urllib.parse import urlsplit
 
+from django.db.models import Model
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils import timezone
 
 from market.clean_models import (
     ConsoleOpportunitySnapshot,
@@ -13,6 +17,7 @@ from market.clean_models import (
     PhoneOpportunitySnapshot,
 )
 from market.views_clean import (
+    VISIBLE_REVIEW_STATUSES,
     _display_row,
     _evidence_rows,
     _matching_listing_queryset,
@@ -21,6 +26,8 @@ from market.views_clean import (
     can_view_operational_meta,
 )
 from market.views_clean_detail import _restrict_detail_row
+from market.views import money
+from market.services.brand_logos import brand_logo_url as _brand_logo_url
 
 
 OPPORTUNITY_CONFIG = {
@@ -67,6 +74,27 @@ COUNTRY_LABELS_TR = {
     "other": "Diğer",
 }
 
+AVAILABLE_REVIEW_STATUSES = {"auto", "approved"}
+
+
+def _json_payload(value):
+    """Remove Django model instances before embedding data as JSON in HTML."""
+    if isinstance(value, Model):
+        return None
+    if isinstance(value, dict):
+        return {
+            key: _json_payload(item)
+            for key, item in value.items()
+            if not isinstance(item, Model)
+        }
+    if isinstance(value, (list, tuple, set)):
+        return [
+            _json_payload(item)
+            for item in value
+            if not isinstance(item, Model)
+        ]
+    return value
+
 
 def _selected_currency(request):
     value = request.GET.get("currency") or request.COOKIES.get("pricebridge_currency") or "TRY"
@@ -108,6 +136,145 @@ def _primary_listing(item, category):
             return listing
 
     return listings[0]
+
+
+def _listing_timestamp(listing):
+    if not listing:
+        return None
+    for field in ("observed_at", "published_at", "listed_at", "created_at"):
+        value = getattr(listing, field, None)
+        if value:
+            return value
+    raw = getattr(listing, "raw_listing", None)
+    if raw:
+        for field in ("observed_at", "published_at", "created_at"):
+            value = getattr(raw, field, None)
+            if value:
+                return value
+    return None
+
+
+def _listing_availability(listing):
+    if not listing:
+        return {
+            "state": "verification_required",
+            "label": "Güncellik doğrulanmalı",
+            "is_actionable": False,
+        }
+
+    status = getattr(listing, "review_status", "")
+    if status and status not in VISIBLE_REVIEW_STATUSES:
+        return {
+            "state": "unavailable",
+            "label": "İlan artık mevcut değil",
+            "is_actionable": False,
+        }
+
+    timestamp = _listing_timestamp(listing)
+    if not timestamp:
+        return {
+            "state": "verification_required",
+            "label": "Güncellik doğrulanmalı",
+            "is_actionable": False,
+        }
+
+    if timezone.is_naive(timestamp):
+        timestamp = timezone.make_aware(timestamp, timezone.get_current_timezone())
+    age_days = (timezone.now() - timestamp).days
+    if age_days <= 7 and status in AVAILABLE_REVIEW_STATUSES:
+        return {
+            "state": "available",
+            "label": "İlan güncel",
+            "is_actionable": True,
+            "source_age_days": age_days,
+        }
+    return {
+        "state": "stale",
+        "label": "7 günden eski",
+        "is_actionable": False,
+        "source_age_days": age_days,
+    }
+
+
+def _listing_identity_url(listing):
+    if not listing:
+        return ""
+    raw = getattr(listing, "raw_listing", None)
+    return _safe_external_url(getattr(listing, "listing_url", "") or getattr(raw, "listing_url", ""))
+
+
+def _supplier_pricing(item, selected_currency):
+    supplier_eur = getattr(item, "supplier_eur", None)
+    buyer_offer_eur = getattr(item, "buyer_offer_eur", None)
+    if supplier_eur is None:
+        return {
+            "supplier_price": "",
+            "supplier_discount_percent": None,
+            "supplier_discount_label": "",
+        }
+
+    supplier = Decimal(str(supplier_eur))
+    buyer = Decimal(str(buyer_offer_eur)) if buyer_offer_eur is not None else None
+    discount_percent = None
+    discount_label = ""
+    if buyer is not None and supplier > 0 and buyer < supplier:
+        discount_percent = int(((supplier - buyer) / supplier * Decimal("100")).quantize(Decimal("1")))
+        if discount_percent > 0:
+            discount_label = f"%{discount_percent} daha uygun"
+
+    return {
+        "supplier_price": money(supplier, selected_currency),
+        "supplier_discount_percent": discount_percent,
+        "supplier_discount_label": discount_label,
+    }
+
+
+def _acquisition_listing(item, category):
+    qs = _matching_listing_queryset(item, category).filter(country="algeria")
+    listings = list(qs[:200])
+    if not listings:
+        return None
+
+    def score(listing):
+        timestamp = _listing_timestamp(listing)
+        return (
+            1 if getattr(listing, "review_status", "") in AVAILABLE_REVIEW_STATUSES else 0,
+            1 if _spec_matches_snapshot(listing, item, category) else 0,
+            timestamp or datetime.min.replace(tzinfo=datetime_timezone.utc),
+            1 if _listing_identity_url(listing) else 0,
+            1 if _has_image(listing) else 0,
+        )
+
+    return sorted(listings, key=score, reverse=True)[0]
+
+
+def _spec_matches_snapshot(listing, item, category):
+    if not listing:
+        return False
+    comparisons = []
+    if category == "phone":
+        comparisons.append((getattr(item, "storage_gb", None), getattr(listing, "storage_gb", None)))
+    elif category == "laptop":
+        comparisons.extend(
+            [
+                (getattr(item, "cpu", ""), getattr(listing, "cpu", "")),
+                (getattr(item, "gpu", ""), getattr(listing, "gpu", "")),
+                (getattr(item, "ram_gb", None), getattr(listing, "ram_gb", None)),
+                (getattr(item, "storage_gb", None), getattr(listing, "storage_gb", None)),
+            ]
+        )
+    elif category == "console":
+        comparisons.extend(
+            [
+                (getattr(item, "chipset", ""), getattr(listing, "chipset", "")),
+                (getattr(item, "ram_gb", None), getattr(listing, "ram_gb", None)),
+                (getattr(item, "storage_gb", None), getattr(listing, "storage_gb", None)),
+            ]
+        )
+    required = [(expected, actual) for expected, actual in comparisons if expected not in (None, "")]
+    if not required:
+        return True
+    return all(str(expected).lower() == str(actual).lower() for expected, actual in required)
 
 
 def _snapshot_specs(item, category):
@@ -192,30 +359,42 @@ def _opportunity_card(item, category, selected_currency, *, show_internal_gain=F
         selected_currency,
         show_internal_gain=show_internal_gain,
     )
-    primary = _primary_listing(item, category)
-    specs = _combined_specs(item, category, primary)
-    has_image = _has_image(primary)
+    acquisition = _acquisition_listing(item, category)
+    primary = acquisition or _primary_listing(item, category)
+    specs = _combined_specs(item, category, acquisition)
+    has_image = _has_image(acquisition)
     title = display["title"]
+    availability = _listing_availability(acquisition)
+    confidence_score = int(item.confidence_score or 0)
+    supplier = _supplier_pricing(item, selected_currency)
 
-    return {
+    card = {
         "pk": item.pk,
+        "plan_key": f"{category}:{item.pk}",
         "category": category,
         "category_label": OPPORTUNITY_CONFIG[category]["label"],
         "brand": item.brand,
+        "brand_logo_url": _brand_logo_url(item.brand),
         "model": item.model,
         "title": title,
         "initials": "".join(part[0] for part in (item.brand or title).split()[:2]).upper() or "PB",
         "subtitle": display["spec"],
         "specs": specs,
         "condition": _condition_label(primary),
-        "battery_health": getattr(primary, "battery_health", None) if primary else None,
+        "battery_health": getattr(acquisition, "battery_health", None) if acquisition else None,
         "recommendation": _recommendation_label(item.recommendation),
         "recommendation_value": item.recommendation,
-        "confidence_score": item.confidence_score,
+        "confidence_score": confidence_score,
+        "confidence_stars": round(confidence_score / 20),
+        "confidence_aria_label": f"Veri güveni {confidence_score} / 100",
+        "confidence_title": f"Veri güveni: %{confidence_score}",
         "buyer_offer": display.get("buyer_offer", ""),
         "buyer_gain": display.get("buyer_gain", ""),
         "buyer_gain_percent": display.get("buyer_gain_percent", ""),
         "turkiye_avg": display.get("turkiye_avg", ""),
+        "supplier_price": supplier["supplier_price"],
+        "supplier_discount_percent": supplier["supplier_discount_percent"],
+        "supplier_discount_label": supplier["supplier_discount_label"],
         "turkiye_count": item.turkiye_count,
         "algeria_count": item.algeria_count,
         "evidence_count": (item.algeria_count or 0) + (item.turkiye_count or 0),
@@ -224,18 +403,27 @@ def _opportunity_card(item, category, selected_currency, *, show_internal_gain=F
         "image_url": (
             reverse(
                 "clean_listing_image",
-                kwargs={"category": category, "pk": primary.pk},
+                kwargs={"category": category, "pk": acquisition.pk},
             )
             if has_image
             else ""
         ),
+        "source_listing_id": acquisition.pk if acquisition else None,
+        "source_listing_url": _listing_identity_url(acquisition),
+        "source_observed_at": _listing_timestamp(acquisition),
+        "availability_state": availability["state"],
+        "availability_label": availability["label"],
+        "availability_is_actionable": availability["is_actionable"],
+        "source_age_days": availability.get("source_age_days"),
         "detail_url": reverse(
             "estore_opportunity_detail",
             kwargs={"category": category, "pk": item.pk},
         ),
         "generated_at": item.generated_at,
-        "my_gain": display.get("my_gain", "") if show_internal_gain else "",
     }
+    if show_internal_gain:
+        card["my_gain"] = display.get("my_gain", "")
+    return card
 
 
 def _all_opportunity_items():
@@ -246,16 +434,69 @@ def _all_opportunity_items():
     return items
 
 
+def _brand_filter_options(items, *, active_category="", active_brand="", query=""):
+    counts = {}
+    for category, item in items:
+        if active_category and category != active_category:
+            continue
+        if item.brand:
+            counts[item.brand] = counts.get(item.brand, 0) + 1
+
+    def url_for(brand):
+        params = {}
+        if active_category:
+            params["category"] = active_category
+        if query:
+            params["q"] = query
+        if brand:
+            params["brand"] = brand
+        query_string = urlencode(params)
+        return f"/estore/?{query_string}" if query_string else "/estore/"
+
+    options = [
+        {
+            "name": "Tümü",
+            "value": "",
+            "count": sum(counts.values()),
+            "url": url_for(""),
+            "active": not active_brand,
+        }
+    ]
+    options.extend(
+        {
+            "name": brand,
+            "value": brand,
+            "count": count,
+            "url": url_for(brand),
+            "active": active_brand.lower() == brand.lower(),
+            "logo": _brand_logo_url(brand) or "",
+            "logo_white": (_brand_logo_url(brand) + "/ffffff") if _brand_logo_url(brand) else "",
+        }
+        for brand, count in sorted(counts.items(), key=lambda entry: (-entry[1], entry[0].lower()))
+    )
+    return options
+
+
 def _filtered_items(request):
     active_category = request.GET.get("category", "").strip().lower()
     if active_category not in OPPORTUNITY_CONFIG:
         active_category = ""
 
     query = request.GET.get("q", "").strip().lower()
+    active_brand = request.GET.get("brand", "").strip()
     items = _all_opportunity_items()
+    brand_options = _brand_filter_options(
+        items,
+        active_category=active_category,
+        active_brand=active_brand,
+        query=request.GET.get("q", "").strip(),
+    )
 
     if active_category:
         items = [entry for entry in items if entry[0] == active_category]
+
+    if active_brand:
+        items = [entry for entry in items if entry[1].brand.lower() == active_brand.lower()]
 
     if query:
         filtered = []
@@ -274,7 +515,7 @@ def _filtered_items(request):
         ),
         reverse=True,
     )
-    return items, active_category, request.GET.get("q", "").strip()
+    return items, active_category, request.GET.get("q", "").strip(), active_brand, brand_options
 
 
 def _prepare_evidence(rows, category):
@@ -309,7 +550,7 @@ def _prepare_evidence(rows, category):
 def estore_opportunity_index(request):
     selected_currency = _selected_currency(request)
     show_internal_gain = can_view_internal_gain(request)
-    items, active_category, query = _filtered_items(request)
+    items, active_category, query, active_brand, brand_options = _filtered_items(request)
     cards = [
         _opportunity_card(
             item,
@@ -329,10 +570,23 @@ def estore_opportunity_index(request):
         request,
         "estore/listing_index.html",
         {
+            "plan_payload": _json_payload({
+                "page": "opportunity-index",
+                "frontend": "server-rendered-estore",
+                "cards": cards,
+                "total_count": len(cards),
+                "active_category": active_category,
+                "active_brand": active_brand,
+                "brand_options": brand_options,
+                "query": query,
+                "selected_currency": selected_currency,
+            }),
             "cards": cards,
             "total_count": len(cards),
             "counts": counts,
             "active_category": active_category,
+            "active_brand": active_brand,
+            "brand_options": brand_options,
             "query": query,
             "selected_currency": selected_currency,
             "category_options": [
@@ -391,6 +645,12 @@ def estore_opportunity_detail(request, category, pk):
         request,
         "estore/listing_detail.html",
         {
+            "plan_payload": _json_payload({
+                "page": "opportunity-detail",
+                "frontend": "server-rendered-estore",
+                "opportunity": detail,
+                "selected_currency": selected_currency,
+            }),
             "opportunity": detail,
             "algeria_rows": algeria_rows,
             "turkiye_rows": turkiye_rows,

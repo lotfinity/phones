@@ -15,6 +15,9 @@
             {% if active_category %}
                 <input type="hidden" name="category" value="{{ active_category }}">
             {% endif %}
+            {% if active_brand %}
+                <input type="hidden" name="brand" value="{{ active_brand }}">
+            {% endif %}
             <label for="estore-q">Fırsatlarda ara</label>
             <div class="pb-search-field">
                 <span aria-hidden="true">⌕</span>
@@ -48,6 +51,24 @@
             </a>
         {% endfor %}
     </div>
+
+    {% if brand_options|length > 1 %}
+        <div class="pb-brand-strip" aria-label="Marka filtreleri">
+            {% for option in brand_options %}
+                <a
+                    class="pb-brand-chip{% if option.active %} is-active{% endif %}"
+                    href="{{ option.url }}"
+                    title="{% if option.value %}{{ option.name }} fırsatları{% else %}Tüm markalar{% endif %}"
+                >
+                    {% if option.logo %}
+                        <img src="{{ option.logo }}" alt="{{ option.name }}">
+                    {% endif %}
+                    <span>{{ option.name }}</span>
+                    <strong>{{ option.count }}</strong>
+                </a>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <div class="pb-catalog__toolbar">
         <div>

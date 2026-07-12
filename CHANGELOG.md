@@ -1,4 +1,16 @@
 # Changelog
+## 2026-07-12
+
+### Bagisto storefront PriceBridge semantics
+
+- Restored `/estore/` to the server-rendered Django opportunity templates so real opportunity cards render in the HTML response, while keeping the preserved Bagisto port available at `/estore/bagisto/`.
+- Added server-rendered brand filters, purchase-plan payload injection, plan drawer assets, and plan add/reserve actions to the Django estore index/detail templates.
+- Reworked the active `/estore/` Bagisto port so opportunity cards use exact Algeria acquisition listings for image, condition, battery, availability, source ID, and source URL when possible.
+- Replaced numeric confidence copy with five-star PriceBridge data-confidence metadata, added centralized source freshness availability states, and disabled acquisition actions for stale/unverified listings.
+- Converted the cart behavior into a browser-only acquisition plan with localStorage persistence, no quantities, six-phone capacity enforcement, and plan drawer remove/count behavior.
+- Removed the bundle product-detail capture from active detail routes and repurposed detail evidence areas toward Türkiye comparable listings and plan summary semantics.
+- Tightened supplier old-price/discount handling so supplier savings are only shown from real supplier-list values, with no Türkiye-average fake discounts.
+
 ## 2026-07-10
 
 ### Raw-first laptop matching cleanup

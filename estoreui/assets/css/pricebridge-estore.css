@@ -301,6 +301,61 @@ body.pb-storefront {
   background: var(--pb-surface);
 }
 
+.pb-brand-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 0 0 6px;
+  scrollbar-width: none;
+}
+
+.pb-brand-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.pb-brand-chip {
+  min-width: max-content;
+  min-height: 42px;
+  padding: 0 13px;
+  border: 1px solid var(--pb-border);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--pb-muted);
+  background: var(--pb-surface);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.pb-brand-chip img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.pb-brand-chip strong {
+  min-width: 22px;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  background: var(--pb-surface-soft);
+  color: var(--pb-text);
+  font-size: 10px;
+}
+
+.pb-brand-chip.is-active {
+  border-color: var(--pb-accent);
+  color: var(--pb-accent-contrast);
+  background: var(--pb-accent);
+}
+
+.pb-brand-chip.is-active strong {
+  background: var(--pb-surface);
+}
+
 .pb-catalog__toolbar {
   margin: 26px 0 28px;
   display: flex;
@@ -635,6 +690,32 @@ body.pb-storefront {
 
 .pb-primary-action.is-disabled {
   opacity: 0.45;
+}
+
+.pb-detail-actions {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pb-detail-actions button {
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--pb-border);
+  border-radius: 14px;
+  color: var(--pb-text);
+  background: var(--pb-surface);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.pb-detail-actions button:first-child,
+.pb-sticky-detail-action button {
+  border-color: var(--pb-accent);
+  color: var(--pb-accent-contrast);
+  background: var(--pb-accent);
 }
 
 .pb-detail__notice {
@@ -1012,14 +1093,13 @@ body.pb-storefront {
     font-size: 14px;
   }
 
-  .pb-sticky-detail-action a {
+  .pb-sticky-detail-action button {
     min-height: 46px;
     padding: 0 15px;
+    border: 0;
     border-radius: 13px;
     display: inline-flex;
     align-items: center;
-    color: var(--pb-accent-contrast);
-    background: var(--pb-accent);
     font-size: 11px;
     font-weight: 800;
   }

@@ -76,6 +76,11 @@
                 {% endif %}
             </div>
 
+            <div class="pb-detail-actions">
+                <button type="button" data-pb-add-plan="{{ opportunity.plan_key }}">Alım planına ekle</button>
+                <button type="button" data-pb-add-plan="{{ opportunity.plan_key }}" data-pb-immediate-close="1">Hemen Ayır</button>
+            </div>
+
             <p class="pb-detail__notice">Bu ekran tek bir fırsat kaydını gösterir. Fiyatlar, aynı model ve varyanta ait gerçek Cezayir ve Türkiye ilanlarından hesaplanır.</p>
         </section>
     </div>
@@ -198,6 +203,6 @@
         <small>Önerilen alım fiyatı</small>
         <strong>{{ opportunity.buyer_offer|default:"Hesaplanmadı" }}</strong>
     </div>
-    <a href="#turkiye-evidence">Karşılaştırmaları gör</a>
+    <button type="button" data-pb-add-plan="{{ opportunity.plan_key }}" data-pb-immediate-close="1">Hemen Ayır</button>
 </div>
 {% endblock %}

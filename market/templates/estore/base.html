@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{% url 'estore_asset' path='css/port-fixes.css' %}">
     <link rel="stylesheet" href="{% url 'estore_asset' path='css/pricebridge-estore.css' %}">
     <link rel="stylesheet" href="{% url 'estore_asset' path='css/opportunity-overrides.css' %}">
+    <link rel="stylesheet" href="{% url 'estore_asset' path='css/pricebridge-plan.css' %}">
     {% block head %}{% endblock %}
 </head>
 <body class="pb-storefront">
@@ -32,6 +33,9 @@
 
             <button class="pb-icon-button" type="button" data-theme-toggle aria-label="Temayı değiştir">
                 <span aria-hidden="true">◐</span>
+            </button>
+            <button class="pb-icon-button" type="button" aria-label="Alım planı">
+                <span aria-hidden="true">▤</span>
             </button>
         </div>
     </header>
@@ -68,6 +72,10 @@
     </nav>
 
     <script src="{% url 'estore_asset' path='js/pricebridge-estore.js' %}" defer></script>
+    {% if plan_payload %}
+        {{ plan_payload|json_script:"pricebridge-opportunity-data" }}
+        <script src="{% url 'estore_asset' path='js/pricebridge-plan.js' %}" defer></script>
+    {% endif %}
     {% block scripts %}{% endblock %}
 </body>
 </html>

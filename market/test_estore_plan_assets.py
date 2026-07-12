@@ -17,5 +17,5 @@ class EstorePurchasePlanAssetsTests(TestCase):
             {"currency": "TRY"},
         )
 
-        self.assertContains(response, '"selected_currency":"TRY"')
+        self.assertContains(response, '"selected_currency": "TRY"')
         self.assertContains(response, "pricebridge-plan.js")
