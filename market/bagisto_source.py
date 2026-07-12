@@ -166,16 +166,19 @@ def render_bagisto_source(
     )
 
     bridge_css = reverse("estore_asset", kwargs={"path": "css/bagisto-django-bridge.css"})
+    plan_css = reverse("estore_asset", kwargs={"path": "css/pricebridge-plan.css"})
     shell_js = reverse("estore_asset", kwargs={"path": "js/site-shell.js"})
     adapter_js = reverse(
         "estore_asset",
         kwargs={"path": "js/bagisto-opportunity-adapter.js"},
     )
+    plan_js = reverse("estore_asset", kwargs={"path": "js/pricebridge-plan.js"})
 
     head_injection = f"""
 <meta name="pricebridge-bagisto-source" content="{source_path}">
 <meta name="pricebridge-frontend" content="preserved-bagisto-port">
 <link rel="stylesheet" href="{bridge_css}">
+<link rel="stylesheet" href="{plan_css}">
 <style>html.pb-bagisto-hydrating body{{visibility:hidden}}</style>
 <script>
   document.documentElement.classList.add("pb-bagisto-hydrating");
@@ -204,6 +207,7 @@ def render_bagisto_source(
     if "site-shell.js" not in html:
         runtime_parts.append(f'<script src="{shell_js}" defer></script>')
     runtime_parts.append(f'<script src="{adapter_js}" defer></script>')
+    runtime_parts.append(f'<script src="{plan_js}" defer></script>')
     runtime = "\n".join(runtime_parts)
 
     if "</body>" in html.lower():
