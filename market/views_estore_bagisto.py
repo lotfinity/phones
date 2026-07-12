@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from django.db.models import Model
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 
@@ -32,6 +33,25 @@ DETAIL_SOURCES = [
     "pages/products/smartphone-earphone-bundle-preview.html",
     "pages/products/smartphone-earphone-bundle.html",
 ]
+
+
+def _json_payload(value):
+    """Remove Django model instances before embedding data as JSON in HTML."""
+    if isinstance(value, Model):
+        return None
+    if isinstance(value, dict):
+        return {
+            key: _json_payload(item)
+            for key, item in value.items()
+            if not isinstance(item, Model)
+        }
+    if isinstance(value, (list, tuple, set)):
+        return [
+            _json_payload(item)
+            for item in value
+            if not isinstance(item, Model)
+        ]
+    return value
 
 
 def _evidence_payload(rows):
@@ -82,23 +102,25 @@ def estore_bagisto_opportunity_index(request):
         for category, config in OPPORTUNITY_CONFIG.items()
     }
 
-    payload = {
-        "page": "opportunity-index",
-        "frontend": "preserved-bagisto-port",
-        "cards": cards,
-        "total_count": len(cards),
-        "counts": counts,
-        "active_category": active_category,
-        "query": query,
-        "selected_currency": selected_currency,
-        "can_view_internal_gain": show_internal_gain,
-        "urls": {
-            "index": "/estore/",
-            "phone": "/estore/?category=phone",
-            "laptop": "/estore/?category=laptop",
-            "console": "/estore/?category=console",
-        },
-    }
+    payload = _json_payload(
+        {
+            "page": "opportunity-index",
+            "frontend": "preserved-bagisto-port",
+            "cards": cards,
+            "total_count": len(cards),
+            "counts": counts,
+            "active_category": active_category,
+            "query": query,
+            "selected_currency": selected_currency,
+            "can_view_internal_gain": show_internal_gain,
+            "urls": {
+                "index": "/estore/",
+                "phone": "/estore/?category=phone",
+                "laptop": "/estore/?category=laptop",
+                "console": "/estore/?category=console",
+            },
+        }
+    )
 
     return render_bagisto_source(
         request,
@@ -151,20 +173,22 @@ def estore_bagisto_opportunity_detail(request, category, pk):
         "source_label": item.source_label if show_operational_meta else "",
     }
 
-    payload = {
-        "page": "opportunity-detail",
-        "frontend": "preserved-bagisto-port",
-        "opportunity": opportunity,
-        "algeria_rows": _evidence_payload(algeria_rows),
-        "turkiye_rows": _evidence_payload(turkiye_rows),
-        "selected_currency": selected_currency,
-        "can_view_internal_gain": show_internal_gain,
-        "can_view_operational_meta": show_operational_meta,
-        "urls": {
-            "index": "/estore/",
-            "category": f"/estore/?category={category}",
-        },
-    }
+    payload = _json_payload(
+        {
+            "page": "opportunity-detail",
+            "frontend": "preserved-bagisto-port",
+            "opportunity": opportunity,
+            "algeria_rows": _evidence_payload(algeria_rows),
+            "turkiye_rows": _evidence_payload(turkiye_rows),
+            "selected_currency": selected_currency,
+            "can_view_internal_gain": show_internal_gain,
+            "can_view_operational_meta": show_operational_meta,
+            "urls": {
+                "index": "/estore/",
+                "category": f"/estore/?category={category}",
+            },
+        }
+    )
 
     return render_bagisto_source(
         request,
