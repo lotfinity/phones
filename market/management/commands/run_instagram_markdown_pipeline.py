@@ -123,6 +123,15 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.NOTICE("[skip] OCR: no pending posts for this source."))
 
+        self.run_step(
+            "Recompute phone listing matches",
+            "recompute_listing_matches",
+            "--product-type",
+            "phone",
+            "--only-missing",
+            passthrough=True,
+        )
+
         if options["skip_fx"]:
             self.stdout.write(self.style.NOTICE("[skip] FX refresh."))
         else:
