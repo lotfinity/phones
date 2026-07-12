@@ -175,7 +175,8 @@ class EstoreOpportunityViewsTests(TestCase):
         self.assertContains(response, "Apple iPhone 15 Pro")
         self.assertContains(response, "Asus ROG Zephyrus")
         self.assertContains(response, "Valve Steam Deck OLED")
-        self.assertContains(response, "3 fırsat gösteriliyor")
+        self.assertEqual(response.context["total_count"], 3)
+        self.assertContains(response, "fırsat gösteriliyor")
 
     def test_raw_listing_without_opportunity_is_not_a_catalog_card(self):
         response = self.client.get(reverse("estore_opportunity_index"))
