@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
+from market.bagisto_source import _captured_destination
 from market.clean_models import (
     ConsoleOpportunitySnapshot,
     LaptopOpportunitySnapshot,
@@ -178,9 +179,46 @@ class EstoreBagistoOpportunityViewsTests(TestCase):
             "pages/smartphones-preview.html",
         )
         self.assertContains(response, 'name="pricebridge-bagisto-source"')
+        self.assertContains(response, 'name="pricebridge-frontend"')
         self.assertContains(response, "pages/smartphones-preview.html")
         self.assertContains(response, "Bagisto Headless")
         self.assertContains(response, "bagisto-opportunity-adapter.js")
+        self.assertContains(response, "bagisto-django-bridge.css")
+
+    def test_rendered_navigation_does_not_keep_captured_vercel_targets(self):
+        response = self.client.get(reverse("estore_opportunity_index"))
+        html = response.content.decode("utf-8")
+
+        self.assertNotIn('href="https://bagisto-headless-electronic.vercel.app', html)
+        self.assertNotIn("href='https://bagisto-headless-electronic.vercel.app", html)
+        self.assertNotIn('href="https://nextjs.bagisto.com', html)
+        self.assertNotIn('action="https://bagisto-headless-electronic.vercel.app', html)
+        self.assertIn("/estore/?category=phone", html)
+
+    def test_captured_destination_maps_navigation_and_product_markers(self):
+        self.assertEqual(
+            _captured_destination("https://bagisto-headless-electronic.vercel.app/smartphones"),
+            "/estore/?category=phone",
+        )
+        self.assertEqual(
+            _captured_destination("https://bagisto-headless-electronic.vercel.app/laptops"),
+            "/estore/?category=laptop",
+        )
+        self.assertEqual(
+            _captured_destination("https://bagisto-headless-electronic.vercel.app/gaming-consoles"),
+            "/estore/?category=console",
+        )
+        self.assertEqual(
+            _captured_destination("https://bagisto-headless-electronic.vercel.app/product/example"),
+            "#pb-product",
+        )
+        self.assertEqual(
+            _captured_destination(
+                "https://bagisto-headless-electronic.vercel.app/search",
+                for_form=True,
+            ),
+            "/estore/",
+        )
 
     def test_index_payload_contains_all_opportunity_categories(self):
         response = self.client.get(reverse("estore_opportunity_index"))
@@ -211,7 +249,10 @@ class EstoreBagistoOpportunityViewsTests(TestCase):
             {"q": "Zephyrus"},
         )
 
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '"query":"Zephyrus"')
         self.assertContains(response, "Asus ROG Zephyrus")
+        self.assertNotContains(response, "Apple iPhone 15 Pro")
         self.assertNotContains(response, "Valve Steam Deck OLED")
 
     def test_detail_serves_preserved_bagisto_product_page(self):
