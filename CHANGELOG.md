@@ -11,6 +11,7 @@
 - Imported the Brothers Phone Markdown profile export, downloaded 36 new post/reel images, and processed their OCR queue with duplicate post/OCR/listing checks clean.
 - Updated `fetch_exchange_rates` to accept the current Frankfurter list-shaped response as well as the previous `rates` object response, then refreshed FX and opportunity snapshots.
 - Added `run_instagram_markdown_pipeline` to run Markdown import/download, source OCR/classification, FX refresh, legacy opportunity analysis, clean opportunity snapshots, and a final summary from one command.
+- Made `run_instagram_markdown_pipeline` refuse the dummy OCR backend by default so imports cannot be silently marked processed with empty OCR text; reset the RDphone Markdown import back to pending OCR after detecting the dummy run.
 
 ### Bagisto storefront PriceBridge semantics
 

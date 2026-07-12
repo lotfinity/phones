@@ -2,7 +2,7 @@ from pathlib import Path
 from io import StringIO
 from tempfile import TemporaryDirectory
 
-from django.core.management import call_command
+from django.core.management import call_command, CommandError
 from django.test import SimpleTestCase, TestCase, override_settings
 
 from market.management.commands.queue_instagram_image_folder import (
@@ -126,3 +126,23 @@ class InstagramMarkdownPipelineCommandTests(TestCase):
         self.assertIn("Source: @rd.phone35", output)
         self.assertIn("Post/reel links found: 1", output)
         self.assertIn("Would import/update 1 Markdown posts", output)
+
+    def test_refuses_dummy_ocr_backend_before_writes(self):
+        with TemporaryDirectory() as tmp:
+            media_root = Path(tmp) / "media"
+            markdown = Path(tmp) / "RDphone35.md"
+            markdown.write_text(
+                "\n".join(
+                    [
+                        'source: "https://www.instagram.com/rd.phone35"',
+                        "[![iPhone 17 256 GB](https://cdn.example/phone.jpg)]"
+                        "(https://www.instagram.com/rd.phone35/reel/DaXyZ123abc/)",
+                    ]
+                )
+            )
+
+            with override_settings(MEDIA_ROOT=media_root, OCR_BACKEND="dummy"):
+                with self.assertRaisesMessage(CommandError, "OCR_BACKEND is set to 'dummy'"):
+                    call_command("run_instagram_markdown_pipeline", str(markdown), stdout=StringIO())
+
+        self.assertEqual(InstagramPost.objects.count(), 0)
