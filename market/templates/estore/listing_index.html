@@ -1,0 +1,81 @@
+{% extends "estore/base.html" %}
+
+{% block title %}Tüm İlanlar · PriceBridge{% endblock %}
+
+{% block content %}
+<section class="pb-hero">
+    <div class="pb-shell">
+        <div class="pb-hero__copy">
+            <span class="pb-eyebrow">Gerçek ikinci el ve sıfır cihaz ilanları</span>
+            <h1>Mağazan için cihazları tek yerde incele.</h1>
+            <p>Telefon, laptop ve taşınabilir konsol ilanlarını gerçek kaynak fiyatları, cihaz durumu ve teknik özellikleriyle karşılaştır.</p>
+        </div>
+
+        <form class="pb-search-panel" method="get" action="{% url 'estore_listing_index' %}">
+            {% if active_category %}
+                <input type="hidden" name="category" value="{{ active_category }}">
+            {% endif %}
+            <label for="estore-q">İlanlarda ara</label>
+            <div class="pb-search-field">
+                <span aria-hidden="true">⌕</span>
+                <input
+                    id="estore-q"
+                    type="search"
+                    name="q"
+                    value="{{ query }}"
+                    placeholder="iPhone 15 Pro, Galaxy S26, MacBook..."
+                    autocomplete="off"
+                >
+                <button type="submit">Ara</button>
+            </div>
+        </form>
+    </div>
+</section>
+
+<section class="pb-shell pb-catalog">
+    <div class="pb-category-strip" aria-label="Kategori filtreleri">
+        <a class="pb-category-chip{% if not active_category %} is-active{% endif %}" href="{% url 'estore_listing_index' %}{% if query %}?q={{ query|urlencode }}{% endif %}">
+            <span>Tümü</span>
+            <strong>{{ counts.phone|add:counts.laptop|add:counts.console }}</strong>
+        </a>
+        {% for option in category_options %}
+            <a
+                class="pb-category-chip{% if active_category == option.value %} is-active{% endif %}"
+                href="{% url 'estore_listing_index' %}?category={{ option.value }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}"
+            >
+                <span>{{ option.label }}</span>
+                <strong>{{ option.count }}</strong>
+            </a>
+        {% endfor %}
+    </div>
+
+    <div class="pb-catalog__toolbar">
+        <div>
+            <span class="pb-eyebrow">Güncel katalog</span>
+            <h2>
+                {% if active_category == "phone" %}Telefon ilanları
+                {% elif active_category == "laptop" %}Laptop ilanları
+                {% elif active_category == "console" %}Konsol ilanları
+                {% else %}Tüm ilanlar
+                {% endif %}
+            </h2>
+        </div>
+        <p><strong>{{ total_count }}</strong> ilan gösteriliyor</p>
+    </div>
+
+    {% if cards %}
+        <div class="pb-product-grid">
+            {% for card in cards %}
+                {% include "estore/partials/listing_card.html" with card=card %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="pb-empty-state">
+            <span aria-hidden="true">⌕</span>
+            <h2>Eşleşen ilan bulunamadı</h2>
+            <p>Arama kelimesini veya kategori seçimini değiştir.</p>
+            <a href="{% url 'estore_listing_index' %}">Tüm ilanları göster</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}
