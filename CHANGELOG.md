@@ -1,6 +1,13 @@
 # Changelog
 ## 2026-07-12
 
+### Instagram reprocessing and duplicate handling
+
+- Made manual Instagram image queueing idempotent by matching existing posts by media filename/shortcode before creating new `InstagramPost` rows.
+- Added `--reprocess-existing` to safely rerun OCR for already imported manual images without creating duplicate posts.
+- Changed `process_ocr_queue` to update the latest OCR result for a post instead of appending duplicate OCR rows during reprocessing.
+- Reprocessed `brothers_phone___official_` manual images with a pre-run SQLite backup and collapsed duplicate OCR rows for that source.
+
 ### Bagisto storefront PriceBridge semantics
 
 - Restored `/estore/` to the server-rendered Django opportunity templates so real opportunity cards render in the HTML response, while keeping the preserved Bagisto port available at `/estore/bagisto/`.

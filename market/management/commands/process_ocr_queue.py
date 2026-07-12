@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.utils import timezone
 from pathlib import Path
 
 from market.models import Country, InstagramPost, MarketListing, OCRResult, SourceType
@@ -19,6 +20,16 @@ def local_media_url(path):
         return ""
     media_url = "/" + settings.MEDIA_URL.lstrip("/")
     return f"{media_url.rstrip('/')}/{rel_path.as_posix()}"
+
+
+def save_ocr_result(post, **fields):
+    existing = OCRResult.objects.filter(instagram_post=post).order_by("-created_at", "-pk").first()
+    if existing:
+        for field, value in fields.items():
+            setattr(existing, field, value)
+        existing.save(update_fields=list(fields.keys()))
+        return existing
+    return OCRResult.objects.create(instagram_post=post, **fields)
 
 
 class Command(BaseCommand):
@@ -44,8 +55,8 @@ class Command(BaseCommand):
                 combined_text = "\n".join(part for part in [post.caption, raw_text] if part)
                 parsed = parse_ocr_text(combined_text)
                 status = OCRResult.Status.PROCESSED if parsed.confidence >= 0.5 else OCRResult.Status.NEEDS_REVIEW
-                ocr = OCRResult.objects.create(
-                    instagram_post=post,
+                ocr = save_ocr_result(
+                    post,
                     raw_text=raw_text,
                     confidence=max(parsed.confidence, backend_confidence or 0),
                     detected_price_dzd=parsed.price_dzd,
@@ -55,6 +66,7 @@ class Command(BaseCommand):
                     detected_condition_text=parsed.condition_text,
                     detected_sim_text=parsed.sim_text,
                     status=status,
+                    created_at=timezone.now(),
                 )
                 product_model = find_existing_model(parsed.model_text) if parsed.model_text else None
                 variant = (
@@ -110,7 +122,7 @@ class Command(BaseCommand):
                 post.save(update_fields=["ocr_processed", "needs_ocr"])
                 processed += 1
             except Exception as exc:
-                OCRResult.objects.create(instagram_post=post, raw_text="", status=OCRResult.Status.FAILED)
+                save_ocr_result(post, raw_text="", status=OCRResult.Status.FAILED, created_at=timezone.now())
                 self.stderr.write(f"Failed OCR for post {post.pk}: {exc}")
 
         self.stdout.write(self.style.SUCCESS(f"Processed {processed} OCR queue items."))
