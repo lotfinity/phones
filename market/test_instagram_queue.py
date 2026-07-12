@@ -8,6 +8,11 @@ from market.management.commands.queue_instagram_image_folder import (
     existing_post_for_image,
     output_directory_for,
 )
+from market.management.commands.match_instagram_manual_links_from_markdown import (
+    canonical_post_url,
+    records_from_markdown,
+    shortcode_from_url,
+)
 from market.models import Country, InstagramPost, Source, SourceType
 
 
@@ -60,3 +65,37 @@ class InstagramImageQueuePathTests(SimpleTestCase):
                     output_directory_for(external, "brothers_phone___official_"),
                     media_root / "instagram" / "brothers_phone___official_" / "manual_folder_images",
                 )
+
+
+class InstagramMarkdownImportHelpersTests(SimpleTestCase):
+    def test_shortcode_from_profile_scoped_post_url(self):
+        self.assertEqual(
+            shortcode_from_url("https://www.instagram.com/brothers_phone___official_/p/Das1mKGMtzO/"),
+            "Das1mKGMtzO",
+        )
+
+    def test_canonical_post_url_preserves_reel_kind(self):
+        self.assertEqual(
+            canonical_post_url("https://www.instagram.com/brothers_phone___official_/reel/DatDNOQs3GO/"),
+            "https://www.instagram.com/reel/DatDNOQs3GO/",
+        )
+
+    def test_records_from_markdown_deduplicates_by_canonical_url(self):
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / "profile.md"
+            path.write_text(
+                "\n".join(
+                    [
+                        "[![Photo by Brothers](https://cdn.example/one.jpg)]"
+                        "(https://www.instagram.com/brothers_phone___official_/p/Das1mKGMtzO/)",
+                        "[![Duplicate](https://cdn.example/two.jpg)]"
+                        "(https://www.instagram.com/p/Das1mKGMtzO/)",
+                    ]
+                )
+            )
+
+            records = records_from_markdown(path)
+
+        self.assertEqual(len(records), 1)
+        self.assertEqual(records[0]["post_url"], "https://www.instagram.com/p/Das1mKGMtzO/")
+        self.assertEqual(records[0]["image_basename"], "one.jpg")

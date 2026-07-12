@@ -5,8 +5,10 @@
 
 - Made manual Instagram image queueing idempotent by matching existing posts by media filename/shortcode before creating new `InstagramPost` rows.
 - Added `--reprocess-existing` to safely rerun OCR for already imported manual images without creating duplicate posts.
+- Extended `match_instagram_manual_links_from_markdown` with an explicit Markdown profile export import mode that upserts posts by shortcode, downloads linked images, and avoids duplicate rows on rerun.
 - Changed `process_ocr_queue` to update the latest OCR result for a post instead of appending duplicate OCR rows during reprocessing.
 - Reprocessed `brothers_phone___official_` manual images with a pre-run SQLite backup and collapsed duplicate OCR rows for that source.
+- Imported the Brothers Phone Markdown profile export, downloaded 36 new post/reel images, and processed their OCR queue with duplicate post/OCR/listing checks clean.
 
 ### Bagisto storefront PriceBridge semantics
 
