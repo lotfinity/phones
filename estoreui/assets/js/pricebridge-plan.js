@@ -73,7 +73,11 @@
   let state = readState();
 
   function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (error) {
+      console.warn("PriceBridge plan could not be saved to localStorage", error);
+    }
     document.dispatchEvent(new CustomEvent("pricebridge:plan-changed", { detail: state }));
   }
 
@@ -185,19 +189,23 @@
     );
   }
 
-  function updatePlanBadges() {
-    const count = quantityCount();
-    const candidates = all("header button, header a, nav button, nav a").filter((node) => {
+  function planTriggerCandidates() {
+    return all("header button, header a, nav button, nav a").filter((node) => {
+      if (node.closest("[data-pb-plan-drawer]")) return false;
+      if (node.matches("[data-pb-add-plan], [data-pb-plan-close]")) return false;
       const label = `${text(node)} ${node.getAttribute("aria-label") || ""} ${node.getAttribute("title") || ""}`;
       return /shopping cart|\bcart\b|sepet|alım planı|alim plani/i.test(label);
     });
+  }
 
-    candidates.forEach((trigger) => {
+  function updatePlanBadges() {
+    const count = quantityCount();
+    planTriggerCandidates().forEach((trigger) => {
       trigger.dataset.pbPlanTrigger = "";
       const existing = trigger.querySelector("[data-pb-plan-count]");
       const badge = existing || document.createElement("span");
       badge.dataset.pbPlanCount = "";
-      badge.textContent = String(count);
+      if (badge.textContent !== String(count)) badge.textContent = String(count);
       badge.hidden = count === 0;
       if (!existing) trigger.append(badge);
     });
@@ -343,8 +351,7 @@
   function changeQuantity(key, delta) {
     const item = state.items[key];
     if (!item) return;
-    const next = Math.max(1, Math.min(MAX_QUANTITY, (Number(item.quantity) || 1) + delta));
-    item.quantity = next;
+    item.quantity = Math.max(1, Math.min(MAX_QUANTITY, (Number(item.quantity) || 1) + delta));
     saveState();
     renderPlan();
   }
@@ -375,7 +382,6 @@
   function installAddButtons() {
     if (Array.isArray(payload.cards)) {
       payload.cards.forEach((record) => {
-        const key = opportunityKey(record);
         const candidates = all(`[data-pb-opportunity-card="${CSS.escape(String(record.pk))}"]`);
         const card = candidates.find((node) => node.querySelector(`a[href="${CSS.escape(record.detail_url || "")}"]`)) || candidates[0];
         const meta = card?.querySelector("[data-pb-opportunity-meta]");
@@ -399,9 +405,7 @@
   }
 
   function installTriggers() {
-    all("button,a").forEach((node) => {
-      const label = `${text(node)} ${node.getAttribute("aria-label") || ""} ${node.getAttribute("title") || ""}`;
-      if (!/shopping cart|\bcart\b|sepet|alım planı|alim plani/i.test(label)) return;
+    planTriggerCandidates().forEach((node) => {
       node.dataset.pbPlanTrigger = "";
     });
   }
@@ -415,6 +419,14 @@
       return;
     }
 
+    const close = event.target.closest?.("[data-pb-plan-close]");
+    if (close) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      closePlan();
+      return;
+    }
+
     const trigger = event.target.closest?.("[data-pb-plan-trigger]");
     if (trigger) {
       event.preventDefault();
@@ -424,12 +436,27 @@
     }
 
     const decrease = event.target.closest?.("[data-pb-plan-decrease]");
-    if (decrease) return changeQuantity(decrease.dataset.pbPlanDecrease, -1);
+    if (decrease) {
+      event.preventDefault();
+      changeQuantity(decrease.dataset.pbPlanDecrease, -1);
+      return;
+    }
     const increase = event.target.closest?.("[data-pb-plan-increase]");
-    if (increase) return changeQuantity(increase.dataset.pbPlanIncrease, 1);
+    if (increase) {
+      event.preventDefault();
+      changeQuantity(increase.dataset.pbPlanIncrease, 1);
+      return;
+    }
     const remove = event.target.closest?.("[data-pb-plan-remove]");
-    if (remove) return removeItem(remove.dataset.pbPlanRemove);
-    if (event.target.closest?.("[data-pb-plan-clear]")) return clearPlan();
+    if (remove) {
+      event.preventDefault();
+      removeItem(remove.dataset.pbPlanRemove);
+      return;
+    }
+    if (event.target.closest?.("[data-pb-plan-clear]")) {
+      event.preventDefault();
+      clearPlan();
+    }
   }, true);
 
   document.addEventListener("keydown", (event) => {
