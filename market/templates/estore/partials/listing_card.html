@@ -17,9 +17,9 @@
 
     <div class="pb-product-card__body">
         <div class="pb-product-card__meta">
-            <span>{{ card.country }}</span>
+            <span>{{ card.recommendation }}</span>
             <span>•</span>
-            <span>{{ card.source }}</span>
+            <span>Güven %{{ card.confidence_score }}</span>
         </div>
 
         <a class="pb-product-card__title" href="{{ card.detail_url }}">{{ card.title }}</a>
@@ -30,21 +30,34 @@
 
         <div class="pb-badge-row">
             <span class="pb-badge">{{ card.condition }}</span>
-            {% if card.observed_at %}
-                <span class="pb-badge pb-badge--muted">{{ card.observed_at|timesince }} önce</span>
+            {% if card.battery_health %}
+                <span class="pb-badge pb-badge--success">Batarya %{{ card.battery_health }}</span>
             {% endif %}
+            <span class="pb-badge pb-badge--muted">{{ card.evidence_count }} doğrulama</span>
         </div>
 
-        <div class="pb-price-block">
-            <span>İlan fiyatı</span>
-            <strong>{{ card.price_original }}</strong>
-            {% if card.price_try %}
-                <small>Yaklaşık {{ card.price_try }}</small>
+        <div class="pb-opportunity-pricing">
+            <div class="pb-price-block pb-price-block--primary">
+                <span>Önerilen alım fiyatı</span>
+                <strong>{{ card.buyer_offer|default:"Hesaplanmadı" }}</strong>
+            </div>
+            <div class="pb-opportunity-pricing__row">
+                <div>
+                    <span>Türkiye ortalama</span>
+                    <strong>{{ card.turkiye_avg|default:"-" }}</strong>
+                </div>
+                <div>
+                    <span>Tahmini kazanç</span>
+                    <strong class="pb-profit">{{ card.buyer_gain|default:"-" }}</strong>
+                </div>
+            </div>
+            {% if can_view_internal_gain and card.my_gain %}
+                <small class="pb-internal-value">İç kazanç: {{ card.my_gain }}</small>
             {% endif %}
         </div>
 
         <a class="pb-card-action" href="{{ card.detail_url }}">
-            İlanı incele
+            Fırsatı incele
             <span aria-hidden="true">→</span>
         </a>
     </div>
