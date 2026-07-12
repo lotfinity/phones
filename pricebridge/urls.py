@@ -31,6 +31,9 @@ from market.views_phone_opportunities import phone_opportunities_v2
 urlpatterns = [
     path('', clean_opportunities, name='opportunities'),
 
+    # Isolated Bagisto-based storefront. Existing public and preview routes stay unchanged.
+    path('estore/', include('market.estore_urls')),
+
     # Side-by-side frontend review routes. These aliases intentionally leave
     # the public routes unchanged while each UI variant is evaluated.
     path(
