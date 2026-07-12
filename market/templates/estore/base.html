@@ -1,0 +1,72 @@
+{% load static %}
+<!doctype html>
+<html lang="tr" class="light" data-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}PriceBridge Mağaza{% endblock %}</title>
+    <meta name="description" content="Cezayir ve Türkiye pazarlarından gerçek elektronik ilanları.">
+    <link rel="stylesheet" href="{% url 'estore_asset' path='css/bagisto-theme.css' %}">
+    <link rel="stylesheet" href="{% url 'estore_asset' path='css/port-fixes.css' %}">
+    <link rel="stylesheet" href="{% url 'estore_asset' path='css/pricebridge-estore.css' %}">
+    {% block head %}{% endblock %}
+</head>
+<body class="pb-storefront">
+    <header class="pb-header">
+        <div class="pb-header__inner">
+            <a class="pb-brand" href="{% url 'estore_listing_index' %}" aria-label="PriceBridge ana sayfa">
+                <span class="pb-brand__mark">PB</span>
+                <span>
+                    <strong>PriceBridge</strong>
+                    <small>Gerçek cihaz ilanları</small>
+                </span>
+            </a>
+
+            <nav class="pb-desktop-nav" aria-label="Ana menü">
+                <a href="{% url 'estore_listing_index' %}">Tüm İlanlar</a>
+                <a href="{% url 'estore_listing_index' %}?category=phone">Telefonlar</a>
+                <a href="{% url 'estore_listing_index' %}?category=laptop">Laptoplar</a>
+                <a href="{% url 'estore_listing_index' %}?category=console">Konsollar</a>
+            </nav>
+
+            <button class="pb-icon-button" type="button" data-theme-toggle aria-label="Temayı değiştir">
+                <span aria-hidden="true">◐</span>
+            </button>
+        </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="pb-footer">
+        <div>
+            <strong>PriceBridge</strong>
+            <span>Gerçek kaynaklardan güncel elektronik ilanları.</span>
+        </div>
+        <a href="{% url 'estore_listing_index' %}">Tüm ilanlara dön</a>
+    </footer>
+
+    <nav class="pb-mobile-nav" aria-label="Mobil menü">
+        <a href="{% url 'estore_listing_index' %}">
+            <span aria-hidden="true">⌂</span>
+            <small>İlanlar</small>
+        </a>
+        <a href="{% url 'estore_listing_index' %}?category=phone">
+            <span aria-hidden="true">▯</span>
+            <small>Telefon</small>
+        </a>
+        <a href="{% url 'estore_listing_index' %}?category=laptop">
+            <span aria-hidden="true">▰</span>
+            <small>Laptop</small>
+        </a>
+        <a href="{% url 'estore_listing_index' %}?category=console">
+            <span aria-hidden="true">⌁</span>
+            <small>Konsol</small>
+        </a>
+    </nav>
+
+    <script src="{% url 'estore_asset' path='js/pricebridge-estore.js' %}" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
