@@ -1,6 +1,12 @@
 (() => {
   "use strict";
 
+  const BAGISTO_HOSTS = new Set([
+    "bagisto-headless-electronic.vercel.app",
+    "nextjs.bagisto.com",
+    "www.nextjs.bagisto.com",
+  ]);
+
   const dataNode = document.getElementById("pricebridge-opportunity-data");
   if (!dataNode) {
     document.documentElement.classList.remove("pb-bagisto-hydrating");
@@ -19,8 +25,7 @@
   const all = (selector, scope = document) => [...scope.querySelectorAll(selector)];
   const text = (node) => (node?.textContent || "").replace(/\s+/g, " ").trim();
   const lower = (node) => text(node).toLocaleLowerCase("tr-TR");
-  const isElement = (node) => node && node.nodeType === Node.ELEMENT_NODE;
-  const productSelector = 'a[href*="/products/"], a[href*="/product/"]';
+  const productSelector = 'a[href="#pb-product"], a[href*="/products/"], a[href*="/product/"]';
   const pricePattern = /(?:[$€£₺]|\b(?:USD|EUR|TRY|TL|DZD)\b)\s*[\d.,]+|[\d.,]+\s*(?:[$€£₺]|\b(?:USD|EUR|TRY|TL|DZD)\b)/i;
 
   function escapeHtml(value) {
@@ -42,9 +47,10 @@
       .toUpperCase() || "PB";
     const svg = `
       <svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 900 900">
-        <rect width="900" height="900" fill="#f3f4f6"/>
-        <circle cx="690" cy="190" r="210" fill="#e0e7ff"/>
-        <text x="450" y="500" text-anchor="middle" font-family="Arial,sans-serif" font-size="180" font-weight="700" fill="#6b7280">${escapeHtml(initials)}</text>
+        <rect width="900" height="900" fill="#eef3f7"/>
+        <circle cx="700" cy="180" r="220" fill="#cce9e7"/>
+        <circle cx="160" cy="760" r="180" fill="#d9e4f2"/>
+        <text x="450" y="505" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-size="180" font-weight="750" fill="#123b5d">${escapeHtml(initials)}</text>
       </svg>`;
     return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
   }
@@ -60,67 +66,159 @@
     return fallback;
   }
 
-  function rewriteShellLinks() {
-    const urls = payload.urls || {};
+  function mapCapturedHref(value, label = "") {
+    const raw = String(value || "").trim();
+    const normalizedLabel = String(label || "").toLocaleLowerCase("tr-TR");
 
-    all("a[href]").forEach((anchor) => {
-      const label = lower(anchor);
-      const href = anchor.getAttribute("href") || "";
+    if (!raw || raw.startsWith("mailto:") || raw.startsWith("tel:") || raw.startsWith("javascript:")) {
+      return null;
+    }
+    if (raw === "#pb-product") return raw;
+    if (raw.startsWith("/estore/")) return raw;
 
-      if (
-        label === "home" ||
-        label === "ana sayfa" ||
-        label === "your store name" ||
-        href === "/" ||
-        href === "#"
-      ) {
-        if (anchor.closest("header") || anchor.querySelector("img,svg")) {
-          anchor.href = urls.index || "/estore/";
+    let url;
+    try {
+      url = new URL(raw, window.location.origin);
+    } catch (_) {
+      return null;
+    }
+
+    const isCapturedHost = BAGISTO_HOSTS.has(url.hostname.toLowerCase());
+    const isLocalCapturedPath = url.origin === window.location.origin && !url.pathname.startsWith("/estore/");
+    if (!isCapturedHost && !isLocalCapturedPath) return null;
+
+    const path = url.pathname.toLowerCase().replace(/\/$/, "") || "/";
+    const combined = `${path}?${url.searchParams.toString().toLowerCase()} ${normalizedLabel}`;
+
+    if (path.startsWith("/product/") || path.startsWith("/products/")) return "#pb-product";
+    if (/smartphone|phone|mobile|telefon/.test(combined)) return payload.urls?.phone || "/estore/?category=phone";
+    if (/laptop|computer|notebook/.test(combined)) return payload.urls?.laptop || "/estore/?category=laptop";
+    if (/console|gaming|konsol/.test(combined)) return payload.urls?.console || "/estore/?category=console";
+    return payload.urls?.index || "/estore/";
+  }
+
+  function rewriteBranding() {
+    all("header, footer").forEach((region) => {
+      all("a,span,strong,p", region).forEach((node) => {
+        if (node.children.length) return;
+        const current = text(node);
+        if (/^your store name$/i.test(current) || /^bagisto headless$/i.test(current)) {
+          node.textContent = "PriceBridge";
         }
-      }
+      });
+      all("img", region).forEach((image) => {
+        const alt = image.getAttribute("alt") || "";
+        if (/logo|store/i.test(alt)) image.alt = "PriceBridge";
+      });
+    });
+  }
 
-      if (label.includes("smartphone") || label.includes("telefon")) {
-        anchor.href = urls.phone || "/estore/?category=phone";
-      } else if (label.includes("laptop") || label.includes("computer")) {
-        anchor.href = urls.laptop || "/estore/?category=laptop";
-      } else if (label.includes("console") || label.includes("konsol") || label.includes("gaming")) {
-        anchor.href = urls.console || "/estore/?category=console";
+  function rewriteShellLinks() {
+    all("a[href]").forEach((anchor) => {
+      const href = anchor.getAttribute("href") || "";
+      const label = lower(anchor);
+      const mapped = mapCapturedHref(href, label);
+      if (mapped && mapped !== "#pb-product") {
+        anchor.dataset.pbCapturedHref = href;
+        anchor.setAttribute("href", mapped);
+        anchor.removeAttribute("target");
       }
     });
   }
 
-  function configureSearch() {
-    const input = document.querySelector('input[type="search"]') ||
-      all("input").find((node) => /search|ara/i.test(node.placeholder || ""));
-    if (!input) return;
+  function installCapturedLinkGuard() {
+    document.addEventListener(
+      "click",
+      (event) => {
+        const anchor = event.target.closest?.("a[href]");
+        if (!anchor) return;
+        const href = anchor.getAttribute("href") || "";
+        if (href === "#pb-product") {
+          event.preventDefault();
+          return;
+        }
+        const mapped = mapCapturedHref(href, lower(anchor));
+        if (!mapped || mapped === href) return;
+        event.preventDefault();
+        window.location.assign(mapped);
+      },
+      true,
+    );
+  }
 
+  function searchInputs() {
+    return all('input[type="search"], input[role="searchbox"], input[placeholder]').filter((input) => {
+      const haystack = `${input.type || ""} ${input.getAttribute("role") || ""} ${input.placeholder || ""}`;
+      return /search|ara/i.test(haystack);
+    });
+  }
+
+  function searchDestination(value) {
+    const url = new URL(payload.urls?.index || "/estore/", window.location.origin);
+    const query = String(value || "").trim();
+    if (query) url.searchParams.set("q", query);
+    if (payload.active_category) url.searchParams.set("category", payload.active_category);
+    return `${url.pathname}${url.search}`;
+  }
+
+  function submitSearch(input) {
+    window.location.assign(searchDestination(input?.value || ""));
+  }
+
+  function bindSearchInput(input) {
+    if (input.dataset.pbSearchBound === "1") return;
+    input.dataset.pbSearchBound = "1";
     input.name = "q";
-    input.value = payload.query || "";
     input.placeholder = "Fırsatlarda ara";
+    if (payload.query) input.value = payload.query;
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key !== "Enter") return;
+      event.preventDefault();
+      submitSearch(input);
+    });
 
     const form = input.closest("form");
-    if (!form) return;
-    form.method = "get";
-    form.action = payload.urls?.index || "/estore/";
-
-    if (payload.active_category) {
-      let hidden = form.querySelector('input[name="category"]');
-      if (!hidden) {
-        hidden = document.createElement("input");
-        hidden.type = "hidden";
-        hidden.name = "category";
-        form.append(hidden);
-      }
-      hidden.value = payload.active_category;
+    if (form && form.dataset.pbSearchBound !== "1") {
+      form.dataset.pbSearchBound = "1";
+      form.method = "get";
+      form.action = payload.urls?.index || "/estore/";
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitSearch(input);
+      });
     }
+
+    let container = input.parentElement;
+    for (let depth = 0; container && depth < 4; depth += 1, container = container.parentElement) {
+      const buttons = all('button, [role="button"]', container);
+      const searchButton = buttons.find((button) => {
+        const value = `${text(button)} ${button.getAttribute("aria-label") || ""} ${button.getAttribute("title") || ""}`;
+        return /search|ara/i.test(value) || button.querySelector('svg, [class*="search"]');
+      });
+      if (searchButton) {
+        searchButton.type = "button";
+        searchButton.addEventListener("click", (event) => {
+          event.preventDefault();
+          submitSearch(input);
+        });
+        break;
+      }
+    }
+  }
+
+  function configureSearch() {
+    searchInputs().forEach(bindSearchInput);
+
+    // Captured drawers can be inserted or toggled after initial load.
+    const observer = new MutationObserver(() => searchInputs().forEach(bindSearchInput));
+    observer.observe(document.body, { childList: true, subtree: true });
   }
 
   function replaceCatalogHeading() {
     const candidates = all("main h1, main h2, main h3");
     const target = candidates.find((node) => /smartphone|product|category/i.test(text(node))) || candidates[0];
-    if (target && payload.page === "opportunity-index") {
-      target.textContent = "Tüm Fırsatlar";
-    }
+    if (target && payload.page === "opportunity-index") target.textContent = "Tüm Fırsatlar";
 
     all("main p, main span").forEach((node) => {
       if (node.children.length) return;
@@ -143,7 +241,7 @@
     anchors.forEach((anchor) => {
       let node = anchor;
       let depth = 0;
-      while (node && node.parentElement && node !== main && depth < 10) {
+      while (node?.parentElement && node !== main && depth < 12) {
         const parent = node.parentElement;
         const productChildren = directProductChildren(parent);
         if (productChildren.length >= 2) {
@@ -172,12 +270,10 @@
   function findTitleNode(scope) {
     const headings = all("h1,h2,h3,h4,h5,h6", scope).filter((node) => text(node).length >= 3);
     if (headings.length) return headings.sort((a, b) => text(b).length - text(a).length)[0];
-
-    const candidates = leafTextCandidates(scope).filter((node) => {
+    return leafTextCandidates(scope).find((node) => {
       const value = text(node);
       return !pricePattern.test(value) && !/add to cart|wishlist|compare|buy now|view/i.test(value);
-    });
-    return candidates.sort((a, b) => text(b).length - text(a).length)[0] || null;
+    }) || null;
   }
 
   function priceNodes(scope) {
@@ -185,31 +281,26 @@
       .filter((node) => node.children.length === 0)
       .filter((node) => pricePattern.test(text(node)))
       .sort((a, b) => {
-        const aWeight = /line-through|old|compare/i.test(a.className || "") ? 1 : 0;
-        const bWeight = /line-through|old|compare/i.test(b.className || "") ? 1 : 0;
-        return aWeight - bWeight;
+        const aOld = /line-through|old|compare/i.test(a.className || "") ? 1 : 0;
+        const bOld = /line-through|old|compare/i.test(b.className || "") ? 1 : 0;
+        return aOld - bOld;
       });
   }
 
   function replacePrices(scope, card) {
     const nodes = priceNodes(scope);
-    if (nodes[0] && card.buyer_offer) {
-      nodes[0].textContent = card.buyer_offer;
-    }
-    if (nodes[1] && card.turkiye_avg) {
-      nodes[1].textContent = `Türkiye ort. ${card.turkiye_avg}`;
-    }
+    if (nodes[0] && card.buyer_offer) nodes[0].textContent = card.buyer_offer;
+    if (nodes[1] && card.turkiye_avg) nodes[1].textContent = `Türkiye ort. ${card.turkiye_avg}`;
   }
 
   function setProductImage(scope, card) {
     const images = all("img", scope).filter((image) => {
-      const src = image.getAttribute("src") || "";
-      const alt = image.getAttribute("alt") || "";
-      return !/logo|icon|flag|avatar/i.test(`${src} ${alt}`);
+      const source = `${image.getAttribute("src") || ""} ${image.getAttribute("alt") || ""}`;
+      return !/logo|icon|flag|avatar/i.test(source);
     });
     const source = card.has_image && card.image_url ? card.image_url : svgFallback(card.title);
 
-    images.slice(0, 4).forEach((image, index) => {
+    images.slice(0, 6).forEach((image, index) => {
       image.src = source;
       image.removeAttribute("srcset");
       image.alt = index === 0 ? card.title : `${card.title} görseli`;
@@ -230,18 +321,15 @@
     badge.textContent = card.recommendation || "Fırsat";
     wrapper.append(badge);
 
-    const price = document.createElement("strong");
-    price.textContent = card.buyer_offer
-      ? `Önerilen alım: ${card.buyer_offer}`
-      : "Önerilen alım fiyatı hesaplanıyor";
-    wrapper.append(price);
+    const offer = document.createElement("strong");
+    offer.textContent = card.buyer_offer ? `Önerilen alım: ${card.buyer_offer}` : "Önerilen alım fiyatı hesaplanıyor";
+    wrapper.append(offer);
 
     if (card.turkiye_avg) {
       const market = document.createElement("small");
       market.textContent = `Türkiye ortalaması: ${card.turkiye_avg}`;
       wrapper.append(market);
     }
-
     if (card.buyer_gain) {
       const gain = document.createElement("small");
       gain.textContent = `Tahmini mağaza kazancı: ${card.buyer_gain}${card.buyer_gain_percent ? ` (${card.buyer_gain_percent})` : ""}`;
@@ -251,32 +339,25 @@
     const confidence = document.createElement("small");
     confidence.textContent = `Güven: %${card.confidence_score ?? 0} · ${card.evidence_count ?? 0} kanıt`;
     wrapper.append(confidence);
-
     return wrapper;
   }
 
   function populateCard(cardNode, card) {
     cardNode.dataset.pbOpportunityCard = String(card.pk);
-
     all("a[href]", cardNode).forEach((anchor) => {
       anchor.href = card.detail_url || "#";
       anchor.removeAttribute("target");
     });
 
     setProductImage(cardNode, card);
-
     const titleNode = findTitleNode(cardNode);
     if (titleNode) titleNode.textContent = card.title;
-
     replacePrices(cardNode, card);
+    cardNode.querySelector("[data-pb-opportunity-meta]")?.remove();
 
-    const oldMeta = cardNode.querySelector("[data-pb-opportunity-meta]");
-    oldMeta?.remove();
-
-    const bodyCandidates = all("div", cardNode).filter((node) => {
-      return node !== cardNode && text(node).length > 0 && node.querySelector("a,button,span,strong,p");
-    });
-    const body = bodyCandidates.sort((a, b) => b.compareDocumentPosition(a) & Node.DOCUMENT_POSITION_CONTAINED_BY ? 1 : 0)[0] || cardNode;
+    const body = all("div", cardNode)
+      .filter((node) => node !== cardNode && node.querySelector("a,button,span,strong,p"))
+      .at(-1) || cardNode;
     body.append(opportunityMeta(card));
   }
 
@@ -293,30 +374,24 @@
         <a href="${escapeHtml(card.detail_url || "#")}">
           <img src="${escapeHtml(card.has_image && card.image_url ? card.image_url : svgFallback(card.title))}" alt="${escapeHtml(card.title)}">
         </a>
-        <div>
-          <h3><a href="${escapeHtml(card.detail_url || "#")}">${escapeHtml(card.title)}</a></h3>
-        </div>`;
+        <div><h3><a href="${escapeHtml(card.detail_url || "#")}">${escapeHtml(card.title)}</a></h3></div>`;
       article.querySelector("div")?.append(opportunityMeta(card));
       grid.append(article);
     });
-
     main.append(grid);
   }
 
   function renderCatalog() {
     const cards = payload.cards || [];
     replaceCatalogHeading();
-    configureSearch();
-
     const found = findCatalogGrid();
-    if (!found || !found.cards.length) {
+    if (!found?.cards?.length) {
       fallbackCatalog(cards);
       return;
     }
 
     const template = found.cards[0].cloneNode(true);
     found.cards.forEach((card) => card.remove());
-
     cards.forEach((card) => {
       const clone = template.cloneNode(true);
       populateCard(clone, card);
@@ -333,24 +408,21 @@
 
   function setDetailIdentity(opportunity) {
     document.title = `${opportunity.title} · PriceBridge`;
-
     const main = document.querySelector("main") || document.body;
     const heading = all("h1,h2", main).find((node) => text(node).length >= 3) || findTitleNode(main);
     if (heading) heading.textContent = opportunity.title;
-
     setProductImage(main, opportunity);
     replacePrices(main, opportunity);
 
     all("button,a", main).forEach((node) => {
       const label = lower(node);
-      if (/add to cart|buy now|sepete ekle|satın al/.test(label)) {
-        node.textContent = "Fırsat detaylarını incele";
-        if (node.tagName === "A") node.href = "#pricebridge-opportunity-details";
-        node.addEventListener("click", (event) => {
-          event.preventDefault();
-          document.getElementById("pricebridge-opportunity-details")?.scrollIntoView({ behavior: "smooth" });
-        });
-      }
+      if (!/add to cart|buy now|sepete ekle|satın al/.test(label)) return;
+      node.textContent = "Fırsat detaylarını incele";
+      if (node.tagName === "A") node.href = "#pricebridge-opportunity-details";
+      node.addEventListener("click", (event) => {
+        event.preventDefault();
+        document.getElementById("pricebridge-opportunity-details")?.scrollIntoView({ behavior: "smooth" });
+      });
     });
   }
 
@@ -370,18 +442,14 @@
   }
 
   function renderDetailPanel(opportunity) {
+    document.getElementById("pricebridge-opportunity-details")?.remove();
     const main = document.querySelector("main") || document.body;
     const panel = document.createElement("section");
     panel.id = "pricebridge-opportunity-details";
     panel.dataset.pbOpportunityPanel = "";
 
-    const specs = (opportunity.specs || [])
-      .map((spec) => metric(spec.label, spec.value))
-      .join("");
-
-    const internalMetric = payload.can_view_internal_gain && opportunity.my_gain
-      ? metric("İç kazanç", opportunity.my_gain)
-      : "";
+    const specs = (opportunity.specs || []).map((spec) => metric(spec.label, spec.value)).join("");
+    const internalMetric = payload.can_view_internal_gain && opportunity.my_gain ? metric("İç kazanç", opportunity.my_gain) : "";
 
     panel.innerHTML = `
       <div class="pb-bagisto-panel-grid">
@@ -395,8 +463,7 @@
             ${metric("Kazanç oranı", opportunity.buyer_gain_percent)}
             ${metric("Güven", `%${opportunity.confidence_score ?? 0}`)}
             ${metric("Kanıt sayısı", String(opportunity.evidence_count ?? 0))}
-            ${internalMetric}
-            ${specs}
+            ${internalMetric}${specs}
           </div>
           <h3>Türkiye karşılaştırma ilanları</h3>
           ${evidenceList(payload.turkiye_rows, "Türkiye karşılaştırma ilanı bulunamadı.")}
@@ -409,11 +476,8 @@
       </div>`;
 
     const footer = document.querySelector("footer");
-    if (footer?.parentElement) {
-      footer.parentElement.insertBefore(panel, footer);
-    } else {
-      main.append(panel);
-    }
+    if (footer?.parentElement) footer.parentElement.insertBefore(panel, footer);
+    else main.append(panel);
   }
 
   function renderDetail() {
@@ -423,16 +487,23 @@
     renderDetailPanel(opportunity);
   }
 
-  try {
-    rewriteShellLinks();
-    if (payload.page === "opportunity-index") {
-      renderCatalog();
-    } else if (payload.page === "opportunity-detail") {
-      renderDetail();
+  function run() {
+    try {
+      rewriteBranding();
+      rewriteShellLinks();
+      installCapturedLinkGuard();
+      configureSearch();
+      if (payload.page === "opportunity-index") renderCatalog();
+      else if (payload.page === "opportunity-detail") renderDetail();
+      rewriteShellLinks();
+      document.documentElement.dataset.pbFrontend = "preserved-bagisto-port";
+    } catch (error) {
+      console.error("PriceBridge Bagisto adaptation failed", error);
+    } finally {
+      document.documentElement.classList.remove("pb-bagisto-hydrating");
     }
-  } catch (error) {
-    console.error("PriceBridge Bagisto adaptation failed", error);
-  } finally {
-    document.documentElement.classList.remove("pb-bagisto-hydrating");
   }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", run, { once: true });
+  else run();
 })();
