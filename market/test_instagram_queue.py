@@ -1,6 +1,8 @@
 from pathlib import Path
+from io import StringIO
 from tempfile import TemporaryDirectory
 
+from django.core.management import call_command
 from django.test import SimpleTestCase, TestCase, override_settings
 
 from market.management.commands.queue_instagram_image_folder import (
@@ -99,3 +101,28 @@ class InstagramMarkdownImportHelpersTests(SimpleTestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]["post_url"], "https://www.instagram.com/p/Das1mKGMtzO/")
         self.assertEqual(records[0]["image_basename"], "one.jpg")
+
+
+class InstagramMarkdownPipelineCommandTests(TestCase):
+    def test_dry_run_infers_username_and_previews_import(self):
+        with TemporaryDirectory() as tmp:
+            media_root = Path(tmp) / "media"
+            markdown = Path(tmp) / "RDphone35.md"
+            markdown.write_text(
+                "\n".join(
+                    [
+                        'source: "https://www.instagram.com/rd.phone35?igsh=test"',
+                        "[![iPhone 17 256 GB](https://cdn.example/phone.jpg)]"
+                        "(https://www.instagram.com/rd.phone35/reel/DaXyZ123abc/)",
+                    ]
+                )
+            )
+
+            out = StringIO()
+            with override_settings(MEDIA_ROOT=media_root):
+                call_command("run_instagram_markdown_pipeline", str(markdown), "--dry-run", stdout=out)
+
+        output = out.getvalue()
+        self.assertIn("Source: @rd.phone35", output)
+        self.assertIn("Post/reel links found: 1", output)
+        self.assertIn("Would import/update 1 Markdown posts", output)

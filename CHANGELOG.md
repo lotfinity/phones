@@ -10,6 +10,7 @@
 - Reprocessed `brothers_phone___official_` manual images with a pre-run SQLite backup and collapsed duplicate OCR rows for that source.
 - Imported the Brothers Phone Markdown profile export, downloaded 36 new post/reel images, and processed their OCR queue with duplicate post/OCR/listing checks clean.
 - Updated `fetch_exchange_rates` to accept the current Frankfurter list-shaped response as well as the previous `rates` object response, then refreshed FX and opportunity snapshots.
+- Added `run_instagram_markdown_pipeline` to run Markdown import/download, source OCR/classification, FX refresh, legacy opportunity analysis, clean opportunity snapshots, and a final summary from one command.
 
 ### Bagisto storefront PriceBridge semantics
 
