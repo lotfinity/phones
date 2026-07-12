@@ -1,21 +1,21 @@
 {% extends "estore/base.html" %}
 
-{% block title %}Tüm İlanlar · PriceBridge{% endblock %}
+{% block title %}Tüm Fırsatlar · PriceBridge{% endblock %}
 
 {% block content %}
 <section class="pb-hero">
     <div class="pb-shell">
         <div class="pb-hero__copy">
-            <span class="pb-eyebrow">Gerçek ikinci el ve sıfır cihaz ilanları</span>
-            <h1>Mağazan için cihazları tek yerde incele.</h1>
-            <p>Telefon, laptop ve taşınabilir konsol ilanlarını gerçek kaynak fiyatları, cihaz durumu ve teknik özellikleriyle karşılaştır.</p>
+            <span class="pb-eyebrow">Gerçek ilanlardan hesaplanan fırsatlar</span>
+            <h1>Mağazan için en iyi cihaz fırsatlarını incele.</h1>
+            <p>Her kart tek bir model ve varyant fırsatını temsil eder. Cezayir alım verisi, Türkiye piyasa karşılaştırması ve mağaza sahibine kalan tahmini kazanç birlikte hesaplanır.</p>
         </div>
 
-        <form class="pb-search-panel" method="get" action="{% url 'estore_listing_index' %}">
+        <form class="pb-search-panel" method="get" action="{% url 'estore_opportunity_index' %}">
             {% if active_category %}
                 <input type="hidden" name="category" value="{{ active_category }}">
             {% endif %}
-            <label for="estore-q">İlanlarda ara</label>
+            <label for="estore-q">Fırsatlarda ara</label>
             <div class="pb-search-field">
                 <span aria-hidden="true">⌕</span>
                 <input
@@ -34,14 +34,14 @@
 
 <section class="pb-shell pb-catalog">
     <div class="pb-category-strip" aria-label="Kategori filtreleri">
-        <a class="pb-category-chip{% if not active_category %} is-active{% endif %}" href="{% url 'estore_listing_index' %}{% if query %}?q={{ query|urlencode }}{% endif %}">
+        <a class="pb-category-chip{% if not active_category %} is-active{% endif %}" href="{% url 'estore_opportunity_index' %}{% if query %}?q={{ query|urlencode }}{% endif %}">
             <span>Tümü</span>
             <strong>{{ counts.phone|add:counts.laptop|add:counts.console }}</strong>
         </a>
         {% for option in category_options %}
             <a
                 class="pb-category-chip{% if active_category == option.value %} is-active{% endif %}"
-                href="{% url 'estore_listing_index' %}?category={{ option.value }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}"
+                href="{% url 'estore_opportunity_index' %}?category={{ option.value }}{% if query %}&amp;q={{ query|urlencode }}{% endif %}"
             >
                 <span>{{ option.label }}</span>
                 <strong>{{ option.count }}</strong>
@@ -51,16 +51,16 @@
 
     <div class="pb-catalog__toolbar">
         <div>
-            <span class="pb-eyebrow">Güncel katalog</span>
+            <span class="pb-eyebrow">Güncel fırsat kataloğu</span>
             <h2>
-                {% if active_category == "phone" %}Telefon ilanları
-                {% elif active_category == "laptop" %}Laptop ilanları
-                {% elif active_category == "console" %}Konsol ilanları
-                {% else %}Tüm ilanlar
+                {% if active_category == "phone" %}Telefon fırsatları
+                {% elif active_category == "laptop" %}Laptop fırsatları
+                {% elif active_category == "console" %}Konsol fırsatları
+                {% else %}Tüm fırsatlar
                 {% endif %}
             </h2>
         </div>
-        <p><strong>{{ total_count }}</strong> ilan gösteriliyor</p>
+        <p><strong>{{ total_count }}</strong> fırsat gösteriliyor</p>
     </div>
 
     {% if cards %}
@@ -72,9 +72,9 @@
     {% else %}
         <div class="pb-empty-state">
             <span aria-hidden="true">⌕</span>
-            <h2>Eşleşen ilan bulunamadı</h2>
+            <h2>Eşleşen fırsat bulunamadı</h2>
             <p>Arama kelimesini veya kategori seçimini değiştir.</p>
-            <a href="{% url 'estore_listing_index' %}">Tüm ilanları göster</a>
+            <a href="{% url 'estore_opportunity_index' %}">Tüm fırsatları göster</a>
         </div>
     {% endif %}
 </section>
