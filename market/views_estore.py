@@ -377,7 +377,7 @@ def estore_opportunity_detail(request, category, pk):
     algeria_rows = _prepare_evidence(all_algeria_rows, category) if show_internal_gain else []
     turkiye_rows = _prepare_evidence(all_turkiye_rows, category)
 
-    detail = card | row | {
+    detail = row | card | {
         "specs": _combined_specs(item, category, primary),
         "coverage": {
             "algeria": item.algeria_count,
