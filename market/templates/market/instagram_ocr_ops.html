@@ -94,6 +94,7 @@
             <th class="text-left p-2">Raw</th>
             <th class="text-left p-2">Candidate</th>
             <th class="text-left p-2">Category</th>
+            <th class="text-left p-2">Warranty</th>
             <th class="text-left p-2">Exported</th>
             <th class="text-left p-2">Status</th>
           </tr>
@@ -117,6 +118,7 @@
               {% if row.candidate %}<a class="text-[var(--pb-accent)] hover:underline" href="{% url 'candidate_detail' row.candidate.pk %}">{{ row.candidate.pk }}</a>{% else %}-{% endif %}
             </td>
             <td class="p-2">{{ row.category|default:"-" }}</td>
+            <td class="p-2 max-w-[180px]">{{ row.store_warranty|default:"-" }}</td>
             <td class="p-2">{{ row.exported|yesno:"yes,no" }}</td>
             <td class="p-2">{% if row.ok %}ok{% else %}{{ row.error }}{% endif %}</td>
           </tr>
@@ -139,6 +141,7 @@
             <th class="text-left p-2">Category</th>
             <th class="text-left p-2">Model</th>
             <th class="text-left p-2">Price</th>
+            <th class="text-left p-2">Warranty</th>
             <th class="text-left p-2">Confidence</th>
             <th class="text-left p-2">Status</th>
           </tr>
@@ -160,6 +163,7 @@
             <td class="p-2">{{ c.detected_category }}</td>
             <td class="p-2">{{ c.brand_text }} {{ c.model_text }}</td>
             <td class="p-2">{{ c.price_original|default:"-" }} {{ c.currency_original }}</td>
+            <td class="p-2 max-w-[180px]">{{ c.ops_store_warranty|default:"-" }}</td>
             <td class="p-2">{{ c.confidence|floatformat:2 }}</td>
             <td class="p-2">{{ c.status }}</td>
           </tr>

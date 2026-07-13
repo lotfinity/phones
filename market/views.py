@@ -2063,6 +2063,12 @@ def instagram_ocr_ops(request):
         post = InstagramPost.objects.filter(pk=post_id).first() if post_id else None
         return post_image_url(post)
 
+    def candidate_store_warranty(candidate):
+        if not candidate:
+            return ""
+        specs = candidate.phone_specs_json or {}
+        return specs.get("store_warranty") or ""
+
     selected_source_id = request.POST.get("source_id") or request.GET.get("source_id") or ""
     mode = request.POST.get("mode") or request.GET.get("mode") or "pending"
     try:
@@ -2141,6 +2147,7 @@ def instagram_ocr_ops(request):
                         "ok": True,
                         "raw": raw,
                         "candidate": candidate,
+                        "store_warranty": candidate_store_warranty(candidate),
                         "exported": result.get("exported"),
                         "category": result.get("structured_category") or (candidate.detected_category if candidate else ""),
                     }
@@ -2162,6 +2169,7 @@ def instagram_ocr_ops(request):
     )
     for candidate in recent_candidates:
         candidate.ops_image_url = raw_image_url(candidate.raw_listing)
+        candidate.ops_store_warranty = candidate_store_warranty(candidate)
 
     stats = {
         "posts": InstagramPost.objects.filter(source__source_type=SourceType.INSTAGRAM).count(),
