@@ -2032,6 +2032,37 @@ def instagram_ocr_ops(request):
     from market.parsers.ocr_backend import get_ocr_backend
     from market.models import ParsedListingCandidate, PhoneListing, RawListing
 
+    def post_image_url(post):
+        if not post:
+            return ""
+        path = post.thumbnail_local_path or post.media_local_path
+        if not path:
+            return ""
+        media_root = Path(settings.MEDIA_ROOT).resolve()
+        try:
+            rel_path = Path(path).resolve().relative_to(media_root)
+        except (OSError, ValueError):
+            return path if str(path).startswith(("/media/", "http://", "https://")) else ""
+        return f"{settings.MEDIA_URL.rstrip('/')}/{rel_path.as_posix()}"
+
+    def raw_image_url(raw):
+        if not raw:
+            return ""
+        image_url = raw.image_url or ""
+        if image_url:
+            if image_url.startswith(("http://", "https://", "/media/")):
+                return image_url
+            media_root = Path(settings.MEDIA_ROOT).resolve()
+            try:
+                rel_path = Path(image_url).resolve().relative_to(media_root)
+                return f"{settings.MEDIA_URL.rstrip('/')}/{rel_path.as_posix()}"
+            except (OSError, ValueError):
+                pass
+            return image_url
+        post_id = (raw.raw_payload or {}).get("instagram_post_id")
+        post = InstagramPost.objects.filter(pk=post_id).first() if post_id else None
+        return post_image_url(post)
+
     selected_source_id = request.POST.get("source_id") or request.GET.get("source_id") or ""
     mode = request.POST.get("mode") or request.GET.get("mode") or "pending"
     try:
@@ -2106,6 +2137,7 @@ def instagram_ocr_ops(request):
                 batch_results.append(
                     {
                         "post": post,
+                        "image_url": post_image_url(post),
                         "ok": True,
                         "raw": raw,
                         "candidate": candidate,
@@ -2115,7 +2147,7 @@ def instagram_ocr_ops(request):
                 )
             except Exception as exc:
                 errors += 1
-                batch_results.append({"post": post, "ok": False, "error": str(exc)})
+                batch_results.append({"post": post, "image_url": post_image_url(post), "ok": False, "error": str(exc)})
 
         messages.success(
             request,
@@ -2123,11 +2155,13 @@ def instagram_ocr_ops(request):
         )
 
     instagram_raw = RawListing.objects.filter(source_type=SourceType.INSTAGRAM)
-    recent_candidates = (
+    recent_candidates = list(
         ParsedListingCandidate.objects.select_related("raw_listing", "raw_listing__source")
         .filter(raw_listing__source_type=SourceType.INSTAGRAM)
         .order_by("-updated_at")[:25]
     )
+    for candidate in recent_candidates:
+        candidate.ops_image_url = raw_image_url(candidate.raw_listing)
 
     stats = {
         "posts": InstagramPost.objects.filter(source__source_type=SourceType.INSTAGRAM).count(),

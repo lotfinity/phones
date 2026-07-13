@@ -89,6 +89,7 @@
         <thead>
           <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
             <th class="text-left p-2">Post</th>
+            <th class="text-left p-2">Image</th>
             <th class="text-left p-2">Source</th>
             <th class="text-left p-2">Raw</th>
             <th class="text-left p-2">Candidate</th>
@@ -101,6 +102,15 @@
           {% for row in batch_results %}
           <tr class="border-b border-[var(--pb-border)]">
             <td class="p-2 font-mono">{{ row.post.pk }} · {{ row.post.shortcode|default:"-" }}</td>
+            <td class="p-2">
+              {% if row.image_url %}
+              <a href="{{ row.image_url }}" target="_blank" rel="noopener">
+                <img src="{{ row.image_url }}" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]">
+              </a>
+              {% else %}
+              <span class="text-[var(--pb-muted)]">-</span>
+              {% endif %}
+            </td>
             <td class="p-2">@{{ row.post.source.username|default:"-" }}</td>
             <td class="p-2 font-mono">{{ row.raw.pk|default:"-" }}</td>
             <td class="p-2 font-mono">
@@ -124,6 +134,7 @@
         <thead>
           <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
             <th class="text-left p-2">Candidate</th>
+            <th class="text-left p-2">Image</th>
             <th class="text-left p-2">Source</th>
             <th class="text-left p-2">Category</th>
             <th class="text-left p-2">Model</th>
@@ -136,6 +147,15 @@
           {% for c in recent_candidates %}
           <tr class="border-b border-[var(--pb-border)] hover:bg-[var(--pb-surface-hover)]">
             <td class="p-2 font-mono"><a class="text-[var(--pb-accent)] hover:underline" href="{% url 'candidate_detail' c.pk %}">{{ c.pk }}</a></td>
+            <td class="p-2">
+              {% if c.ops_image_url %}
+              <a href="{{ c.ops_image_url }}" target="_blank" rel="noopener">
+                <img src="{{ c.ops_image_url }}" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]">
+              </a>
+              {% else %}
+              <span class="text-[var(--pb-muted)]">-</span>
+              {% endif %}
+            </td>
             <td class="p-2">@{{ c.raw_listing.source.username|default:"-" }}</td>
             <td class="p-2">{{ c.detected_category }}</td>
             <td class="p-2">{{ c.brand_text }} {{ c.model_text }}</td>
