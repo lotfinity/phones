@@ -82,6 +82,7 @@ urlpatterns = [
     path('deals/more/', views.deals_more, name='deals_more'),
     path('api/deals/', views.deals_api, name='deals_api'),
     path('data-quality/', views.data_quality, name='data_quality'),
+    path('instagram-ocr/', views.instagram_ocr_ops, name='instagram_ocr_ops'),
     path('import-lab/', views.import_lab, name='import_lab'),
     path('import-lab/candidate/<int:pk>/', views.candidate_detail, name='candidate_detail'),
     path('sources/', views.sources, name='sources'),

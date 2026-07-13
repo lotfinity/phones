@@ -158,6 +158,11 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M9.5 12.5l1.5 1.5 3-3"/></svg>
           </span><span>{% trans "Data Quality" %}</span>
         </a>
+        <a href="{% url 'instagram_ocr_ops' %}" class="{% if active == 'instagram_ocr_ops' %}active{% endif %}">
+          <span class="icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3"/><path d="M17.5 6.5h.01"/></svg>
+          </span><span>{% trans "Instagram OCR" %}</span>
+        </a>
         <div class="nav-section">{% trans "Config" %}</div>
         <a href="{% url 'sources' %}" class="{% if active == 'sources' %}active{% endif %}">
           <span class="icon" aria-hidden="true">
@@ -243,6 +248,10 @@
     <a href="{% url 'data_quality' %}" class="{% if active == 'data_quality' %}active{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><path d="M9.5 12.5l1.5 1.5 3-3"/></svg>
       <span>{% trans "Quality" %}</span>
+    </a>
+    <a href="{% url 'instagram_ocr_ops' %}" class="{% if active == 'instagram_ocr_ops' %}active{% endif %}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="12" cy="12" r="3"/><path d="M17.5 6.5h.01"/></svg>
+      <span>{% trans "IG OCR" %}</span>
     </a>
     <a href="{% url 'sources' %}" class="{% if active == 'sources' %}active{% endif %}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/><path d="M4 6v12"/><path d="M20 6v12"/></svg>

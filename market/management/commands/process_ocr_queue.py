@@ -184,6 +184,120 @@ def export_candidate_if_ready(candidate):
     return True
 
 
+def process_instagram_post(post, backend=None, rebuild_clean=False):
+    image_path = post.thumbnail_local_path or post.media_local_path
+    structured_data = {}
+
+    if rebuild_clean:
+        existing_ocr = OCRResult.objects.filter(instagram_post=post).order_by("-created_at", "-pk").first()
+        if not existing_ocr:
+            return {"processed": False, "error": "No OCRResult row to rebuild from."}
+        raw_text = existing_ocr.raw_text
+        backend_confidence = existing_ocr.confidence or 0.0
+        existing_raw = RawListing.objects.filter(
+            source_type=SourceType.INSTAGRAM,
+            listing_url=post.post_url,
+        ).first()
+        structured_data = (
+            (existing_raw.raw_payload or {}).get("nvidia_structured", {})
+            if existing_raw
+            else {}
+        )
+    else:
+        backend = backend or get_ocr_backend(settings.OCR_BACKEND)
+        if image_path and hasattr(backend, "read_listing_data"):
+            raw_text, backend_confidence, structured_data = backend.read_listing_data(image_path)
+        else:
+            raw_text, backend_confidence = backend.read_text(image_path) if image_path else ("", 0.0)
+
+    combined_text = "\n".join(part for part in [post.caption, raw_text] if part)
+    parsed = parse_ocr_text(combined_text)
+    status = OCRResult.Status.PROCESSED if parsed.confidence >= 0.5 else OCRResult.Status.NEEDS_REVIEW
+    if not rebuild_clean:
+        save_ocr_result(
+            post,
+            raw_text=raw_text,
+            confidence=max(parsed.confidence, backend_confidence or 0),
+            detected_price_dzd=parsed.price_dzd,
+            detected_model_text=parsed.model_text,
+            detected_storage_text=parsed.storage_text,
+            detected_battery_text=parsed.battery_text,
+            detected_condition_text=parsed.condition_text,
+            detected_sim_text=parsed.sim_text,
+            status=status,
+            created_at=timezone.now(),
+        )
+
+    raw_listing = upsert_raw_listing_from_instagram(
+        post, image_path, combined_text, raw_text, parsed, structured_data
+    )
+    candidate, _candidate_created = build_candidate(raw_listing)
+    exported = export_candidate_if_ready(candidate)
+
+    product_model = find_existing_model(parsed.model_text) if parsed.model_text else None
+    variant = (
+        find_existing_variant(product_model, parsed.storage_gb, sim_config=parsed.sim_text)
+        if product_model and parsed.storage_gb
+        else None
+    )
+    if parsed.model_text and (parsed.price_dzd or parsed.storage_gb):
+        listing_url = post.post_url
+        if "manual_image=" in (post.post_url or ""):
+            listing_url = local_media_url(image_path) or post.post_url
+        listing, _ = MarketListing.objects.update_or_create(
+            source=post.source,
+            listing_url=listing_url,
+            defaults={
+                "source_type": SourceType.INSTAGRAM,
+                "country": post.source.country or Country.ALGERIA,
+                "product_model": product_model,
+                "variant": variant,
+                "storage_gb": parsed.storage_gb,
+                "title_raw": parsed.model_text[:300],
+                "description_raw": combined_text,
+                "price_original": parsed.price_dzd,
+                "currency_original": MarketListing.Currency.DZD,
+                "price_eur": dzd_to_eur(parsed.price_dzd) if parsed.price_dzd else None,
+                "condition": parsed.condition,
+                "battery_health": parsed.battery_health,
+                "battery_cycles": parsed.battery_cycles,
+                "sim_config": parsed.sim_text,
+                "listing_url": listing_url,
+                "image_path": image_path,
+                "observed_at": post.posted_at or post.collected_at,
+                "parsed_confidence": parsed.confidence,
+                "review_status": (
+                    MarketListing.ReviewStatus.AUTO
+                    if parsed.confidence >= 0.75
+                    else MarketListing.ReviewStatus.NEEDS_REVIEW
+                ),
+            },
+        )
+        from market.services.spec_extraction import extract_specs_from_listing
+        extracted = extract_specs_from_listing(
+            None,
+            parsed.model_text or "",
+            description=combined_text,
+        )
+        if extracted.specs and product_model and product_model.product_type:
+            from market.services.catalog import upsert_listing_specs_from_dict
+            upsert_listing_specs_from_dict(listing, extracted.specs, confidence=extracted.confidence)
+
+    if not rebuild_clean:
+        post.ocr_processed = True
+        post.needs_ocr = False
+        post.save(update_fields=["ocr_processed", "needs_ocr"])
+
+    return {
+        "processed": True,
+        "post": post,
+        "raw_listing": raw_listing,
+        "candidate": candidate,
+        "exported": exported,
+        "structured_category": structured_data.get("category") if isinstance(structured_data, dict) else "",
+    }
+
+
 class Command(BaseCommand):
     help = "Process Instagram posts marked for OCR and create reviewable market listings."
 
@@ -195,13 +309,21 @@ class Command(BaseCommand):
             action="store_true",
             help="Reuse existing OCRResult rows to rebuild RawListing/candidate/clean listing exports.",
         )
+        parser.add_argument(
+            "--reprocess-existing",
+            action="store_true",
+            help="Call NVIDIA again for already processed Instagram posts and rebuild clean exports.",
+        )
 
     def handle(self, *args, **options):
         rebuild_clean = options["rebuild_clean_listings"]
+        reprocess_existing = options["reprocess_existing"]
         backend = None if rebuild_clean else get_ocr_backend(settings.OCR_BACKEND)
         posts = InstagramPost.objects.all()
         if rebuild_clean:
             posts = posts.filter(ocr_processed=True, ocrresult__isnull=False).distinct()
+        elif reprocess_existing:
+            posts = posts.filter(ocr_processed=True)
         else:
             posts = posts.filter(needs_ocr=True, ocr_processed=False)
         source_username = options["source_username"].strip().lstrip("@")
@@ -214,109 +336,14 @@ class Command(BaseCommand):
         exported_count = 0
 
         for post in posts:
-            image_path = post.thumbnail_local_path or post.media_local_path
             try:
-                if rebuild_clean:
-                    existing_ocr = OCRResult.objects.filter(instagram_post=post).order_by("-created_at", "-pk").first()
-                    if not existing_ocr:
-                        continue
-                    raw_text = existing_ocr.raw_text
-                    backend_confidence = existing_ocr.confidence or 0.0
-                    existing_raw = RawListing.objects.filter(
-                        source_type=SourceType.INSTAGRAM,
-                        listing_url=post.post_url,
-                    ).first()
-                    structured_data = (
-                        (existing_raw.raw_payload or {}).get("nvidia_structured", {})
-                        if existing_raw
-                        else {}
-                    )
-                else:
-                    if image_path and hasattr(backend, "read_listing_data"):
-                        raw_text, backend_confidence, structured_data = backend.read_listing_data(image_path)
-                    else:
-                        raw_text, backend_confidence = backend.read_text(image_path) if image_path else ("", 0.0)
-                        structured_data = {}
-                combined_text = "\n".join(part for part in [post.caption, raw_text] if part)
-                parsed = parse_ocr_text(combined_text)
-                status = OCRResult.Status.PROCESSED if parsed.confidence >= 0.5 else OCRResult.Status.NEEDS_REVIEW
-                if not rebuild_clean:
-                    save_ocr_result(
-                        post,
-                        raw_text=raw_text,
-                        confidence=max(parsed.confidence, backend_confidence or 0),
-                        detected_price_dzd=parsed.price_dzd,
-                        detected_model_text=parsed.model_text,
-                        detected_storage_text=parsed.storage_text,
-                        detected_battery_text=parsed.battery_text,
-                        detected_condition_text=parsed.condition_text,
-                        detected_sim_text=parsed.sim_text,
-                        status=status,
-                        created_at=timezone.now(),
-                    )
-
-                raw_listing = upsert_raw_listing_from_instagram(
-                    post, image_path, combined_text, raw_text, parsed, structured_data
-                )
+                result = process_instagram_post(post, backend=backend, rebuild_clean=rebuild_clean)
+                if not result.get("processed"):
+                    continue
                 raw_count += 1
-                candidate, _candidate_created = build_candidate(raw_listing)
                 candidate_count += 1
-                if export_candidate_if_ready(candidate):
+                if result.get("exported"):
                     exported_count += 1
-
-                product_model = find_existing_model(parsed.model_text) if parsed.model_text else None
-                variant = (
-                    find_existing_variant(product_model, parsed.storage_gb, sim_config=parsed.sim_text)
-                    if product_model and parsed.storage_gb
-                    else None
-                )
-                if parsed.model_text and (parsed.price_dzd or parsed.storage_gb):
-                    listing_url = post.post_url
-                    if "manual_image=" in (post.post_url or ""):
-                        listing_url = local_media_url(image_path) or post.post_url
-                    listing, _ = MarketListing.objects.update_or_create(
-                        source=post.source,
-                        listing_url=listing_url,
-                        defaults={
-                            "source_type": SourceType.INSTAGRAM,
-                            "country": post.source.country or Country.ALGERIA,
-                            "product_model": product_model,
-                            "variant": variant,
-                            "storage_gb": parsed.storage_gb,
-                            "title_raw": parsed.model_text[:300],
-                            "description_raw": combined_text,
-                            "price_original": parsed.price_dzd,
-                            "currency_original": MarketListing.Currency.DZD,
-                            "price_eur": dzd_to_eur(parsed.price_dzd) if parsed.price_dzd else None,
-                            "condition": parsed.condition,
-                            "battery_health": parsed.battery_health,
-                            "battery_cycles": parsed.battery_cycles,
-                            "sim_config": parsed.sim_text,
-                            "listing_url": listing_url,
-                            "image_path": image_path,
-                            "observed_at": post.posted_at or post.collected_at,
-                            "parsed_confidence": parsed.confidence,
-                            "review_status": (
-                                MarketListing.ReviewStatus.AUTO
-                                if parsed.confidence >= 0.75
-                                else MarketListing.ReviewStatus.NEEDS_REVIEW
-                            ),
-                        },
-                    )
-                    # Extract and save spec values for the listing
-                    from market.services.spec_extraction import extract_specs_from_listing
-                    extracted = extract_specs_from_listing(
-                        None,
-                        parsed.model_text or "",
-                        description=combined_text,
-                    )
-                    if extracted.specs and product_model and product_model.product_type:
-                        from market.services.catalog import upsert_listing_specs_from_dict
-                        upsert_listing_specs_from_dict(listing, extracted.specs, confidence=extracted.confidence)
-                if not rebuild_clean:
-                    post.ocr_processed = True
-                    post.needs_ocr = False
-                    post.save(update_fields=["ocr_processed", "needs_ocr"])
                 processed += 1
             except Exception as exc:
                 if not rebuild_clean:

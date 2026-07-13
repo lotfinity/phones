@@ -1,0 +1,154 @@
+{% extends "market/base.html" %}
+{% block title %}Instagram OCR Ops{% endblock %}
+{% block crumb %}Instagram OCR{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 py-6">
+  <div class="flex items-start justify-between gap-4 mb-5">
+    <div>
+      <h1 class="text-xl font-bold">Instagram OCR Ops</h1>
+      <p class="text-sm text-[var(--pb-muted)]">Run small NVIDIA OCR batches and rebuild clean listings without remembering management-command flags.</p>
+    </div>
+    <a href="{% url 'import_lab' %}" class="px-3 py-1.5 rounded border border-[var(--pb-border)] text-sm hover:bg-[var(--pb-surface-hover)]">Import Lab</a>
+  </div>
+
+  {% if messages %}
+  <div class="mb-4 space-y-2">
+    {% for message in messages %}
+    <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] px-3 py-2 text-sm">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <div class="grid grid-cols-2 md:grid-cols-7 gap-3 mb-6">
+    <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Posts</div>
+      <div class="text-lg font-bold">{{ stats.posts }}</div>
+    </div>
+    <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Pending OCR</div>
+      <div class="text-lg font-bold">{{ stats.pending }}</div>
+    </div>
+    <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Processed</div>
+      <div class="text-lg font-bold">{{ stats.processed }}</div>
+    </div>
+    <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Raw</div>
+      <div class="text-lg font-bold">{{ stats.raw }}</div>
+    </div>
+    <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Unknown</div>
+      <div class="text-lg font-bold">{{ stats.raw_unknown }}</div>
+    </div>
+    <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Candidates</div>
+      <div class="text-lg font-bold">{{ stats.candidates }}</div>
+    </div>
+    <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
+      <div class="text-xs text-[var(--pb-muted)]">Phone Listings</div>
+      <div class="text-lg font-bold">{{ stats.phone_listings }}</div>
+    </div>
+  </div>
+
+  <form method="post" class="mb-6 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4">
+    {% csrf_token %}
+    <div class="grid md:grid-cols-[2fr_1.4fr_0.7fr_auto] gap-3 items-end">
+      <label class="block">
+        <span class="block text-xs font-medium text-[var(--pb-muted)] mb-1">Source</span>
+        <select name="source_id" class="w-full rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] px-3 py-2 text-sm">
+          <option value="">All Instagram sources</option>
+          {% for source in sources %}
+          <option value="{{ source.pk }}" {% if selected_source_id == source.pk|stringformat:"s" %}selected{% endif %}>
+            @{{ source.username|default:source.name }} · {{ source.total_posts }} posts · {{ source.pending_posts }} pending
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="block">
+        <span class="block text-xs font-medium text-[var(--pb-muted)] mb-1">Mode</span>
+        <select name="mode" class="w-full rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] px-3 py-2 text-sm">
+          <option value="pending" {% if mode == "pending" %}selected{% endif %}>Process pending posts with NVIDIA</option>
+          <option value="reprocess" {% if mode == "reprocess" %}selected{% endif %}>Rescan already processed posts with NVIDIA</option>
+          <option value="rebuild" {% if mode == "rebuild" %}selected{% endif %}>Rebuild clean listings from stored OCR</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="block text-xs font-medium text-[var(--pb-muted)] mb-1">Batch</span>
+        <input name="limit" type="number" min="1" max="20" value="{{ limit }}" class="w-full rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] px-3 py-2 text-sm">
+      </label>
+      <button type="submit" class="rounded bg-[var(--pb-accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Run Batch</button>
+    </div>
+  </form>
+
+  {% if batch_results %}
+  <div class="mb-6">
+    <h2 class="text-sm font-semibold mb-2">Batch Results</h2>
+    <div class="overflow-x-auto rounded border border-[var(--pb-border)]">
+      <table class="w-full text-xs border-collapse">
+        <thead>
+          <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
+            <th class="text-left p-2">Post</th>
+            <th class="text-left p-2">Source</th>
+            <th class="text-left p-2">Raw</th>
+            <th class="text-left p-2">Candidate</th>
+            <th class="text-left p-2">Category</th>
+            <th class="text-left p-2">Exported</th>
+            <th class="text-left p-2">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in batch_results %}
+          <tr class="border-b border-[var(--pb-border)]">
+            <td class="p-2 font-mono">{{ row.post.pk }} · {{ row.post.shortcode|default:"-" }}</td>
+            <td class="p-2">@{{ row.post.source.username|default:"-" }}</td>
+            <td class="p-2 font-mono">{{ row.raw.pk|default:"-" }}</td>
+            <td class="p-2 font-mono">
+              {% if row.candidate %}<a class="text-[var(--pb-accent)] hover:underline" href="{% url 'candidate_detail' row.candidate.pk %}">{{ row.candidate.pk }}</a>{% else %}-{% endif %}
+            </td>
+            <td class="p-2">{{ row.category|default:"-" }}</td>
+            <td class="p-2">{{ row.exported|yesno:"yes,no" }}</td>
+            <td class="p-2">{% if row.ok %}ok{% else %}{{ row.error }}{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  <div>
+    <h2 class="text-sm font-semibold mb-2">Recent Instagram Candidates</h2>
+    <div class="overflow-x-auto rounded border border-[var(--pb-border)]">
+      <table class="w-full text-xs border-collapse">
+        <thead>
+          <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
+            <th class="text-left p-2">Candidate</th>
+            <th class="text-left p-2">Source</th>
+            <th class="text-left p-2">Category</th>
+            <th class="text-left p-2">Model</th>
+            <th class="text-left p-2">Price</th>
+            <th class="text-left p-2">Confidence</th>
+            <th class="text-left p-2">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in recent_candidates %}
+          <tr class="border-b border-[var(--pb-border)] hover:bg-[var(--pb-surface-hover)]">
+            <td class="p-2 font-mono"><a class="text-[var(--pb-accent)] hover:underline" href="{% url 'candidate_detail' c.pk %}">{{ c.pk }}</a></td>
+            <td class="p-2">@{{ c.raw_listing.source.username|default:"-" }}</td>
+            <td class="p-2">{{ c.detected_category }}</td>
+            <td class="p-2">{{ c.brand_text }} {{ c.model_text }}</td>
+            <td class="p-2">{{ c.price_original|default:"-" }} {{ c.currency_original }}</td>
+            <td class="p-2">{{ c.confidence|floatformat:2 }}</td>
+            <td class="p-2">{{ c.status }}</td>
+          </tr>
+          {% empty %}
+          <tr><td colspan="7" class="p-2 text-[var(--pb-muted)]">No Instagram candidates yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

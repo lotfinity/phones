@@ -10,6 +10,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import Avg, Count, F, Max, Q
+from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import translation
@@ -2026,6 +2027,143 @@ def deals_more(request):
 
 
 @staff_member_required
+def instagram_ocr_ops(request):
+    from market.management.commands.process_ocr_queue import process_instagram_post
+    from market.parsers.ocr_backend import get_ocr_backend
+    from market.models import ParsedListingCandidate, PhoneListing, RawListing
+
+    selected_source_id = request.POST.get("source_id") or request.GET.get("source_id") or ""
+    mode = request.POST.get("mode") or request.GET.get("mode") or "pending"
+    try:
+        limit = int(request.POST.get("limit") or request.GET.get("limit") or 5)
+    except (TypeError, ValueError):
+        limit = 5
+    limit = max(1, min(limit, 20))
+
+    sources = list(
+        Source.objects.filter(source_type=SourceType.INSTAGRAM)
+        .annotate(
+            total_posts=Count("instagrampost", distinct=True),
+            pending_posts=Count(
+                "instagrampost",
+                filter=Q(instagrampost__needs_ocr=True, instagrampost__ocr_processed=False),
+                distinct=True,
+            ),
+            processed_posts=Count(
+                "instagrampost",
+                filter=Q(instagrampost__ocr_processed=True),
+                distinct=True,
+            ),
+        )
+        .order_by("username", "name")
+    )
+
+    selected_source = None
+    if selected_source_id:
+        selected_source = Source.objects.filter(
+            pk=selected_source_id,
+            source_type=SourceType.INSTAGRAM,
+        ).first()
+
+    batch_results = []
+    if request.method == "POST":
+        qs = InstagramPost.objects.select_related("source").filter(source__source_type=SourceType.INSTAGRAM)
+        if selected_source:
+            qs = qs.filter(source=selected_source)
+
+        if mode == "pending":
+            qs = qs.filter(needs_ocr=True, ocr_processed=False)
+            rebuild_clean = False
+            backend = get_ocr_backend(settings.OCR_BACKEND)
+        elif mode == "reprocess":
+            qs = qs.filter(ocr_processed=True)
+            rebuild_clean = False
+            backend = get_ocr_backend(settings.OCR_BACKEND)
+        elif mode == "rebuild":
+            qs = qs.filter(ocr_processed=True, ocrresult__isnull=False).distinct()
+            rebuild_clean = True
+            backend = None
+        else:
+            qs = InstagramPost.objects.none()
+            rebuild_clean = False
+            backend = None
+
+        posts = list(qs.order_by("id")[:limit])
+        processed = 0
+        exported = 0
+        errors = 0
+        for post in posts:
+            try:
+                result = process_instagram_post(post, backend=backend, rebuild_clean=rebuild_clean)
+                if not result.get("processed"):
+                    errors += 1
+                    batch_results.append({"post": post, "ok": False, "error": result.get("error", "Skipped")})
+                    continue
+                processed += 1
+                exported += 1 if result.get("exported") else 0
+                candidate = result.get("candidate")
+                raw = result.get("raw_listing")
+                batch_results.append(
+                    {
+                        "post": post,
+                        "ok": True,
+                        "raw": raw,
+                        "candidate": candidate,
+                        "exported": result.get("exported"),
+                        "category": result.get("structured_category") or (candidate.detected_category if candidate else ""),
+                    }
+                )
+            except Exception as exc:
+                errors += 1
+                batch_results.append({"post": post, "ok": False, "error": str(exc)})
+
+        messages.success(
+            request,
+            f"Instagram OCR batch finished: processed {processed}, exported {exported}, errors {errors}.",
+        )
+
+    instagram_raw = RawListing.objects.filter(source_type=SourceType.INSTAGRAM)
+    recent_candidates = (
+        ParsedListingCandidate.objects.select_related("raw_listing", "raw_listing__source")
+        .filter(raw_listing__source_type=SourceType.INSTAGRAM)
+        .order_by("-updated_at")[:25]
+    )
+
+    stats = {
+        "posts": InstagramPost.objects.filter(source__source_type=SourceType.INSTAGRAM).count(),
+        "pending": InstagramPost.objects.filter(
+            source__source_type=SourceType.INSTAGRAM,
+            needs_ocr=True,
+            ocr_processed=False,
+        ).count(),
+        "processed": InstagramPost.objects.filter(
+            source__source_type=SourceType.INSTAGRAM,
+            ocr_processed=True,
+        ).count(),
+        "raw": instagram_raw.count(),
+        "raw_unknown": instagram_raw.filter(category_hint="unknown").count(),
+        "candidates": ParsedListingCandidate.objects.filter(
+            raw_listing__source_type=SourceType.INSTAGRAM
+        ).count(),
+        "phone_listings": PhoneListing.objects.filter(source_type=SourceType.INSTAGRAM).count(),
+    }
+
+    return render(
+        request,
+        "market/instagram_ocr_ops.html",
+        base_context(request, "instagram_ocr_ops")
+        | {
+            "sources": sources,
+            "selected_source_id": str(selected_source.pk) if selected_source else "",
+            "mode": mode,
+            "limit": limit,
+            "stats": stats,
+            "batch_results": batch_results,
+            "recent_candidates": recent_candidates,
+        },
+    )
+
+
 @staff_member_required
 def import_lab(request):
     from market.models import RawImportRun, RawListing, ParsedListingCandidate
