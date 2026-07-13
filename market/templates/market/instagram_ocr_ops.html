@@ -23,35 +23,35 @@
   <div class="grid grid-cols-2 md:grid-cols-7 gap-3 mb-6">
     <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
       <div class="text-xs text-[var(--pb-muted)]">Posts</div>
-      <div class="text-lg font-bold">{{ stats.posts }}</div>
+      <div class="text-lg font-bold" data-stat="posts">{{ stats.posts }}</div>
     </div>
     <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
       <div class="text-xs text-[var(--pb-muted)]">Pending OCR</div>
-      <div class="text-lg font-bold">{{ stats.pending }}</div>
+      <div class="text-lg font-bold" data-stat="pending">{{ stats.pending }}</div>
     </div>
     <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
       <div class="text-xs text-[var(--pb-muted)]">Processed</div>
-      <div class="text-lg font-bold">{{ stats.processed }}</div>
+      <div class="text-lg font-bold" data-stat="processed">{{ stats.processed }}</div>
     </div>
     <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
       <div class="text-xs text-[var(--pb-muted)]">Raw</div>
-      <div class="text-lg font-bold">{{ stats.raw }}</div>
+      <div class="text-lg font-bold" data-stat="raw">{{ stats.raw }}</div>
     </div>
     <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
       <div class="text-xs text-[var(--pb-muted)]">Unknown</div>
-      <div class="text-lg font-bold">{{ stats.raw_unknown }}</div>
+      <div class="text-lg font-bold" data-stat="raw_unknown">{{ stats.raw_unknown }}</div>
     </div>
     <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
       <div class="text-xs text-[var(--pb-muted)]">Candidates</div>
-      <div class="text-lg font-bold">{{ stats.candidates }}</div>
+      <div class="text-lg font-bold" data-stat="candidates">{{ stats.candidates }}</div>
     </div>
     <div class="p-3 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)]">
       <div class="text-xs text-[var(--pb-muted)]">Phone Listings</div>
-      <div class="text-lg font-bold">{{ stats.phone_listings }}</div>
+      <div class="text-lg font-bold" data-stat="phone_listings">{{ stats.phone_listings }}</div>
     </div>
   </div>
 
-  <form method="post" class="mb-6 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4">
+  <form method="post" id="ocr-batch-form" class="mb-4 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4">
     {% csrf_token %}
     <div class="grid md:grid-cols-[2fr_1.4fr_0.7fr_auto] gap-3 items-end">
       <label class="block">
@@ -77,12 +77,18 @@
         <span class="block text-xs font-medium text-[var(--pb-muted)] mb-1">Batch</span>
         <input name="limit" type="number" min="1" max="20" value="{{ limit }}" class="w-full rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] px-3 py-2 text-sm">
       </label>
-      <button type="submit" class="rounded bg-[var(--pb-accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Run Batch</button>
+      <button type="submit" id="run-batch-btn" class="rounded bg-[var(--pb-accent)] px-4 py-2 text-sm font-semibold text-white hover:opacity-90">Run Batch</button>
     </div>
   </form>
 
-  {% if batch_results %}
-  <div class="mb-6">
+  <div id="batch-status" class="mb-4 hidden rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] px-4 py-3 text-sm">
+    <div class="flex items-center gap-3">
+      <span class="inline-block h-3 w-3 animate-pulse rounded-full bg-[var(--pb-accent)]"></span>
+      <span id="batch-status-text">Starting NVIDIA OCR batch...</span>
+    </div>
+  </div>
+
+  <div id="batch-results-panel" class="mb-6 {% if not batch_results %}hidden{% endif %}">
     <h2 class="text-sm font-semibold mb-2">Batch Results</h2>
     <div class="overflow-x-auto rounded border border-[var(--pb-border)]">
       <table class="w-full text-xs border-collapse">
@@ -99,7 +105,7 @@
             <th class="text-left p-2">Status</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="batch-results-body">
           {% for row in batch_results %}
           <tr class="border-b border-[var(--pb-border)]">
             <td class="p-2 font-mono">{{ row.post.pk }} · {{ row.post.shortcode|default:"-" }}</td>
@@ -127,7 +133,6 @@
       </table>
     </div>
   </div>
-  {% endif %}
 
   <div>
     <h2 class="text-sm font-semibold mb-2">Recent Instagram Candidates</h2>
@@ -168,11 +173,95 @@
             <td class="p-2">{{ c.status }}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="7" class="p-2 text-[var(--pb-muted)]">No Instagram candidates yet.</td></tr>
+          <tr><td colspan="9" class="p-2 text-[var(--pb-muted)]">No Instagram candidates yet.</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
 </div>
+<script>
+(function () {
+  const form = document.getElementById('ocr-batch-form');
+  const button = document.getElementById('run-batch-btn');
+  const statusPanel = document.getElementById('batch-status');
+  const statusText = document.getElementById('batch-status-text');
+  const resultsPanel = document.getElementById('batch-results-panel');
+  const resultsBody = document.getElementById('batch-results-body');
+  if (!form || !button || !statusPanel || !statusText || !resultsPanel || !resultsBody) return;
+
+  function esc(value) {
+    return String(value ?? '').replace(/[&<>"']/g, function (char) {
+      return {'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[char];
+    });
+  }
+
+  function setStats(stats) {
+    Object.entries(stats || {}).forEach(function ([key, value]) {
+      const el = document.querySelector('[data-stat="' + key + '"]');
+      if (el) el.textContent = value;
+    });
+  }
+
+  function rowHtml(row) {
+    const img = row.image_url
+      ? '<a href="' + esc(row.image_url) + '" target="_blank" rel="noopener"><img src="' + esc(row.image_url) + '" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]"></a>'
+      : '<span class="text-[var(--pb-muted)]">-</span>';
+    const candidate = row.candidate_url
+      ? '<a class="text-[var(--pb-accent)] hover:underline" href="' + esc(row.candidate_url) + '">' + esc(row.candidate_id) + '</a>'
+      : '-';
+    return '<tr class="border-b border-[var(--pb-border)]">' +
+      '<td class="p-2 font-mono">' + esc(row.post_id) + ' · ' + esc(row.shortcode || '-') + '</td>' +
+      '<td class="p-2">' + img + '</td>' +
+      '<td class="p-2">@' + esc(row.source || '-') + '</td>' +
+      '<td class="p-2 font-mono">' + esc(row.raw_id || '-') + '</td>' +
+      '<td class="p-2 font-mono">' + candidate + '</td>' +
+      '<td class="p-2">' + esc(row.category || '-') + '</td>' +
+      '<td class="p-2 max-w-[180px]">' + esc(row.store_warranty || '-') + '</td>' +
+      '<td class="p-2">' + (row.exported ? 'yes' : 'no') + '</td>' +
+      '<td class="p-2">' + (row.ok ? 'ok' : esc(row.error || 'failed')) + '</td>' +
+      '</tr>';
+  }
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault();
+    const data = new FormData(form);
+    const limit = data.get('limit') || '5';
+    const mode = data.get('mode') || 'pending';
+    button.disabled = true;
+    button.classList.add('opacity-60', 'cursor-wait');
+    statusPanel.classList.remove('hidden');
+    resultsPanel.classList.remove('hidden');
+    resultsBody.innerHTML = '<tr><td colspan="9" class="p-3 text-[var(--pb-muted)]">Waiting for NVIDIA results...</td></tr>';
+    statusText.textContent = 'Running ' + mode + ' batch for up to ' + limit + ' posts. This can take a minute.';
+
+    fetch(form.action || window.location.href, {
+      method: 'POST',
+      body: data,
+      headers: {'X-Requested-With': 'XMLHttpRequest'},
+    })
+      .then(function (response) {
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
+      .then(function (payload) {
+        setStats(payload.stats);
+        const summary = payload.summary || {};
+        statusText.textContent = 'Finished: processed ' + (summary.processed || 0) +
+          ', exported ' + (summary.exported || 0) + ', errors ' + (summary.errors || 0) + '.';
+        const rows = payload.rows || [];
+        resultsBody.innerHTML = rows.length
+          ? rows.map(rowHtml).join('')
+          : '<tr><td colspan="9" class="p-3 text-[var(--pb-muted)]">No posts matched this batch.</td></tr>';
+      })
+      .catch(function (error) {
+        statusText.textContent = 'Batch failed: ' + error.message;
+      })
+      .finally(function () {
+        button.disabled = false;
+        button.classList.remove('opacity-60', 'cursor-wait');
+      });
+  });
+})();
+</script>
 {% endblock %}

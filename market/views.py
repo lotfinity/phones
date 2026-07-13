@@ -13,6 +13,7 @@ from django.db.models import Avg, Count, F, Max, Q
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import translation
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.views.decorators.http import require_http_methods
@@ -2071,6 +2072,7 @@ def instagram_ocr_ops(request):
 
     selected_source_id = request.POST.get("source_id") or request.GET.get("source_id") or ""
     mode = request.POST.get("mode") or request.GET.get("mode") or "pending"
+    is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
     try:
         limit = int(request.POST.get("limit") or request.GET.get("limit") or 5)
     except (TypeError, ValueError):
@@ -2103,6 +2105,7 @@ def instagram_ocr_ops(request):
         ).first()
 
     batch_results = []
+    batch_summary = None
     if request.method == "POST":
         qs = InstagramPost.objects.select_related("source").filter(source__source_type=SourceType.INSTAGRAM)
         if selected_source:
@@ -2134,7 +2137,12 @@ def instagram_ocr_ops(request):
                 result = process_instagram_post(post, backend=backend, rebuild_clean=rebuild_clean)
                 if not result.get("processed"):
                     errors += 1
-                    batch_results.append({"post": post, "ok": False, "error": result.get("error", "Skipped")})
+                    batch_results.append({
+                        "post": post,
+                        "image_url": post_image_url(post),
+                        "ok": False,
+                        "error": result.get("error", "Skipped"),
+                    })
                     continue
                 processed += 1
                 exported += 1 if result.get("exported") else 0
@@ -2156,10 +2164,12 @@ def instagram_ocr_ops(request):
                 errors += 1
                 batch_results.append({"post": post, "image_url": post_image_url(post), "ok": False, "error": str(exc)})
 
-        messages.success(
-            request,
-            f"Instagram OCR batch finished: processed {processed}, exported {exported}, errors {errors}.",
-        )
+        if not is_ajax:
+            messages.success(
+                request,
+                f"Instagram OCR batch finished: processed {processed}, exported {exported}, errors {errors}.",
+            )
+        batch_summary = {"processed": processed, "exported": exported, "errors": errors}
 
     instagram_raw = RawListing.objects.filter(source_type=SourceType.INSTAGRAM)
     recent_candidates = list(
@@ -2189,6 +2199,36 @@ def instagram_ocr_ops(request):
         ).count(),
         "phone_listings": PhoneListing.objects.filter(source_type=SourceType.INSTAGRAM).count(),
     }
+
+    if request.method == "POST" and is_ajax:
+        return JsonResponse(
+            {
+                "ok": True,
+                "summary": batch_summary or {"processed": 0, "exported": 0, "errors": 0},
+                "stats": stats,
+                "rows": [
+                    {
+                        "post_id": row["post"].pk,
+                        "shortcode": row["post"].shortcode,
+                        "source": row["post"].source.username if row["post"].source else "",
+                        "image_url": row.get("image_url", ""),
+                        "ok": row.get("ok", False),
+                        "raw_id": row.get("raw").pk if row.get("raw") else "",
+                        "candidate_id": row.get("candidate").pk if row.get("candidate") else "",
+                        "candidate_url": (
+                            reverse("candidate_detail", args=[row["candidate"].pk])
+                            if row.get("candidate")
+                            else ""
+                        ),
+                        "category": row.get("category", ""),
+                        "store_warranty": row.get("store_warranty", ""),
+                        "exported": bool(row.get("exported")),
+                        "error": row.get("error", ""),
+                    }
+                    for row in batch_results
+                ],
+            }
+        )
 
     return render(
         request,
