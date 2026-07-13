@@ -277,6 +277,8 @@ class NvidiaVisionBackend(OCRBackend):
             '  "color": "",\n'
             '  "price": {"amount": null, "currency": "DZD", "raw": ""},\n'
             '  "warranty": "",\n'
+            '  "no_sale_data_reason": "",\n'
+            '  "scene_description": "",\n'
             '  "visible_text": []\n'
             "}\n\n"
             "Rules:\n"
@@ -285,7 +287,8 @@ class NvidiaVisionBackend(OCRBackend):
             "- Classify the main sale item only. Use accessory for chargers, cases, watches, earbuds, "
             "or parts; use unknown if the sale item is unclear.\n"
             "- If the image is a store shelf, collage, catalog wall, or shows many devices without one clear "
-            "main sale item and matching price, use category: unknown and leave brand/model/spec/price empty.\n"
+            "main sale item and matching price, use category: unknown, leave brand/model/spec/price empty, "
+            "set no_sale_data_reason, and describe what you see in scene_description.\n"
             "- Do infer obvious normalized fields from visible text, e.g. '256 GB' -> storage_gb: 256.\n"
             "- Interpret phone shorthand like '128-65%' or '128/65%' as storage_gb: 128 "
             "and battery_health: 65.\n"
@@ -358,6 +361,8 @@ class NvidiaVisionBackend(OCRBackend):
             ("price", "Price"),
             ("price_text", "Price"),
             ("warranty", "Warranty"),
+            ("no_sale_data_reason", "No sale data reason"),
+            ("scene_description", "Scene description"),
             ("visible_text", "Visible text"),
             ("all_text", "Visible text"),
         ]
@@ -373,6 +378,8 @@ class NvidiaVisionBackend(OCRBackend):
                     amount = value.get("amount")
                     currency = value.get("currency") or ""
                     raw = value.get("raw") or ""
+                    if amount in (None, "") and not raw:
+                        continue
                     value = raw or " ".join(str(item) for item in [amount, currency] if item not in (None, ""))
                 else:
                     value = " ".join(str(item) for item in value.values() if item)

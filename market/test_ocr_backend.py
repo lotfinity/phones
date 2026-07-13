@@ -22,8 +22,11 @@ class NvidiaVisionBackendCleanupTests(SimpleTestCase):
 
         self.assertIn('"category": "phone|laptop|console|accessory|unknown"', prompt)
         self.assertIn('"ram_gb": null', prompt)
+        self.assertIn('"no_sale_data_reason": ""', prompt)
+        self.assertIn('"scene_description": ""', prompt)
         self.assertIn("Return ONLY strict JSON", prompt)
         self.assertIn("Classify the main sale item only", prompt)
+        self.assertIn("set no_sale_data_reason", prompt)
 
     @override_settings(NVIDIA_API_KEY="test-key")
     def test_json_response_is_flattened_for_existing_parser(self):
@@ -32,7 +35,7 @@ class NvidiaVisionBackendCleanupTests(SimpleTestCase):
         text = backend._clean_text(
             '{"category":"phone","brand":"Apple","model":"iPhone 17 Pro","storage":"256GB","battery_health":91,'
             '"condition":"used clean","color":"black","price_text":"185000 DA",'
-            '"visible_text":"Garantie 6 mois"}'
+            '"no_sale_data_reason":"","scene_description":"","visible_text":"Garantie 6 mois"}'
         )
 
         self.assertIn("Category: phone", text)
@@ -43,6 +46,23 @@ class NvidiaVisionBackendCleanupTests(SimpleTestCase):
         self.assertIn("Condition: used clean", text)
         self.assertIn("Color: black", text)
         self.assertIn("Price: 185000 DA", text)
+        self.assertNotIn("No sale data reason:", text)
+
+    @override_settings(NVIDIA_API_KEY="test-key")
+    def test_no_sale_json_is_flattened_with_reason_and_description(self):
+        backend = NvidiaVisionBackend()
+
+        text = backend._clean_text(
+            '{"category":"unknown","brand":"","model":"","storage_gb":null,"ram_gb":null,'
+            '"price":{"amount":null,"currency":"DZD","raw":""},'
+            '"no_sale_data_reason":"many devices, no single priced item",'
+            '"scene_description":"Store shelf with multiple boxed phones and no clear listing.",'
+            '"visible_text":["GTD DEGHOUL GROUP TELECOM"]}'
+        )
+
+        self.assertIn("Category: unknown", text)
+        self.assertIn("No sale data reason: many devices, no single priced item", text)
+        self.assertIn("Scene description: Store shelf with multiple boxed phones", text)
 
     @override_settings(NVIDIA_API_KEY="test-key")
     def test_json_response_preserves_structured_payload(self):
