@@ -332,6 +332,8 @@ def _listing_spec(listing, category):
             parts.append(f"battery {listing.battery_health}%")
         if listing.box_status:
             parts.append(listing.box_status)
+        if listing.store_warranty:
+            parts.append(listing.store_warranty)
         if listing.region:
             parts.append(listing.region)
     elif category == "laptop":

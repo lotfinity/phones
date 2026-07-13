@@ -21,6 +21,7 @@
 - Added `process_ocr_queue --rebuild-clean-listings` to replay existing OCR results without calling NVIDIA again; rebuilt RDphone into 52 raw listings, 52 candidates, and 35 clean phone listings, raising clean phone opportunity snapshots from 36 to 39.
 - Switched the NVIDIA vision prompt to strict JSON output, store the structured payload on raw Instagram listings, and make the phone parser prefer explicit NVIDIA fields so storage like `128GB` cannot become fake RAM.
 - Added a staff Instagram OCR Ops page for running small pending/reprocess/rebuild batches from the browser, backed by the same post-processing helper as `process_ocr_queue --reprocess-existing`.
+- Added store warranty extraction for Instagram phone listings, carrying NVIDIA `store_warranty` text through candidates, clean `PhoneListing` rows, admin, and estore listing specs.
 
 ### Bagisto storefront PriceBridge semantics
 

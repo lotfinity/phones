@@ -217,6 +217,7 @@ class Command(BaseCommand):
                 "battery_health": specs.get("battery_health"),
                 "battery_cycles": specs.get("battery_cycles"),
                 "box_status": specs.get("box_status", ""),
+                "store_warranty": specs.get("store_warranty", ""),
                 "region": region,
                 "color": color,
                 "listing_url": raw.listing_url if raw else "",

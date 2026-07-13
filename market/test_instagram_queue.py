@@ -134,6 +134,7 @@ class InstagramNvidiaStructuredPhoneParserTests(SimpleTestCase):
                     "storage_gb": 128,
                     "ram_gb": None,
                     "battery_health": "98%",
+                    "store_warranty": "Garantie 6 Mois",
                     "price": {"amount": 77000, "currency": "DZD", "raw": "77000"},
                 }
             },
@@ -142,6 +143,7 @@ class InstagramNvidiaStructuredPhoneParserTests(SimpleTestCase):
         self.assertEqual(parsed["storage_gb"], 128)
         self.assertIsNone(parsed["ram_gb"])
         self.assertEqual(parsed["price_original"], 77000)
+        self.assertEqual(parsed["store_warranty"], "Garantie 6 Mois")
 
 
 class InstagramMarkdownPipelineCommandTests(TestCase):

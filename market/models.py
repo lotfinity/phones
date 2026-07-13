@@ -1160,6 +1160,7 @@ class PhoneListing(models.Model):
     battery_cycles = models.PositiveIntegerField(null=True, blank=True)
 
     box_status = models.CharField(max_length=120, blank=True)
+    store_warranty = models.CharField(max_length=240, blank=True)
     region = models.CharField(max_length=80, blank=True)
     color = models.CharField(max_length=80, blank=True)
 

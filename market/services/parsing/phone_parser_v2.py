@@ -330,6 +330,9 @@ def parse_phone(raw_text="", title_raw="", raw_payload=None):
         price_original = detect_price(text)
     currency_original = _structured_currency(structured) if structured else detect_currency(text)
     color = structured.get("color", "") if structured else ""
+    store_warranty = ""
+    if structured:
+        store_warranty = structured.get("store_warranty") or structured.get("warranty") or ""
 
     segments = []
     if brand:
@@ -384,6 +387,7 @@ def parse_phone(raw_text="", title_raw="", raw_payload=None):
         "battery_health": battery_health,
         "battery_cycles": None,
         "box_status": box_status,
+        "store_warranty": store_warranty,
         "color": color,
         "condition": condition,
         "price_original": price_original,

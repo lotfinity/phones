@@ -838,12 +838,12 @@ class PhoneListingAdmin(admin.ModelAdmin):
     list_display = (
         "id", "short_title", "source_type", "country", "phone_model",
         "variant", "storage_gb", "ram_gb", "price_original",
-        "currency_original", "condition", "review_status",
+        "currency_original", "condition", "store_warranty", "review_status",
     )
     list_display_links = ("id", "short_title")
     search_fields = (
         "title", "listing_url", "phone_model__canonical_name",
-        "variant__canonical_label",
+        "variant__canonical_label", "store_warranty",
     )
     list_filter = (
         "review_status", "source_type", "country", "condition",

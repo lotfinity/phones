@@ -22,6 +22,7 @@ class NvidiaVisionBackendCleanupTests(SimpleTestCase):
 
         self.assertIn('"category": "phone|laptop|console|accessory|unknown"', prompt)
         self.assertIn('"ram_gb": null', prompt)
+        self.assertIn('"store_warranty": ""', prompt)
         self.assertIn('"no_sale_data_reason": ""', prompt)
         self.assertIn('"scene_description": ""', prompt)
         self.assertIn("Return ONLY strict JSON", prompt)
@@ -35,6 +36,7 @@ class NvidiaVisionBackendCleanupTests(SimpleTestCase):
         text = backend._clean_text(
             '{"category":"phone","brand":"Apple","model":"iPhone 17 Pro","storage":"256GB","battery_health":91,'
             '"condition":"used clean","color":"black","price_text":"185000 DA",'
+            '"store_warranty":"Garantie 6 mois",'
             '"no_sale_data_reason":"","scene_description":"","visible_text":"Garantie 6 mois"}'
         )
 
@@ -46,6 +48,7 @@ class NvidiaVisionBackendCleanupTests(SimpleTestCase):
         self.assertIn("Condition: used clean", text)
         self.assertIn("Color: black", text)
         self.assertIn("Price: 185000 DA", text)
+        self.assertIn("Store warranty: Garantie 6 mois", text)
         self.assertNotIn("No sale data reason:", text)
 
     @override_settings(NVIDIA_API_KEY="test-key")

@@ -317,6 +317,7 @@ def _listing_specs(listing, category):
         add("Batarya döngüsü", listing.battery_cycles)
         add("SIM", listing.sim_config)
         add("Kutu", listing.box_status)
+        add("Mağaza garantisi", listing.store_warranty)
         add("Bölge", listing.region)
         add("Renk", listing.color)
     elif category == "laptop":

@@ -276,7 +276,7 @@ class NvidiaVisionBackend(OCRBackend):
             '  "condition": "",\n'
             '  "color": "",\n'
             '  "price": {"amount": null, "currency": "DZD", "raw": ""},\n'
-            '  "warranty": "",\n'
+            '  "store_warranty": "",\n'
             '  "no_sale_data_reason": "",\n'
             '  "scene_description": "",\n'
             '  "visible_text": []\n'
@@ -284,6 +284,8 @@ class NvidiaVisionBackend(OCRBackend):
             "Rules:\n"
             "- Do not invent a price, model, battery health, cycle count, color, or condition.\n"
             "- Use null or an empty string for missing fields.\n"
+            "- Put store warranty text such as 'Garantie 6 mois', 'garantie boutique 3 jours', "
+            "or Arabic/French warranty wording in store_warranty exactly as written.\n"
             "- Classify the main sale item only. Use accessory for chargers, cases, watches, earbuds, "
             "or parts; use unknown if the sale item is unclear.\n"
             "- If the image is a store shelf, collage, catalog wall, or shows many devices without one clear "
@@ -360,6 +362,7 @@ class NvidiaVisionBackend(OCRBackend):
             ("color", "Color"),
             ("price", "Price"),
             ("price_text", "Price"),
+            ("store_warranty", "Store warranty"),
             ("warranty", "Warranty"),
             ("no_sale_data_reason", "No sale data reason"),
             ("scene_description", "Scene description"),
