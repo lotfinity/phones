@@ -228,7 +228,7 @@ class NvidiaVisionBackend(OCRBackend):
                             ],
                         }
                     ],
-                    "max_tokens": 1024,
+                    "max_tokens": 4096,
                     "temperature": 0,
                     "top_p": 1,
                     "stream": False,
@@ -284,13 +284,23 @@ class NvidiaVisionBackend(OCRBackend):
             "- Use null or an empty string for missing fields.\n"
             "- Classify the main sale item only. Use accessory for chargers, cases, watches, earbuds, "
             "or parts; use unknown if the sale item is unclear.\n"
+            "- If the image is a store shelf, collage, catalog wall, or shows many devices without one clear "
+            "main sale item and matching price, use category: unknown and leave brand/model/spec/price empty.\n"
             "- Do infer obvious normalized fields from visible text, e.g. '256 GB' -> storage_gb: 256.\n"
+            "- Interpret phone shorthand like '128-65%' or '128/65%' as storage_gb: 128 "
+            "and battery_health: 65.\n"
+            "- Interpret phone shorthand like '8/256' as ram_gb: 8 and storage_gb: 256.\n"
+            "- A standalone percentage near an iPhone model/storage is usually battery_health, not condition.\n"
             "- Put storage only in storage_gb. Put RAM only in ram_gb when RAM is explicitly visible.\n"
+            "- Do not fill RAM from model knowledge, spec databases, or assumptions.\n"
             "- If an iOS Battery Health screen or Parts/Repair screen is visible, extract it.\n"
             "- If the image indicates afficheur/ecran inconnu/pieces et reparation/non-original/demo/"
             "Face ID/True Tone/screen issue, put that in Condition.\n"
-            "- If a sealed box is shown and no opened device issue is visible, Condition: sealed/new.\n"
+            "- If a sealed box is shown, or text says neuf/scelle/sous blister/unopened, Condition: sealed/new.\n"
+            "- Do not use sealed/new just because there is a warranty. Etat 10/10 or Etat 9/10 means "
+            "clean used condition, not sealed/new.\n"
             "- Preserve Arabic and French text that affects price, condition, warranty, or device identity.\n"
+            "- Keep visible_text concise: max 20 strings, no duplicated text, no long repeated numeric/OCR noise.\n"
             "- If no meaningful sale data is visible, still return the JSON schema with visible_text filled."
         )
 
