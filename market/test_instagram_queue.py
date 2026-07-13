@@ -17,6 +17,7 @@ from market.management.commands.match_instagram_manual_links_from_markdown impor
 )
 from market.management.commands.process_ocr_queue import category_hint_from_nvidia_text
 from market.models import Country, InstagramPost, RawListing, Source, SourceType
+from market.services.parsing.phone_parser_v2 import parse_phone
 
 
 class InstagramImageQueueHelpersTests(TestCase):
@@ -118,6 +119,29 @@ class InstagramNvidiaCategoryHintTests(SimpleTestCase):
             category_hint_from_nvidia_text("Category: phone\nModel: iPhone 15 Pro"),
             RawListing.CategoryHint.PHONES,
         )
+
+
+class InstagramNvidiaStructuredPhoneParserTests(SimpleTestCase):
+    def test_structured_storage_does_not_become_fake_ram(self):
+        parsed = parse_phone(
+            "Model: iPhone 15\nStorage: 128GB\nBattery: 98%\nPrice: 77000 DZD",
+            "iPhone 15",
+            {
+                "nvidia_structured": {
+                    "category": "phone",
+                    "brand": "Apple",
+                    "model": "iPhone 15",
+                    "storage_gb": 128,
+                    "ram_gb": None,
+                    "battery_health": "98%",
+                    "price": {"amount": 77000, "currency": "DZD", "raw": "77000"},
+                }
+            },
+        )
+
+        self.assertEqual(parsed["storage_gb"], 128)
+        self.assertIsNone(parsed["ram_gb"])
+        self.assertEqual(parsed["price_original"], 77000)
 
 
 class InstagramMarkdownPipelineCommandTests(TestCase):

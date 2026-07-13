@@ -19,6 +19,7 @@
 - Updated the server-rendered estore index to include Instagram-backed legacy `DealSnapshot` cards, so NVIDIA-OCR Instagram opportunities appear even before they are exported into clean phone snapshots.
 - Added NVIDIA main-item category extraction and wired `process_ocr_queue` into the raw-first clean listing path: Instagram OCR now creates `RawListing` rows, parsed candidates, and auto-exports safe phone/laptop/console listings before clean opportunity recomputation.
 - Added `process_ocr_queue --rebuild-clean-listings` to replay existing OCR results without calling NVIDIA again; rebuilt RDphone into 52 raw listings, 52 candidates, and 35 clean phone listings, raising clean phone opportunity snapshots from 36 to 39.
+- Switched the NVIDIA vision prompt to strict JSON output, store the structured payload on raw Instagram listings, and make the phone parser prefer explicit NVIDIA fields so storage like `128GB` cannot become fake RAM.
 
 ### Bagisto storefront PriceBridge semantics
 

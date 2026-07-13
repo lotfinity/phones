@@ -80,6 +80,21 @@ def category_hint_from_nvidia_text(text):
     return RawListing.CategoryHint.UNKNOWN
 
 
+def category_hint_from_nvidia_structured(data):
+    if not isinstance(data, dict):
+        return RawListing.CategoryHint.UNKNOWN
+    category = str(data.get("category") or "").strip().lower()
+    if category == "phone":
+        return RawListing.CategoryHint.PHONES
+    if category == "laptop":
+        return RawListing.CategoryHint.LAPTOPS
+    if category == "console":
+        return RawListing.CategoryHint.CONSOLES
+    if category == "accessory":
+        return RawListing.CategoryHint.ACCESSORIES
+    return RawListing.CategoryHint.UNKNOWN
+
+
 def title_from_ocr(post, parsed, combined_text):
     if parsed.model_text:
         return parsed.model_text[:500]
@@ -90,7 +105,8 @@ def title_from_ocr(post, parsed, combined_text):
     return (post.shortcode or post.post_url or "")[:500]
 
 
-def upsert_raw_listing_from_instagram(post, image_path, combined_text, raw_text, parsed):
+def upsert_raw_listing_from_instagram(post, image_path, combined_text, raw_text, parsed, structured_data=None):
+    structured_data = structured_data if isinstance(structured_data, dict) else {}
     listing_url = post.post_url
     if "manual_image=" in (post.post_url or ""):
         listing_url = local_media_url(image_path) or post.post_url
@@ -102,7 +118,11 @@ def upsert_raw_listing_from_instagram(post, image_path, combined_text, raw_text,
         defaults={
             "source": post.source,
             "country": post.source.country or Country.ALGERIA,
-            "category_hint": category_hint_from_nvidia_text("\n".join([raw_text or "", combined_text or ""])),
+            "category_hint": (
+                category_hint_from_nvidia_structured(structured_data)
+                if structured_data
+                else category_hint_from_nvidia_text("\n".join([raw_text or "", combined_text or ""]))
+            ),
             "external_id": post.shortcode or str(post.pk),
             "title_raw": title_from_ocr(post, parsed, combined_text),
             "description_raw": combined_text,
@@ -117,6 +137,7 @@ def upsert_raw_listing_from_instagram(post, image_path, combined_text, raw_text,
                 "media_local_path": post.media_local_path,
                 "thumbnail_local_path": post.thumbnail_local_path,
                 "nvidia_text": raw_text,
+                "nvidia_structured": structured_data,
                 "legacy_price_original": str(parsed.price_dzd) if parsed.price_dzd else "",
                 "legacy_currency": MarketListing.Currency.DZD if parsed.price_dzd else "",
             },
@@ -201,8 +222,21 @@ class Command(BaseCommand):
                         continue
                     raw_text = existing_ocr.raw_text
                     backend_confidence = existing_ocr.confidence or 0.0
+                    existing_raw = RawListing.objects.filter(
+                        source_type=SourceType.INSTAGRAM,
+                        listing_url=post.post_url,
+                    ).first()
+                    structured_data = (
+                        (existing_raw.raw_payload or {}).get("nvidia_structured", {})
+                        if existing_raw
+                        else {}
+                    )
                 else:
-                    raw_text, backend_confidence = backend.read_text(image_path) if image_path else ("", 0.0)
+                    if image_path and hasattr(backend, "read_listing_data"):
+                        raw_text, backend_confidence, structured_data = backend.read_listing_data(image_path)
+                    else:
+                        raw_text, backend_confidence = backend.read_text(image_path) if image_path else ("", 0.0)
+                        structured_data = {}
                 combined_text = "\n".join(part for part in [post.caption, raw_text] if part)
                 parsed = parse_ocr_text(combined_text)
                 status = OCRResult.Status.PROCESSED if parsed.confidence >= 0.5 else OCRResult.Status.NEEDS_REVIEW
@@ -221,7 +255,9 @@ class Command(BaseCommand):
                         created_at=timezone.now(),
                     )
 
-                raw_listing = upsert_raw_listing_from_instagram(post, image_path, combined_text, raw_text, parsed)
+                raw_listing = upsert_raw_listing_from_instagram(
+                    post, image_path, combined_text, raw_text, parsed, structured_data
+                )
                 raw_count += 1
                 candidate, _candidate_created = build_candidate(raw_listing)
                 candidate_count += 1

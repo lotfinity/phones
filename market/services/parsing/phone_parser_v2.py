@@ -39,6 +39,7 @@ PHONE_BRANDS = {
 }
 
 VALID_PHONE_STORAGE_GB = {64, 128, 256, 512, 1024, 2048}
+VALID_PHONE_RAM_GB = {2, 3, 4, 6, 8, 12, 16, 18, 24, 32, 36, 48, 64}
 
 MODEL_PATTERNS = [
     r"(?:Samsung\s+)?Galaxy\s+(?:S\d+\s*(?:Ultra|Plus|\+|FE|Pro)?)",
@@ -127,6 +128,43 @@ def _valid_storage(value):
     except (TypeError, ValueError):
         return None
     return gb if gb in VALID_PHONE_STORAGE_GB else None
+
+
+def _int_from_structured(value):
+    if value in (None, "", [], {}):
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    m = re.search(r"\d+", str(value))
+    return int(m.group()) if m else None
+
+
+def _structured_price(data):
+    price = data.get("price")
+    if isinstance(price, dict):
+        amount = price.get("amount")
+    else:
+        amount = price
+    if amount in (None, ""):
+        return None
+    try:
+        return Decimal(str(amount))
+    except (InvalidOperation, TypeError, ValueError):
+        return None
+
+
+def _structured_currency(data):
+    price = data.get("price")
+    if isinstance(price, dict) and price.get("currency"):
+        return str(price.get("currency")).upper()
+    return detect_currency(" ".join(str(item) for item in [data.get("price"), data.get("visible_text")] if item))
+
+
+def _structured_text_payload(raw_payload):
+    if not isinstance(raw_payload, dict):
+        return {}
+    data = raw_payload.get("nvidia_structured")
+    return data if isinstance(data, dict) else {}
 
 
 def detect_storage(text):
@@ -268,17 +306,30 @@ def parse_phone(raw_text="", title_raw="", raw_payload=None):
     text = raw_text or title_raw or ""
     if not text and raw_payload:
         text = raw_payload.get("title", "") or raw_payload.get("description", "") or ""
+    structured = _structured_text_payload(raw_payload)
 
-    brand = detect_brand(text)
-    model = detect_model(text, brand)
-    storage_gb = detect_storage(text)
-    ram_gb = detect_ram(text)
-    sim_config = detect_sim(text)
-    battery_health = detect_battery_health(text)
+    brand = structured.get("brand") or detect_brand(text)
+    model = structured.get("model") or detect_model(text, brand)
+    storage_gb = _valid_storage(_int_from_structured(structured.get("storage_gb"))) if structured else None
+    if storage_gb is None:
+        storage_gb = detect_storage(text)
+    ram_gb = None
+    if structured:
+        ram_value = _int_from_structured(structured.get("ram_gb"))
+        ram_gb = ram_value if ram_value in VALID_PHONE_RAM_GB else None
+    else:
+        ram_gb = detect_ram(text)
+    sim_config = structured.get("sim") or detect_sim(text)
+    battery_health = _int_from_structured(structured.get("battery_health")) if structured else None
+    if battery_health is None:
+        battery_health = detect_battery_health(text)
     condition = detect_condition(text)
     box_status = detect_box_status(text)
-    price_original = detect_price(text)
-    currency_original = detect_currency(text)
+    price_original = _structured_price(structured) if structured else None
+    if price_original is None:
+        price_original = detect_price(text)
+    currency_original = _structured_currency(structured) if structured else detect_currency(text)
+    color = structured.get("color", "") if structured else ""
 
     segments = []
     if brand:
@@ -333,6 +384,7 @@ def parse_phone(raw_text="", title_raw="", raw_payload=None):
         "battery_health": battery_health,
         "battery_cycles": None,
         "box_status": box_status,
+        "color": color,
         "condition": condition,
         "price_original": price_original,
         "currency_original": currency_original,

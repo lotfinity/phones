@@ -396,6 +396,7 @@ def build_candidate(raw_listing):
             "battery_health": result.get("battery_health"),
             "battery_cycles": result.get("battery_cycles"),
             "box_status": result.get("box_status", ""),
+            "color": result.get("color", ""),
         }
     elif detected_category == ParsedListingCandidate.DetectedCategory.LAPTOP:
         laptop_specs = {

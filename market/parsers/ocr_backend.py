@@ -193,9 +193,13 @@ class NvidiaVisionBackend(OCRBackend):
             raise RuntimeError("NVIDIA_API_KEY or NVIDIA_NIM_API_KEY is required for NVIDIA vision OCR.")
 
     def read_text(self, image_path):
+        text, confidence, _structured = self.read_listing_data(image_path)
+        return text, confidence
+
+    def read_listing_data(self, image_path):
         image_path = Path(image_path)
         if not image_path.exists():
-            return "", 0.0
+            return "", 0.0, {}
 
         try:
             import requests
@@ -234,12 +238,12 @@ class NvidiaVisionBackend(OCRBackend):
             response.raise_for_status()
             payload = response.json()
         except Exception:
-            return "", 0.0
+            return "", 0.0, {}
 
         try:
             content = payload["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError):
-            return "", 0.0
+            return "", 0.0, {}
 
         if isinstance(content, list):
             text = "\n".join(
@@ -247,41 +251,47 @@ class NvidiaVisionBackend(OCRBackend):
             )
         else:
             text = str(content)
-        text = self._clean_text(text)
-        return text, 0.8 if text else 0.0
+        structured = self._json_to_data(text)
+        text = self._structured_to_text(structured) if structured else self._clean_text(text)
+        return text, 0.9 if structured else (0.8 if text else 0.0), structured
 
     def _build_prompt(self):
         return (
-            "You are PriceBridge's NVIDIA vision extractor for Algerian Instagram phone-store listings.\n"
-            "Extract both literal visible text and structured phone-sale facts from the image.\n\n"
+            "You are PriceBridge's NVIDIA vision extractor for Algerian Instagram electronics sale listings.\n"
+            "Extract both literal visible text and structured sale facts from the image.\n\n"
             "Read every visible area: main overlay text, captions embedded in the image, price tags, "
             "battery/settings screenshots, small inset images, Arabic/French/English text, stickers, "
             "box labels, and store design text.\n\n"
-            "Return parser-friendly plain text only. No markdown, no JSON, no prose explanation.\n"
-            "Use these exact line labels when visible or strongly implied by the image:\n"
-            "Category: <phone/laptop/console/accessory/unknown for the main sale item>\n"
-            "Model: <brand and model, e.g. iPhone 17 Pro Max>\n"
-            "Storage: <storage, e.g. 256GB>\n"
-            "RAM: <ram if visible>\n"
-            "SIM: <1sim/2sim/esim if visible>\n"
-            "Battery: <battery health percentage if visible, e.g. 91%>\n"
-            "Cycles: <battery cycle count if visible>\n"
-            "Condition: <sealed/new/used/clean/repaired/issue/demo/unknown plus visible wording>\n"
-            "Color: <device color if visible or written>\n"
-            "Price: <visible Algeria price exactly as written, with DA/DZD if present>\n"
-            "Warranty: <warranty text if visible>\n"
-            "Visible text: <all other readable text, preserving useful line breaks>\n\n"
+            "Return ONLY strict JSON. No markdown, no code fence, no prose explanation.\n"
+            "Use this exact schema:\n"
+            "{\n"
+            '  "category": "phone|laptop|console|accessory|unknown",\n'
+            '  "brand": "",\n'
+            '  "model": "",\n'
+            '  "storage_gb": null,\n'
+            '  "ram_gb": null,\n'
+            '  "sim": "",\n'
+            '  "battery_health": null,\n'
+            '  "battery_cycles": null,\n'
+            '  "condition": "",\n'
+            '  "color": "",\n'
+            '  "price": {"amount": null, "currency": "DZD", "raw": ""},\n'
+            '  "warranty": "",\n'
+            '  "visible_text": []\n'
+            "}\n\n"
             "Rules:\n"
             "- Do not invent a price, model, battery health, cycle count, color, or condition.\n"
+            "- Use null or an empty string for missing fields.\n"
             "- Classify the main sale item only. Use accessory for chargers, cases, watches, earbuds, "
             "or parts; use unknown if the sale item is unclear.\n"
-            "- Do infer obvious normalized fields from visible text, e.g. '256 GB' -> Storage: 256GB.\n"
+            "- Do infer obvious normalized fields from visible text, e.g. '256 GB' -> storage_gb: 256.\n"
+            "- Put storage only in storage_gb. Put RAM only in ram_gb when RAM is explicitly visible.\n"
             "- If an iOS Battery Health screen or Parts/Repair screen is visible, extract it.\n"
             "- If the image indicates afficheur/ecran inconnu/pieces et reparation/non-original/demo/"
             "Face ID/True Tone/screen issue, put that in Condition.\n"
             "- If a sealed box is shown and no opened device issue is visible, Condition: sealed/new.\n"
             "- Preserve Arabic and French text that affects price, condition, warranty, or device identity.\n"
-            "- If no meaningful sale data is visible, return only the visible text you can read."
+            "- If no meaningful sale data is visible, still return the JSON schema with visible_text filled."
         )
 
     def _clean_text(self, text):
@@ -300,18 +310,28 @@ class NvidiaVisionBackend(OCRBackend):
         return "\n".join(line for line in lines if line).strip()
 
     def _json_to_text(self, text):
+        data = self._json_to_data(text)
+        return self._structured_to_text(data) if data else ""
+
+    def _json_to_data(self, text):
         candidate = text.strip()
         candidate = re.sub(r"^```(?:json)?\s*", "", candidate)
         candidate = re.sub(r"\s*```$", "", candidate)
         try:
             data = json.loads(candidate)
         except json.JSONDecodeError:
-            return ""
+            return {}
+        if not isinstance(data, dict):
+            return {}
+        return data
+
+    def _structured_to_text(self, data):
         if not isinstance(data, dict):
             return ""
         label_map = [
             ("category", "Category"),
             ("detected_category", "Category"),
+            ("brand", "Brand"),
             ("model", "Model"),
             ("storage", "Storage"),
             ("storage_gb", "Storage"),
@@ -339,7 +359,15 @@ class NvidiaVisionBackend(OCRBackend):
             if isinstance(value, (list, tuple)):
                 value = " ".join(str(item) for item in value if item)
             elif isinstance(value, dict):
-                value = " ".join(str(item) for item in value.values() if item)
+                if key == "price":
+                    amount = value.get("amount")
+                    currency = value.get("currency") or ""
+                    raw = value.get("raw") or ""
+                    value = raw or " ".join(str(item) for item in [amount, currency] if item not in (None, ""))
+                else:
+                    value = " ".join(str(item) for item in value.values() if item)
+            if key in {"storage_gb", "ram_gb"} and str(value).isdigit():
+                value = f"{value}GB"
             lines.append(f"{label}: {value}")
         return "\n".join(lines)
 
