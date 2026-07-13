@@ -101,6 +101,7 @@
             <th class="text-left p-2">Candidate</th>
             <th class="text-left p-2">Category</th>
             <th class="text-left p-2">Warranty</th>
+            <th class="text-left p-2">Deal Math</th>
             <th class="text-left p-2">Exported</th>
             <th class="text-left p-2">Status</th>
           </tr>
@@ -111,9 +112,9 @@
             <td class="p-2 font-mono">{{ row.post.pk }} · {{ row.post.shortcode|default:"-" }}</td>
             <td class="p-2">
               {% if row.image_url %}
-              <a href="{{ row.image_url }}" target="_blank" rel="noopener">
+              <button type="button" class="block" data-image-preview="{{ row.image_url }}">
                 <img src="{{ row.image_url }}" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]">
-              </a>
+              </button>
               {% else %}
               <span class="text-[var(--pb-muted)]">-</span>
               {% endif %}
@@ -125,6 +126,22 @@
             </td>
             <td class="p-2">{{ row.category|default:"-" }}</td>
             <td class="p-2 max-w-[180px]">{{ row.store_warranty|default:"-" }}</td>
+            <td class="p-2 min-w-[260px]">
+              {% if row.deal.available %}
+              <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">
+                <div class="grid grid-cols-2 gap-2">
+                  <div><div class="text-[10px] text-[var(--pb-muted)]">DZ price</div><div class="font-semibold">{{ row.deal.algeria_price }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ row.deal.algeria_original }}</div></div>
+                  <div><div class="text-[10px] text-[var(--pb-muted)]">Sahibinden avg</div><div class="font-semibold">{{ row.deal.sahibinden_avg }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ row.deal.sahibinden_count }} rows</div></div>
+                  <div><div class="text-[10px] text-[var(--pb-muted)]">Gross margin</div><div class="font-semibold">{{ row.deal.gross_margin }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ row.deal.margin_percent }}</div></div>
+                  <div><div class="text-[10px] text-[var(--pb-muted)]">Offer</div><div class="font-semibold">{{ row.deal.offer_price }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ row.deal.deal_quality }}</div></div>
+                </div>
+              </div>
+              {% elif row.deal.note %}
+              <span class="text-[var(--pb-muted)]">{{ row.deal.note }}</span>
+              {% else %}
+              <span class="text-[var(--pb-muted)]">-</span>
+              {% endif %}
+            </td>
             <td class="p-2">{{ row.exported|yesno:"yes,no" }}</td>
             <td class="p-2">{% if row.ok %}ok{% else %}{{ row.error }}{% endif %}</td>
           </tr>
@@ -147,6 +164,8 @@
             <th class="text-left p-2">Model</th>
             <th class="text-left p-2">Price</th>
             <th class="text-left p-2">Warranty</th>
+            <th class="text-left p-2">Deal Math</th>
+            <th class="text-left p-2">OCR</th>
             <th class="text-left p-2">Confidence</th>
             <th class="text-left p-2">Status</th>
           </tr>
@@ -157,9 +176,9 @@
             <td class="p-2 font-mono"><a class="text-[var(--pb-accent)] hover:underline" href="{% url 'candidate_detail' c.pk %}">{{ c.pk }}</a></td>
             <td class="p-2">
               {% if c.ops_image_url %}
-              <a href="{{ c.ops_image_url }}" target="_blank" rel="noopener">
+              <button type="button" class="block" data-image-preview="{{ c.ops_image_url }}">
                 <img src="{{ c.ops_image_url }}" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]">
-              </a>
+              </button>
               {% else %}
               <span class="text-[var(--pb-muted)]">-</span>
               {% endif %}
@@ -169,17 +188,48 @@
             <td class="p-2">{{ c.brand_text }} {{ c.model_text }}</td>
             <td class="p-2">{{ c.price_original|default:"-" }} {{ c.currency_original }}</td>
             <td class="p-2 max-w-[180px]">{{ c.ops_store_warranty|default:"-" }}</td>
+            <td class="p-2 min-w-[260px]">
+              {% if c.ops_deal.available %}
+              <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">
+                <div class="grid grid-cols-2 gap-2">
+                  <div><div class="text-[10px] text-[var(--pb-muted)]">DZ price</div><div class="font-semibold">{{ c.ops_deal.algeria_price }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ c.ops_deal.algeria_original }}</div></div>
+                  <div><div class="text-[10px] text-[var(--pb-muted)]">Sahibinden avg</div><div class="font-semibold">{{ c.ops_deal.sahibinden_avg }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ c.ops_deal.sahibinden_count }} rows</div></div>
+                  <div><div class="text-[10px] text-[var(--pb-muted)]">Gross margin</div><div class="font-semibold">{{ c.ops_deal.gross_margin }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ c.ops_deal.margin_percent }}</div></div>
+                  <div><div class="text-[10px] text-[var(--pb-muted)]">Offer</div><div class="font-semibold">{{ c.ops_deal.offer_price }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ c.ops_deal.deal_quality }}</div></div>
+                </div>
+              </div>
+              {% elif c.ops_deal.note %}
+              <span class="text-[var(--pb-muted)]">{{ c.ops_deal.note }}</span>
+              {% else %}
+              <span class="text-[var(--pb-muted)]">-</span>
+              {% endif %}
+            </td>
+            <td class="p-2">
+              {% if c.ops_post_id %}
+              <button type="button" class="rounded bg-[var(--pb-accent)] px-2 py-1 text-[11px] font-semibold text-white hover:opacity-90" data-run-row-ocr="{{ c.ops_post_id }}">Run OCR</button>
+              {% else %}
+              <span class="text-[var(--pb-muted)]">-</span>
+              {% endif %}
+            </td>
             <td class="p-2">{{ c.confidence|floatformat:2 }}</td>
             <td class="p-2">{{ c.status }}</td>
           </tr>
           {% empty %}
-          <tr><td colspan="9" class="p-2 text-[var(--pb-muted)]">No Instagram candidates yet.</td></tr>
+          <tr><td colspan="11" class="p-2 text-[var(--pb-muted)]">No Instagram candidates yet.</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
 </div>
+
+<div id="image-preview-modal" class="fixed inset-0 z-50 hidden bg-black/80 p-4">
+  <button type="button" id="image-preview-close" class="absolute right-4 top-4 rounded bg-white/90 px-3 py-1 text-sm font-semibold text-slate-900">Close</button>
+  <div class="flex h-full w-full items-center justify-center">
+    <img id="image-preview-full" src="" alt="" class="max-h-full max-w-full rounded border border-white/20 object-contain">
+  </div>
+</div>
+
 <script>
 (function () {
   const form = document.getElementById('ocr-batch-form');
@@ -188,6 +238,9 @@
   const statusText = document.getElementById('batch-status-text');
   const resultsPanel = document.getElementById('batch-results-panel');
   const resultsBody = document.getElementById('batch-results-body');
+  const imageModal = document.getElementById('image-preview-modal');
+  const imageFull = document.getElementById('image-preview-full');
+  const imageClose = document.getElementById('image-preview-close');
   if (!form || !button || !statusPanel || !statusText || !resultsPanel || !resultsBody) return;
 
   function esc(value) {
@@ -203,9 +256,23 @@
     });
   }
 
+  function dealHtml(deal) {
+    deal = deal || {};
+    if (deal.available) {
+      return '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">' +
+        '<div class="grid grid-cols-2 gap-2">' +
+        '<div><div class="text-[10px] text-[var(--pb-muted)]">DZ price</div><div class="font-semibold">' + esc(deal.algeria_price) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.algeria_original) + '</div></div>' +
+        '<div><div class="text-[10px] text-[var(--pb-muted)]">Sahibinden avg</div><div class="font-semibold">' + esc(deal.sahibinden_avg) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.sahibinden_count || '-') + ' rows</div></div>' +
+        '<div><div class="text-[10px] text-[var(--pb-muted)]">Gross margin</div><div class="font-semibold">' + esc(deal.gross_margin) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.margin_percent) + '</div></div>' +
+        '<div><div class="text-[10px] text-[var(--pb-muted)]">Offer</div><div class="font-semibold">' + esc(deal.offer_price) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.deal_quality) + '</div></div>' +
+        '</div></div>';
+    }
+    return deal.note ? '<span class="text-[var(--pb-muted)]">' + esc(deal.note) + '</span>' : '<span class="text-[var(--pb-muted)]">-</span>';
+  }
+
   function rowHtml(row) {
     const img = row.image_url
-      ? '<a href="' + esc(row.image_url) + '" target="_blank" rel="noopener"><img src="' + esc(row.image_url) + '" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]"></a>'
+      ? '<button type="button" class="block" data-image-preview="' + esc(row.image_url) + '"><img src="' + esc(row.image_url) + '" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]"></button>'
       : '<span class="text-[var(--pb-muted)]">-</span>';
     const candidate = row.candidate_url
       ? '<a class="text-[var(--pb-accent)] hover:underline" href="' + esc(row.candidate_url) + '">' + esc(row.candidate_id) + '</a>'
@@ -218,6 +285,7 @@
       '<td class="p-2 font-mono">' + candidate + '</td>' +
       '<td class="p-2">' + esc(row.category || '-') + '</td>' +
       '<td class="p-2 max-w-[180px]">' + esc(row.store_warranty || '-') + '</td>' +
+      '<td class="p-2 min-w-[260px]">' + dealHtml(row.deal) + '</td>' +
       '<td class="p-2">' + (row.exported ? 'yes' : 'no') + '</td>' +
       '<td class="p-2">' + (row.ok ? 'ok' : esc(row.error || 'failed')) + '</td>' +
       '</tr>';
@@ -232,7 +300,7 @@
     button.classList.add('opacity-60', 'cursor-wait');
     statusPanel.classList.remove('hidden');
     resultsPanel.classList.remove('hidden');
-    resultsBody.innerHTML = '<tr><td colspan="9" class="p-3 text-[var(--pb-muted)]">Waiting for NVIDIA results...</td></tr>';
+    resultsBody.innerHTML = '<tr><td colspan="10" class="p-3 text-[var(--pb-muted)]">Waiting for NVIDIA results...</td></tr>';
     statusText.textContent = 'Running ' + mode + ' batch for up to ' + limit + ' posts. This can take a minute.';
 
     fetch(form.action || window.location.href, {
@@ -252,7 +320,7 @@
         const rows = payload.rows || [];
         resultsBody.innerHTML = rows.length
           ? rows.map(rowHtml).join('')
-          : '<tr><td colspan="9" class="p-3 text-[var(--pb-muted)]">No posts matched this batch.</td></tr>';
+          : '<tr><td colspan="10" class="p-3 text-[var(--pb-muted)]">No posts matched this batch.</td></tr>';
       })
       .catch(function (error) {
         statusText.textContent = 'Batch failed: ' + error.message;
@@ -262,6 +330,67 @@
         button.classList.remove('opacity-60', 'cursor-wait');
       });
   });
+
+  document.addEventListener('click', function (event) {
+    const imageButton = event.target.closest('[data-image-preview]');
+    if (imageButton && imageModal && imageFull) {
+      imageFull.src = imageButton.dataset.imagePreview;
+      imageModal.classList.remove('hidden');
+      return;
+    }
+    const rowButton = event.target.closest('[data-run-row-ocr]');
+    if (rowButton) {
+      event.preventDefault();
+      const data = new FormData(form);
+      data.set('action', 'single');
+      data.set('post_id', rowButton.dataset.runRowOcr);
+      data.set('mode', 'reprocess');
+      data.set('limit', '1');
+      rowButton.disabled = true;
+      rowButton.textContent = 'Running...';
+      statusPanel.classList.remove('hidden');
+      resultsPanel.classList.remove('hidden');
+      resultsBody.innerHTML = '<tr><td colspan="10" class="p-3 text-[var(--pb-muted)]">Running OCR for post ' + esc(rowButton.dataset.runRowOcr) + '...</td></tr>';
+      statusText.textContent = 'Running single NVIDIA OCR pass.';
+      fetch(form.action || window.location.href, {
+        method: 'POST',
+        body: data,
+        headers: {'X-Requested-With': 'XMLHttpRequest'},
+      })
+        .then(function (response) {
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          return response.json();
+        })
+        .then(function (payload) {
+          setStats(payload.stats);
+          const summary = payload.summary || {};
+          statusText.textContent = 'Finished: processed ' + (summary.processed || 0) +
+            ', exported ' + (summary.exported || 0) + ', errors ' + (summary.errors || 0) + '.';
+          const rows = payload.rows || [];
+          resultsBody.innerHTML = rows.length ? rows.map(rowHtml).join('') : '<tr><td colspan="10" class="p-3 text-[var(--pb-muted)]">No result returned.</td></tr>';
+        })
+        .catch(function (error) {
+          statusText.textContent = 'OCR failed: ' + error.message;
+        })
+        .finally(function () {
+          rowButton.disabled = false;
+          rowButton.textContent = 'Run OCR';
+        });
+    }
+  });
+
+  if (imageClose && imageModal && imageFull) {
+    imageClose.addEventListener('click', function () {
+      imageModal.classList.add('hidden');
+      imageFull.src = '';
+    });
+    imageModal.addEventListener('click', function (event) {
+      if (event.target === imageModal) {
+        imageModal.classList.add('hidden');
+        imageFull.src = '';
+      }
+    });
+  }
 })();
 </script>
 {% endblock %}

@@ -2029,6 +2029,7 @@ def deals_more(request):
 
 @staff_member_required
 def instagram_ocr_ops(request):
+    from market.clean_models import PhoneOpportunitySnapshot
     from market.management.commands.process_ocr_queue import process_instagram_post
     from market.parsers.ocr_backend import get_ocr_backend
     from market.models import ParsedListingCandidate, PhoneListing, RawListing
@@ -2070,6 +2071,53 @@ def instagram_ocr_ops(request):
         specs = candidate.phone_specs_json or {}
         return specs.get("store_warranty") or ""
 
+    def candidate_post_id(candidate):
+        if not candidate or not candidate.raw_listing:
+            return ""
+        return (candidate.raw_listing.raw_payload or {}).get("instagram_post_id") or ""
+
+    def candidate_deal_math(candidate):
+        if not candidate or candidate.detected_category != ParsedListingCandidate.DetectedCategory.PHONE:
+            return {}
+        raw = candidate.raw_listing
+        listing = getattr(raw, "phone_listing", None) if raw else None
+        if not listing or not listing.phone_model_id or not listing.storage_gb or listing.price_eur is None:
+            return {}
+        snapshot = (
+            PhoneOpportunitySnapshot.objects.filter(
+                phone_model_id=listing.phone_model_id,
+                storage_gb=listing.storage_gb,
+            )
+            .order_by("-generated_at", "-id")
+            .first()
+        )
+        if not snapshot or snapshot.turkiye_avg_eur is None:
+            return {
+                "available": False,
+                "algeria_price": money(listing.price_eur, "EUR"),
+                "algeria_original": f"{listing.price_original} {listing.currency_original}".strip(),
+                "note": "No Sahibinden match yet",
+            }
+        gross = Decimal(str(snapshot.turkiye_avg_eur)) - Decimal(str(listing.price_eur))
+        gain = compute_gain_split(
+            algeria_min_eur=listing.price_eur,
+            turkiye_avg_eur=snapshot.turkiye_avg_eur,
+            gross_margin_eur=gross,
+        )
+        return {
+            "available": True,
+            "algeria_price": money(listing.price_eur, "EUR"),
+            "algeria_original": f"{listing.price_original} {listing.currency_original}".strip(),
+            "sahibinden_avg": money(snapshot.turkiye_avg_eur, "EUR"),
+            "sahibinden_count": snapshot.turkiye_count,
+            "gross_margin": money(gross, "EUR"),
+            "margin_percent": f"{snapshot.margin_percent}%" if snapshot.margin_percent is not None else "",
+            "offer_price": gain.get("offer_price_to_buyer_eur") if gain else "",
+            "buyer_gain": gain.get("buyer_gain_eur") if gain else "",
+            "deal_quality": gain.get("deal_quality") if gain else "",
+            "snapshot_id": snapshot.pk,
+        }
+
     selected_source_id = request.POST.get("source_id") or request.GET.get("source_id") or ""
     mode = request.POST.get("mode") or request.GET.get("mode") or "pending"
     is_ajax = request.headers.get("x-requested-with") == "XMLHttpRequest"
@@ -2107,11 +2155,20 @@ def instagram_ocr_ops(request):
     batch_results = []
     batch_summary = None
     if request.method == "POST":
+        action = request.POST.get("action", "batch")
+        single_post_id = request.POST.get("post_id", "")
         qs = InstagramPost.objects.select_related("source").filter(source__source_type=SourceType.INSTAGRAM)
         if selected_source:
             qs = qs.filter(source=selected_source)
 
-        if mode == "pending":
+        if action == "single":
+            qs = InstagramPost.objects.select_related("source").filter(
+                pk=single_post_id,
+                source__source_type=SourceType.INSTAGRAM,
+            )
+            rebuild_clean = False
+            backend = get_ocr_backend(settings.OCR_BACKEND)
+        elif mode == "pending":
             qs = qs.filter(needs_ocr=True, ocr_processed=False)
             rebuild_clean = False
             backend = get_ocr_backend(settings.OCR_BACKEND)
@@ -2128,7 +2185,7 @@ def instagram_ocr_ops(request):
             rebuild_clean = False
             backend = None
 
-        posts = list(qs.order_by("id")[:limit])
+        posts = list(qs.order_by("id")[: 1 if action == "single" else limit])
         processed = 0
         exported = 0
         errors = 0
@@ -2156,13 +2213,21 @@ def instagram_ocr_ops(request):
                         "raw": raw,
                         "candidate": candidate,
                         "store_warranty": candidate_store_warranty(candidate),
+                        "deal": candidate_deal_math(candidate),
+                        "post_id": post.pk,
                         "exported": result.get("exported"),
                         "category": result.get("structured_category") or (candidate.detected_category if candidate else ""),
                     }
                 )
             except Exception as exc:
                 errors += 1
-                batch_results.append({"post": post, "image_url": post_image_url(post), "ok": False, "error": str(exc)})
+                batch_results.append({
+                    "post": post,
+                    "image_url": post_image_url(post),
+                    "ok": False,
+                    "error": str(exc),
+                    "post_id": post.pk,
+                })
 
         if not is_ajax:
             messages.success(
@@ -2180,6 +2245,8 @@ def instagram_ocr_ops(request):
     for candidate in recent_candidates:
         candidate.ops_image_url = raw_image_url(candidate.raw_listing)
         candidate.ops_store_warranty = candidate_store_warranty(candidate)
+        candidate.ops_post_id = candidate_post_id(candidate)
+        candidate.ops_deal = candidate_deal_math(candidate)
 
     stats = {
         "posts": InstagramPost.objects.filter(source__source_type=SourceType.INSTAGRAM).count(),
@@ -2222,6 +2289,8 @@ def instagram_ocr_ops(request):
                         ),
                         "category": row.get("category", ""),
                         "store_warranty": row.get("store_warranty", ""),
+                        "deal": row.get("deal") or {},
+                        "post_id": row.get("post_id") or row["post"].pk,
                         "exported": bool(row.get("exported")),
                         "error": row.get("error", ""),
                     }
