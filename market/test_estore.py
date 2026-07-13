@@ -16,12 +16,17 @@ from market.clean_models import (
 )
 from market.models import (
     Brand,
+    Country,
     ConsoleListing,
     ConsoleModel,
+    DealSnapshot,
     LaptopListing,
     LaptopModel,
+    MarketListing,
     PhoneListing,
     PhoneModel,
+    Source,
+    SourceType,
 )
 from market.views_estore import (
     _acquisition_listing,
@@ -179,6 +184,50 @@ class EstoreBagistoOpportunityViewsTests(TestCase):
             review_status="approved",
         )
 
+        instagram_source = Source.objects.create(
+            name="Instagram @rd.phone35",
+            source_type=SourceType.INSTAGRAM,
+            country=Country.ALGERIA,
+            username="rd.phone35",
+        )
+        legacy_listing = MarketListing.objects.create(
+            source=instagram_source,
+            source_type=SourceType.INSTAGRAM,
+            country=Country.ALGERIA,
+            title_raw="iPhone 14 Pro Max 128GB RDphone",
+            price_original=Decimal("53000"),
+            currency_original="DZD",
+            price_eur=Decimal("179.66"),
+            condition="used",
+            storage_gb=128,
+            review_status="auto",
+            listing_url="https://www.instagram.com/reel/DaYilUguoLq/",
+            image_path="media/instagram/rd.phone35/manual_images/DaYilUguoLq.jpg",
+            observed_at=timezone.now(),
+        )
+        cls.legacy_instagram_deal = DealSnapshot.objects.create(
+            listing=legacy_listing,
+            brand_name="Apple",
+            model_name="iPhone 14 Pro Max",
+            storage_gb=128,
+            title="Apple iPhone 14 Pro Max 128GB",
+            price_original=Decimal("53000"),
+            currency_original="DZD",
+            price_eur=Decimal("179.66"),
+            condition="used",
+            source_code="IG",
+            source_name="Instagram @rd.phone35",
+            image_url="/media/instagram/rd.phone35/manual_images/DaYilUguoLq.jpg",
+            listing_url="https://www.instagram.com/reel/DaYilUguoLq/",
+            observed_at=timezone.now(),
+            sah_median=Decimal("14500"),
+            sah_median_eur=495.0,
+            sah_count=10,
+            sah_urls=["https://www.sahibinden.com/iphone-14-pro-max"],
+            margin_eur=Decimal("315.34"),
+            margin_pct=175.5,
+        )
+
         cls.superuser = get_user_model().objects.create_superuser(
             username="root",
             email="root@example.com",
@@ -250,7 +299,9 @@ class EstoreBagistoOpportunityViewsTests(TestCase):
         self.assertContains(response, "Apple iPhone 15 Pro")
         self.assertContains(response, "Asus ROG Zephyrus")
         self.assertContains(response, "Valve Steam Deck OLED")
-        self.assertContains(response, '"total_count": 3')
+        self.assertContains(response, "legacy-")
+        self.assertContains(response, "https://www.instagram.com/reel/DaYilUguoLq/")
+        self.assertContains(response, '"total_count": 4')
 
     def test_raw_listing_without_snapshot_is_not_in_payload(self):
         response = self.client.get(reverse("estore_opportunity_index"))

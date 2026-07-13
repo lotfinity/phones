@@ -16,6 +16,7 @@ from market.clean_models import (
     LaptopOpportunitySnapshot,
     PhoneOpportunitySnapshot,
 )
+from market.models import DealSnapshot, SourceType
 from market.views_clean import (
     VISIBLE_REVIEW_STATUSES,
     _display_row,
@@ -426,12 +427,81 @@ def _opportunity_card(item, category, selected_currency, *, show_internal_gain=F
     return card
 
 
+def _legacy_instagram_deal_card(item, selected_currency, *, show_internal_gain=False):
+    confidence_score = 50
+    margin_pct = Decimal(str(item.margin_pct or 0))
+    if item.sah_count >= 3:
+        confidence_score += 15
+    if item.margin_pct and item.margin_pct >= 25:
+        confidence_score += 10
+    confidence_score = min(confidence_score, 85)
+    title = f"{item.brand_name} {item.model_name}".strip()
+    if item.storage_gb:
+        title = f"{title} {item.storage_gb}GB"
+    source_url = _safe_external_url(item.listing_url)
+    card = {
+        "pk": f"legacy-{item.pk}",
+        "plan_key": f"legacy-phone:{item.pk}",
+        "category": "phone",
+        "category_label": "Telefon",
+        "brand": item.brand_name,
+        "brand_logo_url": _brand_logo_url(item.brand_name),
+        "model": item.model_name,
+        "title": title,
+        "initials": "".join(part[0] for part in (item.brand_name or title).split()[:2]).upper() or "PB",
+        "subtitle": f"{item.storage_gb} GB" if item.storage_gb else "",
+        "specs": [{"label": "Depolama", "value": f"{item.storage_gb} GB"}] if item.storage_gb else [],
+        "condition": CONDITION_LABELS_TR.get(item.condition, item.condition or "Durum bilgisi yok"),
+        "battery_health": getattr(item.listing, "battery_health", None) if item.listing_id else None,
+        "recommendation": "Instagram fırsatı",
+        "recommendation_value": "buy" if margin_pct >= 25 else "watch",
+        "confidence_score": confidence_score,
+        "confidence_stars": round(confidence_score / 20),
+        "confidence_aria_label": f"Veri güveni {confidence_score} / 100",
+        "confidence_title": f"Veri güveni: %{confidence_score}",
+        "buyer_offer": money(item.price_eur, selected_currency),
+        "buyer_gain": money(item.margin_eur, selected_currency),
+        "buyer_gain_percent": f"%{Decimal(str(item.margin_pct)).quantize(Decimal('0.1'))}" if item.margin_pct else "",
+        "turkiye_avg": money(item.sah_median_eur, selected_currency),
+        "supplier_price": money(item.supplier_eur, selected_currency) if item.supplier_eur else "",
+        "supplier_discount_percent": None,
+        "supplier_discount_label": "",
+        "turkiye_count": item.sah_count,
+        "algeria_count": 1,
+        "evidence_count": (item.sah_count or 0) + 1,
+        "margin_percent_label": f"%{Decimal(str(item.margin_pct)).quantize(Decimal('0.1'))}" if item.margin_pct else "",
+        "has_image": bool(item.image_url),
+        "image_url": item.image_url,
+        "source_listing_id": item.listing_id,
+        "source_listing_url": source_url,
+        "source_observed_at": item.observed_at,
+        "availability_state": "available" if source_url else "verification_required",
+        "availability_label": "Instagram ilanı",
+        "availability_is_actionable": bool(source_url),
+        "source_age_days": None,
+        "detail_url": source_url or reverse("deals_swiper"),
+        "generated_at": item.created_at,
+        "is_legacy_instagram": True,
+    }
+    if show_internal_gain:
+        card["my_gain"] = ""
+    return card
+
+
 def _all_opportunity_items():
     items = []
     for category, config in OPPORTUNITY_CONFIG.items():
         for item in config["model"].objects.all():
             items.append((category, item))
     return items
+
+
+def _legacy_instagram_deals():
+    return list(
+        DealSnapshot.objects.select_related("listing")
+        .filter(listing__source_type=SourceType.INSTAGRAM)
+        .order_by("-margin_pct", "-margin_eur", "-id")
+    )
 
 
 def _brand_filter_options(items, *, active_category="", active_brand="", query=""):
@@ -560,11 +630,35 @@ def estore_opportunity_index(request):
         )
         for category, item in items
     ]
+    legacy_deals = _legacy_instagram_deals()
+    if active_category and active_category != "phone":
+        legacy_deals = []
+    if active_brand:
+        legacy_deals = [item for item in legacy_deals if item.brand_name.lower() == active_brand.lower()]
+    if query:
+        lowered_query = query.lower()
+        legacy_deals = [
+            item
+            for item in legacy_deals
+            if lowered_query in f"{item.brand_name} {item.model_name} {item.storage_gb or ''} {item.title}".lower()
+        ]
+    cards.extend(
+        _legacy_instagram_deal_card(item, selected_currency, show_internal_gain=show_internal_gain)
+        for item in legacy_deals
+    )
+    cards.sort(
+        key=lambda card: (
+            Decimal(str(card.get("confidence_score") or 0)),
+            Decimal(str(card.get("evidence_count") or 0)),
+        ),
+        reverse=True,
+    )
 
     counts = {
         category: config["model"].objects.count()
         for category, config in OPPORTUNITY_CONFIG.items()
     }
+    counts["phone"] += DealSnapshot.objects.filter(listing__source_type=SourceType.INSTAGRAM).count()
 
     return render(
         request,

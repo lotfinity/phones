@@ -16,6 +16,7 @@
 - Added local `.env` loading in Django settings so NVIDIA credentials and OCR settings are read from the ignored project `.env` file.
 - Processed the RDphone Markdown import through NVIDIA OCR, producing 52 nonempty OCR rows and 48 Instagram market listings, then refreshed FX, legacy opportunity/deal snapshots, and clean opportunity snapshots.
 - Added listing-match recomputation to the Instagram Markdown pipeline before opportunity analysis so newly OCR-created listings can pass opportunity eligibility gates.
+- Updated the server-rendered estore index to include Instagram-backed legacy `DealSnapshot` cards, so NVIDIA-OCR Instagram opportunities appear even before they are exported into clean phone snapshots.
 
 ### Bagisto storefront PriceBridge semantics
 
