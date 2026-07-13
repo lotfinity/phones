@@ -259,6 +259,7 @@ class NvidiaVisionBackend(OCRBackend):
             "box labels, and store design text.\n\n"
             "Return parser-friendly plain text only. No markdown, no JSON, no prose explanation.\n"
             "Use these exact line labels when visible or strongly implied by the image:\n"
+            "Category: <phone/laptop/console/accessory/unknown for the main sale item>\n"
             "Model: <brand and model, e.g. iPhone 17 Pro Max>\n"
             "Storage: <storage, e.g. 256GB>\n"
             "RAM: <ram if visible>\n"
@@ -272,6 +273,8 @@ class NvidiaVisionBackend(OCRBackend):
             "Visible text: <all other readable text, preserving useful line breaks>\n\n"
             "Rules:\n"
             "- Do not invent a price, model, battery health, cycle count, color, or condition.\n"
+            "- Classify the main sale item only. Use accessory for chargers, cases, watches, earbuds, "
+            "or parts; use unknown if the sale item is unclear.\n"
             "- Do infer obvious normalized fields from visible text, e.g. '256 GB' -> Storage: 256GB.\n"
             "- If an iOS Battery Health screen or Parts/Repair screen is visible, extract it.\n"
             "- If the image indicates afficheur/ecran inconnu/pieces et reparation/non-original/demo/"
@@ -307,6 +310,8 @@ class NvidiaVisionBackend(OCRBackend):
         if not isinstance(data, dict):
             return ""
         label_map = [
+            ("category", "Category"),
+            ("detected_category", "Category"),
             ("model", "Model"),
             ("storage", "Storage"),
             ("storage_gb", "Storage"),

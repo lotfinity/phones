@@ -15,7 +15,8 @@ from market.management.commands.match_instagram_manual_links_from_markdown impor
     records_from_markdown,
     shortcode_from_url,
 )
-from market.models import Country, InstagramPost, Source, SourceType
+from market.management.commands.process_ocr_queue import category_hint_from_nvidia_text
+from market.models import Country, InstagramPost, RawListing, Source, SourceType
 
 
 class InstagramImageQueueHelpersTests(TestCase):
@@ -101,6 +102,22 @@ class InstagramMarkdownImportHelpersTests(SimpleTestCase):
         self.assertEqual(len(records), 1)
         self.assertEqual(records[0]["post_url"], "https://www.instagram.com/p/Das1mKGMtzO/")
         self.assertEqual(records[0]["image_basename"], "one.jpg")
+
+
+class InstagramNvidiaCategoryHintTests(SimpleTestCase):
+    def test_category_label_maps_to_raw_listing_hint(self):
+        self.assertEqual(
+            category_hint_from_nvidia_text("Category: laptop\nModel: MacBook Air M2"),
+            RawListing.CategoryHint.LAPTOPS,
+        )
+        self.assertEqual(
+            category_hint_from_nvidia_text("Category: console\nModel: ROG Ally X"),
+            RawListing.CategoryHint.CONSOLES,
+        )
+        self.assertEqual(
+            category_hint_from_nvidia_text("Category: phone\nModel: iPhone 15 Pro"),
+            RawListing.CategoryHint.PHONES,
+        )
 
 
 class InstagramMarkdownPipelineCommandTests(TestCase):

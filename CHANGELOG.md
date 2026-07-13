@@ -17,6 +17,8 @@
 - Processed the RDphone Markdown import through NVIDIA OCR, producing 52 nonempty OCR rows and 48 Instagram market listings, then refreshed FX, legacy opportunity/deal snapshots, and clean opportunity snapshots.
 - Added listing-match recomputation to the Instagram Markdown pipeline before opportunity analysis so newly OCR-created listings can pass opportunity eligibility gates.
 - Updated the server-rendered estore index to include Instagram-backed legacy `DealSnapshot` cards, so NVIDIA-OCR Instagram opportunities appear even before they are exported into clean phone snapshots.
+- Added NVIDIA main-item category extraction and wired `process_ocr_queue` into the raw-first clean listing path: Instagram OCR now creates `RawListing` rows, parsed candidates, and auto-exports safe phone/laptop/console listings before clean opportunity recomputation.
+- Added `process_ocr_queue --rebuild-clean-listings` to replay existing OCR results without calling NVIDIA again; rebuilt RDphone into 52 raw listings, 52 candidates, and 35 clean phone listings, raising clean phone opportunity snapshots from 36 to 39.
 
 ### Bagisto storefront PriceBridge semantics
 

@@ -15,15 +15,25 @@ class OCRBackendSelectionTests(SimpleTestCase):
 
 class NvidiaVisionBackendCleanupTests(SimpleTestCase):
     @override_settings(NVIDIA_API_KEY="test-key")
+    def test_prompt_requests_main_sale_category(self):
+        backend = NvidiaVisionBackend()
+
+        prompt = backend._build_prompt()
+
+        self.assertIn("Category: <phone/laptop/console/accessory/unknown", prompt)
+        self.assertIn("Classify the main sale item only", prompt)
+
+    @override_settings(NVIDIA_API_KEY="test-key")
     def test_json_response_is_flattened_for_existing_parser(self):
         backend = NvidiaVisionBackend()
 
         text = backend._clean_text(
-            '{"model":"iPhone 17 Pro","storage":"256GB","battery_health":91,'
+            '{"category":"phone","model":"iPhone 17 Pro","storage":"256GB","battery_health":91,'
             '"condition":"used clean","color":"black","price_text":"185000 DA",'
             '"visible_text":"Garantie 6 mois"}'
         )
 
+        self.assertIn("Category: phone", text)
         self.assertIn("Model: iPhone 17 Pro", text)
         self.assertIn("Storage: 256GB", text)
         self.assertIn("Battery: 91", text)
