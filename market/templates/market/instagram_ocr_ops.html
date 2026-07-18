@@ -1,15 +1,163 @@
 {% extends "market/base.html" %}
 {% block title %}Instagram OCR Ops{% endblock %}
 {% block crumb %}Instagram OCR{% endblock %}
+{% block header_actions %}
+<button type="button" class="btn btn-secondary btn-sm" data-fx-converter-open>FX</button>
+{% endblock %}
 
 {% block content %}
+{{ fx_converter|json_script:"fx-converter-data" }}
+<style>
+  .ig-card-grid {
+    display: grid;
+    gap: .75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 640px) {
+    .ig-card-grid {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    }
+  }
+  @media (min-width: 1280px) {
+    .ig-card-grid {
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    }
+  }
+  .ocr-loader {
+    position: relative;
+    height: 6px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--pb-bg);
+  }
+  .ocr-loader::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 42%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, var(--pb-accent), transparent);
+    animation: ocr-slide 1.05s ease-in-out infinite;
+  }
+  .ocr-row[data-state="done"] .ocr-loader::after {
+    width: 100%;
+    animation: none;
+    background: var(--pb-success);
+  }
+  .ocr-row[data-state="error"] .ocr-loader::after {
+    width: 100%;
+    animation: none;
+    background: var(--pb-danger);
+  }
+  @keyframes ocr-slide {
+    from { transform: translateX(-120%); }
+    to { transform: translateX(260%); }
+  }
+	  .ocr-debug-pre {
+	    max-height: 10rem;
+	    overflow: auto;
+	    white-space: pre-wrap;
+	    word-break: break-word;
+	  }
+	  .ocr-modal-shell {
+	    height: calc(100vh - 24px);
+	    max-height: calc(100vh - 24px);
+	    display: flex;
+	    flex-direction: column;
+	    overflow: hidden;
+	  }
+	  .ocr-modal-body {
+	    min-height: 0;
+	    flex: 1 1 auto;
+	    display: grid;
+	    grid-template-columns: minmax(0, 1fr);
+	    overflow: hidden;
+	  }
+	  .ocr-modal-main {
+	    min-height: 0;
+	    overflow-y: auto;
+	    overscroll-behavior: contain;
+	  }
+	  .ocr-modal-side {
+	    display: none;
+	    min-height: 0;
+	    overflow-y: auto;
+	  }
+	  .ocr-run-card-grid {
+	    display: grid;
+	    gap: .75rem;
+	  }
+	  .ocr-run-row-head {
+	    display: grid;
+	    grid-template-columns: 76px minmax(0, 1fr);
+	    gap: .75rem;
+	    align-items: start;
+	  }
+	  .ocr-modal-thumb {
+	    width: 76px;
+	    height: 96px;
+	    max-width: 76px;
+	    max-height: 96px;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    overflow: hidden;
+	    border-radius: .25rem;
+	    border: 1px solid var(--pb-border);
+	    background: var(--pb-bg);
+	  }
+	  .ocr-modal-thumb img {
+	    width: 100%;
+	    height: 100%;
+	    max-width: 100%;
+	    max-height: 100%;
+	    object-fit: contain;
+	  }
+	  @media (min-width: 1024px) {
+	    .ocr-modal-body {
+	      grid-template-columns: minmax(0, 1fr) 320px;
+	    }
+	    .ocr-modal-side {
+	      display: block;
+	    }
+	    .ocr-run-row-head {
+	      grid-template-columns: 88px minmax(0, 1fr);
+	    }
+	    .ocr-modal-thumb {
+	      width: 88px;
+	      height: 112px;
+	      max-width: 88px;
+	      max-height: 112px;
+	    }
+	  }
+	  .fx-modal-shell {
+	    width: min(680px, calc(100vw - 24px));
+	    max-height: calc(100vh - 24px);
+	    overflow: hidden;
+	    display: flex;
+	    flex-direction: column;
+	  }
+	  .fx-rate-grid {
+	    display: grid;
+	    grid-template-columns: repeat(2, minmax(0, 1fr));
+	    gap: .5rem;
+	  }
+	  @media (min-width: 640px) {
+	    .fx-rate-grid {
+	      grid-template-columns: repeat(4, minmax(0, 1fr));
+	    }
+	  }
+	</style>
 <div class="max-w-7xl mx-auto px-4 py-6">
   <div class="flex items-start justify-between gap-4 mb-5">
     <div>
       <h1 class="text-xl font-bold">Instagram OCR Ops</h1>
       <p class="text-sm text-[var(--pb-muted)]">Run small NVIDIA OCR batches and rebuild clean listings without remembering management-command flags.</p>
     </div>
-    <a href="{% url 'import_lab' %}" class="px-3 py-1.5 rounded border border-[var(--pb-border)] text-sm hover:bg-[var(--pb-surface-hover)]">Import Lab</a>
+    <div class="flex items-center gap-2">
+      <button type="button" class="px-3 py-1.5 rounded border border-[var(--pb-border)] text-sm hover:bg-[var(--pb-surface-hover)]" data-fx-converter-open>FX</button>
+      <a href="{% url 'import_lab' %}" class="px-3 py-1.5 rounded border border-[var(--pb-border)] text-sm hover:bg-[var(--pb-surface-hover)]">Import Lab</a>
+    </div>
   </div>
 
   {% if messages %}
@@ -90,144 +238,177 @@
 
   <div id="batch-results-panel" class="mb-6 {% if not batch_results %}hidden{% endif %}">
     <h2 class="text-sm font-semibold mb-2">Batch Results</h2>
-    <div class="overflow-x-auto rounded border border-[var(--pb-border)]">
-      <table class="w-full text-xs border-collapse">
-        <thead>
-          <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
-            <th class="text-left p-2">Post</th>
-            <th class="text-left p-2">Image</th>
-            <th class="text-left p-2">Source</th>
-            <th class="text-left p-2">Raw</th>
-            <th class="text-left p-2">Candidate</th>
-            <th class="text-left p-2">Category</th>
-            <th class="text-left p-2">Warranty</th>
-            <th class="text-left p-2">Deal Math</th>
-            <th class="text-left p-2">Exported</th>
-            <th class="text-left p-2">Status</th>
-          </tr>
-        </thead>
-        <tbody id="batch-results-body">
-          {% for row in batch_results %}
-          <tr class="border-b border-[var(--pb-border)]">
-            <td class="p-2 font-mono">{{ row.post.pk }} · {{ row.post.shortcode|default:"-" }}</td>
-            <td class="p-2">
-              {% if row.image_url %}
-              <button type="button" class="block" data-image-preview="{{ row.image_url }}">
-                <img src="{{ row.image_url }}" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]">
-              </button>
-              {% else %}
-              <span class="text-[var(--pb-muted)]">-</span>
-              {% endif %}
-            </td>
-            <td class="p-2">@{{ row.post.source.username|default:"-" }}</td>
-            <td class="p-2 font-mono">{{ row.raw.pk|default:"-" }}</td>
-            <td class="p-2 font-mono">
-              {% if row.candidate %}<a class="text-[var(--pb-accent)] hover:underline" href="{% url 'candidate_detail' row.candidate.pk %}">{{ row.candidate.pk }}</a>{% else %}-{% endif %}
-            </td>
-            <td class="p-2">{{ row.category|default:"-" }}</td>
-            <td class="p-2 max-w-[180px]">{{ row.store_warranty|default:"-" }}</td>
-            <td class="p-2 min-w-[260px]">
-              {% if row.deal.available %}
-              <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">
-                <div class="grid grid-cols-2 gap-2">
-                  <div><div class="text-[10px] text-[var(--pb-muted)]">DZ price</div><div class="font-semibold">{{ row.deal.algeria_price }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ row.deal.algeria_original }}</div></div>
-                  <div><div class="text-[10px] text-[var(--pb-muted)]">Sahibinden avg</div><div class="font-semibold">{{ row.deal.sahibinden_avg }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ row.deal.sahibinden_count }} rows</div></div>
-                  <div><div class="text-[10px] text-[var(--pb-muted)]">Gross margin</div><div class="font-semibold">{{ row.deal.gross_margin }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ row.deal.margin_percent }}</div></div>
-                  <div><div class="text-[10px] text-[var(--pb-muted)]">Offer</div><div class="font-semibold">{{ row.deal.offer_price }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ row.deal.deal_quality }}</div></div>
-                </div>
-              </div>
-              {% elif row.deal.note %}
-              <span class="text-[var(--pb-muted)]">{{ row.deal.note }}</span>
-              {% else %}
-              <span class="text-[var(--pb-muted)]">-</span>
-              {% endif %}
-            </td>
-            <td class="p-2">{{ row.exported|yesno:"yes,no" }}</td>
-            <td class="p-2">{% if row.ok %}ok{% else %}{{ row.error }}{% endif %}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div id="batch-results-body" class="ig-card-grid">
+      {% for row in batch_results %}
+      <article class="flex min-w-0 flex-col gap-2 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2">
+        <button type="button" class="group relative w-full overflow-hidden rounded border border-[var(--pb-border)] bg-[var(--pb-bg)]" style="aspect-ratio: 3 / 4;" data-image-preview="{{ row.image_url }}">
+          {% if row.image_url %}<img src="{{ row.image_url }}" alt="" class="h-full w-full object-contain transition group-hover:scale-[1.02]">{% endif %}
+          <span class="absolute rounded px-1.5 py-0.5 text-[10px] text-white" style="right: 4px; bottom: 4px; background: rgba(0, 0, 0, .7);">view</span>
+        </button>
+        <section class="min-w-0">
+          <div class="mb-2 flex flex-wrap items-center gap-1">
+            <a class="font-mono text-xs text-[var(--pb-accent)]" href="{% if row.candidate %}{% url 'candidate_detail' row.candidate.pk %}{% else %}#{% endif %}">#{{ row.candidate.pk|default:"-" }}</a>
+            <span class="rounded bg-[var(--pb-bg)] px-1.5 py-0.5 text-[10px]">{{ row.category|default:"-" }}</span>
+            <span class="rounded bg-[var(--pb-bg)] px-1.5 py-0.5 text-[10px]">{{ row.exported|yesno:"exported,not exported" }}</span>
+          </div>
+          <h3 class="truncate text-sm font-semibold">{{ row.candidate.brand_text|default:"" }} {{ row.candidate.model_text|default:row.post.shortcode }}</h3>
+          <div class="mt-2 grid grid-cols-2 gap-1 text-xs">
+            <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2"><div class="text-[10px] text-[var(--pb-muted)]">Price</div><div class="truncate font-semibold">{{ row.candidate.price_original|default:"-" }} {{ row.candidate.currency_original }}</div></div>
+            <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2"><div class="text-[10px] text-[var(--pb-muted)]">Warranty</div><div class="truncate">{{ row.store_warranty|default:"-" }}</div></div>
+          </div>
+          <div class="mt-2 flex items-center justify-between gap-2 text-[10px] text-[var(--pb-muted)]">
+            <span class="truncate">@{{ row.post.source.username|default:"-" }} · {{ row.ok|yesno:"ok,error" }}</span>
+            <button type="button" class="rounded bg-[var(--pb-accent)] px-2 py-1 text-[10px] font-semibold text-white hover:opacity-90" data-run-row-ocr="{{ row.post.pk }}">OCR</button>
+          </div>
+        </section>
+        <section class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">
+          <div class="mb-2 text-xs font-semibold text-[var(--pb-muted)]">Deal math</div>
+          {% include "market/partials/instagram_ocr_deal_math.html" with deal=row.deal %}
+        </section>
+      </article>
+      {% endfor %}
     </div>
   </div>
 
   <div>
     <h2 class="text-sm font-semibold mb-2">Recent Instagram Candidates</h2>
-    <div class="overflow-x-auto rounded border border-[var(--pb-border)]">
-      <table class="w-full text-xs border-collapse">
-        <thead>
-          <tr class="border-b border-[var(--pb-border)] text-[var(--pb-muted)]">
-            <th class="text-left p-2">Candidate</th>
-            <th class="text-left p-2">Image</th>
-            <th class="text-left p-2">Source</th>
-            <th class="text-left p-2">Category</th>
-            <th class="text-left p-2">Model</th>
-            <th class="text-left p-2">Price</th>
-            <th class="text-left p-2">Warranty</th>
-            <th class="text-left p-2">Deal Math</th>
-            <th class="text-left p-2">OCR</th>
-            <th class="text-left p-2">Confidence</th>
-            <th class="text-left p-2">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for c in recent_candidates %}
-          <tr class="border-b border-[var(--pb-border)] hover:bg-[var(--pb-surface-hover)]">
-            <td class="p-2 font-mono"><a class="text-[var(--pb-accent)] hover:underline" href="{% url 'candidate_detail' c.pk %}">{{ c.pk }}</a></td>
-            <td class="p-2">
-              {% if c.ops_image_url %}
-              <button type="button" class="block" data-image-preview="{{ c.ops_image_url }}">
-                <img src="{{ c.ops_image_url }}" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]">
-              </button>
-              {% else %}
-              <span class="text-[var(--pb-muted)]">-</span>
-              {% endif %}
-            </td>
-            <td class="p-2">@{{ c.raw_listing.source.username|default:"-" }}</td>
-            <td class="p-2">{{ c.detected_category }}</td>
-            <td class="p-2">{{ c.brand_text }} {{ c.model_text }}</td>
-            <td class="p-2">{{ c.price_original|default:"-" }} {{ c.currency_original }}</td>
-            <td class="p-2 max-w-[180px]">{{ c.ops_store_warranty|default:"-" }}</td>
-            <td class="p-2 min-w-[260px]">
-              {% if c.ops_deal.available %}
-              <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">
-                <div class="grid grid-cols-2 gap-2">
-                  <div><div class="text-[10px] text-[var(--pb-muted)]">DZ price</div><div class="font-semibold">{{ c.ops_deal.algeria_price }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ c.ops_deal.algeria_original }}</div></div>
-                  <div><div class="text-[10px] text-[var(--pb-muted)]">Sahibinden avg</div><div class="font-semibold">{{ c.ops_deal.sahibinden_avg }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ c.ops_deal.sahibinden_count }} rows</div></div>
-                  <div><div class="text-[10px] text-[var(--pb-muted)]">Gross margin</div><div class="font-semibold">{{ c.ops_deal.gross_margin }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ c.ops_deal.margin_percent }}</div></div>
-                  <div><div class="text-[10px] text-[var(--pb-muted)]">Offer</div><div class="font-semibold">{{ c.ops_deal.offer_price }}</div><div class="text-[10px] text-[var(--pb-muted)]">{{ c.ops_deal.deal_quality }}</div></div>
-                </div>
-              </div>
-              {% elif c.ops_deal.note %}
-              <span class="text-[var(--pb-muted)]">{{ c.ops_deal.note }}</span>
-              {% else %}
-              <span class="text-[var(--pb-muted)]">-</span>
-              {% endif %}
-            </td>
-            <td class="p-2">
-              {% if c.ops_post_id %}
-              <button type="button" class="rounded bg-[var(--pb-accent)] px-2 py-1 text-[11px] font-semibold text-white hover:opacity-90" data-run-row-ocr="{{ c.ops_post_id }}">Run OCR</button>
-              {% else %}
-              <span class="text-[var(--pb-muted)]">-</span>
-              {% endif %}
-            </td>
-            <td class="p-2">{{ c.confidence|floatformat:2 }}</td>
-            <td class="p-2">{{ c.status }}</td>
-          </tr>
-          {% empty %}
-          <tr><td colspan="11" class="p-2 text-[var(--pb-muted)]">No Instagram candidates yet.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <div class="ig-card-grid">
+      {% for c in recent_candidates %}
+      <article class="flex min-w-0 flex-col gap-2 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2">
+        <button type="button" class="group relative w-full overflow-hidden rounded border border-[var(--pb-border)] bg-[var(--pb-bg)]" style="aspect-ratio: 3 / 4;" data-image-preview="{{ c.ops_image_url }}">
+          {% if c.ops_image_url %}<img src="{{ c.ops_image_url }}" alt="" class="h-full w-full object-contain transition group-hover:scale-[1.02]">{% endif %}
+          <span class="absolute rounded px-1.5 py-0.5 text-[10px] text-white" style="right: 4px; bottom: 4px; background: rgba(0, 0, 0, .7);">view</span>
+        </button>
+        <section class="min-w-0">
+          <div class="mb-2 flex flex-wrap items-center gap-1">
+            <a class="font-mono text-xs text-[var(--pb-accent)]" href="{% url 'candidate_detail' c.pk %}">#{{ c.pk }}</a>
+            <span class="rounded bg-[var(--pb-bg)] px-1.5 py-0.5 text-[10px]">{{ c.detected_category }}</span>
+            <span class="rounded bg-[var(--pb-bg)] px-1.5 py-0.5 text-[10px]">conf {{ c.confidence|floatformat:2 }}</span>
+          </div>
+          <h3 class="truncate text-sm font-semibold">{{ c.brand_text }} {{ c.model_text }}</h3>
+          <div class="mt-1 truncate text-xs text-[var(--pb-muted)]">@{{ c.raw_listing.source.username|default:"-" }}</div>
+          <div class="mt-2 grid grid-cols-2 gap-1 text-xs">
+            <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2"><div class="text-[10px] text-[var(--pb-muted)]">Price</div><div class="truncate font-semibold">{{ c.price_original|default:"-" }} {{ c.currency_original }}</div></div>
+            <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2"><div class="text-[10px] text-[var(--pb-muted)]">Warranty</div><div class="truncate">{{ c.ops_store_warranty|default:"-" }}</div></div>
+          </div>
+          {% if c.ops_post_id %}
+          <button type="button" class="mt-2 w-full rounded bg-[var(--pb-accent)] px-2 py-1.5 text-xs font-semibold text-white hover:opacity-90" data-run-row-ocr="{{ c.ops_post_id }}">Run OCR</button>
+          {% endif %}
+        </section>
+        <section class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">
+          <div class="mb-2 text-xs font-semibold text-[var(--pb-muted)]">Deal math</div>
+          {% include "market/partials/instagram_ocr_deal_math.html" with deal=c.ops_deal %}
+        </section>
+      </article>
+      {% empty %}
+      <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4 text-sm text-[var(--pb-muted)]">No Instagram candidates yet.</div>
+      {% endfor %}
     </div>
   </div>
 </div>
 
 <div id="image-preview-modal" class="fixed inset-0 z-50 hidden bg-black/80 p-4">
-  <button type="button" id="image-preview-close" class="absolute right-4 top-4 rounded bg-white/90 px-3 py-1 text-sm font-semibold text-slate-900">Close</button>
+  <button type="button" id="image-preview-close" class="fixed top-4 right-4 z-50 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-slate-900 shadow-lg hover:bg-white transition-colors" aria-label="Close preview">✕</button>
   <div class="flex h-full w-full items-center justify-center">
-    <img id="image-preview-full" src="" alt="" class="max-h-full max-w-full rounded border border-white/20 object-contain">
+    <div class="relative max-h-[90vh] max-w-[90vw]">
+      <img id="image-preview-full" src="" alt="" class="max-h-[90vh] max-w-[90vw] h-auto w-auto rounded border border-white/20 object-contain">
+    </div>
   </div>
+</div>
+
+<div id="fx-converter-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 p-3">
+  <section class="fx-modal-shell rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] shadow-2xl">
+    <header class="flex items-start justify-between gap-4 border-b border-[var(--pb-border)] bg-[var(--pb-surface)] px-4 py-3">
+      <div>
+        <div class="text-xs font-semibold uppercase text-[var(--pb-muted)]">Currency desk</div>
+        <h2 class="text-lg font-bold">FX Converter</h2>
+        <div id="fx-updated-at" class="mt-1 text-xs text-[var(--pb-muted)]">Rates loading...</div>
+      </div>
+      <button type="button" id="fx-converter-close" class="rounded border border-[var(--pb-border)] px-3 py-1.5 text-sm hover:bg-[var(--pb-surface-hover)]">Close</button>
+    </header>
+    <div class="min-h-0 overflow-y-auto p-4">
+      <div class="fx-rate-grid" id="fx-rate-grid"></div>
+      <form id="fx-converter-form" class="mt-4 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-3">
+        {% csrf_token %}
+        <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_120px_120px_auto] sm:items-end">
+          <label class="block">
+            <span class="block text-xs font-medium text-[var(--pb-muted)] mb-1">Amount</span>
+            <input id="fx-amount" type="number" step="0.01" value="49000" class="w-full rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] px-3 py-2 text-sm">
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-[var(--pb-muted)] mb-1">From</span>
+            <select id="fx-from" class="w-full rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] px-3 py-2 text-sm">
+              <option>DZD</option>
+              <option>EUR</option>
+              <option>USD</option>
+              <option>TRY</option>
+            </select>
+          </label>
+          <label class="block">
+            <span class="block text-xs font-medium text-[var(--pb-muted)] mb-1">To</span>
+            <select id="fx-to" class="w-full rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] px-3 py-2 text-sm">
+              <option>EUR</option>
+              <option>USD</option>
+              <option>TRY</option>
+              <option>DZD</option>
+            </select>
+          </label>
+          <button type="submit" class="rounded bg-[var(--pb-accent)] px-3 py-2 text-sm font-semibold text-white hover:opacity-90">Convert</button>
+        </div>
+        <div id="fx-result" class="mt-3 rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-3 font-mono text-lg font-bold">-</div>
+      </form>
+      <div class="mt-4 flex flex-wrap items-center gap-2">
+        <button type="button" id="fx-refresh-btn" class="rounded bg-[var(--pb-accent)] px-3 py-2 text-sm font-semibold text-white hover:opacity-90">Refresh Rates</button>
+        <span id="fx-refresh-status" class="text-sm text-[var(--pb-muted)]">Uses `fetch_exchange_rates` and saves new rows.</span>
+      </div>
+      <div class="mt-4 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-3">
+        <div class="mb-2 text-xs font-semibold uppercase text-[var(--pb-muted)]">Recent saved rows</div>
+        <div id="fx-recent-rows" class="space-y-1 text-xs text-[var(--pb-muted)]"></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="ocr-run-modal" class="fixed inset-0 z-50 hidden bg-black/70 p-3">
+  <section class="ocr-modal-shell mx-auto max-w-7xl rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] shadow-2xl">
+    <header class="flex items-start justify-between gap-4 border-b border-[var(--pb-border)] bg-[var(--pb-surface)] px-4 py-3">
+      <div class="min-w-0">
+        <div class="text-xs font-semibold uppercase text-[var(--pb-muted)]">NVIDIA OCR operation</div>
+        <h2 id="ocr-run-title" class="truncate text-lg font-bold">Preparing OCR run</h2>
+        <div id="ocr-run-summary" class="mt-1 text-sm text-[var(--pb-muted)]">Waiting for request metadata...</div>
+      </div>
+      <button type="button" id="ocr-run-close" class="rounded border border-[var(--pb-border)] px-3 py-1.5 text-sm hover:bg-[var(--pb-surface-hover)]">Close</button>
+    </header>
+    <div class="ocr-modal-body">
+      <main class="ocr-modal-main p-3">
+        <div id="ocr-run-rows" class="ocr-run-card-grid"></div>
+      </main>
+      <aside class="ocr-modal-side border-l border-[var(--pb-border)] bg-[var(--pb-surface)] p-4">
+        <div class="text-xs font-semibold uppercase text-[var(--pb-muted)]">Live run stats</div>
+        <div class="mt-3 grid grid-cols-2 gap-2">
+          <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-3">
+            <div class="text-[10px] uppercase text-[var(--pb-muted)]">Elapsed</div>
+            <div id="ocr-run-elapsed" class="font-mono text-lg font-bold">0.0s</div>
+          </div>
+          <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-3">
+            <div class="text-[10px] uppercase text-[var(--pb-muted)]">Rows</div>
+            <div id="ocr-run-count" class="font-mono text-lg font-bold">0</div>
+          </div>
+          <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-3">
+            <div class="text-[10px] uppercase text-[var(--pb-muted)]">Done</div>
+            <div id="ocr-run-done" class="font-mono text-lg font-bold">0</div>
+          </div>
+          <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-3">
+            <div class="text-[10px] uppercase text-[var(--pb-muted)]">Errors</div>
+            <div id="ocr-run-errors" class="font-mono text-lg font-bold">0</div>
+          </div>
+        </div>
+        <div class="mt-4 rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-3 text-sm text-[var(--pb-muted)]">
+          The modal opens before the server call. Rows update when Django returns the NVIDIA OCR result.
+        </div>
+      </aside>
+    </div>
+  </section>
 </div>
 
 <script>
@@ -238,10 +419,36 @@
   const statusText = document.getElementById('batch-status-text');
   const resultsPanel = document.getElementById('batch-results-panel');
   const resultsBody = document.getElementById('batch-results-body');
-  const imageModal = document.getElementById('image-preview-modal');
-  const imageFull = document.getElementById('image-preview-full');
-  const imageClose = document.getElementById('image-preview-close');
-  if (!form || !button || !statusPanel || !statusText || !resultsPanel || !resultsBody) return;
+	  const imageModal = document.getElementById('image-preview-modal');
+	  const imageFull = document.getElementById('image-preview-full');
+	  const imageClose = document.getElementById('image-preview-close');
+	  const runModal = document.getElementById('ocr-run-modal');
+	  const runClose = document.getElementById('ocr-run-close');
+	  const runTitle = document.getElementById('ocr-run-title');
+	  const runSummary = document.getElementById('ocr-run-summary');
+	  const runRows = document.getElementById('ocr-run-rows');
+	  const runElapsed = document.getElementById('ocr-run-elapsed');
+	  const runCount = document.getElementById('ocr-run-count');
+	  const runDone = document.getElementById('ocr-run-done');
+	  const runErrors = document.getElementById('ocr-run-errors');
+	  const fxOpenButtons = document.querySelectorAll('[data-fx-converter-open]');
+	  const fxModal = document.getElementById('fx-converter-modal');
+	  const fxClose = document.getElementById('fx-converter-close');
+	  const fxForm = document.getElementById('fx-converter-form');
+	  const fxAmount = document.getElementById('fx-amount');
+	  const fxFrom = document.getElementById('fx-from');
+	  const fxTo = document.getElementById('fx-to');
+	  const fxResult = document.getElementById('fx-result');
+	  const fxRateGrid = document.getElementById('fx-rate-grid');
+	  const fxRecentRows = document.getElementById('fx-recent-rows');
+	  const fxUpdatedAt = document.getElementById('fx-updated-at');
+	  const fxRefreshBtn = document.getElementById('fx-refresh-btn');
+	  const fxRefreshStatus = document.getElementById('fx-refresh-status');
+	  const fxDataScript = document.getElementById('fx-converter-data');
+	  let fxData = fxDataScript ? JSON.parse(fxDataScript.textContent || '{}') : {};
+	  let runStartedAt = 0;
+	  let runTimer = null;
+	  if (!form || !button || !statusPanel || !statusText || !resultsPanel || !resultsBody) return;
 
   function esc(value) {
     return String(value ?? '').replace(/[&<>"']/g, function (char) {
@@ -249,84 +456,369 @@
     });
   }
 
-  function setStats(stats) {
-    Object.entries(stats || {}).forEach(function ([key, value]) {
-      const el = document.querySelector('[data-stat="' + key + '"]');
-      if (el) el.textContent = value;
-    });
-  }
+	  function setStats(stats) {
+	    Object.entries(stats || {}).forEach(function ([key, value]) {
+	      const el = document.querySelector('[data-stat="' + key + '"]');
+	      if (el) el.textContent = value;
+	    });
+	  }
 
-  function dealHtml(deal) {
-    deal = deal || {};
-    if (deal.available) {
-      return '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">' +
-        '<div class="grid grid-cols-2 gap-2">' +
-        '<div><div class="text-[10px] text-[var(--pb-muted)]">DZ price</div><div class="font-semibold">' + esc(deal.algeria_price) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.algeria_original) + '</div></div>' +
-        '<div><div class="text-[10px] text-[var(--pb-muted)]">Sahibinden avg</div><div class="font-semibold">' + esc(deal.sahibinden_avg) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.sahibinden_count || '-') + ' rows</div></div>' +
-        '<div><div class="text-[10px] text-[var(--pb-muted)]">Gross margin</div><div class="font-semibold">' + esc(deal.gross_margin) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.margin_percent) + '</div></div>' +
-        '<div><div class="text-[10px] text-[var(--pb-muted)]">Offer</div><div class="font-semibold">' + esc(deal.offer_price) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.deal_quality) + '</div></div>' +
-        '</div></div>';
-    }
-    return deal.note ? '<span class="text-[var(--pb-muted)]">' + esc(deal.note) + '</span>' : '<span class="text-[var(--pb-muted)]">-</span>';
-  }
+	  function formatCurrency(value, currency) {
+	    const amount = Number(value || 0);
+	    return new Intl.NumberFormat('en-US', {
+	      minimumFractionDigits: 2,
+	      maximumFractionDigits: currency === 'DZD' || currency === 'TRY' ? 2 : 2,
+	    }).format(amount) + ' ' + currency;
+	  }
 
-  function rowHtml(row) {
-    const img = row.image_url
-      ? '<button type="button" class="block" data-image-preview="' + esc(row.image_url) + '"><img src="' + esc(row.image_url) + '" alt="" class="h-24 w-16 rounded object-cover border border-[var(--pb-border)] bg-[var(--pb-bg)]"></button>'
-      : '<span class="text-[var(--pb-muted)]">-</span>';
-    const candidate = row.candidate_url
-      ? '<a class="text-[var(--pb-accent)] hover:underline" href="' + esc(row.candidate_url) + '">' + esc(row.candidate_id) + '</a>'
-      : '-';
-    return '<tr class="border-b border-[var(--pb-border)]">' +
-      '<td class="p-2 font-mono">' + esc(row.post_id) + ' · ' + esc(row.shortcode || '-') + '</td>' +
-      '<td class="p-2">' + img + '</td>' +
-      '<td class="p-2">@' + esc(row.source || '-') + '</td>' +
-      '<td class="p-2 font-mono">' + esc(row.raw_id || '-') + '</td>' +
-      '<td class="p-2 font-mono">' + candidate + '</td>' +
-      '<td class="p-2">' + esc(row.category || '-') + '</td>' +
-      '<td class="p-2 max-w-[180px]">' + esc(row.store_warranty || '-') + '</td>' +
-      '<td class="p-2 min-w-[260px]">' + dealHtml(row.deal) + '</td>' +
-      '<td class="p-2">' + (row.exported ? 'yes' : 'no') + '</td>' +
-      '<td class="p-2">' + (row.ok ? 'ok' : esc(row.error || 'failed')) + '</td>' +
-      '</tr>';
-  }
+	  function fxRate(currency) {
+	    const rates = fxData.rates || {};
+	    return Number(rates[currency] || 0);
+	  }
 
-  form.addEventListener('submit', function (event) {
-    event.preventDefault();
-    const data = new FormData(form);
-    const limit = data.get('limit') || '5';
-    const mode = data.get('mode') || 'pending';
-    button.disabled = true;
-    button.classList.add('opacity-60', 'cursor-wait');
-    statusPanel.classList.remove('hidden');
-    resultsPanel.classList.remove('hidden');
-    resultsBody.innerHTML = '<tr><td colspan="10" class="p-3 text-[var(--pb-muted)]">Waiting for NVIDIA results...</td></tr>';
-    statusText.textContent = 'Running ' + mode + ' batch for up to ' + limit + ' posts. This can take a minute.';
+	  function convertCurrency(amount, from, to) {
+	    const fromRate = fxRate(from);
+	    const toRate = fxRate(to);
+	    if (!fromRate || !toRate) return null;
+	    return (Number(amount || 0) / fromRate) * toRate;
+	  }
 
-    fetch(form.action || window.location.href, {
-      method: 'POST',
-      body: data,
-      headers: {'X-Requested-With': 'XMLHttpRequest'},
-    })
-      .then(function (response) {
-        if (!response.ok) throw new Error('HTTP ' + response.status);
-        return response.json();
+	  function renderFxModal() {
+	    if (!fxRateGrid) return;
+	    const rates = fxData.rates || {};
+	    const eurDzd = Number(rates.DZD || 0);
+	    const eurTry = Number(rates.TRY || 0);
+	    const eurUsd = Number(rates.USD || 0);
+	    const usdTry = eurUsd ? eurTry / eurUsd : 0;
+	    const cards = [
+	      ['EUR/DZD', eurDzd],
+	      ['EUR/TRY', eurTry],
+	      ['EUR/USD', eurUsd],
+	      ['USD/TRY', usdTry],
+	    ];
+	    fxRateGrid.innerHTML = cards.map(function (card) {
+	      return '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-3">' +
+	        '<div class="text-[10px] uppercase text-[var(--pb-muted)]">' + esc(card[0]) + '</div>' +
+	        '<div class="font-mono text-base font-bold">' + esc(Number(card[1] || 0).toFixed(6)) + '</div>' +
+	        '</div>';
+	    }).join('');
+	    if (fxUpdatedAt) {
+	      fxUpdatedAt.textContent = fxData.latest_observed ? 'Latest row: ' + new Date(fxData.latest_observed).toLocaleString() : 'No saved FX rows yet';
+	    }
+	    if (fxRecentRows) {
+	      fxRecentRows.innerHTML = (fxData.rows || []).map(function (row) {
+	        return '<div class="flex flex-wrap items-center justify-between gap-2 rounded bg-[var(--pb-bg)] px-2 py-1">' +
+	          '<span class="font-mono">' + esc(row.pair) + ' ' + esc(row.rate) + '</span>' +
+	          '<span>' + esc(row.source || '-') + '</span>' +
+	        '</div>';
+	      }).join('') || '<div>No saved rows.</div>';
+	    }
+	  }
+
+	  function runFxConversion() {
+	    if (!fxResult || !fxAmount || !fxFrom || !fxTo) return;
+	    const value = convertCurrency(fxAmount.value, fxFrom.value, fxTo.value);
+	    fxResult.textContent = value === null ? 'Missing rate.' : formatCurrency(value, fxTo.value);
+	  }
+
+	  function openFxModal() {
+	    if (!fxModal) return;
+	    renderFxModal();
+	    runFxConversion();
+	    fxModal.classList.remove('hidden');
+	    document.body.style.overflow = 'hidden';
+	  }
+
+	  function closeFxModal() {
+	    if (!fxModal) return;
+	    fxModal.classList.add('hidden');
+	    document.body.style.overflow = '';
+	  }
+
+	  function refreshFxRates() {
+	    if (!fxRefreshBtn || !fxRefreshStatus) return;
+	    const data = new FormData(form);
+	    data.set('action', 'fx_refresh');
+	    fxRefreshBtn.disabled = true;
+	    fxRefreshBtn.classList.add('opacity-60', 'cursor-wait');
+	    fxRefreshStatus.textContent = 'Refreshing FX rates...';
+	    fetch(form.action || window.location.href, {
+	      method: 'POST',
+	      body: data,
+	      headers: {'X-Requested-With': 'XMLHttpRequest'},
+	    })
+	      .then(function (response) {
+	        if (!response.ok) throw new Error('HTTP ' + response.status);
+	        return response.json();
+	      })
+	      .then(function (payload) {
+	        if (!payload.ok) throw new Error(payload.error || 'FX refresh failed');
+	        fxData = payload.fx || fxData;
+	        renderFxModal();
+	        runFxConversion();
+	        fxRefreshStatus.textContent = 'FX refreshed and saved to database.';
+	      })
+	      .catch(function (error) {
+	        fxRefreshStatus.textContent = 'FX refresh failed: ' + error.message;
+	      })
+	      .finally(function () {
+	        fxRefreshBtn.disabled = false;
+	        fxRefreshBtn.classList.remove('opacity-60', 'cursor-wait');
+	      });
+	  }
+
+	  function pretty(value) {
+	    if (value === undefined || value === null || value === '') return '-';
+	    if (typeof value === 'string') return value;
+	    try {
+	      return JSON.stringify(value, null, 2);
+	    } catch (error) {
+	      return String(value);
+	    }
+	  }
+
+	  function seconds(ms) {
+	    return ((ms || 0) / 1000).toFixed(1) + 's';
+	  }
+
+	  function startRunTimer() {
+	    runStartedAt = performance.now();
+	    if (runTimer) window.clearInterval(runTimer);
+	    runTimer = window.setInterval(function () {
+	      if (runElapsed) runElapsed.textContent = seconds(performance.now() - runStartedAt);
+	    }, 150);
+	  }
+
+	  function stopRunTimer(durationMs) {
+	    if (runTimer) window.clearInterval(runTimer);
+	    runTimer = null;
+	    if (runElapsed) runElapsed.textContent = seconds(durationMs || (performance.now() - runStartedAt));
+	  }
+
+	  function updateRunCounters() {
+	    if (!runRows) return;
+	    const rows = Array.from(runRows.querySelectorAll('.ocr-row'));
+	    const done = rows.filter((row) => row.dataset.state === 'done').length;
+	    const errors = rows.filter((row) => row.dataset.state === 'error').length;
+	    if (runCount) runCount.textContent = rows.length;
+	    if (runDone) runDone.textContent = done;
+	    if (runErrors) runErrors.textContent = errors;
+	  }
+
+	  function openRunModal(title, summary, rows) {
+	    if (!runModal || !runRows) return;
+	    runTitle.textContent = title || 'NVIDIA OCR operation';
+	    runSummary.textContent = summary || 'Starting request...';
+	    runRows.innerHTML = (rows || []).map(runRowLoadingHtml).join('') ||
+	      '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4 text-sm text-[var(--pb-muted)]">No rows selected.</div>';
+	    runModal.classList.remove('hidden');
+	    document.body.style.overflow = 'hidden';
+	    startRunTimer();
+	    updateRunCounters();
+	  }
+
+		  function closeRunModal() {
+		    if (!runModal) return;
+		    runModal.classList.add('hidden');
+		    document.body.style.overflow = '';
+		    if (runTimer) window.clearInterval(runTimer);
+		    runTimer = null;
+		  }
+
+		  function runRowLoadingHtml(row) {
+		    const image = row.image_url
+		      ? '<img src="' + esc(row.image_url) + '" alt="">'
+		      : '<span class="text-[10px] text-[var(--pb-muted)]">No image</span>';
+		    return '<article class="ocr-row rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-3" data-post-id="' + esc(row.post_id || '') + '" data-state="loading">' +
+		      '<div class="ocr-run-row-head">' +
+		        '<div class="ocr-modal-thumb">' + image + '</div>' +
+		        '<div class="min-w-0">' +
+	          '<div class="flex flex-wrap items-center justify-between gap-2">' +
+	            '<div class="min-w-0"><div class="truncate font-semibold">Post ' + esc(row.post_id || '-') + '</div><div class="truncate text-xs text-[var(--pb-muted)]">@' + esc(row.source || '-') + ' · ' + esc(row.shortcode || '-') + '</div></div>' +
+	            '<span class="rounded bg-[var(--pb-bg)] px-2 py-1 text-xs text-[var(--pb-muted)]" data-run-state-label>Queued</span>' +
+	          '</div>' +
+	          '<div class="mt-3 ocr-loader"></div>' +
+	          '<div class="mt-2 text-xs text-[var(--pb-muted)]" data-run-line>Waiting for NVIDIA request...</div>' +
+	        '</div>' +
+	      '</div>' +
+	      '<div class="mt-3 hidden" data-run-details></div>' +
+	      '</article>';
+	  }
+
+	  function detailBlock(label, value) {
+	    return '<details class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2">' +
+	      '<summary class="cursor-pointer text-xs font-semibold text-[var(--pb-muted)]">' + esc(label) + '</summary>' +
+	      '<pre class="ocr-debug-pre mt-2 text-[11px]">' + esc(pretty(value)) + '</pre>' +
+	      '</details>';
+	  }
+
+	  function resultSummary(row) {
+	    const debug = row.debug || {};
+	    const backend = debug.backend || {};
+	    const parsed = debug.parsed_response || {};
+	    const candidate = debug.candidate || {};
+	    const parts = [];
+	    if (backend.model) parts.push('model ' + backend.model);
+	    if (backend.elapsed_ms) parts.push('NVIDIA ' + seconds(backend.elapsed_ms));
+	    if (debug.duration_ms) parts.push('total ' + seconds(debug.duration_ms));
+	    if (candidate.category) parts.push(candidate.category);
+	    if (candidate.model) parts.push(candidate.model);
+	    if (parsed.price_dzd) parts.push(parsed.price_dzd + ' DZD');
+	    return parts.join(' · ') || (row.ok ? 'Processed' : row.error || 'Failed');
+	  }
+
+	  function applyRunResult(row) {
+	    if (!runRows) return;
+	    const postId = String(row.post_id || '').replace(/"/g, '\\"');
+	    const shell = runRows.querySelector('.ocr-row[data-post-id="' + postId + '"]');
+	    if (!shell) return;
+	    const debug = row.debug || {};
+	    const backend = debug.backend || {};
+	    shell.dataset.state = row.ok ? 'done' : 'error';
+	    const stateLabel = shell.querySelector('[data-run-state-label]');
+	    const line = shell.querySelector('[data-run-line]');
+	    const details = shell.querySelector('[data-run-details]');
+	    if (stateLabel) {
+	      stateLabel.textContent = row.ok ? (row.exported ? 'Exported' : 'Processed') : 'Error';
+	      stateLabel.className = 'rounded bg-[var(--pb-bg)] px-2 py-1 text-xs ' + (row.ok ? 'text-emerald-600' : 'text-red-600');
+	    }
+	    if (line) line.textContent = resultSummary(row);
+	    if (details) {
+	      details.classList.remove('hidden');
+	      details.innerHTML =
+	        '<div class="grid gap-2 lg:grid-cols-2">' +
+	          detailBlock('Prompt sent to NVIDIA', backend.prompt || (debug.rebuild_clean ? 'Rebuild mode: reused stored OCRResult; no NVIDIA prompt sent.' : '-')) +
+	          detailBlock('Raw model response', backend.raw_response || debug.raw_text || row.error || '-') +
+	          detailBlock('Structured model JSON', backend.structured_response || debug.structured_response || {}) +
+	          detailBlock('Final parsed response', {
+	            parsed: debug.parsed_response || {},
+	            raw_listing: debug.raw_listing || {},
+	            candidate: debug.candidate || {},
+	            exported: debug.exported,
+	            deal: row.deal || {},
+	          }) +
+	        '</div>';
+	    }
+	    updateRunCounters();
+	  }
+
+	  function markRunFailed(message) {
+	    if (!runRows) return;
+	    runRows.querySelectorAll('.ocr-row').forEach(function (row) {
+	      if (row.dataset.state === 'loading') {
+	        row.dataset.state = 'error';
+	        const label = row.querySelector('[data-run-state-label]');
+	        const line = row.querySelector('[data-run-line]');
+	        if (label) label.textContent = 'Error';
+	        if (line) line.textContent = message;
+	      }
+	    });
+	    updateRunCounters();
+	  }
+
+	  function dealHtml(deal) {
+	    deal = deal || {};
+	    if (deal.available) {
+	      const buyerGain = deal.buyer_gain
+	        ? '<div class="col-span-2 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2"><div class="text-[10px] uppercase text-[var(--pb-muted)]">Buyer gain</div><div class="font-semibold">' + esc(deal.buyer_gain) + '</div></div>'
+	        : '';
+	      return '<div class="grid grid-cols-2 gap-2 text-sm">' +
+	        '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2"><div class="text-[10px] uppercase text-[var(--pb-muted)]">DZ price</div><div class="font-semibold">' + esc(deal.algeria_price) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.algeria_original) + '</div></div>' +
+	        '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2"><div class="text-[10px] uppercase text-[var(--pb-muted)]">Sahibinden avg</div><div class="font-semibold">' + esc(deal.sahibinden_avg) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.sahibinden_count || '-') + ' rows</div></div>' +
+	        '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2"><div class="text-[10px] uppercase text-[var(--pb-muted)]">Gross margin</div><div class="font-semibold">' + esc(deal.gross_margin) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.margin_percent) + '</div></div>' +
+	        '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2"><div class="text-[10px] uppercase text-[var(--pb-muted)]">Offer</div><div class="font-semibold">' + esc(deal.offer_price) + '</div><div class="text-[10px] text-[var(--pb-muted)]">' + esc(deal.deal_quality || '-') + '</div></div>' +
+	        buyerGain +
+	        '</div>';
+	    }
+	    return '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-3 text-sm text-[var(--pb-muted)]">' + esc(deal.note || 'No clean phone deal math yet.') + '</div>';
+	  }
+
+	  function rowHtml(row) {
+	    const img = row.image_url
+	      ? '<button type="button" class="group relative w-full overflow-hidden rounded border border-[var(--pb-border)] bg-[var(--pb-bg)]" style="aspect-ratio: 3 / 4;" data-image-preview="' + esc(row.image_url) + '"><img src="' + esc(row.image_url) + '" alt="" class="h-full w-full object-contain transition group-hover:scale-[1.02]"><span class="absolute rounded px-1.5 py-0.5 text-[10px] text-white" style="right: 4px; bottom: 4px; background: rgba(0, 0, 0, .7);">view</span></button>'
+	      : '<div class="flex w-full items-center justify-center rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] text-sm text-[var(--pb-muted)]" style="aspect-ratio: 3 / 4;">No image</div>';
+	    const candidate = row.candidate_url
+	      ? '<a class="text-[var(--pb-accent)] hover:underline" href="' + esc(row.candidate_url) + '">' + esc(row.candidate_id) + '</a>'
+	      : '-';
+	    return '<article class="flex min-w-0 flex-col gap-2 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2">' +
+	      img +
+	      '<section class="min-w-0">' +
+	        '<div class="mb-2 flex flex-wrap items-center gap-1">' +
+	          '<span class="font-mono text-xs text-[var(--pb-muted)]">post ' + esc(row.post_id) + '</span>' +
+	          '<span class="rounded bg-[var(--pb-bg)] px-1.5 py-0.5 text-[10px]">' + esc(row.category || '-') + '</span>' +
+	          '<span class="rounded bg-[var(--pb-bg)] px-1.5 py-0.5 text-[10px]">' + (row.exported ? 'exported' : 'not exported') + '</span>' +
+	        '</div>' +
+	        '<h3 class="truncate text-sm font-semibold">' + esc(((row.brand || '') + ' ' + (row.model || '')).trim() || row.shortcode || 'Instagram post') + '</h3>' +
+	        '<div class="mt-1 truncate text-xs text-[var(--pb-muted)]">@' + esc(row.source || '-') + ' · candidate ' + candidate + '</div>' +
+	        '<div class="mt-2 grid grid-cols-2 gap-1 text-xs">' +
+	          '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2"><div class="text-[10px] uppercase text-[var(--pb-muted)]">Price</div><div class="truncate font-semibold">' + esc(row.price || '-') + ' ' + esc(row.currency || '') + '</div></div>' +
+	          '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2"><div class="text-[10px] uppercase text-[var(--pb-muted)]">Warranty</div><div class="truncate">' + esc(row.store_warranty || '-') + '</div></div>' +
+	        '</div>' +
+	        '<button type="button" class="mt-2 w-full rounded bg-[var(--pb-accent)] px-2 py-1.5 text-xs font-semibold text-white hover:opacity-90" data-run-row-ocr="' + esc(row.post_id) + '">Run OCR</button>' +
+	      '</section>' +
+	      '<section class="rounded border border-[var(--pb-border)] bg-[var(--pb-bg)] p-2"><div class="mb-2 text-xs font-semibold text-[var(--pb-muted)]">Deal math</div>' + dealHtml(row.deal) + '</section>' +
+	      '</article>';
+	  }
+
+	  form.addEventListener('submit', function (event) {
+	    event.preventDefault();
+	    const data = new FormData(form);
+	    const limit = data.get('limit') || '5';
+	    const mode = data.get('mode') || 'pending';
+	    button.disabled = true;
+	    button.classList.add('opacity-60', 'cursor-wait');
+	    statusPanel.classList.remove('hidden');
+	    resultsPanel.classList.remove('hidden');
+	    resultsBody.innerHTML = '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4 text-sm text-[var(--pb-muted)]" style="grid-column: 1 / -1;">Waiting for NVIDIA results...</div>';
+	    statusText.textContent = 'Running ' + mode + ' batch for up to ' + limit + ' posts. This can take a minute.';
+
+	    const previewData = new FormData(form);
+	    previewData.set('action', 'preview');
+	    fetch(form.action || window.location.href, {
+	      method: 'POST',
+	      body: previewData,
+	      headers: {'X-Requested-With': 'XMLHttpRequest'},
+	    })
+	      .then(function (response) {
+	        if (!response.ok) throw new Error('HTTP ' + response.status);
+	        return response.json();
+	      })
+	      .then(function (preview) {
+	        openRunModal('Bulk NVIDIA OCR', 'Running ' + mode + ' for ' + (preview.rows || []).length + ' requested posts.', preview.rows || []);
+	        return fetch(form.action || window.location.href, {
+	          method: 'POST',
+	          body: data,
+	          headers: {'X-Requested-With': 'XMLHttpRequest'},
+	        });
+	      })
+	      .then(function (response) {
+	        if (!response.ok) throw new Error('HTTP ' + response.status);
+	        return response.json();
       })
       .then(function (payload) {
         setStats(payload.stats);
         const summary = payload.summary || {};
-        statusText.textContent = 'Finished: processed ' + (summary.processed || 0) +
-          ', exported ' + (summary.exported || 0) + ', errors ' + (summary.errors || 0) + '.';
-        const rows = payload.rows || [];
-        resultsBody.innerHTML = rows.length
-          ? rows.map(rowHtml).join('')
-          : '<tr><td colspan="10" class="p-3 text-[var(--pb-muted)]">No posts matched this batch.</td></tr>';
-      })
-      .catch(function (error) {
-        statusText.textContent = 'Batch failed: ' + error.message;
-      })
-      .finally(function () {
-        button.disabled = false;
+	        statusText.textContent = 'Finished: processed ' + (summary.processed || 0) +
+	          ', exported ' + (summary.exported || 0) + ', errors ' + (summary.errors || 0) + '.';
+	        const rows = payload.rows || [];
+	        rows.forEach(applyRunResult);
+	        stopRunTimer();
+	        if (runSummary) runSummary.textContent = 'Finished: processed ' + (summary.processed || 0) +
+	          ', exported ' + (summary.exported || 0) + ', errors ' + (summary.errors || 0) + '.';
+	        resultsBody.innerHTML = rows.length
+	          ? rows.map(rowHtml).join('')
+	          : '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4 text-sm text-[var(--pb-muted)]" style="grid-column: 1 / -1;">No posts matched this batch.</div>';
+	      })
+	      .catch(function (error) {
+	        statusText.textContent = 'Batch failed: ' + error.message;
+	        if (runModal && !runModal.classList.contains('hidden')) {
+	          markRunFailed(error.message);
+	          stopRunTimer();
+	          if (runSummary) runSummary.textContent = 'Failed: ' + error.message;
+	        }
+	      })
+	      .finally(function () {
+	        button.disabled = false;
         button.classList.remove('opacity-60', 'cursor-wait');
       });
   });
@@ -339,22 +831,31 @@
       return;
     }
     const rowButton = event.target.closest('[data-run-row-ocr]');
-    if (rowButton) {
-      event.preventDefault();
-      const data = new FormData(form);
-      data.set('action', 'single');
-      data.set('post_id', rowButton.dataset.runRowOcr);
+	    if (rowButton) {
+	      event.preventDefault();
+	      const data = new FormData(form);
+	      data.set('action', 'single');
+	      data.set('post_id', rowButton.dataset.runRowOcr);
       data.set('mode', 'reprocess');
       data.set('limit', '1');
       rowButton.disabled = true;
-      rowButton.textContent = 'Running...';
-      statusPanel.classList.remove('hidden');
-      resultsPanel.classList.remove('hidden');
-      resultsBody.innerHTML = '<tr><td colspan="10" class="p-3 text-[var(--pb-muted)]">Running OCR for post ' + esc(rowButton.dataset.runRowOcr) + '...</td></tr>';
-      statusText.textContent = 'Running single NVIDIA OCR pass.';
-      fetch(form.action || window.location.href, {
-        method: 'POST',
-        body: data,
+	      rowButton.textContent = 'Running...';
+	      statusPanel.classList.remove('hidden');
+	      resultsPanel.classList.remove('hidden');
+	      resultsBody.innerHTML = '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4 text-sm text-[var(--pb-muted)]" style="grid-column: 1 / -1;">Running OCR for post ' + esc(rowButton.dataset.runRowOcr) + '...</div>';
+	      statusText.textContent = 'Running single NVIDIA OCR pass.';
+	      const card = rowButton.closest('article');
+	      const img = card ? card.querySelector('[data-image-preview]') : null;
+	      const title = card ? card.querySelector('h3') : null;
+	      openRunModal('Single NVIDIA OCR', 'Running one post through NVIDIA and clean parsing.', [{
+	        post_id: rowButton.dataset.runRowOcr,
+	        shortcode: title ? title.textContent.trim() : '',
+	        source: '',
+	        image_url: img ? img.dataset.imagePreview : '',
+	      }]);
+	      fetch(form.action || window.location.href, {
+	        method: 'POST',
+	        body: data,
         headers: {'X-Requested-With': 'XMLHttpRequest'},
       })
         .then(function (response) {
@@ -364,14 +865,21 @@
         .then(function (payload) {
           setStats(payload.stats);
           const summary = payload.summary || {};
-          statusText.textContent = 'Finished: processed ' + (summary.processed || 0) +
-            ', exported ' + (summary.exported || 0) + ', errors ' + (summary.errors || 0) + '.';
-          const rows = payload.rows || [];
-          resultsBody.innerHTML = rows.length ? rows.map(rowHtml).join('') : '<tr><td colspan="10" class="p-3 text-[var(--pb-muted)]">No result returned.</td></tr>';
-        })
-        .catch(function (error) {
-          statusText.textContent = 'OCR failed: ' + error.message;
-        })
+	          statusText.textContent = 'Finished: processed ' + (summary.processed || 0) +
+	            ', exported ' + (summary.exported || 0) + ', errors ' + (summary.errors || 0) + '.';
+	          const rows = payload.rows || [];
+	          rows.forEach(applyRunResult);
+	          stopRunTimer();
+	          if (runSummary) runSummary.textContent = 'Finished: processed ' + (summary.processed || 0) +
+	            ', exported ' + (summary.exported || 0) + ', errors ' + (summary.errors || 0) + '.';
+	          resultsBody.innerHTML = rows.length ? rows.map(rowHtml).join('') : '<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-4 text-sm text-[var(--pb-muted)]" style="grid-column: 1 / -1;">No result returned.</div>';
+	        })
+	        .catch(function (error) {
+	          statusText.textContent = 'OCR failed: ' + error.message;
+	          markRunFailed(error.message);
+	          stopRunTimer();
+	          if (runSummary) runSummary.textContent = 'Failed: ' + error.message;
+	        })
         .finally(function () {
           rowButton.disabled = false;
           rowButton.textContent = 'Run OCR';
@@ -379,18 +887,46 @@
     }
   });
 
-  if (imageClose && imageModal && imageFull) {
-    imageClose.addEventListener('click', function () {
-      imageModal.classList.add('hidden');
-      imageFull.src = '';
-    });
+	  if (imageClose && imageModal && imageFull) {
+	    imageClose.addEventListener('click', function () {
+	      imageModal.classList.add('hidden');
+	      imageFull.src = '';
+	    });
     imageModal.addEventListener('click', function (event) {
       if (event.target === imageModal) {
         imageModal.classList.add('hidden');
         imageFull.src = '';
-      }
-    });
-  }
-})();
+	      }
+	    });
+	  }
+	  if (runClose && runModal) {
+	    runClose.addEventListener('click', closeRunModal);
+	    runModal.addEventListener('click', function (event) {
+	      if (event.target === runModal) closeRunModal();
+	    });
+	  }
+	  fxOpenButtons.forEach(function (openButton) {
+	    openButton.addEventListener('click', openFxModal);
+	  });
+	  if (fxClose && fxModal) {
+	    fxClose.addEventListener('click', closeFxModal);
+	    fxModal.addEventListener('click', function (event) {
+	      if (event.target === fxModal) closeFxModal();
+	    });
+	  }
+	  if (fxForm) {
+	    fxForm.addEventListener('submit', function (event) {
+	      event.preventDefault();
+	      runFxConversion();
+	    });
+	  }
+	  [fxAmount, fxFrom, fxTo].forEach(function (input) {
+	    if (input) input.addEventListener('input', runFxConversion);
+	    if (input) input.addEventListener('change', runFxConversion);
+	  });
+	  if (fxRefreshBtn) {
+	    fxRefreshBtn.addEventListener('click', refreshFxRates);
+	  }
+	})();
 </script>
 {% endblock %}

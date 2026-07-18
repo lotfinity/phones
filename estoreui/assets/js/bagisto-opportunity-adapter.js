@@ -98,6 +98,23 @@
     return payload.urls?.index || "/estore/";
   }
 
+  function rewriteShellLinks() {
+    all("a[href]").forEach((anchor) => {
+      const href = anchor.getAttribute("href") || "";
+      if (href === "#pb-product") return;
+      const mapped = mapCapturedHref(href, lower(anchor));
+      if (mapped && mapped !== href) anchor.setAttribute("href", mapped);
+    });
+    all("form[action]").forEach((form) => {
+      const mapped = mapCapturedHref(form.getAttribute("action") || "", lower(form));
+      if (mapped) form.setAttribute("action", payload.urls?.index || mapped);
+    });
+  }
+
+  function cardDetailUrl(card) {
+    return card.frontend_detail_url || card.detail_url || "#";
+  }
+
   function rewriteBranding() {
     all("header, footer").forEach((region) => {
       all("a,span,strong,p", region).forEach((node) => {
@@ -115,34 +132,8 @@
   }
 
   function renderBrandFilters() {
-    if (payload.page !== "opportunity-index") return;
-    const options = Array.isArray(payload.brand_options) ? payload.brand_options : [];
-    if (options.length <= 1) return;
-
-    const target = all("main .flex.items-center.gap-3")
-      .find((node) => {
-        if (node.dataset.pbBrandFilters === "1") return false;
-        const label = text(node);
-        return /filters|from a-z|sort by|sırala|filtres/i.test(label);
-      }) || all("header .flex.items-center.gap-3")[0];
-    if (!target || target.dataset.pbBrandFilters === "1") return;
-
-    target.dataset.pbBrandFilters = "1";
-    target.innerHTML = `
-      <nav class="pb-header-brand-filters" aria-label="Marka filtreleri">
-        ${options.map((option) => `
-          <a
-            class="pb-header-brand-filter${option.active ? " is-active" : ""}"
-            href="${escapeHtml(option.url || "/estore/")}"
-            data-pb-brand-filter="${escapeHtml(option.value || "")}"
-            title="${escapeHtml(option.value ? `${option.name} fırsatları` : "Tüm markalar")}"
-          >
-            ${option.logo_white || option.logo ? `<img src="${escapeHtml(option.logo_white || option.logo)}" alt="${escapeHtml(option.name)}" class="pb-brand-icon" />` : ""}
-            <span>${escapeHtml(option.name)}</span>
-            <small>${escapeHtml(option.count ?? "")}</small>
-          </a>
-        `).join("")}
-      </nav>`;
+    // Keep the captured Bagisto filter/sort controls in place. Injecting
+    // dynamic brand filters changes the reference layout too aggressively.
   }
 
   function relocateMobileBottomNav() {
@@ -244,19 +235,15 @@
   function replaceCatalogHeading() {
     const candidates = all("main h1, main h2, main h3");
     const target = candidates.find((node) => /smartphone|product|category/i.test(text(node))) || candidates[0];
-    if (target && payload.page === "opportunity-index") target.textContent = "Tüm Fırsatlar";
+    if (target && payload.page === "opportunity-index") target.textContent = "PriceBridge Opportunities";
 
     all("main a, main p, main span, main li").forEach((node) => {
       const current = text(node);
-      if (/furniture designed|sofas|wooden tables|storage solutions|crafted with quality/i.test(current)) {
-        node.textContent = "Cezayir kaynaklı tekil alım fırsatlarını Türkiye piyasa karşılaştırmalarıyla birlikte incele. Her kart gerçek bir kaynak ilanına bağlanır ve güncellik durumuna göre aksiyon alır.";
-        return;
-      }
       if (node.children.length) return;
       if (/^smartphones$/i.test(current)) node.textContent = "Fırsatlar";
       if (/^home$/i.test(current)) node.textContent = "Ana sayfa";
       if (/\b\d+\s+(products?|items?)\b/i.test(current)) {
-        node.textContent = `${payload.total_count || 0} fırsat`;
+        node.textContent = `${payload.total_count || 0} clean opportunities`;
       }
     });
   }
@@ -489,7 +476,7 @@
   function populateCard(cardNode, card) {
     cardNode.dataset.pbOpportunityCard = String(card.pk);
     all("a[href]", cardNode).forEach((anchor) => {
-      anchor.href = card.detail_url || "#";
+      anchor.href = cardDetailUrl(card);
       anchor.removeAttribute("target");
     });
 
@@ -516,10 +503,10 @@
       const article = document.createElement("article");
       article.className = "pb-bagisto-fallback-card";
       article.innerHTML = `
-        <a href="${escapeHtml(card.detail_url || "#")}">
+        <a href="${escapeHtml(cardDetailUrl(card))}">
           <img src="${escapeHtml(card.has_image && card.image_url ? card.image_url : svgFallback(card.title))}" alt="${escapeHtml(card.title)}">
         </a>
-        <div><h3><a href="${escapeHtml(card.detail_url || "#")}">${escapeHtml(card.title)}</a></h3></div>`;
+        <div><h3><a href="${escapeHtml(cardDetailUrl(card))}">${escapeHtml(card.title)}</a></h3></div>`;
       article.querySelector("div")?.append(opportunityMeta(card));
       grid.append(article);
     });

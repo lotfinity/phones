@@ -4,6 +4,7 @@ import mimetypes
 import re
 import subprocess
 import tempfile
+import time
 from pathlib import Path
 
 from django.conf import settings
@@ -189,6 +190,7 @@ class NvidiaVisionBackend(OCRBackend):
         self.api_key = api_key or settings.NVIDIA_API_KEY
         self.endpoint = endpoint or settings.NVIDIA_VISION_ENDPOINT
         self.model = model or settings.NVIDIA_VISION_MODEL
+        self.last_request_debug = {}
         if not self.api_key:
             raise RuntimeError("NVIDIA_API_KEY or NVIDIA_NIM_API_KEY is required for NVIDIA vision OCR.")
 
@@ -201,12 +203,21 @@ class NvidiaVisionBackend(OCRBackend):
         if not image_path.exists():
             return "", 0.0, {}
 
+        mime_type = mimetypes.guess_type(image_path.name)[0] or "image/jpeg"
+        prompt = self._build_prompt()
+        started = time.monotonic()
+        self.last_request_debug = {
+            "backend": "nvidia",
+            "model": self.model,
+            "endpoint": self.endpoint,
+            "prompt": prompt,
+            "image_path": str(image_path),
+            "mime_type": mime_type,
+        }
         try:
             import requests
 
-            mime_type = mimetypes.guess_type(image_path.name)[0] or "image/jpeg"
             encoded = base64.b64encode(image_path.read_bytes()).decode("ascii")
-            prompt = self._build_prompt()
             response = requests.post(
                 self.endpoint,
                 headers={
@@ -235,14 +246,21 @@ class NvidiaVisionBackend(OCRBackend):
                 },
                 timeout=90,
             )
+            elapsed_ms = int((time.monotonic() - started) * 1000)
+            self.last_request_debug["elapsed_ms"] = elapsed_ms
+            self.last_request_debug["http_status"] = response.status_code
             response.raise_for_status()
             payload = response.json()
-        except Exception:
+        except Exception as exc:
+            self.last_request_debug["elapsed_ms"] = int((time.monotonic() - started) * 1000)
+            self.last_request_debug["error"] = str(exc)
             return "", 0.0, {}
 
         try:
             content = payload["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError):
+            self.last_request_debug["payload"] = payload
+            self.last_request_debug["error"] = "NVIDIA response did not include choices[0].message.content."
             return "", 0.0, {}
 
         if isinstance(content, list):
@@ -252,7 +270,10 @@ class NvidiaVisionBackend(OCRBackend):
         else:
             text = str(content)
         structured = self._json_to_data(text)
+        self.last_request_debug["raw_response"] = text
+        self.last_request_debug["structured_response"] = structured
         text = self._structured_to_text(structured) if structured else self._clean_text(text)
+        self.last_request_debug["flattened_text"] = text
         return text, 0.9 if structured else (0.8 if text else 0.0), structured
 
     def _build_prompt(self):

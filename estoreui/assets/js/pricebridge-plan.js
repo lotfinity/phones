@@ -2,17 +2,17 @@
   "use strict";
 
   const dataNode = document.getElementById("pricebridge-opportunity-data");
-  if (!dataNode) return;
-
-  let payload;
-  try {
-    payload = JSON.parse(dataNode.textContent || "{}");
-  } catch (error) {
-    console.error("PriceBridge plan payload could not be parsed", error);
-    return;
+  let payload = {};
+  if (dataNode) {
+    try {
+      payload = JSON.parse(dataNode.textContent || "{}");
+    } catch (error) {
+      console.error("PriceBridge plan payload could not be parsed", error);
+      payload = {};
+    }
   }
 
-  const currency = String(payload.selected_currency || "TRY").toUpperCase();
+  let currency = String(payload.selected_currency || "TRY").toUpperCase();
   const STORAGE_KEY = "pricebridge_acquisition_plan_v1";
   const MAX_PHONES = 6;
   const all = (selector, scope = document) => [...scope.querySelectorAll(selector)];
@@ -124,6 +124,18 @@
   }
 
   const records = new Map(opportunityRecords().map((record) => [opportunityKey(record), record]));
+
+  function ingestRecords(nextPayload = {}) {
+    if (nextPayload.selected_currency) currency = String(nextPayload.selected_currency || currency).toUpperCase();
+    const incoming = Array.isArray(nextPayload.cards)
+      ? nextPayload.cards
+      : nextPayload.opportunity
+        ? [nextPayload.opportunity]
+        : [];
+    incoming.forEach((record) => {
+      if (record && typeof record === "object") records.set(opportunityKey(record), record);
+    });
+  }
 
   function findPlanDialog() {
     const dialogs = all('[role="dialog"]');
@@ -482,6 +494,13 @@
     updateAddButtonStates();
   });
 
+  document.addEventListener("pricebridge:opportunities-loaded", (event) => {
+    ingestRecords(event.detail || {});
+    installAddButtons();
+    updatePlanBadges();
+    updateAddButtonStates();
+  });
+
   window.addEventListener("storage", (event) => {
     if (event.key !== STORAGE_KEY) return;
     state = readState();
@@ -490,6 +509,8 @@
   });
 
   function init() {
+    ingestRecords(payload);
+    ingestRecords(window.PriceBridgeOpportunityPayload || {});
     ensurePlanDialog();
     installAddButtons();
     installTriggers();

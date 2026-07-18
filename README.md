@@ -37,12 +37,30 @@ python manage.py runserver
 
 Useful routes:
 
-- `/` — clean opportunity overview
+- `/` — active API-driven Bagisto-style opportunity UI
+- `/<category>/<id>/` — active Bagisto-style opportunity detail, for example `/phone/649/`
 - `/listings/` — listing inspection
-- `/opportunities/` — opportunity table
+- `/opportunities/` — legacy clean opportunity overview/table
+- `/estore/` — server-rendered Django clean estore table and API namespace
+- `/estore/api/opportunities/` — JSON opportunity cards for alternate frontends
+- `/estore/api/opportunities/<category>/<id>/` — JSON product/detail contract for alternate frontends
 - `/deals/` — buyer-facing deal cards
 - `/import-lab/` — staff review workflow
 - `/admin/` — Django admin
+
+## Current UI Ownership
+
+The current public UI is not a Django template in `market/templates/estore/`. It is the preserved Bagisto frontend served through Django:
+
+- Routes: `pricebridge/urls.py` serves `/` and `/<category>/<id>/` with `market.views_estore_bagisto`.
+- Index capture: `estoreui/pages/smartphones-preview.html`.
+- Detail capture: `estoreui/pages/products/speakers-preview.html`.
+- Renderer/HTML rewriting: `market/bagisto_source.py`.
+- Data/API contract: `market/views_estore.py`.
+- Browser adapters: `estoreui/assets/js/pricebridge-opportunities.js`, `pricebridge-detail.js`, `pricebridge-shell.js`, and `pricebridge-plan.js`.
+- Bridge CSS: `estoreui/assets/css/bagisto-django-bridge.css`; copied Bagisto styles remain under `estoreui/assets/css`.
+
+Legacy `/new/` routes redirect to `/`. Use `/estore/` only for the server-rendered Django estore table and `/ui-preview/` only for old side-by-side review views.
 
 ## Canonical raw-first workflow
 

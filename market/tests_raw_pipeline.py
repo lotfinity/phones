@@ -233,6 +233,50 @@ class PhoneParserV2Tests(SimpleTestCase):
         result = parse_phone("Samsung Galaxy S25 Ultra 256GB 8GB RAM 180000 DA", None, {})
         self.assertGreater(result["confidence"], 0.5)
 
+    def test_parse_phone_visible_text_overrides_conflicting_structured_header(self):
+        from market.services.parsing.phone_parser_v2 import parse_phone
+
+        text = """Model: iPhone 13 Pro Max
+Storage: 256GB
+RAM: 6GB
+SIM: 2sim
+Battery: 98%
+Cycles: 20/20
+Condition: sealed/new
+Color: black, red, white
+Price: 26000 DA
+Warranty: Garentie 6 Mois
+Visible text:
+SE 2020
+64 GB Batterie 98/90...
+État 20/20
+Garentie 6 Mois
+Prix 1 26000
+iPhone 13 Pro Max
+256GB
+6GB
+2sim
+98%
+20/20
+sealed/new
+black
+red
+white
+26000 DA
+Garentie 6 Mois"""
+        result = parse_phone(text, None, {})
+
+        self.assertEqual(result["brand_text"], "Apple")
+        self.assertEqual(result["model_text"], "iPhone SE 2020")
+        self.assertEqual(result["storage_gb"], 64)
+        self.assertIsNone(result["ram_gb"])
+        self.assertEqual(result["sim_config"], "")
+        self.assertEqual(result["battery_health"], 98)
+        self.assertEqual(result["condition"], "used_a_plus")
+        self.assertEqual(result["box_status"], "")
+        self.assertEqual(result["store_warranty"], "Garentie 6 Mois")
+        self.assertEqual(result["price_original"], Decimal("26000"))
+
 
 class LaptopParserV2Tests(SimpleTestCase):
     """Test laptop_parser_v2 regex extraction from raw text."""

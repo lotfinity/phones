@@ -44,8 +44,6 @@ BRAND_LOGO_SLUGS = {
     "msi": "msi",
     "razer": "razer",
     "alienware": "alienware",
-    "microsoft": "microsoft",
-    "surface": "microsoft",
 
     "nvidia": "nvidia",
     "amd": "amd",

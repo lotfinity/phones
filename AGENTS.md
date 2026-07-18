@@ -4,6 +4,14 @@ PriceBridge is a Django market-intelligence app, not ecommerce. Keep the first v
 
 Architecture:
 - `market.models` stores generic electronics taxonomy, sources, Instagram posts, OCR results, supplier prices, listings, currency rates, opportunity snapshots, and product visual assets.
+- Active public UI is the API-driven preserved Bagisto storefront at `/` and `/<category>/<id>/`.
+- Active UI routes live in `pricebridge/urls.py` and call `market.views_estore_bagisto`.
+- Active UI source captures live in `estoreui/pages/smartphones-preview.html` for the listing/index page and `estoreui/pages/products/speakers-preview.html` for product detail.
+- Active UI adapter scripts are `estoreui/assets/js/pricebridge-opportunities.js`, `estoreui/assets/js/pricebridge-detail.js`, `estoreui/assets/js/pricebridge-shell.js`, and `estoreui/assets/js/pricebridge-plan.js`.
+- Active UI bridge styles are `estoreui/assets/css/bagisto-django-bridge.css`, with original Bagisto assets under `estoreui/assets/css`.
+- Active UI data comes from `market.views_estore` JSON endpoints: `/estore/api/opportunities/`, `/estore/api/opportunities/<category>/<id>/`, `/estore/api/fx/`, and `/estore/api/fx/refresh/`.
+- `/new/` and `/new/<category>/<id>/` are legacy redirects only. Do not target them for new UI work.
+- `/estore/` is the server-rendered Django clean opportunity/admin-facing estore table; do not edit it when the user asks for the current public UI unless they explicitly say `/estore/`.
 - `market.parsers` contains rough text parsers for supplier lists, Instagram captions, and OCR text.
 - `market.collectors.instagram` uses Instaloader for public profile collection.
 - Instagram collection can use `INSTAGRAM_SESSION_PATH` or `INSTAGRAM_COOKIE_FILE`; never print cookie values.
@@ -31,6 +39,7 @@ Rules:
 - Always store license/attribution/restrictions metadata from Commons.
 - Prefer SVG logos over PNG/JPG when available.
 - Update `CHANGELOG.md` after meaningful work.
+- For current public UI changes, edit `market.views_estore_bagisto`, `market.bagisto_source`, `market.views_estore`, and/or `estoreui/assets/js/pricebridge-*.js` first. Avoid changing old prototype folders unless the user explicitly asks for a prototype/static preview.
 
 Useful commands:
 - `python manage.py import_supplier_list --file path/to/list.txt`

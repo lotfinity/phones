@@ -1,4 +1,19 @@
 # Changelog
+## 2026-07-18
+
+### Instagram visible-text parsing repair
+
+- Hardened the phone parser so NVIDIA visible-text sale overlays override conflicting structured header fields for model, storage, battery, warranty, price, SIM, and box status.
+- Fixed Instagram-style `SE 2020`, `iPhone 16E`, `Batterie 98/90`, and `Prix 1 26000` parsing edge cases without treating words like `Selfie` as iPhone SE.
+- Rebuilt the corrupted RDphone reel listing for `DatEzWSOSuW` from `iPhone 13 Pro Max 256GB` to `iPhone SE 2020 64GB`, then recomputed clean phone opportunity snapshots.
+- Fixed clean listing image proxy handling for `/media/...` and `media/...` image paths so Django serves Instagram listing images from `MEDIA_ROOT` instead of 404ing, and removed the broken Microsoft Simple Icons mapping so the UI falls back cleanly.
+- Added category-specific `detail_specs` to estore opportunity detail API responses and made both the preserved Bagisto detail template and browser adapter render full structured phone and laptop spec rows instead of mixed business metrics.
+- Repurposed the preserved Bagisto detail `Reviews` tab into `Türkiye Comparables`, pre-rendering Sahibinden evidence rows server-side and refreshing the tab content from the estore detail API.
+- Scoped the preserved Bagisto detail tab click handlers to the actual specs tab bar, so `Türkiye Comparables` reliably toggles the comparison panel and updates the active underline.
+- Changed clean phone/laptop/console opportunity recomputes to upsert stable snapshot rows instead of deleting and recreating every row, preserving public `/<category>/<id>/` URLs across FX refreshes.
+- Promoted the API-driven preserved Bagisto storefront from `/new/` to `/` and `/<category>/<id>/`, leaving `/new/` as compatibility redirects.
+- Updated `AGENTS.md` and `README.md` with the current UI ownership map: root routes use `market.views_estore_bagisto`, preserved captures in `estoreui/pages/`, adapters in `estoreui/assets/js/pricebridge-*.js`, bridge CSS in `estoreui/assets/css/`, and data contracts in `market.views_estore`.
+
 ## 2026-07-12
 
 ### Instagram reprocessing and duplicate handling
@@ -22,6 +37,19 @@
 - Switched the NVIDIA vision prompt to strict JSON output, store the structured payload on raw Instagram listings, and make the phone parser prefer explicit NVIDIA fields so storage like `128GB` cannot become fake RAM.
 - Added a staff Instagram OCR Ops page for running small pending/reprocess/rebuild batches from the browser, backed by the same post-processing helper as `process_ocr_queue --reprocess-existing`.
 - Added store warranty extraction for Instagram phone listings, carrying NVIDIA `store_warranty` text through candidates, clean `PhoneListing` rows, admin, and estore listing specs.
+- Redesigned the Instagram OCR Ops review page around responsive image review card grids, click-to-enlarge previews, per-post NVIDIA OCR buttons, live AJAX progress/results, and in-card clean deal math.
+- Added an OCR operation modal for single and bulk Instagram OCR runs, showing requested thumbnails, live elapsed time, loader states, NVIDIA prompt/model response diagnostics, structured JSON, parsed output, and export results.
+- Added an FX converter modal to Instagram OCR Ops with current saved rates, any-currency conversion, recent FX rows, and a refresh action backed by `fetch_exchange_rates`.
+- Linked clean phone/laptop/console opportunity snapshots to their exact Algeria acquisition listing and made `/estore/` render only clean opportunity snapshots instead of appending legacy Instagram `DealSnapshot` cards.
+- Added clean estore JSON endpoints for opportunity index/detail data so alternate frontends can consume the same canonical snapshot cards and evidence contract.
+- Added explicit CORS support for local Bagisto UI prototype origins so static frontend experiments can call the Django estore API without using wildcard origins.
+- Added estore FX JSON/refresh endpoints exposing the exact EUR-based rates used by opportunity math and refreshing clean phone/laptop/console snapshots after `fetch_exchange_rates`.
+- Moved the Django-hosted Bagisto-style frontend to `/new/` and `/new/<category>/<id>/`, exposed those product URLs in estore API cards, and kept `/estore/` for the server-rendered estore/API area.
+- Restored `/new/` visual parity with the standalone Bagisto preview by copying the latest preserved preview HTML/prototype scripts, stripping conflicting prototype scripts during Django rendering, and removing broad body/header/footer overrides from the bridge CSS.
+- Switched `/new/` to the same browser-GET model as the standalone Bagisto prototype: the index loads `/estore/api/opportunities/`, detail pages load `/estore/api/opportunities/<category>/<id>/`, and Django no longer embeds opportunity payload JSON or the old adapter script in those pages.
+- Pinned the captured Bagisto mobile bottom navigation to the viewport bottom and move it out of the fixed header at runtime so Safari/mobile layouts cannot render it over the top of product detail pages.
+- Reworked the `/new/` product-detail adapter to reuse the captured Bagisto visual blocks while replacing their meaning with PriceBridge API data: source freshness, deal math, evidence counts, real specs, and Türkiye comparisons.
+- Filled the captured product description paragraph on `/new/` detail pages with PriceBridge API fields and device specs instead of suppressing the original fake product copy.
 
 ### Bagisto storefront PriceBridge semantics
 

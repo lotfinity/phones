@@ -2,11 +2,13 @@ import json
 import logging
 import sys
 import types
+from io import StringIO
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from pathlib import Path
 
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.management import call_command
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models import Avg, Count, F, Max, Q
@@ -135,6 +137,37 @@ def current_fx_rates():
         {"label": "€1", "value": f"{rate(eur_rate_or_setting('DZD', 'DZD_PER_EUR_BLACK')):,.2f} DZD"},
         {"label": "€1", "value": f"${rate(eur_usd_rate()):,.2f}"},
     ]
+
+
+def fx_converter_payload():
+    from market.models import CurrencyRate
+
+    rates = {
+        "EUR": Decimal("1"),
+        "USD": eur_usd_rate(),
+        "TRY": eur_try_rate(),
+        "DZD": eur_rate_or_setting("DZD", "DZD_PER_EUR_BLACK"),
+    }
+    latest_rows = list(CurrencyRate.objects.order_by("-observed_at", "-id")[:8])
+    latest_observed = latest_rows[0].observed_at.isoformat() if latest_rows else ""
+
+    def fmt(value):
+        return str(Decimal(str(value)).quantize(Decimal("0.000001"), rounding=ROUND_HALF_UP))
+
+    return {
+        "base": "EUR",
+        "rates": {currency: fmt(value) for currency, value in rates.items()},
+        "latest_observed": latest_observed,
+        "rows": [
+            {
+                "pair": f"{row.base_currency}/{row.quote_currency}",
+                "rate": fmt(row.rate),
+                "source": row.source,
+                "observed_at": row.observed_at.isoformat(),
+            }
+            for row in latest_rows
+        ],
+    }
 
 
 def converted_price_lines(price_eur, original_currency=""):
@@ -2156,11 +2189,56 @@ def instagram_ocr_ops(request):
     batch_summary = None
     if request.method == "POST":
         action = request.POST.get("action", "batch")
+        if action == "fx_refresh":
+            out = StringIO()
+            try:
+                call_command(
+                    "fetch_exchange_rates",
+                    dzd_per_eur_black=str(eur_rate_or_setting("DZD", "DZD_PER_EUR_BLACK")),
+                    stdout=out,
+                )
+            except Exception as exc:
+                if is_ajax:
+                    return JsonResponse({"ok": False, "error": str(exc)}, status=500)
+                messages.error(request, f"FX refresh failed: {exc}")
+            else:
+                payload = fx_converter_payload()
+                payload["command_output"] = out.getvalue()
+                if is_ajax:
+                    return JsonResponse({"ok": True, "fx": payload})
+                messages.success(request, "FX rates refreshed.")
+
         single_post_id = request.POST.get("post_id", "")
         qs = InstagramPost.objects.select_related("source").filter(source__source_type=SourceType.INSTAGRAM)
         if selected_source:
             qs = qs.filter(source=selected_source)
 
+        if action == "preview":
+            if mode == "pending":
+                qs = qs.filter(needs_ocr=True, ocr_processed=False)
+            elif mode == "reprocess":
+                qs = qs.filter(ocr_processed=True)
+            elif mode == "rebuild":
+                qs = qs.filter(ocr_processed=True, ocrresult__isnull=False).distinct()
+            else:
+                qs = InstagramPost.objects.none()
+            posts = list(qs.order_by("id")[:limit])
+            return JsonResponse(
+                {
+                    "ok": True,
+                    "rows": [
+                        {
+                            "post_id": post.pk,
+                            "shortcode": post.shortcode,
+                            "source": post.source.username if post.source else "",
+                            "image_url": post_image_url(post),
+                            "prompt": "",
+                            "mode": mode,
+                        }
+                        for post in posts
+                    ],
+                }
+            )
         if action == "single":
             qs = InstagramPost.objects.select_related("source").filter(
                 pk=single_post_id,
@@ -2214,6 +2292,7 @@ def instagram_ocr_ops(request):
                         "candidate": candidate,
                         "store_warranty": candidate_store_warranty(candidate),
                         "deal": candidate_deal_math(candidate),
+                        "debug": result.get("debug") or {},
                         "post_id": post.pk,
                         "exported": result.get("exported"),
                         "category": result.get("structured_category") or (candidate.detected_category if candidate else ""),
@@ -2226,6 +2305,7 @@ def instagram_ocr_ops(request):
                     "image_url": post_image_url(post),
                     "ok": False,
                     "error": str(exc),
+                    "debug": {"error": str(exc)},
                     "post_id": post.pk,
                 })
 
@@ -2287,9 +2367,16 @@ def instagram_ocr_ops(request):
                             if row.get("candidate")
                             else ""
                         ),
+                        "brand": row.get("candidate").brand_text if row.get("candidate") else "",
+                        "model": row.get("candidate").model_text if row.get("candidate") else "",
+                        "price": row.get("candidate").price_original if row.get("candidate") else "",
+                        "currency": row.get("candidate").currency_original if row.get("candidate") else "",
+                        "confidence": row.get("candidate").confidence if row.get("candidate") else "",
+                        "status": row.get("candidate").status if row.get("candidate") else "",
                         "category": row.get("category", ""),
                         "store_warranty": row.get("store_warranty", ""),
                         "deal": row.get("deal") or {},
+                        "debug": row.get("debug") or {},
                         "post_id": row.get("post_id") or row["post"].pk,
                         "exported": bool(row.get("exported")),
                         "error": row.get("error", ""),
@@ -2301,7 +2388,7 @@ def instagram_ocr_ops(request):
 
     return render(
         request,
-        "market/instagram_ocr_ops.html",
+        "dash/instagram_ocr_ops.html",
         base_context(request, "instagram_ocr_ops")
         | {
             "sources": sources,
@@ -2309,10 +2396,22 @@ def instagram_ocr_ops(request):
             "mode": mode,
             "limit": limit,
             "stats": stats,
+            "fx_converter": fx_converter_payload(),
             "batch_results": batch_results,
             "recent_candidates": recent_candidates,
         },
     )
+
+
+@staff_member_required
+def instagram_ocr_ops_v2(request):
+    from django.template.response import TemplateResponse
+
+    response = instagram_ocr_ops(request)
+    if isinstance(response, TemplateResponse):
+        response.template_name = "dash/instagram_ocr_ops.html"
+        return response
+    return response
 
 
 @staff_member_required

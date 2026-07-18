@@ -25,11 +25,12 @@ class MarketConfig(AppConfig):
                 "brand", "model", "storage_gb", "algeria_min_eur",
                 "turkiye_avg_eur", "gross_margin_eur", "margin_percent",
                 "algeria_count", "turkiye_count", "recommendation",
-                "confidence_score", "generated_at",
+                "confidence_score", "algeria_listing", "generated_at",
             )
             search_fields = ("brand", "model")
             list_filter = ("recommendation", "brand", "storage_gb", "generated_at")
             readonly_fields = ("generated_at", "created_at", "algeria_urls", "turkiye_urls")
+            raw_id_fields = ("algeria_listing",)
             list_per_page = 50
 
         try:
@@ -42,11 +43,12 @@ class MarketConfig(AppConfig):
                 "brand", "model", "cpu", "gpu", "ram_gb", "storage_gb",
                 "algeria_min_eur", "turkiye_avg_eur", "gross_margin_eur",
                 "margin_percent", "algeria_count", "turkiye_count",
-                "recommendation", "confidence_score", "generated_at",
+                "recommendation", "confidence_score", "algeria_listing", "generated_at",
             )
             search_fields = ("brand", "model", "cpu", "gpu")
             list_filter = ("recommendation", "brand", "ram_gb", "storage_gb", "generated_at")
             readonly_fields = ("generated_at", "created_at", "algeria_urls", "turkiye_urls")
+            raw_id_fields = ("algeria_listing",)
             list_per_page = 50
 
         try:
@@ -59,11 +61,12 @@ class MarketConfig(AppConfig):
                 "brand", "model", "chipset", "ram_gb", "storage_gb",
                 "algeria_min_eur", "turkiye_avg_eur", "gross_margin_eur",
                 "margin_percent", "algeria_count", "turkiye_count",
-                "recommendation", "confidence_score", "generated_at",
+                "recommendation", "confidence_score", "algeria_listing", "generated_at",
             )
             search_fields = ("brand", "model", "chipset")
             list_filter = ("recommendation", "brand", "ram_gb", "storage_gb", "generated_at")
             readonly_fields = ("generated_at", "created_at", "algeria_urls", "turkiye_urls")
+            raw_id_fields = ("algeria_listing",)
             list_per_page = 50
 
         try:

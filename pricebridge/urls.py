@@ -18,21 +18,39 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 
 from market import views
 from market.cache_control import private_no_store
 from market.views_clean import clean_opportunities
 from market.views_clean_card import clean_card_opportunities
 from market.views_clean_detail import clean_opportunity_detail
+from market.views_estore_bagisto import (
+    estore_bagisto_opportunity_detail,
+    estore_bagisto_opportunity_index,
+)
 from market.views_images import clean_listing_image
 from market.views_phone_opportunities import phone_opportunities_v2
 
 urlpatterns = [
-    path('', clean_opportunities, name='opportunities'),
+    path(
+        '',
+        private_no_store(estore_bagisto_opportunity_index),
+        name='estore_frontend_opportunity_index',
+    ),
 
-    # Isolated Bagisto-based storefront. Existing public and preview routes stay unchanged.
+    # Canonical API/admin estore area plus compatibility aliases for the former /new/ UI.
     path('estore/', include('market.estore_urls')),
+    path(
+        'new/',
+        RedirectView.as_view(pattern_name='estore_frontend_opportunity_index', permanent=False, query_string=True),
+        name='estore_frontend_opportunity_index_legacy',
+    ),
+    path(
+        'new/<slug:category>/<int:pk>/',
+        RedirectView.as_view(pattern_name='estore_frontend_opportunity_detail', permanent=False, query_string=True),
+        name='estore_frontend_opportunity_detail_legacy',
+    ),
 
     # Side-by-side frontend review routes. These aliases intentionally leave
     # the public routes unchanged while each UI variant is evaluated.
@@ -75,6 +93,7 @@ urlpatterns = [
         name='ui_preview_deals',
     ),
 
+    path('opportunities/', clean_opportunities, name='opportunities'),
     path('phone-opportunities/', phone_opportunities_v2, name='phone_opportunities_v2'),
     path('opportunities/<int:pk>/', views.opportunity_detail, name='opportunity_detail'),
     path('listings/', views.listings, name='listings'),
@@ -83,6 +102,7 @@ urlpatterns = [
     path('api/deals/', views.deals_api, name='deals_api'),
     path('data-quality/', views.data_quality, name='data_quality'),
     path('instagram-ocr/', views.instagram_ocr_ops, name='instagram_ocr_ops'),
+    path('dash/', views.instagram_ocr_ops_v2, name='instagram_ocr_ops_v2'),
     path('import-lab/', views.import_lab, name='import_lab'),
     path('import-lab/candidate/<int:pk>/', views.candidate_detail, name='candidate_detail'),
     path('sources/', views.sources, name='sources'),
@@ -90,6 +110,11 @@ urlpatterns = [
     path('api/listing-bulk/', views.listing_bulk_api, name='listing_bulk_api'),
     path('i18n/set-language/', views.set_language, name='set_language'),
     path('i18n/set-currency/', views.set_currency, name='set_currency'),
+    path(
+        '<slug:category>/<int:pk>/',
+        private_no_store(estore_bagisto_opportunity_detail),
+        name='estore_frontend_opportunity_detail',
+    ),
     path('admin/', admin.site.urls),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

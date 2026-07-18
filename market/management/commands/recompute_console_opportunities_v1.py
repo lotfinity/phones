@@ -148,6 +148,12 @@ def compute_console_opportunity_rows(
         if margin_percent is not None and margin_percent < min_margin_percent:
             continue
 
+        algeria_listing = base.filter(
+            country=Country.ALGERIA,
+            console_model_id=group["console_model_id"],
+            storage_gb=group["storage_gb"],
+        ).order_by("price_eur", "-observed_at", "-id").first()
+
         sample = base.filter(
             console_model_id=group["console_model_id"],
             storage_gb=group["storage_gb"],
@@ -180,6 +186,7 @@ def compute_console_opportunity_rows(
             "brand": sample.console_model.brand.name if sample.console_model.brand else "",
             "model": sample.console_model.canonical_name,
             "console_model_id": group["console_model_id"],
+            "algeria_listing_id": algeria_listing.pk if algeria_listing else None,
             "chipset": group["chipset"] or "",
             "ram_gb": group["ram_gb"],
             "storage_gb": group["storage_gb"],
@@ -205,35 +212,61 @@ def compute_console_opportunity_rows(
 
 def write_console_opportunity_snapshots(rows, *, source_label="console_v1"):
     generated_at = timezone.now()
-    snapshots = [
-        ConsoleOpportunitySnapshot(
-            console_model_id=row.get("console_model_id"),
-            brand=row.get("brand") or "",
-            model=row.get("model") or "",
-            chipset=row.get("chipset") or "",
-            ram_gb=row.get("ram_gb"),
-            storage_gb=row.get("storage_gb"),
-            algeria_min_eur=row.get("algeria_min_eur"),
-            algeria_avg_eur=row.get("algeria_avg_eur"),
-            turkiye_min_eur=row.get("turkiye_min_eur"),
-            turkiye_avg_eur=row.get("turkiye_avg_eur"),
-            gross_margin_eur=row.get("margin_eur"),
-            margin_percent=row.get("margin_percent"),
-            algeria_count=row.get("algeria_count") or 0,
-            turkiye_count=row.get("turkiye_count") or 0,
-            algeria_urls=row.get("algeria_urls") or [],
-            turkiye_urls=row.get("turkiye_urls") or [],
-            recommendation=_snapshot_recommendation(row.get("recommendation")),
-            confidence_score=int(round(float(row.get("confidence") or 0) * 100)),
-            source_label=source_label,
-            generated_at=generated_at,
-        )
-        for row in rows
-    ]
+    seen_keys = set()
+    written = 0
     with transaction.atomic():
-        deleted, _ = ConsoleOpportunitySnapshot.objects.all().delete()
-        ConsoleOpportunitySnapshot.objects.bulk_create(snapshots, batch_size=500)
-    return deleted, len(snapshots)
+        for row in rows:
+            key = (
+                row.get("console_model_id"),
+                row.get("chipset") or "",
+                row.get("ram_gb"),
+                row.get("storage_gb"),
+            )
+            seen_keys.add(key)
+            defaults = {
+                "algeria_listing_id": row.get("algeria_listing_id"),
+                "brand": row.get("brand") or "",
+                "model": row.get("model") or "",
+                "algeria_min_eur": row.get("algeria_min_eur"),
+                "algeria_avg_eur": row.get("algeria_avg_eur"),
+                "turkiye_min_eur": row.get("turkiye_min_eur"),
+                "turkiye_avg_eur": row.get("turkiye_avg_eur"),
+                "gross_margin_eur": row.get("margin_eur"),
+                "margin_percent": row.get("margin_percent"),
+                "algeria_count": row.get("algeria_count") or 0,
+                "turkiye_count": row.get("turkiye_count") or 0,
+                "algeria_urls": row.get("algeria_urls") or [],
+                "turkiye_urls": row.get("turkiye_urls") or [],
+                "recommendation": _snapshot_recommendation(row.get("recommendation")),
+                "confidence_score": int(round(float(row.get("confidence") or 0) * 100)),
+                "source_label": source_label,
+                "generated_at": generated_at,
+            }
+            ConsoleOpportunitySnapshot.objects.update_or_create(
+                console_model_id=key[0],
+                chipset=key[1],
+                ram_gb=key[2],
+                storage_gb=key[3],
+                defaults=defaults,
+            )
+            written += 1
+
+        stale = ConsoleOpportunitySnapshot.objects.all()
+        if seen_keys:
+            stale_ids = [
+                snapshot.pk
+                for snapshot in stale.only("pk", "console_model_id", "chipset", "ram_gb", "storage_gb")
+                if (
+                    snapshot.console_model_id,
+                    snapshot.chipset or "",
+                    snapshot.ram_gb,
+                    snapshot.storage_gb,
+                ) not in seen_keys
+            ]
+            deleted, _ = ConsoleOpportunitySnapshot.objects.filter(pk__in=stale_ids).delete()
+        else:
+            deleted, _ = stale.delete()
+    return deleted, written
 
 
 class Command(BaseCommand):
@@ -258,7 +291,7 @@ class Command(BaseCommand):
         if options["write_snapshots"]:
             deleted, created = write_console_opportunity_snapshots(rows)
             self.stdout.write(self.style.SUCCESS(
-                f"Wrote {created} clean console opportunity snapshots; replaced {deleted} old rows."
+                f"Wrote {created} clean console opportunity snapshots; removed {deleted} stale rows."
             ))
         json_rows = [_row_to_json(row) for row in rows]
         if options["export_json"]:

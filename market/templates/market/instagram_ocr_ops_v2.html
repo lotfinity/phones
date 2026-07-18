@@ -1,0 +1,473 @@
+{% extends "market/base.html" %}
+{% load humanize %}
+{% load json_filter %}
+
+{% block title %}Instagram OCR Ops • PriceBridge{% endblock %}
+
+{% block crumb %}
+<a href="#" class="flex items-center gap-2" onclick="openFxModal(event)">
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M4 12h10M4 17h16"/><circle cx="18" cy="12" r="3"/></svg>
+  <span class="mono" style="font-size:10px;">{{ fx_converter.rates.EUR_TRY|floatformat:2 }} TRY</span>
+</a>
+<span aria-hidden="true">›</span>
+Instagram OCR
+{% endblock %}
+
+{% block header_actions %}
+<button type="button" class="btn btn-ghost btn-sm" onclick="openFxModal(event)" aria-label="FX Converter (f)">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M4 12h10M4 17h16"/><circle cx="18" cy="12" r="3"/></svg>
+  <span class="mono" style="font-size:11px;">FX</span>
+</button>
+{% endblock %}
+
+{% block content %}
+{{ fx_converter|json_script:"fx-converter-data" }}
+
+<style>
+:root {
+  --pb-bg: #f5f8ff;
+  --pb-surface: #ffffff;
+  --pb-surface-warm: #eaf1ff;
+  --pb-fg: #101828;
+  --pb-fg-2: #344054;
+  --pb-muted: #667085;
+  --pb-meta: #2563eb;
+  --pb-border: #d7e0ef;
+  --pb-border-soft: #edf2f8;
+  --pb-accent: #2563eb;
+  --pb-accent-on: #ffffff;
+  --pb-accent-hover: color-mix(in oklab, var(--pb-accent), black 8%);
+  --pb-success: #16a34a;
+  --pb-success-bg: #dcfce7;
+  --pb-warn: #f59e0b;
+  --pb-warn-bg: #fef3c7;
+  --pb-danger: #ef4444;
+  --pb-danger-bg: #fee2e2;
+  --pb-info-bg: #dbeafe;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--pb-bg);
+  color: var(--pb-fg);
+  font-family: Inter, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.52;
+}
+
+.container { max-width: 1280px; margin-inline: auto; padding-inline: 24px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.mono { font-family: "SF Mono", Menlo, monospace; }
+.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.grid { display: grid; }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-7 { grid-template-columns: repeat(7, 1fr); }
+.w-full { width: 100%; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+
+/* Stats bar */
+.stats-bar { padding: 16px 0; border-bottom: 1px solid var(--pb-border); }
+.stat-card { background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: 10px; padding: 16px 20px; }
+.stat-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.stat-card.info::before { background: var(--pb-accent); }
+.stat-card.warn::before { background: var(--pb-warn); }
+.stat-card.danger::before { background: var(--pb-danger); }
+.stat-card .stat-label { font-size: 12px; color: var(--pb-muted); font-family: var(--pb-font-mono); }
+.stat-card .stat-value { font-size: 36px; font-weight: 700; letter-spacing: -0.03em; }
+
+/* Batch runner */
+.batch-form { background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: 14px; padding: 24px; }
+.batch-form-row { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 12px; color: var(--pb-muted); font-weight: 500; text-transform: uppercase; font-family: var(--pb-font-mono); }
+.field select, .field input { padding: 8px 12px; border: 1px solid var(--pb-border); border-radius: 6px; background: var(--pb-bg); font-size: 14px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: 500; }
+.btn-primary { background: var(--pb-accent); color: var(--pb-accent-on); }
+.btn-secondary { background: var(--pb-surface); color: var(--pb-fg); border: 1px solid var(--pb-border); }
+
+/* Listing cards */
+.listing-card { background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: 10px; overflow: hidden; }
+.listing-card-img { width: 100%; aspect-ratio: 4/3; object-fit: cover; cursor: pointer; }
+.listing-card-img img { width: 100%; height: 100%; object-fit: cover; }
+.listing-card-body { padding: 16px; }
+.listing-card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+
+/* Chips */
+.chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 9999px; font-family: var(--pb-font-mono); font-size: 11px; }
+.chip-success { background: var(--pb-success-bg); color: #166534; }
+.chip-warn { background: var(--pb-warn-bg); color: #92400e; }
+.chip-danger { background: var(--pb-danger-bg); color: #991b1b; }
+.chip-dot { width: 6px; height: 6px; border-radius: 50%; }
+.chip-success .chip-dot { background: var(--pb-success); }
+
+/* Deal math */
+.deal-math { background: var(--pb-bg); border: 1px solid var(--pb-border-soft); border-radius: 6px; padding: 12px; margin-top: 12px; }
+.deal-math-row { display: flex; justify-content: space-between; }
+.deal-math-value { font-family: var(--pb-font-mono); font-size: 14px; font-weight: 600; }
+.deal-math-value.positive { color: var(--pb-success); }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .grid-7 { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 768px) {
+  .grid-7 { grid-template-columns: repeat(3, 1fr); }
+  .batch-form-row { flex-direction: column; }
+}
+@media (max-width: 640px) {
+  .grid-7 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3 { grid-template-columns: 1fr; }
+}
+</style>
+
+<main id="content">
+  <!-- Stats Bar -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="grid grid-7">
+        <div class="stat-card info">
+          <div class="stat-label">Posts</div>
+          <div class="stat-value mono">{{ stats.posts|intcomma }}</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Pending</div>
+          <div class="stat-value mono">{{ stats.pending|intcomma }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Processed</div>
+          <div class="stat-value mono">{{ stats.processed|intcomma }}</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Raw</div>
+          <div class="stat-value mono">{{ stats.raw|intcomma }}</div>
+        </div>
+        <div class="stat-card warn">
+          <div class="stat-label">Unknown</div>
+          <div class="stat-value mono">{{ stats.raw_unknown|intcomma }}</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Candidates</div>
+          <div class="stat-value mono">{{ stats.candidates|intcomma }}</div>
+        </div>
+        <div class="stat-card success">
+          <div class="stat-label">Phone Listings</div>
+          <div class="stat-value mono">{{ stats.phone_listings|intcomma }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Batch Runner -->
+  <section class="ops-section">
+    <div class="container">
+      <form method="post" id="batch-form" class="batch-form">
+        {% csrf_token %}
+        <div class="batch-form-row">
+          <div class="field">
+            <label for="batch-mode">Mode</label>
+            <select id="batch-mode" name="mode">
+              <option value="pending" {% if mode == "pending" %}selected{% endif %}>Pending — new posts</option>
+              <option value="reprocess" {% if mode == "reprocess" %}selected{% endif %}>Reprocess — re-scan all</option>
+              <option value="rebuild" {% if mode == "rebuild" %}selected{% endif %}>Rebuild — re-parse stored OCR</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="batch-size">Batch size</label>
+            <input type="number" id="batch-size" name="limit" min="1" max="20" value="{{ limit }}" />
+          </div>
+          <div class="field">
+            <label for="batch-source">Source</label>
+            <select id="batch-source" name="source_id">
+              <option value="">All sources</option>
+              {% for source in sources %}
+              <option value="{{ source.pk }}" {% if selected_source_id == source.pk|stringformat:"s" %}selected{% endif %}>
+                {{ source.emoji|default:"📱" }} {{ source.username|default:source.name }} ({{ source.pending_posts }} pending)
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Run Batch
+          </button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Batch Results -->
+  {% if batch_results %}
+  <section class="ops-section">
+    <div class="container">
+      <h2 class="section-title">Batch Results <span class="count">{{ batch_results|length }}</span></h2>
+      <div class="grid grid-3">
+        {% for row in batch_results %}
+        <article class="listing-card" tabindex="0" data-post-id="{{ row.post.pk }}">
+          <div class="listing-card-img" onclick="openPreview('{{ row.image_url }}')">
+            {% if row.image_url %}
+            <img src="{{ row.image_url }}" alt="{{ row.candidate.brand_text|default:"Post" }} {{ row.candidate.model_text|default:row.post.shortcode }}" />
+            {% else %}
+            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,#dbeafe,#f0fdf4);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            </div>
+            {% endif %}
+          </div>
+          <div class="listing-card-body">
+            <div class="listing-card-meta">
+              {% if row.candidate %}
+                {% if row.candidate.status == "auto" %}
+                <span class="chip chip-success"><span class="chip-dot"></span> AUTO</span>
+                {% endif %}
+                {% if row.exported %}
+                <span class="chip chip-info"><span class="chip-dot"></span> EXPORTED</span>
+                {% endif %}
+              {% endif %}
+              {% if not row.ok %}
+              <span class="chip chip-danger"><span class="chip-dot"></span> ERROR</span>
+              {% endif %}
+            </div>
+            <div class="listing-card-model">
+              {{ row.candidate.brand_text|default:"Untitled" }} {{ row.candidate.model_text|default:row.post.shortcode }}
+            </div>
+            <div class="listing-card-variant">
+              {% if row.candidate %}{{ row.candidate.storage_gb|default:"" }}GB{% else %}—{% endif %} ·
+              {% if row.candidate %}{{ row.candidate.color|default:"Unknown" }}{% else %}—{% endif %} ·
+              {% if row.candidate %}{{ row.candidate.condition_text|default:"Unknown" }}{% else %}—{% endif %}
+            </div>
+
+            {% include "market/partials/instagram_ocr_deal_math.html" with deal=row.deal %}
+
+            <div class="listing-card-actions">
+              <button class="btn btn-primary btn-sm w-full" onclick="runOcr('{{ row.post.pk }}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run OCR
+              </button>
+              <button class="btn btn-ghost btn-sm" title="View post">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+              </button>
+            </div>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- Recent Candidates -->
+  <section class="ops-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Recent Candidates <span class="count">{{ recent_candidates|length }}</span></h2>
+        <a href="#" class="btn btn-ghost btn-sm">View all</a>
+      </div>
+      <div class="grid grid-3">
+        {% for candidate in recent_candidates %}
+        <article class="listing-card" tabindex="0" data-candidate-id="{{ candidate.pk }}">
+          <div class="listing-card-img" onclick="openPreview('{{ candidate.ops_image_url }}')">
+            {% if candidate.ops_image_url %}
+            <img src="{{ candidate.ops_image_url }}" alt="{{ candidate.brand_text }} {{ candidate.model_text }}" />
+            {% else %}
+            <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,#dbeafe,#f0fdf4);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            </div>
+            {% endif %}
+          </div>
+          <div class="listing-card-body">
+            <div class="listing-card-meta">
+              {% if candidate.status == "auto" %}
+              <span class="chip chip-success"><span class="chip-dot"></span> AUTO</span>
+              {% endif %}
+            </div>
+            <div class="listing-card-model">{{ candidate.brand_text }} {{ candidate.model_text }}</div>
+            <div class="listing-card-variant">
+              {{ candidate.storage_gb|default:"-" }}GB · {{ candidate.color|default:"-" }} · {{ candidate.condition_text|default:"-" }}
+            </div>
+
+            {% with deal=candidate.ops_deal %}
+            {% include "market/partials/instagram_ocr_deal_math.html" %}
+            {% endwith %}
+
+            <div class="listing-card-actions">
+              <button class="btn btn-primary btn-sm w-full" onclick="runOcr('{{ candidate.ops_post_id }}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Run OCR
+              </button>
+            </div>
+          </div>
+        </article>
+        {% empty %}
+        <div class="empty-state" style="grid-column: span 3; text-align: center; padding: 40px 0;">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="opacity: 0.3; margin-bottom: 16px;">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+          <h3 style="font-size: 18px; margin-bottom: 8px;">No candidates yet</h3>
+          <p style="font-size: 14px; color: var(--pb-muted);">Processed listings will appear here automatically</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FX Converter Modal -->
+<div class="modal-overlay" id="fx-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>FX Converter</h3>
+      <button onclick="closeFxModal()" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="fx-grid">
+        <div class="fx-card">
+          <div class="fx-card-label">EUR / TRY</div>
+          <div class="fx-card-rate mono">{{ fx_converter.rates.EUR_TRY|floatformat:2 }}</div>
+        </div>
+        <div class="fx-card">
+          <div class="fx-card-label">EUR / DZD</div>
+          <div class="fx-card-rate mono">{{ fx_converter.rates.EUR_DZD|floatformat:2 }}</div>
+        </div>
+        <div class="fx-card">
+          <div class="fx-card-label">USD / TRY</div>
+          <div class="fx-card-rate mono">{{ fx_converter.rates.USD_TRY|floatformat:2 }}</div>
+        </div>
+        <div class="fx-card">
+          <div class="fx-card-label">USD / DZD</div>
+          <div class="fx-card-rate mono">{{ fx_converter.rates.USD_DZD|floatformat:2 }}</div>
+        </div>
+      </div>
+      <div style="margin-top: 24px;">
+        <div style="display: flex; gap: 12px; align-items: end;">
+          <div style="flex: 1;">
+            <label style="display: block; font-size: 12px; color: var(--pb-muted); margin-bottom: 4px;">Amount</label>
+            <input type="number" id="fx-amount" value="1000" style="width: 100%; padding: 8px 12px; border: 1px solid var(--pb-border); border-radius: 6px;" />
+          </div>
+          <div>
+            <label style="display: block; font-size: 12px; color: var(--pb-muted); margin-bottom: 4px;">From</label>
+            <select id="fx-from" style="padding: 8px 12px; border: 1px solid var(--pb-border); border-radius: 6px;">
+              <option>EUR</option><option>TRY</option><option>DZD</option><option>USD</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-size: 12px; color: var(--pb-muted); margin-bottom: 4px;">To</label>
+            <select id="fx-to" style="padding: 8px 12px; border: 1px solid var(--pb-border); border-radius: 6px;">
+              <option>TRY</option><option>EUR</option><option>DZD</option><option>USD</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="runConversion()">Convert</button>
+        </div>
+        <div style="margin-top: 16px; padding: 12px; background: var(--pb-bg); border: 1px solid var(--pb-border-soft); border-radius: 6px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span style="font-size: 14px; color: var(--pb-muted);">Result</span>
+            <span class="mono" style="font-size: 24px; font-weight: 700;" id="fx-result">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const fxData = JSON.parse(document.getElementById('fx-converter-data').textContent || '{}');
+
+function openFxModal(e) {
+  if (e) e.preventDefault();
+  document.getElementById('fx-modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeFxModal() {
+  document.getElementById('fx-modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function runConversion() {
+  // FX conversion logic will be implemented
+  showToast('Conversion functionality coming soon');
+}
+
+function showToast(message) {
+  // You can implement proper toast notifications
+  console.log('Toast:', message);
+}
+
+function runOcr(postId) {
+  const form = document.getElementById('batch-form');
+  const formData = new FormData(form);
+  formData.set('action', 'single');
+  formData.set('post_id', postId);
+  
+  fetch(window.location.href, {
+    method: 'POST',
+    body: formData,
+    headers: {'X-Requested-With': 'XMLHttpRequest'}
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.ok) {
+      showToast('OCR completed successfully');
+      window.location.reload();
+    } else {
+      showToast('OCR failed: ' + (data.error || 'Unknown error'));
+    }
+  })
+  .catch(error => {
+    showToast('Error: ' + error.message);
+  });
+}
+
+function openPreview(url) {
+  if (!url) return;
+  // Image preview logic
+  showToast('Image preview: ' + url);
+}
+
+// Handle form submission
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('batch-form');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    
+    // Add batch action
+    const formData = new FormData(form);
+    formData.set('action', 'batch');
+    
+    fetch(window.location.href, {
+      method: 'POST',
+      body: formData,
+      headers: {'X-Requested-With': 'XMLHttpRequest'}
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.ok) {
+        showToast(`Batch completed: ${data.summary.processed} processed`);
+        window.location.reload();
+      } else {
+        showToast('Batch failed: ' + (data.error || 'Unknown error'));
+      }
+    })
+    .catch(error => {
+      showToast('Error: ' + error.message);
+    });
+  });
+});n
+// Keyboard shortcuts
+function handleKeyDown(e) {
+  if (e.key === 'f' && !e.target.matches('input, select, textarea')) {
+    e.preventDefault();
+    openFxModal();
+  }
+  if (e.key === 'Escape') {
+    closeFxModal();
+  }
+}
+document.addEventListener('keydown', handleKeyDown);
+</script>
+{% endblock %}

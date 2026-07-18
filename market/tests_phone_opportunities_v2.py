@@ -4,7 +4,11 @@ from io import StringIO
 from django.core.management import call_command
 from django.test import TestCase
 
-from market.management.commands.recompute_phone_opportunities_v2 import compute_phone_opportunity_rows
+from market.clean_models import PhoneOpportunitySnapshot
+from market.management.commands.recompute_phone_opportunities_v2 import (
+    compute_phone_opportunity_rows,
+    write_phone_opportunity_snapshots,
+)
 from market.models import (
     Brand,
     Country,
@@ -194,3 +198,32 @@ class RecomputePhoneOpportunitiesV2Tests(TestCase):
         self.assertIn("Clean phone opportunity rows: 1", text)
         self.assertIn("iPhone 15 Pro Max", text)
         self.assertIn("300.00", text)
+
+    def test_write_snapshots_preserves_existing_ids_on_recompute(self):
+        self.create_phone(
+            country=Country.ALGERIA,
+            source_type=SourceType.OUEDKNISS,
+            model=self.iphone,
+            storage=256,
+            eur="500",
+        )
+        turkiye = self.create_phone(
+            country=Country.TURKIYE,
+            source_type=SourceType.SAHIBINDEN,
+            model=self.iphone,
+            storage=256,
+            eur="800",
+        )
+        write_phone_opportunity_snapshots(compute_phone_opportunity_rows())
+        snapshot = PhoneOpportunitySnapshot.objects.get()
+        original_pk = snapshot.pk
+
+        turkiye.price_eur = Decimal("900")
+        turkiye.save(update_fields=["price_eur"])
+        deleted, written = write_phone_opportunity_snapshots(compute_phone_opportunity_rows())
+        snapshot.refresh_from_db()
+
+        self.assertEqual(deleted, 0)
+        self.assertEqual(written, 1)
+        self.assertEqual(snapshot.pk, original_pk)
+        self.assertEqual(snapshot.turkiye_avg_eur, Decimal("900.00"))

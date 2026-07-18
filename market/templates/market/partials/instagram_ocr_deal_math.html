@@ -1,0 +1,34 @@
+{% if deal.available %}
+<div class="grid grid-cols-2 gap-2 text-sm">
+  <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2">
+    <div class="text-[10px] uppercase text-[var(--pb-muted)]">DZ price</div>
+    <div class="font-semibold">{{ deal.algeria_price }}</div>
+    <div class="text-[10px] text-[var(--pb-muted)]">{{ deal.algeria_original }}</div>
+  </div>
+  <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2">
+    <div class="text-[10px] uppercase text-[var(--pb-muted)]">Sahibinden avg</div>
+    <div class="font-semibold">{{ deal.sahibinden_avg }}</div>
+    <div class="text-[10px] text-[var(--pb-muted)]">{{ deal.sahibinden_count|default:"-" }} rows</div>
+  </div>
+  <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2">
+    <div class="text-[10px] uppercase text-[var(--pb-muted)]">Gross margin</div>
+    <div class="font-semibold">{{ deal.gross_margin }}</div>
+    <div class="text-[10px] text-[var(--pb-muted)]">{{ deal.margin_percent }}</div>
+  </div>
+  <div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2">
+    <div class="text-[10px] uppercase text-[var(--pb-muted)]">Offer</div>
+    <div class="font-semibold">{{ deal.offer_price }}</div>
+    <div class="text-[10px] text-[var(--pb-muted)]">{{ deal.deal_quality|default:"-" }}</div>
+  </div>
+  {% if deal.buyer_gain %}
+  <div class="col-span-2 rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-2">
+    <div class="text-[10px] uppercase text-[var(--pb-muted)]">Buyer gain</div>
+    <div class="font-semibold">{{ deal.buyer_gain }}</div>
+  </div>
+  {% endif %}
+</div>
+{% elif deal.note %}
+<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-3 text-sm text-[var(--pb-muted)]">{{ deal.note }}</div>
+{% else %}
+<div class="rounded border border-[var(--pb-border)] bg-[var(--pb-surface)] p-3 text-sm text-[var(--pb-muted)]">No clean phone deal math yet.</div>
+{% endif %}

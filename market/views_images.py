@@ -97,27 +97,41 @@ def _resolve_local_image_path(url):
         raise ValueError("Empty image path")
 
     media_root = settings.MEDIA_ROOT
+    media_url = getattr(settings, "MEDIA_URL", "/media/") or "/media/"
 
-    if os.path.isabs(url):
-        abs_path = os.path.normpath(url)
-    else:
-        # Relative path -- resolve against MEDIA_ROOT
-        abs_path = os.path.normpath(os.path.join(media_root, url))
+    candidates = []
+    if media_url and url.startswith(media_url):
+        candidates.append(url[len(media_url):].lstrip("/"))
+    if url.startswith("media/"):
+        candidates.append(url[len("media/"):].lstrip("/"))
+    candidates.append(url)
 
-    # Security: the resolved path must stay within MEDIA_ROOT
-    if not abs_path.startswith(os.path.normpath(media_root)):
-        raise ValueError("Image path escapes media root")
+    last_error = "Local image file not found"
+    media_root_norm = os.path.normpath(media_root)
+    for candidate in candidates:
+        if os.path.isabs(candidate):
+            abs_path = os.path.normpath(candidate)
+        else:
+            # Relative path -- resolve against MEDIA_ROOT
+            abs_path = os.path.normpath(os.path.join(media_root, candidate))
 
-    if not os.path.isfile(abs_path):
-        raise ValueError("Local image file not found")
+        # Security: the resolved path must stay within MEDIA_ROOT
+        if not abs_path.startswith(media_root_norm):
+            last_error = "Image path escapes media root"
+            continue
 
-    # Compute a media-relative path for cache keys
-    try:
-        rel_path = os.path.relpath(abs_path, media_root)
-    except ValueError:
-        rel_path = os.path.basename(abs_path)
+        if not os.path.isfile(abs_path):
+            continue
 
-    return abs_path, rel_path
+        # Compute a media-relative path for cache keys
+        try:
+            rel_path = os.path.relpath(abs_path, media_root)
+        except ValueError:
+            rel_path = os.path.basename(abs_path)
+
+        return abs_path, rel_path
+
+    raise ValueError(last_error)
 
 
 def _serve_local_image(abs_path, rel_path, updated_at=None):

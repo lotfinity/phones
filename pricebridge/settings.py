@@ -59,6 +59,20 @@ CSRF_TRUSTED_ORIGINS.extend(
     if origin.strip() and origin.strip() not in CSRF_TRUSTED_ORIGINS
 )
 
+CORS_ALLOWED_ORIGINS = [
+    "null",
+    "http://127.0.0.1:8080",
+    "http://localhost:8080",
+    "http://127.0.0.1:8081",
+    "http://localhost:8081",
+]
+CORS_ALLOWED_ORIGINS.extend(
+    origin.strip()
+    for origin in os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
+    if origin.strip() and origin.strip() not in CORS_ALLOWED_ORIGINS
+)
+CORS_ALLOW_CREDENTIALS = True
+
 
 # Application definition
 
@@ -69,6 +83,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     'market',
 ]
 
@@ -81,6 +96,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -99,7 +115,7 @@ ROOT_URLCONF = 'pricebridge.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

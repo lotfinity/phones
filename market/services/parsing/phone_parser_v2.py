@@ -46,7 +46,8 @@ MODEL_PATTERNS = [
     r"(?:Samsung\s+)?Galaxy\s+(?:A\d+[a-z]*)",
     r"(?:Samsung\s+)?Galaxy\s+(?:Z\s*(?:Flip|Fold)\s*\d*)",
     r"(?:Samsung\s+)?Galaxy\s+(?:Note\s*\d+)",
-    r"iPhone\s+\d+\s*(?:Pro\s*Max|Pro|Plus|\+|mini|SE)?",
+    r"(?:\biPhone\s+SE\b|\bSE\s*(?:20\d{2}|\d(?:st|nd|rd)?\s*gen)\b)",
+    r"iPhone\s+\d+\s*(?:Pro\s*Max|Pro|Plus|\+|mini|SE|E)?",
     r"Redmi\s+(?:Note\s+)?\d+\s*(?:Pro\s*Plus|Pro|Plus|\+)?",
     r"Poco\s+\w+\d+",
     r"Honor\s+(?:Magic\s+\d+\s*(?:Pro|Ultimate)?|[NX]\d+[a-z]*)",
@@ -74,7 +75,8 @@ RAM_PATTERN = re.compile(
 
 PRICE_PATTERN = re.compile(
     r"([\d \t.,]+)[ \t]*(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)\b|"
-    r"(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)[ \t]*([\d \t.,]+)",
+    r"(?:DA|DZD|TL|TRY|₺|\$|USD|€|EUR)[ \t]*([\d \t.,]+)|"
+    r"(?:prix|price)\D{0,12}(\d[\d \t.,]{2,})",
     re.IGNORECASE,
 )
 
@@ -90,10 +92,18 @@ SIM_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
-BATTERY_HEALTH_PATTERN = re.compile(r"(\d{1,3})\s*%", re.IGNORECASE)
+BATTERY_HEALTH_PATTERN = re.compile(
+    r"(\d{1,3})\s*%|(?:batterie|battery)\D{0,12}(\d{1,3})",
+    re.IGNORECASE,
+)
 
 BOX_PATTERN = re.compile(
     r"\b(kapal[ıi]\s*kutu|sealed|open\s*box|a[cç][ıi]k\s*kutu|kutu[su]?\s*(?:i[cç]erir|mevcut)|box)\b",
+    re.IGNORECASE,
+)
+
+STORE_WARRANTY_PATTERN = re.compile(
+    r"\b(?:garantie|garenty|garentie|warranty)\s*(?:boutique|store)?\s*[:=]?\s*\d+\s*(?:mois|jour|jours|days?|months?)\b",
     re.IGNORECASE,
 )
 
@@ -118,7 +128,10 @@ def detect_model(text, brand=""):
     for pattern in MODEL_PATTERNS:
         m = re.search(pattern, text, re.IGNORECASE)
         if m:
-            return m.group().strip()
+            model = m.group().strip()
+            if re.match(r"(?i)^SE\b", model):
+                return f"iPhone {model}"
+            return model
     return ""
 
 
@@ -165,6 +178,61 @@ def _structured_text_payload(raw_payload):
         return {}
     data = raw_payload.get("nvidia_structured")
     return data if isinstance(data, dict) else {}
+
+
+def _visible_text_section(text):
+    match = re.search(r"(?is)\bVisible text\s*:\s*(.+)$", text or "")
+    if not match:
+        return ""
+    lines = []
+    for line in match.group(1).splitlines():
+        clean = line.strip()
+        if not clean:
+            continue
+        lines.append(clean)
+        if len(lines) >= 3 and re.search(r"(?i)\b(?:prix|price)\b", clean):
+            break
+        if len(lines) >= 6:
+            break
+    return "\n".join(lines)
+
+
+def _model_key(value):
+    return re.sub(r"[^a-z0-9]+", "", (value or "").lower())
+
+
+def _visible_model_keys(text):
+    keys = set()
+    for pattern in MODEL_PATTERNS:
+        for match in re.finditer(pattern, text or "", re.IGNORECASE):
+            keys.add(_model_key(detect_model(match.group())))
+    return {key for key in keys if key}
+
+
+def _visible_identity_override(text, brand, model):
+    visible_text = _visible_text_section(text)
+    if not visible_text:
+        return {}
+    if len(_visible_model_keys(visible_text)) > 1:
+        return {}
+    visible_brand = detect_brand(visible_text)
+    visible_model = detect_model(visible_text, visible_brand or brand)
+    if not visible_model:
+        return {}
+    return {
+        "visible_text": visible_text,
+        "brand": visible_brand or brand or ("Apple" if "iphone" in visible_model.lower() else ""),
+        "model": visible_model,
+        "storage_gb": detect_storage(visible_text),
+        "ram_gb": detect_ram(visible_text) if re.search(r"(?i)\bram\b|\b(?:2|3|4|6|8|12|16)\s*/\s*(?:64|128|256|512)\b", visible_text) else None,
+        "sim_config": detect_sim(visible_text),
+        "battery_health": detect_battery_health(visible_text),
+        "condition": detect_condition(visible_text),
+        "box_status": detect_box_status(visible_text),
+        "store_warranty": detect_store_warranty(visible_text),
+        "price_original": detect_price(visible_text),
+        "currency_original": detect_currency(visible_text),
+    }
 
 
 def detect_storage(text):
@@ -236,9 +304,13 @@ def _normalize_money_token(raw):
 
 def detect_price(text):
     for m in PRICE_PATTERN.finditer(text):
-        raw = m.group(1) or m.group(2)
+        raw = m.group(1) or m.group(2) or m.group(3)
         if not raw:
             continue
+        if m.group(3):
+            number_tokens = re.findall(r"\d[\d.,]*", raw)
+            if number_tokens:
+                raw = number_tokens[-1]
         cleaned = _normalize_money_token(raw)
         if not cleaned:
             continue
@@ -274,7 +346,7 @@ def detect_sim(text):
 def detect_battery_health(text):
     m = BATTERY_HEALTH_PATTERN.search(text)
     if m:
-        val = int(m.group(1))
+        val = int(m.group(1) or m.group(2))
         if 1 <= val <= 100:
             return val
     return None
@@ -282,6 +354,10 @@ def detect_battery_health(text):
 
 def detect_condition(text):
     text_lower = text.lower()
+    if re.search(r"\b(?:etat|état)\s*(?:10|20)\s*/\s*(?:10|20)\b", text_lower):
+        return "used_a_plus"
+    if re.search(r"\b(?:etat|état)\s*9\s*/\s*10\b", text_lower):
+        return "used_a"
     for condition, keywords in CONDITION_KEYWORDS.items():
         for kw in keywords:
             if kw in text_lower:
@@ -301,6 +377,13 @@ def detect_box_status(text):
     return "box"
 
 
+def detect_store_warranty(text):
+    m = STORE_WARRANTY_PATTERN.search(text or "")
+    if not m:
+        return ""
+    return re.sub(r"\s+", " ", m.group()).strip()
+
+
 def parse_phone(raw_text="", title_raw="", raw_payload=None):
     """Parse phone listing text. Returns dict with extracted fields and segments."""
     text = raw_text or title_raw or ""
@@ -310,51 +393,71 @@ def parse_phone(raw_text="", title_raw="", raw_payload=None):
 
     brand = structured.get("brand") or detect_brand(text)
     model = structured.get("model") or detect_model(text, brand)
+    visible_override = _visible_identity_override(text, brand, model)
+    if visible_override:
+        brand = visible_override.get("brand") or brand
+        model = visible_override["model"]
     storage_gb = _valid_storage(_int_from_structured(structured.get("storage_gb"))) if structured else None
+    if visible_override and visible_override.get("storage_gb"):
+        storage_gb = visible_override["storage_gb"]
     if storage_gb is None:
         storage_gb = detect_storage(text)
     ram_gb = None
-    if structured:
+    if visible_override:
+        ram_gb = visible_override.get("ram_gb")
+    elif structured:
         ram_value = _int_from_structured(structured.get("ram_gb"))
         ram_gb = ram_value if ram_value in VALID_PHONE_RAM_GB else None
     else:
         ram_gb = detect_ram(text)
-    sim_config = structured.get("sim") or detect_sim(text)
+    if visible_override:
+        sim_config = visible_override.get("sim_config") or ""
+    else:
+        sim_config = structured.get("sim") or detect_sim(text)
     battery_health = _int_from_structured(structured.get("battery_health")) if structured else None
+    if visible_override and visible_override.get("battery_health") is not None:
+        battery_health = visible_override["battery_health"]
     if battery_health is None:
         battery_health = detect_battery_health(text)
-    condition = detect_condition(text)
-    box_status = detect_box_status(text)
+    condition = visible_override.get("condition") if visible_override else ""
+    condition = condition if condition and condition != "unknown" else detect_condition(text)
+    box_status = visible_override.get("box_status", "") if visible_override else detect_box_status(text)
     price_original = _structured_price(structured) if structured else None
+    if visible_override and visible_override.get("price_original") is not None:
+        price_original = visible_override["price_original"]
     if price_original is None:
         price_original = detect_price(text)
-    currency_original = _structured_currency(structured) if structured else detect_currency(text)
+    currency_original = visible_override.get("currency_original") if visible_override else ""
+    currency_original = currency_original or (_structured_currency(structured) if structured else detect_currency(text))
     color = structured.get("color", "") if structured else ""
     store_warranty = ""
+    if visible_override:
+        store_warranty = visible_override.get("store_warranty", "")
     if structured:
-        store_warranty = structured.get("store_warranty") or structured.get("warranty") or ""
+        store_warranty = store_warranty or structured.get("store_warranty") or structured.get("warranty") or ""
 
     segments = []
     if brand:
         idx = text.lower().find(brand.lower())
         if idx >= 0:
             segments.append(make_segment("brand", text[idx:idx + len(brand)], idx, idx + len(brand), 0.95))
+    segment_text = visible_override.get("visible_text") if visible_override else text
     if model:
-        m = re.search(re.escape(model), text, re.IGNORECASE)
+        m = re.search(re.escape(model), segment_text, re.IGNORECASE)
         if m:
             segments.append(make_segment("model", m.group(), m.start(), m.end(), 0.9))
     if storage_gb:
-        sm = STORAGE_PATTERN.search(text)
+        sm = STORAGE_PATTERN.search(segment_text)
         if sm:
             raw_val = sm.group()
-            idx = text.find(raw_val)
+            idx = segment_text.find(raw_val)
             if idx >= 0:
                 segments.append(make_segment("storage", raw_val, idx, idx + len(raw_val), 0.85))
     if ram_gb:
-        rm = RAM_PATTERN.search(text)
+        rm = RAM_PATTERN.search(segment_text)
         if rm:
             raw_val = rm.group()
-            idx = text.find(raw_val)
+            idx = segment_text.find(raw_val)
             if idx >= 0:
                 segments.append(make_segment("ram", raw_val, idx, idx + len(raw_val), 0.8))
 

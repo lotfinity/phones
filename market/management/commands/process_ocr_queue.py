@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from pathlib import Path
+import time
 
 from market.management.commands.export_candidates import Command as ExportCandidatesCommand
 from market.models import (
@@ -184,9 +185,45 @@ def export_candidate_if_ready(candidate):
     return True
 
 
+def parsed_ocr_debug(parsed):
+    return {
+        "model_text": parsed.model_text,
+        "storage_text": parsed.storage_text,
+        "storage_gb": parsed.storage_gb,
+        "battery_text": parsed.battery_text,
+        "battery_health": parsed.battery_health,
+        "battery_cycles": parsed.battery_cycles,
+        "condition_text": parsed.condition_text,
+        "condition": parsed.condition,
+        "sim_text": parsed.sim_text,
+        "price_dzd": str(parsed.price_dzd) if parsed.price_dzd is not None else "",
+        "confidence": parsed.confidence,
+    }
+
+
+def candidate_debug(candidate):
+    if not candidate:
+        return {}
+    return {
+        "id": candidate.pk,
+        "category": candidate.detected_category,
+        "brand": candidate.brand_text,
+        "model": candidate.model_text,
+        "price": str(candidate.price_original) if candidate.price_original is not None else "",
+        "currency": candidate.currency_original,
+        "confidence": candidate.confidence,
+        "status": candidate.status,
+        "phone_specs_json": candidate.phone_specs_json or {},
+        "laptop_specs_json": candidate.laptop_specs_json or {},
+        "console_specs_json": candidate.console_specs_json or {},
+    }
+
+
 def process_instagram_post(post, backend=None, rebuild_clean=False):
+    started = time.monotonic()
     image_path = post.thumbnail_local_path or post.media_local_path
     structured_data = {}
+    backend_debug = {}
 
     if rebuild_clean:
         existing_ocr = OCRResult.objects.filter(instagram_post=post).order_by("-created_at", "-pk").first()
@@ -207,8 +244,10 @@ def process_instagram_post(post, backend=None, rebuild_clean=False):
         backend = backend or get_ocr_backend(settings.OCR_BACKEND)
         if image_path and hasattr(backend, "read_listing_data"):
             raw_text, backend_confidence, structured_data = backend.read_listing_data(image_path)
+            backend_debug = getattr(backend, "last_request_debug", {}) or {}
         else:
             raw_text, backend_confidence = backend.read_text(image_path) if image_path else ("", 0.0)
+            backend_debug = getattr(backend, "last_request_debug", {}) or {}
 
     combined_text = "\n".join(part for part in [post.caption, raw_text] if part)
     parsed = parse_ocr_text(combined_text)
@@ -295,6 +334,23 @@ def process_instagram_post(post, backend=None, rebuild_clean=False):
         "candidate": candidate,
         "exported": exported,
         "structured_category": structured_data.get("category") if isinstance(structured_data, dict) else "",
+        "debug": {
+            "duration_ms": int((time.monotonic() - started) * 1000),
+            "rebuild_clean": rebuild_clean,
+            "backend": backend_debug,
+            "raw_text": raw_text,
+            "combined_text": combined_text,
+            "structured_response": structured_data,
+            "parsed_response": parsed_ocr_debug(parsed),
+            "raw_listing": {
+                "id": raw_listing.pk,
+                "category_hint": raw_listing.category_hint,
+                "parse_status": raw_listing.parse_status,
+                "title_raw": raw_listing.title_raw,
+            },
+            "candidate": candidate_debug(candidate),
+            "exported": exported,
+        },
     }
 
 

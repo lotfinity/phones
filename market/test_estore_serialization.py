@@ -3,28 +3,22 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 from django.test import SimpleTestCase
 
-from market.clean_models import PhoneOpportunitySnapshot
-from market.views_estore_bagisto import _json_payload
+from market.bagisto_source import _safe_json
 
 
 class EstorePayloadSerializationTests(SimpleTestCase):
-    def test_model_instances_are_removed_from_embedded_json_payload(self):
-        snapshot = PhoneOpportunitySnapshot(
-            brand="Samsung",
-            model="Serialization Test",
-        )
-
-        payload = _json_payload(
+    def test_runtime_config_json_is_html_safe(self):
+        payload = _safe_json(
             {
-                "item": snapshot,
-                "nested": [snapshot],
-                "title": "Samsung Serialization Test",
+                "page": "opportunity-detail",
+                "api_url": "/estore/api/opportunities/phone/1/?q=<script>",
+                "title": "Samsung & PriceBridge",
             }
         )
 
-        self.assertNotIn("item", payload)
-        self.assertEqual(payload["nested"], [])
-        self.assertEqual(payload["title"], "Samsung Serialization Test")
+        self.assertNotIn("<script>", payload)
+        self.assertIn("\\u003cscript\\u003e", payload)
+        self.assertIn("\\u0026", payload)
 
-        # This is the same encoder used by the Bagisto source renderer.
-        json.dumps(payload, cls=DjangoJSONEncoder)
+        # This is the same encoder class used by the Bagisto source renderer.
+        json.dumps(json.loads(payload), cls=DjangoJSONEncoder)

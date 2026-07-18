@@ -482,6 +482,54 @@ class LocalFilesystemImageTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Content-Type"], "image/png")
 
+    def test_media_url_path_served_from_media_root(self):
+        rel = "instagram/test_profile/photo.jpg"
+        abs_path = os.path.join(self.media_dir, rel)
+        os.makedirs(os.path.dirname(abs_path))
+        with open(abs_path, "wb") as f:
+            f.write(_make_png_bytes())
+
+        listing = PhoneListing.objects.create(
+            source_type=SourceType.INSTAGRAM,
+            country=Country.ALGERIA,
+            phone_model=self.model,
+            title="Media URL image test",
+            image_url="/media/instagram/test_profile/photo.jpg",
+        )
+        url = reverse(
+            "clean_listing_image",
+            kwargs={"category": "phone", "pk": listing.pk},
+        )
+        with override_settings(MEDIA_ROOT=self.media_dir, MEDIA_URL="/media/"):
+            response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Content-Type"], "image/png")
+
+    def test_relative_media_prefix_path_served_from_media_root(self):
+        rel = "instagram/test_profile/photo.jpg"
+        abs_path = os.path.join(self.media_dir, rel)
+        os.makedirs(os.path.dirname(abs_path))
+        with open(abs_path, "wb") as f:
+            f.write(_make_png_bytes())
+
+        listing = PhoneListing.objects.create(
+            source_type=SourceType.INSTAGRAM,
+            country=Country.ALGERIA,
+            phone_model=self.model,
+            title="Relative media prefix image test",
+            image_url="media/instagram/test_profile/photo.jpg",
+        )
+        url = reverse(
+            "clean_listing_image",
+            kwargs={"category": "phone", "pk": listing.pk},
+        )
+        with override_settings(MEDIA_ROOT=self.media_dir, MEDIA_URL="/media/"):
+            response = self.client.get(url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Content-Type"], "image/png")
+
     def test_local_file_not_found_returns_404(self):
         listing = PhoneListing.objects.create(
             source_type=SourceType.SAHIBINDEN,

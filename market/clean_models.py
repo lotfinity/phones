@@ -22,6 +22,13 @@ class PhoneOpportunitySnapshot(models.Model):
         on_delete=models.SET_NULL,
         related_name="clean_opportunity_snapshots",
     )
+    algeria_listing = models.ForeignKey(
+        "PhoneListing",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="clean_opportunity_snapshots",
+    )
     brand = models.CharField(max_length=120, db_index=True)
     model = models.CharField(max_length=220, db_index=True)
     storage_gb = models.PositiveSmallIntegerField(null=True, blank=True, db_index=True)
@@ -82,6 +89,13 @@ class LaptopOpportunitySnapshot(models.Model):
 
     laptop_model = models.ForeignKey(
         "LaptopModel",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="clean_opportunity_snapshots",
+    )
+    algeria_listing = models.ForeignKey(
+        "LaptopListing",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
@@ -154,6 +168,13 @@ class ConsoleOpportunitySnapshot(models.Model):
 
     console_model = models.ForeignKey(
         "ConsoleModel",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="clean_opportunity_snapshots",
+    )
+    algeria_listing = models.ForeignKey(
+        "ConsoleListing",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,

@@ -135,6 +135,15 @@ def compute_phone_opportunity_rows(
         if margin_percent is not None and margin_percent < min_margin_percent:
             continue
 
+        algeria_listing = (
+            base.filter(
+                country=Country.ALGERIA,
+                phone_model_id=group["phone_model_id"],
+                storage_gb=group["storage_gb"],
+            )
+            .order_by("price_eur", "-observed_at", "-id")
+            .first()
+        )
         sample = (
             base.filter(
                 phone_model_id=group["phone_model_id"],
@@ -169,6 +178,7 @@ def compute_phone_opportunity_rows(
         row = {
             "brand": sample.phone_model.brand.name if sample.phone_model.brand else "",
             "model": sample.phone_model.canonical_name,
+            "algeria_listing_id": algeria_listing.pk if algeria_listing else None,
             "phone_model_id": group["phone_model_id"],
             "storage_gb": group["storage_gb"],
             "algeria_min_eur": _money(algeria_min),
@@ -193,35 +203,49 @@ def compute_phone_opportunity_rows(
 
 def write_phone_opportunity_snapshots(rows, *, source_label="phone_v2"):
     generated_at = timezone.now()
-    snapshots = []
-    for row in rows:
-        snapshots.append(
-            PhoneOpportunitySnapshot(
-                phone_model_id=row.get("phone_model_id"),
-                brand=row.get("brand") or "",
-                model=row.get("model") or "",
-                storage_gb=row.get("storage_gb"),
-                algeria_min_eur=row.get("algeria_min_eur"),
-                algeria_avg_eur=row.get("algeria_avg_eur"),
-                turkiye_min_eur=row.get("turkiye_min_eur"),
-                turkiye_avg_eur=row.get("turkiye_avg_eur"),
-                gross_margin_eur=row.get("gross_margin_eur"),
-                margin_percent=row.get("margin_percent"),
-                algeria_count=row.get("algeria_count") or 0,
-                turkiye_count=row.get("turkiye_count") or 0,
-                algeria_urls=row.get("algeria_urls") or [],
-                turkiye_urls=row.get("turkiye_urls") or [],
-                recommendation=row.get("recommendation") or PhoneOpportunitySnapshot.Recommendation.WATCH,
-                confidence_score=row.get("confidence_score") or 0,
-                source_label=source_label,
-                generated_at=generated_at,
-            )
-        )
-
+    seen_keys = set()
+    written = 0
     with transaction.atomic():
-        deleted, _ = PhoneOpportunitySnapshot.objects.all().delete()
-        PhoneOpportunitySnapshot.objects.bulk_create(snapshots, batch_size=500)
-    return deleted, len(snapshots)
+        for row in rows:
+            key = (row.get("phone_model_id"), row.get("storage_gb"))
+            seen_keys.add(key)
+            defaults = {
+                "algeria_listing_id": row.get("algeria_listing_id"),
+                "brand": row.get("brand") or "",
+                "model": row.get("model") or "",
+                "algeria_min_eur": row.get("algeria_min_eur"),
+                "algeria_avg_eur": row.get("algeria_avg_eur"),
+                "turkiye_min_eur": row.get("turkiye_min_eur"),
+                "turkiye_avg_eur": row.get("turkiye_avg_eur"),
+                "gross_margin_eur": row.get("gross_margin_eur"),
+                "margin_percent": row.get("margin_percent"),
+                "algeria_count": row.get("algeria_count") or 0,
+                "turkiye_count": row.get("turkiye_count") or 0,
+                "algeria_urls": row.get("algeria_urls") or [],
+                "turkiye_urls": row.get("turkiye_urls") or [],
+                "recommendation": row.get("recommendation") or PhoneOpportunitySnapshot.Recommendation.WATCH,
+                "confidence_score": row.get("confidence_score") or 0,
+                "source_label": source_label,
+                "generated_at": generated_at,
+            }
+            PhoneOpportunitySnapshot.objects.update_or_create(
+                phone_model_id=key[0],
+                storage_gb=key[1],
+                defaults=defaults,
+            )
+            written += 1
+
+        stale = PhoneOpportunitySnapshot.objects.all()
+        if seen_keys:
+            stale_ids = [
+                snapshot.pk
+                for snapshot in stale.only("pk", "phone_model_id", "storage_gb")
+                if (snapshot.phone_model_id, snapshot.storage_gb) not in seen_keys
+            ]
+            deleted, _ = PhoneOpportunitySnapshot.objects.filter(pk__in=stale_ids).delete()
+        else:
+            deleted, _ = stale.delete()
+    return deleted, written
 
 
 class Command(BaseCommand):
@@ -285,7 +309,7 @@ class Command(BaseCommand):
             deleted, created = write_phone_opportunity_snapshots(rows)
             self.stdout.write(
                 self.style.SUCCESS(
-                    f"Wrote {created} clean phone opportunity snapshots; replaced {deleted} old rows."
+                    f"Wrote {created} clean phone opportunity snapshots; removed {deleted} stale rows."
                 )
             )
 

@@ -1,22 +1,29 @@
 from __future__ import annotations
 
+from io import StringIO
 from datetime import datetime, timezone as datetime_timezone
 from decimal import Decimal
 from urllib.parse import urlencode
 from urllib.parse import urlsplit
 
+from django.conf import settings
+from django.core.management import call_command
 from django.db.models import Model
-from django.http import Http404
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_POST
 
 from market.clean_models import (
     ConsoleOpportunitySnapshot,
     LaptopOpportunitySnapshot,
     PhoneOpportunitySnapshot,
 )
-from market.models import DealSnapshot, SourceType
+from market.models import CurrencyRate
+from market.services.currency import eur_rate_or_setting, eur_try_rate, eur_usd_rate, usd_try_rate
 from market.views_clean import (
     VISIBLE_REVIEW_STATUSES,
     _display_row,
@@ -231,6 +238,10 @@ def _supplier_pricing(item, selected_currency):
 
 
 def _acquisition_listing(item, category):
+    listing = getattr(item, "algeria_listing", None)
+    if listing is not None:
+        return listing
+
     qs = _matching_listing_queryset(item, category).filter(country="algeria")
     listings = list(qs[:200])
     if not listings:
@@ -345,6 +356,64 @@ def _combined_specs(item, category, listing):
     return result
 
 
+def _formatted_original_price(listing):
+    if not listing or listing.price_original in (None, ""):
+        return ""
+    currency = listing.currency_original or ""
+    return f"{listing.price_original} {currency}".strip()
+
+
+def _formatted_eur_price(listing):
+    if not listing or listing.price_eur in (None, ""):
+        return ""
+    return f"€{listing.price_eur}"
+
+
+def _detail_specs(item, category, listing):
+    rows = []
+
+    def add(label, value, suffix="", *, default="—"):
+        if value in (None, ""):
+            value = default
+            suffix = ""
+        rows.append({"label": label, "value": f"{value}{suffix}"})
+
+    if category == "phone":
+        add("Storage", getattr(listing, "storage_gb", None) or getattr(item, "storage_gb", None), " GB")
+        add("RAM", getattr(listing, "ram_gb", None), " GB")
+        add("SIM Configuration", getattr(listing, "sim_config", ""))
+        add("Battery Health", getattr(listing, "battery_health", None), "%")
+        add("Battery Cycles", getattr(listing, "battery_cycles", None))
+        add("Box Status", getattr(listing, "box_status", ""))
+        add("Store Warranty", getattr(listing, "store_warranty", ""))
+        add("Region", getattr(listing, "region", ""))
+        add("Color", getattr(listing, "color", ""))
+        add("Condition", getattr(listing, "condition", ""), default="Unknown")
+    elif category == "laptop":
+        add("CPU", getattr(listing, "cpu", "") or getattr(item, "cpu", ""))
+        add("GPU", getattr(listing, "gpu", "") or getattr(item, "gpu", ""))
+        add("RAM", getattr(listing, "ram_gb", None) or getattr(item, "ram_gb", None), " GB")
+        add("Storage", getattr(listing, "storage_gb", None) or getattr(item, "storage_gb", None), " GB")
+        add("Screen Size", getattr(listing, "screen_size", None), '"')
+        add("Resolution", getattr(listing, "resolution", ""))
+        add("Refresh Rate", getattr(listing, "refresh_rate_hz", None), " Hz")
+        add("Panel Type", getattr(listing, "panel_type", ""))
+        add("Condition", getattr(listing, "condition", ""), default="Unknown")
+    elif category == "console":
+        add("Chipset", getattr(listing, "chipset", "") or getattr(item, "chipset", ""))
+        add("RAM", getattr(listing, "ram_gb", None) or getattr(item, "ram_gb", None), " GB")
+        add("Storage", getattr(listing, "storage_gb", None) or getattr(item, "storage_gb", None), " GB")
+        add("Screen Size", getattr(listing, "screen_size", None), '"')
+        add("Refresh Rate", getattr(listing, "refresh_rate_hz", None), " Hz")
+        add("Connectivity", getattr(listing, "connectivity", ""))
+        add("Color", getattr(listing, "color", ""))
+        add("Condition", getattr(listing, "condition", ""), default="Unknown")
+
+    add("Original Price", _formatted_original_price(listing))
+    add("Price in EUR", _formatted_eur_price(listing))
+    return rows
+
+
 def _condition_label(listing):
     if not listing:
         return "Durum bilgisi yok"
@@ -428,81 +497,12 @@ def _opportunity_card(item, category, selected_currency, *, show_internal_gain=F
     return card
 
 
-def _legacy_instagram_deal_card(item, selected_currency, *, show_internal_gain=False):
-    confidence_score = 50
-    margin_pct = Decimal(str(item.margin_pct or 0))
-    if item.sah_count >= 3:
-        confidence_score += 15
-    if item.margin_pct and item.margin_pct >= 25:
-        confidence_score += 10
-    confidence_score = min(confidence_score, 85)
-    title = f"{item.brand_name} {item.model_name}".strip()
-    if item.storage_gb:
-        title = f"{title} {item.storage_gb}GB"
-    source_url = _safe_external_url(item.listing_url)
-    card = {
-        "pk": f"legacy-{item.pk}",
-        "plan_key": f"legacy-phone:{item.pk}",
-        "category": "phone",
-        "category_label": "Telefon",
-        "brand": item.brand_name,
-        "brand_logo_url": _brand_logo_url(item.brand_name),
-        "model": item.model_name,
-        "title": title,
-        "initials": "".join(part[0] for part in (item.brand_name or title).split()[:2]).upper() or "PB",
-        "subtitle": f"{item.storage_gb} GB" if item.storage_gb else "",
-        "specs": [{"label": "Depolama", "value": f"{item.storage_gb} GB"}] if item.storage_gb else [],
-        "condition": CONDITION_LABELS_TR.get(item.condition, item.condition or "Durum bilgisi yok"),
-        "battery_health": getattr(item.listing, "battery_health", None) if item.listing_id else None,
-        "recommendation": "Instagram fırsatı",
-        "recommendation_value": "buy" if margin_pct >= 25 else "watch",
-        "confidence_score": confidence_score,
-        "confidence_stars": round(confidence_score / 20),
-        "confidence_aria_label": f"Veri güveni {confidence_score} / 100",
-        "confidence_title": f"Veri güveni: %{confidence_score}",
-        "buyer_offer": money(item.price_eur, selected_currency),
-        "buyer_gain": money(item.margin_eur, selected_currency),
-        "buyer_gain_percent": f"%{Decimal(str(item.margin_pct)).quantize(Decimal('0.1'))}" if item.margin_pct else "",
-        "turkiye_avg": money(item.sah_median_eur, selected_currency),
-        "supplier_price": money(item.supplier_eur, selected_currency) if item.supplier_eur else "",
-        "supplier_discount_percent": None,
-        "supplier_discount_label": "",
-        "turkiye_count": item.sah_count,
-        "algeria_count": 1,
-        "evidence_count": (item.sah_count or 0) + 1,
-        "margin_percent_label": f"%{Decimal(str(item.margin_pct)).quantize(Decimal('0.1'))}" if item.margin_pct else "",
-        "has_image": bool(item.image_url),
-        "image_url": item.image_url,
-        "source_listing_id": item.listing_id,
-        "source_listing_url": source_url,
-        "source_observed_at": item.observed_at,
-        "availability_state": "available" if source_url else "verification_required",
-        "availability_label": "Instagram ilanı",
-        "availability_is_actionable": bool(source_url),
-        "source_age_days": None,
-        "detail_url": source_url or reverse("deals_swiper"),
-        "generated_at": item.created_at,
-        "is_legacy_instagram": True,
-    }
-    if show_internal_gain:
-        card["my_gain"] = ""
-    return card
-
-
 def _all_opportunity_items():
     items = []
     for category, config in OPPORTUNITY_CONFIG.items():
         for item in config["model"].objects.all():
             items.append((category, item))
     return items
-
-
-def _legacy_instagram_deals():
-    return list(
-        DealSnapshot.objects.select_related("listing")
-        .filter(listing__source_type=SourceType.INSTAGRAM)
-        .order_by("-margin_pct", "-margin_eur", "-id")
-    )
 
 
 def _brand_filter_options(items, *, active_category="", active_brand="", query=""):
@@ -618,7 +618,27 @@ def _prepare_evidence(rows, category):
     return prepared
 
 
-def estore_opportunity_index(request):
+def _category_options(counts):
+    return [
+        {"value": key, "label": value["plural"], "count": counts[key]}
+        for key, value in OPPORTUNITY_CONFIG.items()
+    ]
+
+
+def _api_card(card):
+    return card | {
+        "api_url": reverse(
+            "estore_api_opportunity_detail",
+            kwargs={"category": card["category"], "pk": card["pk"]},
+        ),
+        "frontend_detail_url": reverse(
+            "estore_frontend_opportunity_detail",
+            kwargs={"category": card["category"], "pk": card["pk"]},
+        ),
+    }
+
+
+def _estore_index_payload(request):
     selected_currency = _selected_currency(request)
     show_internal_gain = can_view_internal_gain(request)
     items, active_category, query, active_brand, brand_options = _filtered_items(request)
@@ -631,22 +651,6 @@ def estore_opportunity_index(request):
         )
         for category, item in items
     ]
-    legacy_deals = _legacy_instagram_deals()
-    if active_category and active_category != "phone":
-        legacy_deals = []
-    if active_brand:
-        legacy_deals = [item for item in legacy_deals if item.brand_name.lower() == active_brand.lower()]
-    if query:
-        lowered_query = query.lower()
-        legacy_deals = [
-            item
-            for item in legacy_deals
-            if lowered_query in f"{item.brand_name} {item.model_name} {item.storage_gb or ''} {item.title}".lower()
-        ]
-    cards.extend(
-        _legacy_instagram_deal_card(item, selected_currency, show_internal_gain=show_internal_gain)
-        for item in legacy_deals
-    )
     cards.sort(
         key=lambda card: (
             Decimal(str(card.get("confidence_score") or 0)),
@@ -659,7 +663,41 @@ def estore_opportunity_index(request):
         category: config["model"].objects.count()
         for category, config in OPPORTUNITY_CONFIG.items()
     }
-    counts["phone"] += DealSnapshot.objects.filter(listing__source_type=SourceType.INSTAGRAM).count()
+
+    return {
+        "selected_currency": selected_currency,
+        "show_internal_gain": show_internal_gain,
+        "cards": cards,
+        "total_count": len(cards),
+        "counts": counts,
+        "active_category": active_category,
+        "active_brand": active_brand,
+        "brand_options": brand_options,
+        "query": query,
+        "category_options": _category_options(counts),
+    }
+
+
+def _pagination_params(request, total_count):
+    try:
+        offset = max(0, int(request.GET.get("offset", 0)))
+    except (TypeError, ValueError):
+        offset = 0
+    try:
+        limit = int(request.GET.get("limit", 48))
+    except (TypeError, ValueError):
+        limit = 48
+    limit = min(100, max(1, limit))
+    return {
+        "offset": offset,
+        "limit": limit,
+        "total": total_count,
+        "has_more": offset + limit < total_count,
+    }
+
+
+def estore_opportunity_index(request):
+    payload = _estore_index_payload(request)
 
     return render(
         request,
@@ -668,32 +706,29 @@ def estore_opportunity_index(request):
             "plan_payload": _json_payload({
                 "page": "opportunity-index",
                 "frontend": "server-rendered-estore",
-                "cards": cards,
-                "total_count": len(cards),
-                "active_category": active_category,
-                "active_brand": active_brand,
-                "brand_options": brand_options,
-                "query": query,
-                "selected_currency": selected_currency,
+                "cards": payload["cards"],
+                "total_count": payload["total_count"],
+                "active_category": payload["active_category"],
+                "active_brand": payload["active_brand"],
+                "brand_options": payload["brand_options"],
+                "query": payload["query"],
+                "selected_currency": payload["selected_currency"],
             }),
-            "cards": cards,
-            "total_count": len(cards),
-            "counts": counts,
-            "active_category": active_category,
-            "active_brand": active_brand,
-            "brand_options": brand_options,
-            "query": query,
-            "selected_currency": selected_currency,
-            "category_options": [
-                {"value": key, "label": value["plural"], "count": counts[key]}
-                for key, value in OPPORTUNITY_CONFIG.items()
-            ],
-            "can_view_internal_gain": show_internal_gain,
+            "cards": payload["cards"],
+            "total_count": payload["total_count"],
+            "counts": payload["counts"],
+            "active_category": payload["active_category"],
+            "active_brand": payload["active_brand"],
+            "brand_options": payload["brand_options"],
+            "query": payload["query"],
+            "selected_currency": payload["selected_currency"],
+            "category_options": payload["category_options"],
+            "can_view_internal_gain": payload["show_internal_gain"],
         },
     )
 
 
-def estore_opportunity_detail(request, category, pk):
+def _estore_detail_payload(request, category, pk):
     config = OPPORTUNITY_CONFIG.get(category)
     if config is None:
         raise Http404("Bilinmeyen fırsat kategorisi")
@@ -714,7 +749,7 @@ def estore_opportunity_detail(request, category, pk):
         show_operational_meta=show_operational_meta,
     )
 
-    primary = _primary_listing(item, category)
+    primary = _acquisition_listing(item, category) or _primary_listing(item, category)
     card = _opportunity_card(
         item,
         category,
@@ -728,6 +763,7 @@ def estore_opportunity_detail(request, category, pk):
 
     detail = row | card | {
         "specs": _combined_specs(item, category, primary),
+        "detail_specs": _detail_specs(item, category, primary),
         "coverage": {
             "algeria": item.algeria_count,
             "turkiye": item.turkiye_count,
@@ -736,6 +772,19 @@ def estore_opportunity_detail(request, category, pk):
         "source_label": item.source_label if show_operational_meta else "",
     }
 
+    return {
+        "selected_currency": selected_currency,
+        "show_internal_gain": show_internal_gain,
+        "show_operational_meta": show_operational_meta,
+        "detail": detail,
+        "algeria_rows": algeria_rows,
+        "turkiye_rows": turkiye_rows,
+    }
+
+
+def estore_opportunity_detail(request, category, pk):
+    payload = _estore_detail_payload(request, category, pk)
+
     return render(
         request,
         "estore/listing_detail.html",
@@ -743,14 +792,147 @@ def estore_opportunity_detail(request, category, pk):
             "plan_payload": _json_payload({
                 "page": "opportunity-detail",
                 "frontend": "server-rendered-estore",
-                "opportunity": detail,
-                "selected_currency": selected_currency,
+                "opportunity": payload["detail"],
+                "selected_currency": payload["selected_currency"],
             }),
-            "opportunity": detail,
-            "algeria_rows": algeria_rows,
-            "turkiye_rows": turkiye_rows,
-            "selected_currency": selected_currency,
-            "can_view_internal_gain": show_internal_gain,
-            "can_view_operational_meta": show_operational_meta,
+            "opportunity": payload["detail"],
+            "algeria_rows": payload["algeria_rows"],
+            "turkiye_rows": payload["turkiye_rows"],
+            "selected_currency": payload["selected_currency"],
+            "can_view_internal_gain": payload["show_internal_gain"],
+            "can_view_operational_meta": payload["show_operational_meta"],
         },
     )
+
+
+@require_GET
+def estore_api_opportunity_index(request):
+    payload = _estore_index_payload(request)
+    pagination = _pagination_params(request, payload["total_count"])
+    offset = pagination["offset"]
+    limit = pagination["limit"]
+    cards = payload["cards"][offset:offset + limit]
+
+    return JsonResponse(
+        _json_payload(
+            {
+                "ok": True,
+                "api_version": "estore-opportunities-v1",
+                "page": "opportunity-index",
+                "selected_currency": payload["selected_currency"],
+                "filters": {
+                    "category": payload["active_category"],
+                    "brand": payload["active_brand"],
+                    "q": payload["query"],
+                },
+                "pagination": pagination,
+                "counts": payload["counts"],
+                "category_options": payload["category_options"],
+                "brand_options": payload["brand_options"],
+                "cards": [_api_card(card) for card in cards],
+            }
+        )
+    )
+
+
+@require_GET
+def estore_api_opportunity_detail(request, category, pk):
+    payload = _estore_detail_payload(request, category, pk)
+    return JsonResponse(
+        _json_payload(
+            {
+                "ok": True,
+                "api_version": "estore-opportunities-v1",
+                "page": "opportunity-detail",
+                "selected_currency": payload["selected_currency"],
+                "opportunity": _api_card(payload["detail"]),
+                "evidence": {
+                    "algeria": payload["algeria_rows"],
+                    "turkiye": payload["turkiye_rows"],
+                },
+            }
+        )
+    )
+
+
+def _fmt_rate(value, places="0.000001"):
+    return str(Decimal(str(value)).quantize(Decimal(places)))
+
+
+def _latest_rate_row(base, quote):
+    return (
+        CurrencyRate.objects.filter(base_currency=base, quote_currency=quote)
+        .order_by("-observed_at", "-id")
+        .first()
+    )
+
+
+def _fx_pair(base, quote, rate, label):
+    row = _latest_rate_row(base, quote)
+    return {
+        "base": base,
+        "quote": quote,
+        "pair": f"{base}/{quote}",
+        "label": label,
+        "rate": _fmt_rate(rate),
+        "display": _fmt_rate(rate, "0.01"),
+        "source": row.source if row else "settings:fallback",
+        "observed_at": row.observed_at.isoformat() if row else "",
+        "notes": row.notes if row else "",
+    }
+
+
+def _current_fx_payload():
+    eur_try = eur_try_rate()
+    usd_try = usd_try_rate()
+    eur_usd = eur_usd_rate()
+    eur_dzd = eur_rate_or_setting("DZD", "DZD_PER_EUR_BLACK")
+    latest = CurrencyRate.objects.order_by("-observed_at", "-id").first()
+    return {
+        "ok": True,
+        "api_version": "estore-fx-v1",
+        "base": "EUR",
+        "selected_currency": "TRY",
+        "latest_observed": latest.observed_at.isoformat() if latest else "",
+        "rates": {
+            "EUR": "1.000000",
+            "TRY": _fmt_rate(eur_try),
+            "USD": _fmt_rate(eur_usd),
+            "DZD": _fmt_rate(eur_dzd),
+        },
+        "pairs": [
+            _fx_pair("EUR", "TRY", eur_try, "€1"),
+            _fx_pair("USD", "TRY", usd_try, "$1"),
+            _fx_pair("EUR", "DZD", eur_dzd, "€1"),
+            _fx_pair("EUR", "USD", eur_usd, "€1"),
+        ],
+    }
+
+
+@require_GET
+def estore_api_fx_rates(request):
+    return JsonResponse(_current_fx_payload())
+
+
+@csrf_exempt
+@require_POST
+def estore_api_fx_refresh(request):
+    dzd_rate = request.POST.get("dzd_per_eur_black") or "295"
+    output = StringIO()
+    call_command(
+        "fetch_exchange_rates",
+        "--dzd-per-eur-black",
+        str(dzd_rate),
+        stdout=output,
+    )
+    for command_name in (
+        "recompute_phone_opportunities_v2",
+        "recompute_laptop_opportunities_v2",
+        "recompute_console_opportunities_v1",
+    ):
+        call_command(command_name, "--write-snapshots", stdout=output)
+
+    payload = _current_fx_payload()
+    payload["refreshed"] = True
+    payload["command_output"] = output.getvalue()
+    return JsonResponse(payload)
