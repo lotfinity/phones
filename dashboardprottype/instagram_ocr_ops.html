@@ -1,0 +1,1130 @@
+{% load static %}
+{% load i18n %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}OCR Ops · PriceBridge{% endblock %}</title>
+  <style>
+    /* ─── Corporate tokens — pb-* prefixed ──────────────────────────── */
+    :root {
+      --pb-bg: #f5f8ff;
+      --pb-surface: #ffffff;
+      --pb-surface-warm: #eaf1ff;
+      --pb-fg: #101828;
+      --pb-fg-2: #344054;
+      --pb-muted: #667085;
+      --pb-meta: #2563eb;
+      --pb-border: #d7e0ef;
+      --pb-border-soft: #edf2f8;
+      --pb-accent: #2563eb;
+      --pb-accent-on: #ffffff;
+      --pb-accent-hover: color-mix(in oklab, var(--pb-accent), black 8%);
+      --pb-accent-active: color-mix(in oklab, var(--pb-accent), black 14%);
+      --pb-success: #16a34a;
+      --pb-success-bg: #dcfce7;
+      --pb-warn: #f59e0b;
+      --pb-warn-bg: #fef3c7;
+      --pb-danger: #ef4444;
+      --pb-danger-bg: #fee2e2;
+      --pb-info-bg: #dbeafe;
+      --pb-font-display: Inter, system-ui, sans-serif;
+      --pb-font-body: Inter, system-ui, sans-serif;
+      --pb-font-mono: "SF Mono", ui-monospace, Menlo, monospace;
+      --pb-text-xs: 12px;
+      --pb-text-sm: 14px;
+      --pb-text-base: 16px;
+      --pb-text-lg: 18px;
+      --pb-text-xl: 24px;
+      --pb-text-2xl: 36px;
+      --pb-text-3xl: 48px;
+      --pb-leading-body: 1.52;
+      --pb-leading-tight: 1.06;
+      --pb-tracking-display: -0.025em;
+      --pb-space-1: 4px;
+      --pb-space-2: 8px;
+      --pb-space-3: 12px;
+      --pb-space-4: 16px;
+      --pb-space-5: 20px;
+      --pb-space-6: 24px;
+      --pb-space-8: 32px;
+      --pb-space-12: 48px;
+      --pb-radius-sm: 6px;
+      --pb-radius-md: 10px;
+      --pb-radius-lg: 14px;
+      --pb-radius-pill: 9999px;
+      --pb-elev-flat: none;
+      --pb-elev-ring: 0 0 0 1px var(--pb-border);
+      --pb-elev-raised: 0 1px 3px rgba(16,24,40,0.08), 0 8px 24px rgba(16,24,40,0.06);
+      --pb-focus-ring: 0 0 0 4px rgba(37,99,235,0.22);
+      --pb-motion-fast: 120ms;
+      --pb-motion-base: 200ms;
+      --pb-ease: cubic-bezier(0.2,0,0,1);
+    }
+
+    /* ─── reset & base ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--pb-bg);
+      color: var(--pb-fg);
+      font-family: var(--pb-font-body);
+      font-size: var(--pb-text-base);
+      line-height: var(--pb-leading-body);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: var(--pb-accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    button { font: inherit; cursor: pointer; }
+    p { text-wrap: pretty; }
+    h1, h2, h3, h4 { text-wrap: balance; margin: 0; }
+
+    /* ─── utility ───────────────────────────────────────────────────── */
+    .container { max-width: 1280px; margin-inline: auto; padding-inline: var(--pb-space-6); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    .mono { font-family: var(--pb-font-mono); font-variant-numeric: tabular-nums; }
+    .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .flex { display: flex; }
+    .flex-col { display: flex; flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-1 { gap: var(--pb-space-1); }
+    .gap-2 { gap: var(--pb-space-2); }
+    .gap-3 { gap: var(--pb-space-3); }
+    .gap-4 { gap: var(--pb-space-4); }
+    .gap-6 { gap: var(--pb-space-6); }
+    .gap-8 { gap: var(--pb-space-8); }
+    .flex-1 { flex: 1; }
+    .flex-wrap { flex-wrap: wrap; }
+    .grid { display: grid; }
+    .grid-1 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    .grid-7 { grid-template-columns: repeat(7, 1fr); }
+    .w-full { width: 100%; }
+
+    /* ─── topbar ────────────────────────────────────────────────────── */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: color-mix(in oklch, var(--pb-bg) 92%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--pb-border);
+    }
+    .topbar-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--pb-space-3) var(--pb-space-6);
+    }
+    .topbar .brand { font-weight: 700; font-size: var(--pb-text-lg); letter-spacing: -0.02em; color: var(--pb-fg); }
+    .topbar .brand span { color: var(--pb-accent); }
+    .topbar-nav { display: flex; gap: var(--pb-space-3); }
+    .topbar-nav a {
+      font-size: var(--pb-text-sm); color: var(--pb-muted); padding: var(--pb-space-2) var(--pb-space-3);
+      border-radius: var(--pb-radius-sm); transition: background var(--pb-motion-fast) var(--pb-ease);
+    }
+    .topbar-nav a:hover { background: var(--pb-surface-warm); color: var(--pb-fg); text-decoration: none; }
+    .topbar-nav a.active { background: var(--pb-accent); color: var(--pb-accent-on); font-weight: 500; }
+    .kbd {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 22px; height: 22px; padding: 0 5px;
+      background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: 4px;
+      font-family: var(--pb-font-mono); font-size: 11px; color: var(--pb-muted);
+      box-shadow: 0 1px 0 var(--pb-border);
+    }
+
+    /* ─── stats bar ─────────────────────────────────────────────────── */
+    .stats-bar { padding: var(--pb-space-4) 0; border-bottom: 1px solid var(--pb-border); }
+    .stat-card {
+      background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-md);
+      padding: var(--pb-space-4) var(--pb-space-5); position: relative; overflow: hidden;
+    }
+    .stat-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    }
+    .stat-card.success::before { background: var(--pb-success); }
+    .stat-card.warn::before { background: var(--pb-warn); }
+    .stat-card.danger::before { background: var(--pb-danger); }
+    .stat-card.info::before { background: var(--pb-accent); }
+    .stat-card .stat-label { font-size: var(--pb-text-xs); color: var(--pb-muted); text-transform: uppercase; letter-spacing: 0.06em; font-family: var(--pb-font-mono); margin-bottom: var(--pb-space-1); }
+    .stat-card .stat-value { font-size: var(--pb-text-2xl); font-weight: 700; letter-spacing: -0.03em; line-height: 1.1; }
+    .stat-card .stat-sub { font-size: var(--pb-text-xs); color: var(--pb-muted); margin-top: var(--pb-space-1); }
+
+    /* ─── section wrapper ───────────────────────────────────────────── */
+    .ops-section {
+      padding: var(--pb-space-6) 0;
+      border-bottom: 1px solid var(--pb-border);
+    }
+    .ops-section:last-child { border-bottom: none; }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--pb-space-5); flex-wrap: wrap; gap: var(--pb-space-3);
+    }
+    .section-title { font-size: var(--pb-text-lg); font-weight: 700; letter-spacing: -0.015em; }
+    .section-title .count {
+      font-family: var(--pb-font-mono); font-size: var(--pb-text-sm); color: var(--pb-muted);
+      font-weight: 400; margin-left: var(--pb-space-2);
+    }
+
+    /* ─── batch runner form ─────────────────────────────────────────── */
+    .batch-form {
+      background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-lg);
+      padding: var(--pb-space-6);
+    }
+    .batch-form-row {
+      display: flex; align-items: flex-end; gap: var(--pb-space-4); flex-wrap: wrap;
+    }
+    .field { display: flex; flex-direction: column; gap: var(--pb-space-1); }
+    .field label { font-size: var(--pb-text-xs); color: var(--pb-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; font-family: var(--pb-font-mono); }
+    .field select, .field input[type="number"] {
+      padding: var(--pb-space-2) var(--pb-space-3); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-sm);
+      background: var(--pb-bg); color: var(--pb-fg); font-size: var(--pb-text-sm); min-width: 120px;
+    }
+    .field select:focus, .field input:focus {
+      outline: none; border-color: var(--pb-accent); box-shadow: var(--pb-focus-ring);
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: var(--pb-space-2);
+      padding: var(--pb-space-2) var(--pb-space-4); border-radius: var(--pb-radius-sm);
+      font-size: var(--pb-text-sm); font-weight: 500; border: 1px solid transparent;
+      transition: background var(--pb-motion-fast) var(--pb-ease), border-color var(--pb-motion-fast) var(--pb-ease);
+    }
+    .btn-primary { background: var(--pb-accent); color: var(--pb-accent-on); border-color: var(--pb-accent); }
+    .btn-primary:hover { background: var(--pb-accent-hover); }
+    .btn-secondary { background: var(--pb-surface); color: var(--pb-fg); border-color: var(--pb-border); }
+    .btn-secondary:hover { border-color: var(--pb-fg); }
+    .btn-ghost { background: transparent; color: var(--pb-muted); border-color: transparent; }
+    .btn-ghost:hover { color: var(--pb-accent); background: var(--pb-surface-warm); }
+    .btn-sm { padding: var(--pb-space-1) var(--pb-space-3); font-size: var(--pb-text-xs); }
+    .btn-icon { padding: var(--pb-space-2); }
+
+    /* ─── status chips ──────────────────────────────────────────────── */
+    .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; border-radius: var(--pb-radius-pill);
+      font-family: var(--pb-font-mono); font-size: 11px; font-weight: 500;
+      letter-spacing: 0.02em; white-space: nowrap;
+    }
+    .chip-success { background: var(--pb-success-bg); color: #166534; }
+    .chip-warn { background: var(--pb-warn-bg); color: #92400e; }
+    .chip-danger { background: var(--pb-danger-bg); color: #991b1b; }
+    .chip-info { background: var(--pb-info-bg); color: #1e40af; }
+    .chip-neutral { background: color-mix(in oklch, var(--pb-fg) 8%, transparent); color: var(--pb-fg-2); }
+    .chip-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .chip-success .chip-dot { background: var(--pb-success); }
+    .chip-warn .chip-dot { background: var(--pb-warn); }
+    .chip-danger .chip-dot { background: var(--pb-danger); }
+    .chip-info .chip-dot { background: var(--pb-accent); }
+
+    /* ─── card grid ─────────────────────────────────────────────────── */
+    .listing-card {
+      background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-md);
+      overflow: hidden; transition: border-color var(--pb-motion-fast) var(--pb-ease), box-shadow var(--pb-motion-fast) var(--pb-ease);
+      position: relative;
+    }
+    .listing-card:hover { border-color: var(--pb-accent); box-shadow: 0 0 0 1px var(--pb-accent); }
+    .listing-card:focus-within { border-color: var(--pb-accent); box-shadow: var(--pb-focus-ring); }
+    .listing-card-img {
+      width: 100%; aspect-ratio: 4/3; object-fit: cover; background: var(--pb-bg);
+      display: flex; align-items: center; justify-content: center; color: var(--pb-muted);
+      font-family: var(--pb-font-mono); font-size: var(--pb-text-xs); border-bottom: 1px solid var(--pb-border);
+      overflow: hidden; cursor: pointer; position: relative;
+    }
+    .listing-card-img img { width: 100%; height: 100%; object-fit: cover; }
+    .listing-card-img .placeholder-icon { opacity: 0.3; }
+    .listing-card-body { padding: var(--pb-space-4); }
+    .listing-card-meta { display: flex; align-items: center; gap: var(--pb-space-2); margin-bottom: var(--pb-space-2); flex-wrap: wrap; }
+    .listing-card-model { font-weight: 600; font-size: var(--pb-text-sm); color: var(--pb-fg); margin-bottom: var(--pb-space-1); }
+    .listing-card-variant { font-size: var(--pb-text-xs); color: var(--pb-muted); margin-bottom: var(--pb-space-3); }
+    .deal-math {
+      background: var(--pb-bg); border: 1px solid var(--pb-border-soft); border-radius: var(--pb-radius-sm);
+      padding: var(--pb-space-3); margin-top: var(--pb-space-3);
+    }
+    .deal-math-row { display: flex; justify-content: space-between; align-items: center; }
+    .deal-math-row + .deal-math-row { margin-top: var(--pb-space-1); }
+    .deal-math-label { font-size: var(--pb-text-xs); color: var(--pb-muted); }
+    .deal-math-value { font-family: var(--pb-font-mono); font-size: var(--pb-text-sm); font-weight: 600; }
+    .deal-math-value.positive { color: var(--pb-success); }
+    .deal-math-value.negative { color: var(--pb-danger); }
+    .deal-math-divider { border: 0; border-top: 1px solid var(--pb-border-soft); margin: var(--pb-space-2) 0; }
+    .listing-card-actions { display: flex; gap: var(--pb-space-2); margin-top: var(--pb-space-3); }
+
+    /* ─── data quality hint ─────────────────────────────────────────── */
+    .quality-hint {
+      display: flex; align-items: center; gap: var(--pb-space-1);
+      font-size: 11px; color: var(--pb-warn); margin-top: var(--pb-space-1);
+    }
+    .quality-hint svg { width: 12px; height: 12px; flex-shrink: 0; }
+
+    /* ─── empty state ───────────────────────────────────────────────── */
+    .empty-state {
+      text-align: center; padding: var(--pb-space-12) var(--pb-space-6);
+      color: var(--pb-muted);
+    }
+    .empty-state svg { width: 48px; height: 48px; margin: 0 auto var(--pb-space-4); opacity: 0.3; }
+    .empty-state h3 { font-size: var(--pb-text-lg); color: var(--pb-fg); margin-bottom: var(--pb-space-2); }
+    .empty-state p { font-size: var(--pb-text-sm); max-width: 36ch; margin: 0 auto; }
+
+    /* ─── skeleton loading ──────────────────────────────────────────── */
+    .skeleton {
+      background: linear-gradient(90deg, var(--pb-border-soft) 25%, var(--pb-bg) 50%, var(--pb-border-soft) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+      border-radius: var(--pb-radius-sm);
+    }
+    @keyframes skeleton-pulse {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton-card {
+      background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-md);
+      overflow: hidden;
+    }
+    .skeleton-card .skeleton-img { aspect-ratio: 4/3; background: var(--pb-border-soft); }
+    .skeleton-card .skeleton-body { padding: var(--pb-space-4); }
+    .skeleton-line { height: 12px; border-radius: 4px; margin-bottom: var(--pb-space-2); }
+    .skeleton-line.w-60 { width: 60%; }
+    .skeleton-line.w-40 { width: 40%; }
+    .skeleton-line.w-80 { width: 80%; }
+    .skeleton-stat { padding: var(--pb-space-4) var(--pb-space-5); }
+    .skeleton-stat .skeleton-line { height: 28px; width: 50%; }
+    .skeleton-stat .skeleton-line:last-child { height: 10px; width: 70%; margin-top: var(--pb-space-2); }
+
+    /* ─── progress bar ──────────────────────────────────────────────── */
+    .progress-bar { height: 6px; background: var(--pb-border-soft); border-radius: 3px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--pb-accent); border-radius: 3px; transition: width var(--pb-motion-base) var(--pb-ease); }
+    .progress-bar-fill.success { background: var(--pb-success); }
+    .progress-bar-fill.danger { background: var(--pb-danger); }
+
+    /* ─── modal ─────────────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(16,24,40,0.55); backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: opacity var(--pb-motion-base) var(--pb-ease), visibility var(--pb-motion-base) var(--pb-ease);
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+    .modal {
+      background: var(--pb-surface); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-lg);
+      width: min(92vw, 720px); max-height: 88vh; overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 48px rgba(16,24,40,0.18);
+      transform: translateY(8px); transition: transform var(--pb-motion-base) var(--pb-ease);
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: var(--pb-space-4) var(--pb-space-6); border-bottom: 1px solid var(--pb-border);
+    }
+    .modal-header h3 { font-size: var(--pb-text-lg); font-weight: 600; }
+    .modal-close {
+      background: none; border: none; color: var(--pb-muted); padding: var(--pb-space-2);
+      border-radius: var(--pb-radius-sm); display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: var(--pb-bg); color: var(--pb-fg); }
+    .modal-body { padding: var(--pb-space-6); overflow-y: auto; flex: 1; }
+    .modal-footer {
+      display: flex; justify-content: flex-end; gap: var(--pb-space-3);
+      padding: var(--pb-space-4) var(--pb-space-6); border-top: 1px solid var(--pb-border);
+    }
+
+    /* ─── run modal row ─────────────────────────────────────────────── */
+    .run-row {
+      display: grid; grid-template-columns: 48px 1fr auto; gap: var(--pb-space-4);
+      align-items: start; padding: var(--pb-space-4) 0;
+    }
+    .run-row + .run-row { border-top: 1px solid var(--pb-border-soft); }
+    .run-row-thumb { width: 48px; height: 48px; border-radius: var(--pb-radius-sm); background: var(--pb-bg); overflow: hidden; border: 1px solid var(--pb-border); }
+    .run-row-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .run-row-info { min-width: 0; }
+    .run-row-title { font-size: var(--pb-text-sm); font-weight: 500; color: var(--pb-fg); }
+    .run-row-meta { font-size: var(--pb-text-xs); color: var(--pb-muted); font-family: var(--pb-font-mono); margin-top: 2px; }
+    .run-row-progress { margin-top: var(--pb-space-2); }
+    .run-row-debug {
+      margin-top: var(--pb-space-3); background: var(--pb-bg); border: 1px solid var(--pb-border-soft);
+      border-radius: var(--pb-radius-sm); overflow: hidden;
+    }
+    .debug-toggle {
+      display: flex; align-items: center; gap: var(--pb-space-2); padding: var(--pb-space-2) var(--pb-space-3);
+      font-size: var(--pb-text-xs); color: var(--pb-muted); cursor: pointer; background: none; border: none;
+      width: 100%; text-align: left;
+    }
+    .debug-toggle:hover { background: var(--pb-surface-warm); }
+    .debug-toggle svg { width: 12px; height: 12px; transition: transform var(--pb-motion-fast) var(--pb-ease); }
+    .debug-toggle.open svg { transform: rotate(90deg); }
+    .debug-content {
+      padding: var(--pb-space-3); font-family: var(--pb-font-mono); font-size: 11px; color: var(--pb-fg-2);
+      border-top: 1px solid var(--pb-border-soft); display: none; white-space: pre-wrap; word-break: break-all;
+    }
+    .debug-content.open { display: block; }
+
+    /* ─── FX converter ──────────────────────────────────────────────── */
+    .fx-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--pb-space-3); }
+    .fx-card {
+      background: var(--pb-bg); border: 1px solid var(--pb-border-soft); border-radius: var(--pb-radius-sm);
+      padding: var(--pb-space-3) var(--pb-space-4);
+    }
+    .fx-card-label { font-size: var(--pb-text-xs); color: var(--pb-muted); text-transform: uppercase; letter-spacing: 0.04em; font-family: var(--pb-font-mono); }
+    .fx-card-rate { font-size: var(--pb-text-xl); font-weight: 700; letter-spacing: -0.02em; margin-top: var(--pb-space-1); font-family: var(--pb-font-mono); }
+    .fx-card-pair { font-size: var(--pb-text-xs); color: var(--pb-muted); margin-top: 2px; }
+    .fx-stale { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; color: var(--pb-warn); margin-top: var(--pb-space-1); }
+    .fx-stale svg { width: 10px; height: 10px; }
+
+    /* ─── image preview modal ───────────────────────────────────────── */
+    .preview-overlay {
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(0,0,0,0.9);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; visibility: hidden;
+      transition: opacity var(--pb-motion-base) var(--pb-ease);
+    }
+    .preview-overlay.open { opacity: 1; visibility: visible; }
+    .preview-container { position: relative; max-width: 90vw; max-height: 90vh; }
+    .preview-container img { max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: var(--pb-radius-md); }
+    .preview-close {
+      position: absolute; top: -40px; right: 0; background: none; border: none;
+      color: #fff; font-size: var(--pb-text-lg); cursor: pointer; padding: var(--pb-space-2);
+    }
+    .preview-meta {
+      position: absolute; bottom: -36px; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      color: rgba(255,255,255,0.7); font-size: var(--pb-text-xs); font-family: var(--pb-font-mono);
+    }
+    .preview-zoom-controls { display: flex; gap: var(--pb-space-2); }
+    .preview-zoom-btn {
+      background: rgba(255,255,255,0.15); border: none; color: #fff; width: 28px; height: 28px;
+      border-radius: var(--pb-radius-sm); display: grid; place-items: center; cursor: pointer;
+    }
+    .preview-zoom-btn:hover { background: rgba(255,255,255,0.25); }
+
+    /* ─── collapsible ───────────────────────────────────────────────── */
+    .collapsible-trigger {
+      display: flex; align-items: center; gap: var(--pb-space-2); cursor: pointer;
+      background: none; border: none; font: inherit; color: var(--pb-fg); padding: 0;
+    }
+    .collapsible-trigger svg { width: 14px; height: 14px; transition: transform var(--pb-motion-fast) var(--pb-ease); color: var(--pb-muted); }
+    .collapsible-trigger.open svg { transform: rotate(90deg); }
+    .collapsible-body { overflow: hidden; max-height: 0; transition: max-height var(--pb-motion-base) var(--pb-ease); }
+    .collapsible-body.open { max-height: 2000px; }
+
+    /* ─── toast ─────────────────────────────────────────────────────── */
+    .toast-container { position: fixed; bottom: var(--pb-space-6); right: var(--pb-space-6); z-index: 300; display: flex; flex-direction: column; gap: var(--pb-space-2); }
+    .toast {
+      background: var(--pb-fg); color: #fff; padding: var(--pb-space-3) var(--pb-space-5);
+      border-radius: var(--pb-radius-md); font-size: var(--pb-text-sm); box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      display: flex; align-items: center; gap: var(--pb-space-3);
+      animation: toast-in 200ms var(--pb-ease);
+    }
+    @keyframes toast-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ─── filter bar ────────────────────────────────────────────────── */
+    .filter-bar {
+      display: flex; align-items: center; gap: var(--pb-space-3); flex-wrap: wrap;
+      padding: var(--pb-space-3) 0;
+    }
+    .filter-bar .field { flex: 1; min-width: 140px; }
+    .filter-bar .field input, .filter-bar .field select { width: 100%; }
+    .filter-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: var(--pb-space-1) var(--pb-space-3); background: var(--pb-surface-warm);
+      border: 1px solid var(--pb-border); border-radius: var(--pb-radius-pill);
+      font-size: var(--pb-text-xs); color: var(--pb-fg-2); cursor: pointer;
+    }
+    .filter-chip:hover { border-color: var(--pb-accent); }
+    .filter-chip.active { background: var(--pb-accent); color: var(--pb-accent-on); border-color: var(--pb-accent); }
+    .filter-chip-remove { width: 14px; height: 14px; display: grid; place-items: center; font-size: 10px; border-radius: 50%; }
+    .filter-chip-remove:hover { background: rgba(0,0,0,0.1); }
+
+    /* ─── keyboard shortcut hints ───────────────────────────────────── */
+    .shortcut-hint {
+      display: inline-flex; align-items: center; gap: var(--pb-space-2);
+      font-size: var(--pb-text-xs); color: var(--pb-muted);
+    }
+
+    /* ─── responsive ────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .grid-7 { grid-template-columns: repeat(4, 1fr); }
+      .modal { width: min(95vw, 600px); }
+    }
+    @media (max-width: 768px) {
+      .grid-7 { grid-template-columns: repeat(3, 1fr); }
+      .batch-form-row { flex-direction: column; align-items: stretch; }
+      .batch-form-row .field { min-width: 0; }
+      .fx-grid { grid-template-columns: repeat(2, 1fr); }
+      .topbar-nav { display: none; }
+      .topbar-inner { padding: var(--pb-space-2) var(--pb-space-4); }
+      .container { padding-inline: var(--pb-space-4); }
+    }
+    @media (max-width: 640px) {
+      .grid-7 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: 1fr; }
+      .section-header { flex-direction: column; align-items: flex-start; }
+      .modal { width: 100vw; max-height: 100vh; border-radius: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <!-- ═══ topbar ═══════════════════════════════════════════════════════ -->
+  <header class="topbar" data-od-id="topbar">
+    <div class="topbar-inner">
+      <div class="flex items-center gap-6">
+        <div class="brand">Price<span>Bridge</span></div>
+        <nav class="topbar-nav" aria-label="Main navigation">
+          <a href="#" class="active">OCR Ops</a>
+          <a href="#">Dashboard</a>
+          <a href="#">Sources</a>
+          <a href="#">Settings</a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="btn btn-ghost btn-sm" onclick="openFxModal()" aria-label="FX Converter" title="FX Converter (f)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 7h16M4 12h10M4 17h16"/><circle cx="18" cy="12" r="3"/></svg>
+          <span class="mono" style="font-size:11px;">EUR/TRY 35.42</span>
+        </button>
+        <span class="shortcut-hint"><span class="kbd">/</span> filter</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="content">
+    {{ fx_converter|json_script:"fx-converter-data" }}
+
+    {% if messages %}
+    <div class="container" style="padding-top:var(--pb-space-4);">
+      {% for message in messages %}
+      <div class="toast" style="position:static;display:flex;margin-bottom:var(--pb-space-2);">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ═══ STATS BAR ══════════════════════════════════════════════════ -->
+    <section class="stats-bar" data-od-id="stats-bar" aria-label="Pipeline statistics">
+      <div class="container">
+        <div class="grid grid-7" id="stats-grid" role="status" aria-live="polite">
+          <div class="stat-card info" role="group" aria-label="Total posts">
+            <div class="stat-label">Posts</div>
+            <div class="stat-value mono" data-stat="posts">{{ stats.posts }}</div>
+            <div class="stat-sub">All Instagram sources</div>
+          </div>
+          <div class="stat-card warn" role="group" aria-label="Pending OCR">
+            <div class="stat-label">Pending</div>
+            <div class="stat-value mono" data-stat="pending">{{ stats.pending }}</div>
+            <div class="stat-sub">Awaiting OCR run</div>
+          </div>
+          <div class="stat-card info" role="group" aria-label="Processed">
+            <div class="stat-label">Processed</div>
+            <div class="stat-value mono" data-stat="processed">{{ stats.processed }}</div>
+            <div class="stat-sub">OCR completed</div>
+          </div>
+          <div class="stat-card" role="group" aria-label="Raw results">
+            <div class="stat-label">Raw</div>
+            <div class="stat-value mono" data-stat="raw">{{ stats.raw }}</div>
+            <div class="stat-sub">Parsed results</div>
+          </div>
+          <div class="stat-card warn" role="group" aria-label="Unknown status">
+            <div class="stat-label">Unknown</div>
+            <div class="stat-value mono" data-stat="raw_unknown">{{ stats.raw_unknown }}</div>
+            <div class="stat-sub">Need review</div>
+          </div>
+          <div class="stat-card success" role="group" aria-label="Candidates">
+            <div class="stat-label">Candidates</div>
+            <div class="stat-value mono" data-stat="candidates">{{ stats.candidates }}</div>
+            <div class="stat-sub">Deal snapshots</div>
+          </div>
+          <div class="stat-card success" role="group" aria-label="Phone listings">
+            <div class="stat-label">Phones</div>
+            <div class="stat-value mono" data-stat="phone_listings">{{ stats.phone_listings }}</div>
+            <div class="stat-sub">Listed for sale</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ BATCH RUNNER ═══════════════════════════════════════════════ -->
+    <section class="ops-section" data-od-id="batch-runner">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Batch OCR Runner</h2>
+          <span class="shortcut-hint"><span class="kbd">⌘</span><span class="kbd">↵</span> run batch</span>
+        </div>
+        <form class="batch-form" id="batch-form" method="post" onsubmit="return false;">
+          {% csrf_token %}
+          <div class="batch-form-row">
+            <div class="field">
+              <label for="batch-mode">Mode</label>
+              <select id="batch-mode" name="mode">
+                <option value="pending" {% if mode == "pending" %}selected{% endif %}>Pending — new posts</option>
+                <option value="reprocess" {% if mode == "reprocess" %}selected{% endif %}>Reprocess — re-scan all</option>
+                <option value="rebuild" {% if mode == "rebuild" %}selected{% endif %}>Rebuild — re-parse stored OCR</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="batch-size">Batch size</label>
+              <input type="number" id="batch-size" name="limit" min="1" max="20" value="{{ limit }}" />
+            </div>
+            <div class="field">
+              <label for="batch-source">Source filter</label>
+              <select id="batch-source" name="source_id">
+                <option value="">All sources</option>
+                {% for source in sources %}
+                <option value="{{ source.pk }}" {% if selected_source_id == source.pk|stringformat:"s" %}selected{% endif %}>
+                  @{{ source.username|default:source.name }} · {{ source.total_posts }} posts · {{ source.pending_posts }} pending
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="openRunModal()" id="run-batch-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Run Batch
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ═══ FILTER BAR ═════════════════════════════════════════════════ -->
+    <section class="ops-section" data-od-id="filter-bar" style="padding-bottom: 0;">
+      <div class="container">
+        <div class="filter-bar" role="search" aria-label="Filter listings">
+          <div class="field" style="flex:2;">
+            <label for="search-input" class="sr-only">Search listings</label>
+            <input type="text" id="search-input" placeholder="Search model, variant, source…" style="padding: var(--pb-space-2) var(--pb-space-3); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-sm); background: var(--pb-surface); font-size: var(--pb-text-sm);" />
+          </div>
+          <div class="field">
+            <label for="filter-condition">Condition</label>
+            <select id="filter-condition" style="padding: var(--pb-space-2) var(--pb-space-3); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-sm); background: var(--pb-surface); font-size: var(--pb-text-sm);">
+              <option value="">All</option>
+              <option value="new">New</option>
+              <option value="used">Used</option>
+              <option value="refurbished">Refurbished</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-status">Review status</label>
+            <select id="filter-status" style="padding: var(--pb-space-2) var(--pb-space-3); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-sm); background: var(--pb-surface); font-size: var(--pb-text-sm);">
+              <option value="">All</option>
+              <option value="auto">AUTO</option>
+              <option value="pending">Pending</option>
+              <option value="exported">Exported</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filter-sort">Sort</label>
+            <select id="filter-sort" style="padding: var(--pb-space-2) var(--pb-space-3); border: 1px solid var(--pb-border); border-radius: var(--pb-radius-sm); background: var(--pb-surface); font-size: var(--pb-text-sm);">
+              <option value="newest">Newest first</option>
+              <option value="margin-desc">Highest margin</option>
+              <option value="margin-asc">Lowest margin</option>
+              <option value="price-asc">Lowest price</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ BATCH RESULTS GRID ═════════════════════════════════════════ -->
+    <section class="ops-section" data-od-id="batch-results" id="batch-results-panel" {% if not batch_results %}style="display:none;"{% endif %}>
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Batch Results <span class="count">{{ batch_results|length }}</span></h2>
+          <div class="flex gap-2">
+            <button class="btn btn-secondary btn-sm" onclick="showToast('Exported {{ batch_results|length }} candidates to CSV')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+        <div class="grid grid-3" id="results-grid" role="list" aria-label="Batch results">
+          {% for row in batch_results %}
+          <article class="listing-card" role="listitem" tabindex="0" data-candidate-id="{{ row.candidate.pk|default:'-' }}">
+            <div class="listing-card-img" onclick="openPreview(this)" role="button" aria-label="Preview image">
+              {% if row.image_url %}
+              <img src="{{ row.image_url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+              {% else %}
+              <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,#dbeafe,#f0fdf4);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              </div>
+              {% endif %}
+            </div>
+            <div class="listing-card-body">
+              <div class="listing-card-meta">
+                {% if row.ok %}
+                <span class="chip chip-success"><span class="chip-dot"></span> AUTO</span>
+                {% else %}
+                <span class="chip chip-danger"><span class="chip-dot"></span> ERROR</span>
+                {% endif %}
+                {% if row.exported %}
+                <span class="chip chip-info"><span class="chip-dot"></span> EXPORTED</span>
+                {% else %}
+                <span class="chip chip-neutral"><span class="chip-dot"></span> PENDING</span>
+                {% endif %}
+              </div>
+              <div class="listing-card-model">{{ row.candidate.brand_text|default:"" }} {{ row.candidate.model_text|default:row.post.shortcode }}</div>
+              <div class="listing-card-variant">{{ row.category|default:"-" }} · {{ row.store_warranty|default:"No warranty info" }}</div>
+              <div class="deal-math">
+                {% include "market/partials/instagram_ocr_deal_math.html" with deal=row.deal %}
+              </div>
+              <div class="listing-card-actions">
+                <button class="btn btn-primary btn-sm flex-1" onclick="showToast('Running OCR on post {{ row.post.pk }}…')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Run OCR
+                </button>
+                <button class="btn btn-ghost btn-sm" title="View post" aria-label="View Instagram post">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+                </button>
+                <button class="btn btn-ghost btn-sm" title="Copy shortcode" aria-label="Copy shortcode">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+              </div>
+            </div>
+          </article>
+          {% empty %}
+          <div class="empty-state" style="grid-column:1/-1;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <h3>No batch results yet</h3>
+            <p>Run a batch OCR to see results here.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ RECENT CANDIDATES ═════════════════════════════════════════ -->
+    <section class="ops-section" data-od-id="recent-candidates">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Recent Candidates <span class="count">{{ recent_candidates|length }}</span></h2>
+          <button class="btn btn-ghost btn-sm">
+            View all
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+        <div class="grid grid-3" role="list" aria-label="Recent candidates">
+          {% for c in recent_candidates %}
+          <article class="listing-card" role="listitem" tabindex="0">
+            <div class="listing-card-img" onclick="openPreview(this)" role="button" aria-label="Preview image">
+              {% if c.ops_image_url %}
+              <img src="{{ c.ops_image_url }}" alt="" style="width:100%;height:100%;object-fit:cover;">
+              {% else %}
+              <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:linear-gradient(135deg,#fce7f3,#fef3c7);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.3"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+              </div>
+              {% endif %}
+            </div>
+            <div class="listing-card-body">
+              <div class="listing-card-meta">
+                <span class="chip chip-success"><span class="chip-dot"></span> {{ c.detected_category }}</span>
+                <span class="chip chip-info">conf {{ c.confidence|floatformat:2 }}</span>
+              </div>
+              <div class="listing-card-model">{{ c.brand_text }} {{ c.model_text }}</div>
+              <div class="listing-card-variant">@{{ c.raw_listing.source.username|default:"-" }} · {{ c.ops_store_warranty|default:"No warranty info" }}</div>
+              <div class="deal-math">
+                {% include "market/partials/instagram_ocr_deal_math.html" with deal=c.ops_deal %}
+              </div>
+              <div class="listing-card-actions">
+                {% if c.ops_post_id %}
+                <button class="btn btn-primary btn-sm flex-1" onclick="showToast('Running OCR on post {{ c.ops_post_id }}…')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Run OCR
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </article>
+          {% empty %}
+          <div class="empty-state" style="grid-column:1/-1;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <h3>No Instagram candidates yet</h3>
+            <p>Run OCR on posts to generate candidates.</p>
+          </div>
+          {% endfor %}
+          <!-- Skeleton loading placeholder -->
+          <article class="skeleton-card" role="listitem" aria-label="Loading candidate" aria-busy="true">
+            <div class="skeleton-img skeleton" style="aspect-ratio:4/3;"></div>
+            <div class="skeleton-body">
+              <div class="skeleton-line w-60 skeleton"></div>
+              <div class="skeleton-line w-40 skeleton"></div>
+              <div class="skeleton-line w-80 skeleton" style="margin-top:var(--pb-space-3);"></div>
+              <div class="skeleton-line w-60 skeleton"></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ═══ BATCH RUN MODAL ═════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="run-modal" role="dialog" aria-modal="true" aria-labelledby="run-modal-title" onclick="if(event.target===this)closeRunModal()">
+    <div class="modal" style="width:min(92vw,800px);">
+      <div class="modal-header">
+        <h3 id="run-modal-title">Batch OCR Run</h3>
+        <button class="modal-close" onclick="closeRunModal()" aria-label="Close modal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="flex justify-between items-center" style="margin-bottom:var(--pb-space-4);">
+          <div class="flex gap-4">
+            <div><span class="mono" style="font-size:var(--pb-text-xs);color:var(--pb-muted);">ELAPSED</span><br><span class="mono" style="font-size:var(--pb-text-lg);font-weight:600;" id="run-elapsed">00:12</span></div>
+            <div><span class="mono" style="font-size:var(--pb-text-xs);color:var(--pb-muted);">DONE</span><br><span class="mono" style="font-size:var(--pb-text-lg);font-weight:600;" id="run-done">3/5</span></div>
+            <div><span class="mono" style="font-size:var(--pb-text-xs);color:var(--pb-muted);">ERRORS</span><br><span class="mono" style="font-size:var(--pb-text-lg);font-weight:600;color:var(--pb-success);" id="run-errors">0</span></div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="showToast('Batch cancelled')">Cancel</button>
+        </div>
+        <div class="progress-bar" style="margin-bottom:var(--pb-space-5);"><div class="progress-bar-fill" style="width:60%;" id="run-progress"></div></div>
+
+        <!-- Run row 1 -->
+        <div class="run-row">
+          <div class="run-row-thumb"><div style="width:100%;height:100%;background:linear-gradient(135deg,#dbeafe,#f0fdf4);"></div></div>
+          <div class="run-row-info">
+            <div class="run-row-title">Samsung Galaxy S24 Ultra · 256GB</div>
+            <div class="run-row-meta">@algeriephones · 2h ago · post_8f3k</div>
+            <div class="run-row-progress">
+              <div class="progress-bar"><div class="progress-bar-fill success" style="width:100%;"></div></div>
+              <span class="chip chip-success" style="margin-top:var(--pb-space-1);"><span class="chip-dot"></span> Done</span>
+            </div>
+            <div class="run-row-debug">
+              <button class="debug-toggle open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                NVIDIA prompt + response
+              </button>
+              <div class="debug-content open">PROMPT: Extract brand, model, storage, condition, price from this phone listing image…
+RESPONSE: {"brand":"Samsung","model":"Galaxy S24 Ultra","storage":"256GB","condition":"Used","price_dzd":135000,"currency":"DZD"}
+PARSED: €385.00 EUR · confidence: 0.94</div>
+            </div>
+          </div>
+          <div class="deal-math" style="min-width:140px;">
+            <div class="deal-math-row"><span class="deal-math-label">Margin</span><span class="deal-math-value mono positive">+33.1%</span></div>
+            <div class="deal-math-row"><span class="deal-math-label">Gain</span><span class="deal-math-value mono positive">€68.20</span></div>
+          </div>
+        </div>
+
+        <!-- Run row 2 -->
+        <div class="run-row">
+          <div class="run-row-thumb"><div style="width:100%;height:100%;background:linear-gradient(135deg,#fef3c7,#fce7f3);"></div></div>
+          <div class="run-row-info">
+            <div class="run-row-title">iPhone 15 Pro Max · 256GB</div>
+            <div class="run-row-meta">@dz_smartdeals · 5h ago · post_2j7m</div>
+            <div class="run-row-progress">
+              <div class="progress-bar"><div class="progress-bar-fill success" style="width:100%;"></div></div>
+              <span class="chip chip-success" style="margin-top:var(--pb-space-1);"><span class="chip-dot"></span> Done</span>
+            </div>
+          </div>
+          <div class="deal-math" style="min-width:140px;">
+            <div class="deal-math-row"><span class="deal-math-label">Margin</span><span class="deal-math-value mono positive">+38.1%</span></div>
+            <div class="deal-math-row"><span class="deal-math-label">Gain</span><span class="deal-math-value mono positive">€82.50</span></div>
+          </div>
+        </div>
+
+        <!-- Run row 3 — in progress -->
+        <div class="run-row">
+          <div class="run-row-thumb"><div style="width:100%;height:100%;background:linear-gradient(135deg,#e0e7ff,#f0fdfa);"></div></div>
+          <div class="run-row-info">
+            <div class="run-row-title">Xiaomi Redmi Note 13 Pro · 256GB</div>
+            <div class="run-row-meta">@phonehubalgiers · 1d ago · post_5n9p</div>
+            <div class="run-row-progress">
+              <div class="progress-bar"><div class="progress-bar-fill" style="width:45%;"></div></div>
+              <span class="chip chip-warn" style="margin-top:var(--pb-space-1);"><span class="chip-dot"></span> Processing</span>
+            </div>
+          </div>
+          <div class="deal-math" style="min-width:140px;">
+            <div class="deal-math-row"><span class="deal-math-label">Margin</span><span class="deal-math-value mono" style="color:var(--pb-muted);">—</span></div>
+          </div>
+        </div>
+
+        <!-- Run row 4 — queued -->
+        <div class="run-row" style="opacity:0.5;">
+          <div class="run-row-thumb"><div style="width:100%;height:100%;background:#f3f4f6;"></div></div>
+          <div class="run-row-info">
+            <div class="run-row-title">Samsung Galaxy A55 · 128GB</div>
+            <div class="run-row-meta">@algeriephones · 3d ago · post_1k4r</div>
+            <div class="run-row-progress">
+              <span class="chip chip-neutral" style="margin-top:var(--pb-space-1);"><span class="chip-dot"></span> Queued</span>
+            </div>
+          </div>
+          <div></div>
+        </div>
+
+        <!-- Run row 5 — queued -->
+        <div class="run-row" style="opacity:0.5;">
+          <div class="run-row-thumb"><div style="width:100%;height:100%;background:#f3f4f6;"></div></div>
+          <div class="run-row-info">
+            <div class="run-row-title">Google Pixel 8 Pro · 128GB</div>
+            <div class="run-row-meta">@dz_smartdeals · 2d ago · post_9w2x</div>
+            <div class="run-row-progress">
+              <span class="chip chip-neutral" style="margin-top:var(--pb-space-1);"><span class="chip-dot"></span> Queued</span>
+            </div>
+          </div>
+          <div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeRunModal()">Close</button>
+        <button class="btn btn-primary" onclick="showToast('Batch completed — 5/5 processed');closeRunModal();">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Finish & Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ FX CONVERTER MODAL ══════════════════════════════════════════ -->
+  <div class="modal-overlay" id="fx-modal" role="dialog" aria-modal="true" aria-labelledby="fx-modal-title" onclick="if(event.target===this)closeFxModal()">
+    <div class="modal" style="width:min(92vw,560px);">
+      <div class="modal-header">
+        <h3 id="fx-modal-title">FX Converter</h3>
+        <div class="flex gap-2 items-center">
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Refreshing exchange rates…fetch_exchange_rates')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+            Refresh
+          </button>
+          <button class="modal-close" onclick="closeFxModal()" aria-label="Close modal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:var(--pb-text-xs);color:var(--pb-muted);margin-bottom:var(--pb-space-4);">Rates from CurrencyRate · Updated <span class="mono">2026-07-14 09:32 UTC</span></p>
+        <div class="fx-grid">
+          <div class="fx-card">
+            <div class="fx-card-label">EUR / TRY</div>
+            <div class="fx-card-rate mono">35.42</div>
+            <div class="fx-card-pair">1 EUR = 35.42 TRY</div>
+          </div>
+          <div class="fx-card">
+            <div class="fx-card-label">EUR / DZD</div>
+            <div class="fx-card-rate mono">145.80</div>
+            <div class="fx-card-pair">1 EUR = 145.80 DZD</div>
+          </div>
+          <div class="fx-card">
+            <div class="fx-card-label">USD / TRY</div>
+            <div class="fx-card-rate mono">33.12</div>
+            <div class="fx-card-pair">1 USD = 33.12 TRY</div>
+          </div>
+          <div class="fx-card">
+            <div class="fx-card-label">USD / DZD</div>
+            <div class="fx-card-rate mono">136.45</div>
+            <div class="fx-card-pair">1 USD = 136.45 DZD</div>
+            <div class="fx-stale">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              Stale (8h old)
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:var(--pb-space-6);">
+          <h4 style="font-size:var(--pb-text-sm);font-weight:600;margin-bottom:var(--pb-space-3);">Quick Convert</h4>
+          <div class="flex gap-3 items-end">
+            <div class="field flex-1">
+              <label for="fx-amount">Amount</label>
+              <input type="number" id="fx-amount" value="1000" style="padding:var(--pb-space-2) var(--pb-space-3);border:1px solid var(--pb-border);border-radius:var(--pb-radius-sm);background:var(--pb-bg);font-family:var(--pb-font-mono);font-size:var(--pb-text-sm);" />
+            </div>
+            <div class="field">
+              <label for="fx-from">From</label>
+              <select id="fx-from" style="padding:var(--pb-space-2) var(--pb-space-3);border:1px solid var(--pb-border);border-radius:var(--pb-radius-sm);background:var(--pb-bg);font-size:var(--pb-text-sm);">
+                <option>EUR</option><option>TRY</option><option>DZD</option><option>USD</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="fx-to">To</label>
+              <select id="fx-to" style="padding:var(--pb-space-2) var(--pb-space-3);border:1px solid var(--pb-border);border-radius:var(--pb-radius-sm);background:var(--pb-bg);font-size:var(--pb-text-sm);">
+                <option>TRY</option><option>EUR</option><option>DZD</option><option>USD</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" onclick="showToast('Converted: 1,000 EUR = 35,420 TRY')">Convert</button>
+          </div>
+          <div style="margin-top:var(--pb-space-4);padding:var(--pb-space-4);background:var(--pb-bg);border:1px solid var(--pb-border-soft);border-radius:var(--pb-radius-sm);">
+            <div class="flex justify-between items-center">
+              <span style="font-size:var(--pb-text-sm);color:var(--pb-muted);">Result</span>
+              <span class="mono" style="font-size:var(--pb-text-xl);font-weight:700;">35,420.00 TRY</span>
+            </div>
+            <div style="font-size:var(--pb-text-xs);color:var(--pb-muted);margin-top:var(--pb-space-1);">Using rate 35.42 · 2026-07-14 09:32 UTC</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeFxModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ IMAGE PREVIEW OVERLAY ═══════════════════════════════════════ -->
+  <div class="preview-overlay" id="preview-overlay" role="dialog" aria-modal="true" aria-label="Image preview" onclick="if(event.target===this)closePreview()">
+    <div class="preview-container">
+      <button class="preview-close" onclick="closePreview()" aria-label="Close preview">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <div id="preview-image-container" style="width:min(85vw,800px);aspect-ratio:4/3;background:linear-gradient(135deg,#dbeafe,#f0fdf4);border-radius:var(--pb-radius-md);display:flex;align-items:center;justify-content:center;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="opacity:0.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <div class="preview-meta">
+        <span id="preview-meta-text">post_8f3k · @algeriephones · 2h ago</span>
+        <div class="preview-zoom-controls">
+          <button class="preview-zoom-btn" onclick="zoomPreview(-1)" aria-label="Zoom out">−</button>
+          <button class="preview-zoom-btn" onclick="zoomPreview(0)" aria-label="Reset zoom" style="font-size:11px;">100%</button>
+          <button class="preview-zoom-btn" onclick="zoomPreview(1)" aria-label="Zoom in">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TOAST CONTAINER ═════════════════════════════════════════════ -->
+  <div class="toast-container" id="toast-container" aria-live="polite"></div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      /* ─── Toast notifications ──────────────────────────────────────── */
+      window.showToast = function(msg) {
+        var c = document.getElementById('toast-container');
+        var t = document.createElement('div');
+        t.className = 'toast';
+        t.textContent = msg;
+        t.setAttribute('role', 'alert');
+        c.appendChild(t);
+        setTimeout(function() { t.style.opacity = '0'; t.style.transition = 'opacity 200ms'; setTimeout(function() { t.remove(); }, 200); }, 3000);
+      };
+
+      /* ─── Run modal ────────────────────────────────────────────────── */
+      window.openRunModal = function() {
+        document.getElementById('run-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('run-modal').focus();
+      };
+      window.closeRunModal = function() {
+        document.getElementById('run-modal').classList.remove('open');
+        document.body.style.overflow = '';
+        document.getElementById('run-batch-btn').focus();
+      };
+
+      /* ─── FX modal ─────────────────────────────────────────────────── */
+      window.openFxModal = function() {
+        document.getElementById('fx-modal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('fx-modal').focus();
+      };
+      window.closeFxModal = function() {
+        document.getElementById('fx-modal').classList.remove('open');
+        document.body.style.overflow = '';
+      };
+
+      /* ─── Image preview ────────────────────────────────────────────── */
+      var previewZoom = 1;
+      window.openPreview = function(el) {
+        document.getElementById('preview-overlay').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        previewZoom = 1;
+        updateZoom();
+      };
+      window.closePreview = function() {
+        document.getElementById('preview-overlay').classList.remove('open');
+        document.body.style.overflow = '';
+      };
+      window.zoomPreview = function(dir) {
+        if (dir === 0) { previewZoom = 1; } else { previewZoom = Math.max(0.5, Math.min(3, previewZoom + dir * 0.25)); }
+        updateZoom();
+      };
+      function updateZoom() {
+        var container = document.getElementById('preview-image-container');
+        container.style.transform = 'scale(' + previewZoom + ')';
+        container.style.transformOrigin = 'center center';
+        var btn = document.querySelector('.preview-zoom-controls .preview-zoom-btn:nth-child(2)');
+        if (btn) btn.textContent = Math.round(previewZoom * 100) + '%';
+      }
+
+      /* ─── Keyboard shortcuts ───────────────────────────────────────── */
+      document.addEventListener('keydown', function(e) {
+        var anyModalOpen = document.querySelector('.modal-overlay.open, .preview-overlay.open');
+
+        /* Escape — close any open modal */
+        if (e.key === 'Escape') {
+          if (document.getElementById('preview-overlay').classList.contains('open')) { closePreview(); return; }
+          if (document.getElementById('run-modal').classList.contains('open')) { closeRunModal(); return; }
+          if (document.getElementById('fx-modal').classList.contains('open')) { closeFxModal(); return; }
+        }
+
+        /* Don't handle shortcuts when typing in inputs */
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') return;
+
+        /* Cmd/Ctrl + Enter — run batch */
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          e.preventDefault();
+          openRunModal();
+          return;
+        }
+
+        /* / — focus search */
+        if (e.key === '/') {
+          e.preventDefault();
+          document.getElementById('search-input').focus();
+          return;
+        }
+
+        /* f — open FX converter */
+        if (e.key === 'f' && !anyModalOpen) {
+          e.preventDefault();
+          openFxModal();
+          return;
+        }
+
+        /* Arrow key navigation in grids */
+        if ((e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') && !anyModalOpen) {
+          var cards = Array.from(document.querySelectorAll('.listing-card[tabindex="0"]'));
+          var focused = document.activeElement;
+          var idx = cards.indexOf(focused);
+          if (idx === -1) { cards[0] && cards[0].focus(); return; }
+          var cols = 3;
+          var w = window.innerWidth;
+          if (w <= 640) cols = 1; else if (w <= 1024) cols = 2;
+          var next = idx;
+          if (e.key === 'ArrowDown') next = Math.min(idx + cols, cards.length - 1);
+          else if (e.key === 'ArrowUp') next = Math.max(idx - cols, 0);
+          else if (e.key === 'ArrowRight') next = Math.min(idx + 1, cards.length - 1);
+          else if (e.key === 'ArrowLeft') next = Math.max(idx - 1, 0);
+          cards[next] && cards[next].focus();
+          e.preventDefault();
+          return;
+        }
+
+        /* o — run OCR on focused card */
+        if (e.key === 'o' && !anyModalOpen) {
+          var focused = document.activeElement;
+          if (focused && focused.classList.contains('listing-card')) {
+            var id = focused.getAttribute('data-candidate-id') || 'unknown';
+            showToast('Running OCR on ' + id + '…');
+          }
+          return;
+        }
+      });
+
+      /* ─── Simulate batch progress ──────────────────────────────────── */
+      var progress = 60;
+      var runProgress = document.getElementById('run-progress');
+      var runDone = document.getElementById('run-done');
+      var runElapsed = document.getElementById('run-elapsed');
+      var seconds = 12;
+      var progressInterval = setInterval(function() {
+        if (!document.getElementById('run-modal').classList.contains('open')) return;
+        progress = Math.min(100, progress + 2);
+        seconds++;
+        runProgress.style.width = progress + '%';
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        runElapsed.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        if (progress >= 80) { runDone.textContent = '4/5'; }
+        if (progress >= 100) {
+          runProgress.classList.add('success');
+          runDone.textContent = '5/5';
+          clearInterval(progressInterval);
+        }
+      }, 1000);
+    })();
+  </script>
+</body>
+</html>
